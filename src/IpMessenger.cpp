@@ -27,14 +27,10 @@
  * コマンドオプションの実装や、リトライ等の実装は適当であるので使用には注意が必要。
  * ログはアプリ側の実装とし、当方は関知しない。
  *
- * 各リスト（ホストリスト、受信メッセージリスト、送信メッセージリスト、添付ファイルリスト）は
- * 便利APIがあると便利だと思うがオイオイ実装する。
- *
- * automake/autoconf化もオイオイ実装する。
- *
  * 心残り
  * ・全体的にスレッドセーフでない。
- * ・クラスの分割がいまいち。
+ * ・クラスの分割がいまいち。（IpMessengerAgentの責務が多すぎる。
+ * 　プロトコルのハンドリングとアプリとのインターフェイスを分離すべき）
  * ・スタック上のインスタンスが多すぎる。もっとヒープ上にとるべき。
  * 
  * @version 0.1.0
@@ -43,7 +39,7 @@
  * @updated 2006.9.5(rc1,encrypt-decrypt function completed)
  * @target Linux(Main test environment), and Unix(no test), and more Unix clones.
  */
-  
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -86,22 +82,15 @@ using namespace std;
 #define	PACKET_FIELD_SEPERATOR_CHAR	'\a'
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version 1.0"
 
-#if defined(DEBUG) || defined(INFO)
-static inline void PrintBuf( char* bufname, char *buf, int size );
-#else
-#define PrintBuf( bufname, buf,size )
-#endif
-
 #define RSA_KEY_LENGTH_MINIMUM	512
 #define RSA_KEY_LENGTH_MIDIUM	1024
 #define RSA_KEY_LENGTH_MAXIMUM	2048
 #define ENCRYPT_PRIME			65537
-static int file_id = 0;
+
+static IpMessengerAgent *myInstance = NULL;
 
 void *GetFileDataThread( void *param );
 void *GetDirFilesThread( void *param );
-
-static IpMessengerAgent *myInstance = NULL;
 
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
@@ -143,8 +132,54 @@ IpMessengerAgent::Release()
  */
 IpMessengerAgent::IpMessengerAgent()
 {
-	time_t t;
+	CryptoInit();
+	ResetAbsence();
+	srandom( time( NULL ) );
+	converter = new NullFileNameConverter();
+	NetworkInit();
+}
 
+/**
+ * IP メッセンジャエージェントクラスのデストラクタ。
+ * ・まず、ログアウト。
+ * ・暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の破棄を行う。
+ * ・割り当て済のファイル名コンバータを削除する。
+ * ・ソケットのクローズ。
+ * 注：このインスタンスはスレッドセーフでない。
+ */
+IpMessengerAgent::~IpMessengerAgent()
+{
+	Logout();
+	CryptoEnd();
+	delete converter;
+	close(tcp_sd);
+	close(udp_sd);
+}
+
+/**
+ * ファイル名コンバータのセッター。
+ * ・割り当て済のファイル名コンバータを削除する。
+ * ・新しいコンバータの割り当て。
+ * 注：このメソッドはスレッドセーフでない。
+ * @param conv コンバータのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
+ */
+void
+IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
+{
+	if ( conv == NULL ){
+		return;
+	}
+	delete converter;
+	converter = conv;
+}
+
+/**
+ * 暗号関連の初期化。
+ * 注：このメソッドはスレッドセーフでない。
+ */
+void
+IpMessengerAgent::CryptoInit()
+{
 #ifdef WITH_OPENSSL
 	ERR_load_crypto_strings();
 	char errbuf[1024];
@@ -203,26 +238,15 @@ IpMessengerAgent::IpMessengerAgent()
 	encryptionCapacity |= IPMSG_BLOWFISH_256;
 #endif	//SUPPORT_BLOWFISH_256
 #endif	//WITH_OPENSSL
-	ResetAbsence();
-	converter = new NullFileNameConverter();
-
-	time( &t );
-	srandom( t );
-
-	Init();
 }
 
 /**
- * IP メッセンジャエージェントクラスのデストラクタ。
- * ・まず、ログアウト。
- * ・暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の破棄を行う。
- * ・割り当て済のファイル名コンバータを削除する。
- * ・ソケットのクローズ。
- * 注：このインスタンスはスレッドセーフでない。
+ * 暗号関連の終期化。
+ * 注：このメソッドはスレッドセーフでない。
  */
-IpMessengerAgent::~IpMessengerAgent()
+void
+IpMessengerAgent::CryptoEnd()
 {
-	Logout();
 #ifdef WITH_OPENSSL
 	if ( RsaMin != NULL ) {
 		RSA_free( RsaMin );
@@ -235,38 +259,17 @@ IpMessengerAgent::~IpMessengerAgent()
 	}
 	ERR_free_strings();
 #endif	//WITH_OPENSSL
-	delete converter;
-	close(tcp_sd);
-	close(udp_sd);
-}
-
-
-/**
- * ファイル名コンバータのセッター。
- * ・割り当て済のファイル名コンバータを削除する。
- * ・新しいコンバータの割り当て。
- * 注：このメソッドはスレッドセーフでない。
- * @param conv コンバータのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
- */
-void
-IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
-{
-	if ( conv == NULL ){
-		return;
-	}
-	delete converter;
-	converter = conv;
 }
 
 /**
  * ネットワーク関連の初期化。
  * ・環境変数からホスト名を取得。（出来なければlocalhost固定）
  * ・環境変数からユーザ名を取得。（出来なければuid）
- * ・使用するネットワークインターフェイスのIPアドレスを求める。（TODO:現在は"eth0"固定）
+ * ・使用するネットワークインターフェイスのIPアドレスを求める。（ TODO :現在は"eth0"固定）
  * 注：このメソッドはスレッドセーフでない。
  */
 void
-IpMessengerAgent::Init()
+IpMessengerAgent::NetworkInit()
 {
 	char buf[100];
 	char *env;
@@ -345,9 +348,7 @@ IpMessengerAgent::Login( string nickname, string groupName )
 	optBufLen += GroupName.size();
 	optBuf[ optBufLen ] = '\0';
 	
-#if defined(DEBUG)
-	PrintBuf( "Login:sendBuf", sendBuf, MAX_UDPBUF );
-#endif
+	IpMsgPrintBuf( "Login:sendBuf", sendBuf, MAX_UDPBUF );
 #ifdef WITH_OPENSSL
 	if ( encryptionCapacity != 0UL ) {
 		sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ENTRY | IPMSG_FILEATTACHOPT | IPMSG_ENCRYPTOPT,
@@ -497,63 +498,16 @@ IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes 
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, unsigned long opt )
-{
-	AttachFileList files;
-	return SendMsg( false, 1, host, msg, isSecret, files, opt );
-}
-
-/**
- * メッセージ送信。
- * @param hostCountAtSameTime 同時送信ホスト数
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, unsigned long opt )
-{
-	AttachFileList files;
-	return SendMsg( false, hostCountAtSameTime, host, msg, isSecret, files, opt );
-}
-
-/**
- * メッセージ送信。
- * @param isLockPassword 錠つきかどうかを示すフラグ
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( bool isLockPassword, HostListItem host, string msg, bool isSecret, unsigned long opt )
-{
-	AttachFileList files;
-	return SendMsg( isLockPassword, 1, host, msg, isSecret, files, opt );
-}
-
-/**
- * メッセージ送信。
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
  * @param opt 送信オプション
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgent::SendMsg( bool isLockPassword, int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
 {
 	AttachFileList files;
-	return SendMsg( isLockPassword, hostCountAtSameTime, host, msg, isSecret, files, opt );
+	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, opt );
 }
 
 /**
@@ -562,70 +516,17 @@ IpMessengerAgent::SendMsg( bool isLockPassword, int hostCountAtSameTime, HostLis
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
  * @param file 添付ファイル
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt )
-{
-	AttachFileList files;
-	files.AddFile( file );
-	return SendMsg( false, 1, host, msg, isSecret, files, opt );
-}
-
-/**
- * メッセージ送信。
- * @param hostCountAtSameTime 同時送信ホスト数
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param file 添付ファイル
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt )
-{
-	AttachFileList files;
-	files.AddFile( file );
-	return SendMsg( false, hostCountAtSameTime, host, msg, isSecret, files, opt );
-}
-
-/**
- * メッセージ送信。
- * @param isLockPassword 錠つきかどうかを示すフラグ
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param file 添付ファイル
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( bool isLockPassword, HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt )
-{
-	AttachFileList files;
-	files.AddFile( file );
-	return SendMsg( isLockPassword, 1, host, msg, isSecret, files, opt );
-}
-
-/**
- * メッセージ送信。
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param file 添付ファイル
  * @param opt 送信オプション
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgent::SendMsg( bool isLockPassword, int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
 {
 	AttachFileList files;
 	files.AddFile( file );
-	return SendMsg( isLockPassword, hostCountAtSameTime, host, msg, isSecret, files );
+	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, opt );
 }
 
 /**
@@ -634,60 +535,13 @@ IpMessengerAgent::SendMsg( bool isLockPassword, int hostCountAtSameTime, HostLis
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
  * @param files 添付ファイル群
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt )
-{
-	return SendMsg( false, 1, host, msg, isSecret, files );
-}
-
-/**
- * メッセージ送信。
- * @param hostCountAtSameTime 同時送信ホスト数
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param files 添付ファイル群
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt )
-{
-	return SendMsg( false, hostCountAtSameTime, host, msg, isSecret, files );
-}
-
-/**
- * メッセージ送信。
- * @param isLockPassword 錠つきかどうかを示すフラグ
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param files 添付ファイル群
- * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
- */
-SentMessage
-IpMessengerAgent::SendMsg( bool isLockPassword, HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt )
-{
-	return SendMsg( isLockPassword, 1, host, msg, isSecret, files );
-}
-
-/**
- * メッセージ送信。
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
- * @param host 送信先ホスト
- * @param msg 送信メッセージ
- * @param isSecret 封書かどうかを示すフラグ
- * @param files 添付ファイル群
  * @param opt 送信オプション
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgent::SendMsg( bool isLockPassword, int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -710,7 +564,7 @@ IpMessengerAgent::SendMsg( bool isLockPassword, int hostCountAtSameTime, HostLis
 	}
 #endif	//WITH_OPENSSL
 	optBuf[optBufLen++] = '\0';
-	PrintBuf( "optBuf:", optBuf, optBufLen );
+	IpMsgPrintBuf( "optBuf:", optBuf, optBufLen );
 
 	for( vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
 		ixfile->GetLocalFileInfo();
@@ -1032,8 +886,8 @@ IpMessengerAgent::DecryptMsg( Packet &packet )
 		return false;
 	}
 	memcpy( file_info, file_ptr, file_info_len );
-	PrintBuf("file_ptr:", file_ptr, file_info_len);
-	PrintBuf("file_info:", file_info, file_info_len);
+	IpMsgPrintBuf("file_ptr:", file_ptr, file_info_len);
+	IpMsgPrintBuf("file_info:", file_info, file_info_len);
 
 	char *token = buf;
 	char *nextpos;
@@ -1315,13 +1169,13 @@ IpMessengerAgent::DecryptMsg( Packet &packet )
 	free( emsg_buf );
 	
 	if ( file_info_len > 0 ){
-PrintBuf( "optBuf(1):", (char *)optBuf, tmp_len );
-PrintBuf( "file_info:", (char *)file_info, file_info_len );
+		IpMsgPrintBuf( "optBuf(1):", (char *)optBuf, tmp_len );
+		IpMsgPrintBuf( "file_info:", (char *)file_info, file_info_len );
 		memcpy( &optBuf[tmp_len+1], file_info, file_info_len );
 		tmp_len += ( file_info_len + 1 );
 	}
 	packet.setOption( string( (char *)optBuf, tmp_len ) );
-PrintBuf( "optBuf(2):", (char *)optBuf, tmp_len );
+	IpMsgPrintBuf( "optBuf(2):", (char *)optBuf, tmp_len );
 	free( optBuf );
 	free( file_info );
 	return true;
@@ -1569,6 +1423,12 @@ IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )
 	}
 }
 
+/**
+ * パケットNoで送信済メッセージリストから送信済メッセージのイテレータを取得する。
+ * @param PacketNo パケットNo
+ * @retval 送信済メッセージのイテレータ。（見付からない場合sentMsgList.end()）
+ * 注：このメソッドはスレッドセーフでない。
+ */
 vector<SentMessage>::iterator
 IpMessengerAgent::FindSentMessageByPacketNo( unsigned long PacketNo )
 {
@@ -1598,52 +1458,6 @@ IpMessengerAgent::InitSend()
 	broadcastAddr.push_back( addr );
 }
 
-#if defined(DEBUG) || defined(INFO)
-
-/**
- * バッファをプリントする。
- * ・（"\x01\x01\x42\x1b"の場合、"(\01 2times)A(\1b)"と表示する）
- * @param bufname バッファタイトル
- * @param buf バッファ
- * @param size バッファサイズ
- * 注：このメソッドはスレッドセーフでない。
- */
-void
-PrintBuf( char* bufname, char *buf, int size )
-{
-	int continue_count = 0;
-	unsigned char pchar = *buf;
-	bool can_not_print = true;
-	printf("%s[", bufname);
-	for( int i = 0; i < size; i++ ){
-		if ( !isprint( buf[i] ) && buf[i] != 0x20 ) {
-			if ( pchar != buf[i] ){
-				printf( "(\\%02x", (unsigned char)buf[i] );
-			}
-			continue_count++;
-			can_not_print = true;
-		}else{
-			putchar( buf[i] );
-			can_not_print = false;
-		}
-		if ( pchar == buf[i] ){
-		} else {
-			if ( can_not_print ) {
-				if ( continue_count > 1 ) {
-					printf( " %dtimes)", continue_count );
-				} else {
-					printf( ")" );
-				}
-				continue_count = 0;
-			}
-		}
-		pchar = buf[i];
-	}
-	printf( "]\n" );
-	fflush(stdout);
-}
-#endif
-
 /**
  * TCPパケットの送信を行う。
  * @param sd ソケットディスクリプタ
@@ -1656,8 +1470,8 @@ IpMessengerAgent::SendTcpPacket( int sd, char *buf, int size )
 {
 #if defined(DEBUG)
 	printf("== S E N D   T C P ====================================>\n");
-	PrintBuf( "SendTcpPacket:SendTcpBufer", buf, size );
 #endif
+	IpMsgPrintBuf( "SendTcpPacket:SendTcpBufer", buf, size );
 	int ret = 0;
 	ret = send( sd, buf, size + 1, 0 );
 #if defined(DEBUG)
@@ -1682,7 +1496,7 @@ IpMessengerAgent::SendPacket( char *buf, int size, struct sockaddr_in to_addr )
 	printf("== S E N D ============================================>\n");
 	printf( "Send  %s(%d)\n", inet_ntoa( to_addr.sin_addr ), ntohs( to_addr.sin_port ) );
 #endif
-	PrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
+	IpMsgPrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
 	int ret = 0;
 	ret = sendto( udp_sd, buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
 #if defined(DEBUG)
@@ -1708,8 +1522,8 @@ IpMessengerAgent::SendBroadcast( char *buf, int size )
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 		printf( "Send To %s(%d)\n", inet_ntoa( ixaddr->sin_addr ), ntohs( ixaddr->sin_port ) );
 	}
-	PrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 #endif
+	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 		int ret = 0;
 		ret = sendto( udp_sd, buf, size + 1, 0, ( struct sockaddr * )&(*ixaddr), sizeof( struct sockaddr ) );
@@ -1891,486 +1705,6 @@ IpMessengerAgent::RecvPacket()
 		}
 	}
 	return ret;
-}
-
-/**
- * ファイル受信処理。
- * ・サーバにファイル受信要求パケットを送信し、ファイルを受信する。
- * 注：このメソッドはスレッドセーフでない。
- */
-bool
-RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info )
-{
-	struct sockaddr_in svr_addr;
-	int sock = socket( AF_INET, SOCK_STREAM, 0 );
-
-	svr_addr = MessagePacket().Addr();
-#if defined(DEBUG)
-printf("IP[%s]\n", inet_ntoa( svr_addr.sin_addr ) );
-fflush(stdout);
-#endif
-	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
-#if defined(DEBUG)
-		printf("errno=[%s][%d]\n", strerror(errno), errno);
-#endif
-		herror("connect");
-		return false;
-	}
-
-	IpMessengerAgent *agent = IpMessengerAgent::GetInstance();
-
-	char sendBuf[MAX_UDPBUF];
-	int sendBufLen;
-	char optBuf[MAX_UDPBUF];
-	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
-	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETFILEDATA,
-												 agent->GetLoginName(), agent->GetHostName(),
-												 optBuf, optBufLen,
-												 sendBuf, sizeof( sendBuf ) );
-	agent->SendTcpPacket( sock, sendBuf, sendBufLen );
-	file.setIsDownloading( true );
-	int fd = open( saveFileNameFullPath.c_str(), O_WRONLY | O_CREAT );
-	if ( fd < 0 ){
-		perror("open");
-		return false;
-	}
-	fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
-	char readbuf[MAX_UDPBUF];
-	long long readSize = 0LL;
-	long long wroteSize = 0LL;
-	time_t startTime = time( NULL );
-	int read_len = recv( sock, readbuf, file.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : file.FileSize() - readSize, 0 );
-	readSize += read_len;
-	while( read_len > 0 ){
-		int wrote_len = write( fd, readbuf, read_len );
-		wroteSize += wrote_len;
-		read_len = recv( sock, readbuf, file.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : file.FileSize() - readSize, 0 );
-		readSize += read_len;
-	}
-	printf("close");
-	close( fd );
-	close( sock );
-	struct utimbuf ubuf;
-	ubuf.actime = ubuf.modtime = file.MTime();
-	utime( saveFileNameFullPath.c_str(), &ubuf );
-	file.setIsDownloading( false );
-	file.setIsDownloaded( true );
-	info.setSize( readSize );
-	info.setTime( time( NULL ) - startTime );
-	info.setFileCount( 1L );
-	return true;
-}
-
-/**
- * ディレクトリ受信処理。
- * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
- * 注：このメソッドはスレッドセーフでない。
- */
-bool
-RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info )
-{
-	NullFileNameConverter *codec = new NullFileNameConverter();
-	bool ret = DownloadDir( file, saveName, saveBaseDir, info, codec );
-	delete codec;
-	return ret;
-}
-
-/**
- * ディレクトリ受信処理（ファイル名コンバータオプション付き）。
- * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
- * 注：このメソッドはスレッドセーフでない。
- */
-bool
-RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv )
-{
-	if ( conv == NULL ) {
-		return false;
-	}
-	struct stat st;
-	string saveBaseDirFormal = saveBaseDir;
-	if ( saveBaseDirFormal.at( saveBaseDirFormal.length() - 1 ) != '/' ) {
-		saveBaseDirFormal = saveBaseDir + "/";
-	}
-	string saveDir = saveBaseDirFormal + saveName + "/";
-
-	if ( stat( saveBaseDir.c_str(), &st ) != 0 ) {
-		perror("stat");
-		printf("saveBaseDir == [%s]\n", saveBaseDir.c_str());
-		return false;
-	}
-	if ( mkdir( saveDir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
-		perror("mkdir");
-		printf("saveDir == [%s]\n", saveDir.c_str());
-		return false;
-	}
-
-	struct sockaddr_in svr_addr;
-	int sock = socket( AF_INET, SOCK_STREAM, 0 );
-
-	svr_addr.sin_family = AF_INET;
-	svr_addr.sin_port = IPMSG_DEFAULT_PORT;
-	svr_addr.sin_addr = MessagePacket().Addr().sin_addr;
-	svr_addr = MessagePacket().Addr();
-	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
-		perror("connect");
-		return false;
-	}
-
-	IpMessengerAgent *agent = IpMessengerAgent::GetInstance();
-
-	char sendBuf[MAX_UDPBUF];
-	int sendBufLen;
-	char optBuf[MAX_UDPBUF];
-	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x", MessagePacket().PacketNo(), file.FileId() );
-	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETDIRFILES,
-												 agent->GetLoginName(), agent->GetHostName(),
-												 optBuf, optBufLen,
-												 sendBuf, sizeof( sendBuf ) );
-	agent->SendTcpPacket( sock, sendBuf, sendBufLen );
-
-	char readbuf[MAX_UDPBUF];
-	bool isEob = false;
-	bool isTopDir = true;
-	vector<string> dir;
-	dir.push_back( saveBaseDir );
-	dir.push_back( saveName );
-
-	file.setIsDownloading( true );
-	long long totalReadSize = 0LL;
-	long totalFileCount = 0L;
-	time_t startTime = time( NULL );
-#define HEADER_LENGTH_LEN	5
-#if defined(DEBUG)
-	printf("start DIR [%s]\n", AttachFile::CreateDirFullPath( dir ).c_str() );
-#endif
-	while( !isEob ){
-#if defined(DEBUG)
-		fflush(stdout);
-		printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );
-		printf("AttachFile::CreateDirFullPath( dir )[%s]\n", AttachFile::CreateDirFullPath( dir ).c_str() );
-#endif
-		if ( saveBaseDirFormal == AttachFile::CreateDirFullPath( dir ) ) {
-			isEob = true;
-			break;
-		}
-		memset( readbuf, 0, sizeof( readbuf ) );
-		int read_len = recv( sock, readbuf, HEADER_LENGTH_LEN, 0 );
-		if ( read_len < 0 ) {
-			perror("recv");
-			isEob = true;
-			break;
-		}
-#if defined(DEBUG)
-printf("HEADER=%d\n", read_len );
-PrintBuf( "DownloadDir:readbuf", readbuf, read_len );
-#endif
-		if ( read_len < HEADER_LENGTH_LEN ) {
-			isEob = true;
-			break;
-		}
-		readbuf[read_len] = 0;
-		char *dmyptr;
-		int header_len = strtoul( readbuf, &dmyptr, 16 );
-		memset( readbuf, 0, sizeof( readbuf ) );
-		read_len = recv( sock, readbuf, header_len - HEADER_LENGTH_LEN, 0 );
-#if defined(DEBUG)
-printf("NEXT RECV=%d\n", header_len - HEADER_LENGTH_LEN);
-PrintBuf( "DownloadDir:readbuf2", readbuf, read_len );
-#endif
-		if ( read_len < 0 ) {
-			perror("recv");
-			isEob = true;
-			break;
-		}
-		if ( read_len < header_len - HEADER_LENGTH_LEN ) {
-			isEob = true;
-			break;
-		}
-		readbuf[read_len] = 0;
-		AttachFile f = AttachFile::AnalyzeHeader( readbuf, conv );
-		if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_REGULAR ) {
-			long long readSize = 0LL;
-			long long wroteSize = 0LL;
-			string FullPath = AttachFile::CreateDirFullPath( dir ) + f.FileName();
-			int fd = open( FullPath.c_str(), O_WRONLY | O_CREAT );
-			if ( fd < 0 ){
-				perror("open");
-				return false;
-			}
-			fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
-			memset( readbuf, 0, sizeof( readbuf ) );
-#if defined(DEBUG)
-printf("FileSize=%lld\n", f.FileSize() );
-fflush(stdout);
-#endif
-			int read_len = recv( sock, readbuf, f.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : f.FileSize() - readSize, 0 );
-#if defined(DEBUG)
-//PrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
-#endif
-			readSize += read_len;
-			while( read_len > 0 ){
-				if ( read_len < 0 ) {
-					perror("recv");
-					isEob = true;
-					break;
-				}
-
-				wroteSize += write( fd, readbuf, read_len );
-				memset( readbuf, 0, sizeof( readbuf ) );
-				read_len = recv( sock, readbuf, f.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : f.FileSize() - readSize, 0 );
-#if defined(DEBUG)
-//PrintBuf( "DownloadDir:readbuf4", readbuf, read_len );
-#endif
-				readSize += read_len;
-				totalReadSize += read_len;
-			}
-			close( fd );
-			struct utimbuf ubuf;
-			ubuf.actime = ubuf.modtime = f.MTime();
-			utime( FullPath.c_str(), &ubuf );
-			info.setSize( totalReadSize );
-			info.setTime( time( NULL ) - startTime );
-			info.setFileCount( ++totalFileCount );
-#if defined(DEBUG)
-			printf("read=%lld,wrote=%lld\n", readSize, wroteSize);
-#endif
-		} else if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_DIR ) {
-			if ( isTopDir ) {
-				isTopDir = false;
-				continue;
-			}
-			dir.push_back( f.FileName().c_str() );
-			string FullPath = f.CreateDirFullPath( dir );
-			if ( mkdir( FullPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
-				perror("mkdir");
-				isEob = true;
-				break;
-			}
-			info.setTime( time( NULL ) - startTime );
-			info.setFileCount( ++totalFileCount );
-		} else if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_RETPARENT ) {
-			dir.pop_back();
-		}
-	}
-#if defined(DEBUG)
-	printf("close socket");
-	fflush(stdout);
-#endif
-	close( sock );
-	file.setIsDownloading( false );
-	file.setIsDownloaded( true );
-	info.setSize( totalReadSize );
-	info.setTime( time( NULL ) - startTime );
-	info.setFileCount( totalFileCount );
-	return true;
-}
-
-/**
- * 添付ファイル一覧からフルパスで検索
- * @param fullParh 検索対象のフルパス
- * @retval 見付かったAttachFileのイテレータ。見付からない場合end();
- */
-vector<AttachFile>::iterator
-AttachFileList::FindByFullPath( string fullPath )
-{
-	for( vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
-		if ( i->FullPath() == fullPath ) {
-			return i;
-		}
-	}
-	return end();
-}
-
-/**
- * 添付ファイルオブジェクトが自分と一致するかを返す。
- * @param item 添付ファイル
- * @retval 添付ファイルオブジェクトへのイテレータ
- */
-vector<AttachFile>::iterator
-AttachFileList::FindByFileId( int file_id )
-{
-	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
-		printf( "file_id  %d\n", file_id );
-		printf( "ixfile->FileId %d\n", ixfile->FileId() );
-		printf( "ixfile->FileName %s\n", ixfile->FileName().c_str() );
-		fflush( stdout );
-		if ( file_id == ixfile->FileId() ) {
-			return ixfile;
-		}
-	}
-	return end();
-}
-
-/**
- * 添付ファイルコンストラクタ
- * ・file_id+1でファイルidを初期化。
- */
-AttachFile::AttachFile()
-{
-	printf("file_id before     == %d\n", file_id );
-	_FileId = file_id++;
-	printf("AttachFile::FileId == %d\n", FileId() );
-	printf("file_id after      == %d\n", file_id );
-}
-
-/**
- * 添付ファイル情報取得
- */
-void
-AttachFile::GetLocalFileInfo()
-{
-	struct stat st;
-	unsigned int loc = FullPath().find_last_of( '/' );
-	string filename, location;
-	if ( loc == string::npos ) {
-		filename = FullPath();
-	} else {
-		location = FullPath().substr( 0, loc );
-		filename = FullPath().substr( loc + 1 );
-	}
-	setFileName( filename );
-	setLocation( location );
-	stat( FullPath().c_str(), &st );
-	setAttr( 0 );
-	if ( S_ISDIR( st.st_mode ) ) {
-		setAttr( IPMSG_FILE_DIR );
-		st.st_size = 0;
-	} else {
-		setAttr( IPMSG_FILE_REGULAR );
-	}
-	setMTime( st.st_mtime );
-	setIsDownloaded( false );
-	setIsDownloading( false );
-	setFileSize( st.st_size );
-}
-
-/**
- * 添付ファイルが一般ファイルかどうかを判定。
- * @retval 一般ファイル:true／一般ファイルでない:false
- */
-bool
-AttachFile::IsRegularFile()
-{
-	return GET_FILETYPE( Attr() ) == IPMSG_FILE_REGULAR;
-}
-
-/**
- * 添付ファイルがディレクトリかどうかを判定。
- * @retval ディレクトリ:true／ディレクトリでない:false
- */
-bool
-AttachFile::IsDirectory()
-{
-	return GET_FILETYPE( Attr() ) == IPMSG_FILE_DIR;
-}
-
-/**
- * ディレクトリスタックからフルパスを生成する。
- * @param dirstack ディレクトリスタック
- * @retval フルパス
- */
-string
-AttachFile::CreateDirFullPath( vector<string> dirstack )
-{
-	string retdir = "";
-	for( vector<string>::iterator d = dirstack.begin(); d != dirstack.end(); d++ ){
-		if ( *d != "" ) {
-			retdir += *d + ( d->at(d->size() - 1) == '/' ? "" : "/" );
-			printf("retdir = %s\n", retdir.c_str());
-		}
-	}
-	return retdir;
-}
-
-/**
- * ディレクトリ要求電文の応答からディレクトリ構造ヘッダを解析し、添付ファイルオブジェクトを生成する。
- * @param buf バッファ
- * @param conv ファイル名コンバータ
- * @retval 添付ファイルオブジェクト
- */
-AttachFile
-AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
-{
-	char tmpbuf[100];
-	int len = strlen( buf );
-	int j = 0;
-	int pos = 0;
-	AttachFile f;
-	for( int i=0; i < len; i++ ) {
-		if ( buf[i] == ':' ) {
-			if ( buf[i+1] != ':' ) {
-				tmpbuf[j] = 0;
-				pos = ++i;
-				f.setFileName( conv->ConvertNetworkToLocal( tmpbuf ) );
-				break;
-			} else {
-				i++;
-			}
-		}
-		tmpbuf[j] = buf[i];
-		j++;
-	}
-	char *dmyptr;
-	string size = "";
-	j = 0;
-	for( int i=pos; i < len; i++ ){
-		if ( buf[i] == ':' ) {
-			tmpbuf[j] = 0;
-			size = tmpbuf;
-			pos = ++i;
-			break;
-		}
-		tmpbuf[j] = buf[i];
-		j++;
-	}
-	f.setFileSize( strtoull( size.c_str(), &dmyptr, 16 ) );
-
-	string fattr = "";
-	j = 0;
-	for( int i=pos; i < len; i++ ){
-		if ( buf[i] == ':' ) {
-			tmpbuf[j] = 0;
-			fattr = tmpbuf;
-			pos = ++i;
-			break;
-		}
-		tmpbuf[j] = buf[i];
-		j++;
-	}
-	f.setAttr( strtoull( fattr.c_str(), &dmyptr, 16 ) );
-
-	while( buf[pos] != '\0' ) {
-		j = 0;
-		string fextattr = "";
-		for( int i=pos; i < len; i++ ){
-			if ( buf[i] == ':' ) {
-				tmpbuf[j] = 0;
-				fextattr = tmpbuf;
-				int eqpos = -1;
-				for( int k = 0; tmpbuf[k] != '\0'; k++ ){ 
-					if ( tmpbuf[k] == '=' ) {
-						tmpbuf[k] = '\0';
-						eqpos = k + 1;
-						break;
-					}
-				}
-				if ( eqpos >= 0 ) {
-					dmyptr = tmpbuf;
-					char *topchar = dmyptr;
-					while( *dmyptr != '\0' ) {
-						f.addExtAttrs( tmpbuf, strtoul( topchar, &dmyptr, 16 ) );
-						topchar = ++dmyptr;
-					}
-					pos = ++i;
-					break;
-				}
-			}
-			tmpbuf[j] = buf[i];
-			j++;
-		}
-	}
-
-	return f;
 }
 
 /**
@@ -3032,27 +2366,6 @@ IpMessengerAgent::FindSentMessageByPacket( Packet packet )
 }
 
 /**
- * パケットから添付ファイルを検索します。
- * ・パケットからファイルIDを抽出しファイルIDを基に添付ファイルを検索し、AttachFileのイテレータを返します。
- * @param packet パケットオブジェクト
- * @retval AttachFileのイテレータ。見付からない場合、end()を返す。
- */
-vector<AttachFile>::iterator
-SentMessage::FindAttachFileByPacket( Packet packet )
-{
-	char *dmyptr;
-	char *startptr;
-	strtoul( packet.Option().c_str(), &dmyptr, 16 );
-	startptr = ++dmyptr;
-	int packet_file_id = strtoul( startptr, &dmyptr, 16 );
-	startptr = ++dmyptr;
-
-	vector<AttachFile>::iterator FoundFile;
-	FoundFile = Files().FindByFileId( packet_file_id );
-	return FoundFile;
-}
-
-/**
  * パケットからオフセットを取得します。
  * ・パケットからオフセットを抽出し返します。
  * @param packet パケットオブジェクト
@@ -3470,17 +2783,13 @@ printf("File List Buffer = [%s]\n", file_list_tmp_buf);
 fflush(stdout);
 #endif
 
-#if defined(DEBUG) || !defined(NDEBUG)
-PrintBuf("CreateAttachedFileList:file_list_tmp_buf",  file_list_tmp_buf, alloc_size );
-#endif
+	IpMsgPrintBuf("CreateAttachedFileList:file_list_tmp_buf",  file_list_tmp_buf, alloc_size );
 
 	// USER NAME(1st)
 	file_list_tmp_ptr = file_list_tmp_buf;
 	token = strtok_r( file_list_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
-#if defined(DEBUG) || !defined(NDEBUG)
-PrintBuf("CreateAttachedFileList:file_list_tmp_ptr",  file_list_tmp_ptr, alloc_size );
-PrintBuf("CreateAttachedFileList:token",  token, alloc_size );
-#endif
+	IpMsgPrintBuf("CreateAttachedFileList:file_list_tmp_ptr",  file_list_tmp_ptr, alloc_size );
+	IpMsgPrintBuf("CreateAttachedFileList:token",  token, alloc_size );
 
 	while( token != NULL ) {
 		bool eob = false;
@@ -3792,69 +3101,6 @@ IpMessengerAgent::CloneSentMessages()
 }
 
 /**
- * ホスト情報をホストリストに追加する。
- * @param host ホスト情報
- */
-void HostList::AddHost( HostListItem host )
-{
-	bool is_found = false;
-	for( unsigned int i = 0; i < items.size(); i++ ){
-		if ( host.Equals( items.at( i ) ) ) {
-			is_found = true;
-			break;
-		}
-	}
-	if ( !is_found ) {
-		items.push_back( host );
-	}
-}
-
-/**
- * ホスト情報をホストリストから削除する。
- * @param ホスト名
- */
-void HostList::DeleteHost( string hostname )
-{
-	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
-		if ( ix->HostName() == hostname ) {
-			items.erase( ix );
-			break;
-		}
-	}
-}
-
-/**
- * ホストリスト送信用文字列を作成する。
- * @param start 開始位置
- */
-string HostList::ToString( int start )
-{
-	char buf[MAX_UDPBUF];
-	string ret;
-	unsigned int max;
-
-	max = start + HOST_LIST_SEND_MAX_AT_ONCE - 1;
-	if ( max > items.size() ) {
-		max = items.size();
-	}
-	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , max - start < 0 ? 0 : max - start );
-	ret = buf;
-	for( unsigned int i = start ; i < max; i++ ){
-		HostListItem item = items.at( i );
-		sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
-						item.UserName() == "" ? "\b" : item.UserName().c_str(),
-						item.HostName() == "" ? "\b" : item.HostName().c_str(),
-						item.CommandNo(),
-						item.IpAddress() == "" ? "\b" : item.IpAddress().c_str(),
-						htons( item.PortNo() ),
-						item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
-						item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
-		ret = ret + buf;
-	}
-	return ret;
-}
-
-/**
  * 送信用バッファを作成する。
  * @param cmd コマンド
  * @param packetNo パケット番号
@@ -4015,48 +3261,6 @@ IpMessengerAgent::DismantlePacketBuffer( char *packet_buf, int size, struct sock
 	ret.setOption( string( nextpos, optLen ) );
 	free( packet_tmp_buf );
 	return ret;
-}
-
-/**
- * パケットオブジェクトからホストリストアイテムを生成する。
- * @param packet パケットオブジェクト
- * @retval ホストリストアイテム
- */
-HostListItem HostList::CreateHostListItemFromPacket( Packet packet )
-{
-	HostListItem ret;
-	ret.setHostName( packet.HostName() );
-	ret.setUserName( packet.UserName() );
-	ret.setCommandNo( packet.CommandMode() | packet.CommandOption() );
-	ret.setIpAddress( inet_ntoa( packet.Addr().sin_addr ) );
-#if defined(INFO) || !defined(NDEBUG)
-	printf( "CreateHostListItemFromPacket port %d\n", packet.Addr().sin_port );
-#endif
-	ret.setPortNo( packet.Addr().sin_port );
-	unsigned int loc = packet.Option().find_first_of( '\0' );
-	if ( loc == string::npos ) {
-		ret.setNickname( packet.Option() );
-		ret.setGroupName( "" );
-	} else {
-		ret.setNickname( packet.Option().substr( 0, loc ) );
-		ret.setGroupName( packet.Option().substr( loc + 1 ) );
-	}
-	return ret;
-}
-
-/**
- * ホストリストアイテムオブジェクトが自分と一致するかを返す。
- * @param item ホストリストアイテム
- * @retval 一致：true／一致しない：false
- */
-bool HostListItem::Equals( HostListItem item )
-{
-	return	item.UserName() == UserName() &&
-			item.HostName() == HostName() &&
-			item.IpAddress() == IpAddress();
-//			item.Nickname() == Nickname() &&
-//			item.GroupName() == GroupName() &&
-//			item.PortNo() == PortNo();
 }
 
 //end of source

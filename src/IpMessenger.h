@@ -266,18 +266,9 @@ class IpMessengerAgent {
 		void Logout();
 		HostList& GetHostList();
 		HostList& UpdateHostList();
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, unsigned long opt=0UL );
-		SentMessage SendMsg( int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, unsigned long opt=0UL );
-		SentMessage SendMsg( bool isLockPassword, HostListItem host, string msg, bool isSecret, unsigned long opt=0UL );
-		SentMessage SendMsg( bool isLockPassword, int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt=0UL );
-		SentMessage SendMsg( int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt=0UL );
-		SentMessage SendMsg( bool isLockPassword, HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt=0UL );
-		SentMessage SendMsg( bool isLockPassword, int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFile file, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt=0UL );
-		SentMessage SendMsg( int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt=0UL );
-		SentMessage SendMsg( bool isLockPassword, HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt=0UL );
-		SentMessage SendMsg( bool isLockPassword, int hostCountAtSameTime, HostListItem host, string msg, bool isSecret, AttachFileList files, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
 		void ResetAbsence();
 		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
 		vector<string> GetGroupList();
@@ -327,7 +318,9 @@ class IpMessengerAgent {
 
 		IpMessengerAgent();
 		~IpMessengerAgent();
-		void Init();
+		void CryptoInit();
+		void CryptoEnd();
+		void NetworkInit();
 		void InitSend();
 		void InitRecv();
 		int RecvPacket();
@@ -380,5 +373,11 @@ class IpMessengerAgent {
 		void SendFile( int sock, string FileName );
 		void SendDirData( int sock, string cd, string dir, vector<string> &files );
 };
+
+#if defined(DEBUG) || defined(INFO)
+void IpMsgPrintBuf( char* bufname, char *buf, int size );
+#else
+#define IpMsgPrintBuf( bufname, buf,size )
+#endif
 
 #endif
