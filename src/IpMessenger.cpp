@@ -2044,13 +2044,13 @@ printf("Send(%s)\n", sendBuf);
 	}
 
 #if defined(INFO) || !defined(NDEBUG)
-printf("CHECK ENCRYPT[Packet = %lu]\n", packet.PacketNo() );
+	printf("CHECK ENCRYPT[Packet = %lu]\n", packet.PacketNo() );
+	printf("Decript Before Message[%s]\n", packet.Option().c_str() );
+	fflush(stdout);
 #endif
-printf("Decript Before Message[%s]\n", packet.Option().c_str() );
-fflush(stdout);
 	if ( packet.CommandOption() & IPMSG_ENCRYPTOPT ){
 #if defined(INFO) || !defined(NDEBUG)
-printf("ENCRYPT[Packet = %lu]\n", packet.PacketNo() );
+	printf("ENCRYPT[Packet = %lu]\n", packet.PacketNo() );
 #endif
 		if ( !DecryptMsg( packet ) ) {
 			HostListItem host;
@@ -2063,8 +2063,10 @@ printf("ENCRYPT[Packet = %lu]\n", packet.PacketNo() );
 	RecievedMessage message;
 	message.setMessagePacket( packet );
 	message.setMessage( packet.Option().c_str() );
-printf("Message[%s]\n", packet.Option().c_str() );
-fflush(stdout);
+#if defined(INFO) || !defined(NDEBUG)
+	printf("Message[%s]\n", packet.Option().c_str() );
+	fflush(stdout);
+#endif
 	message.setRecieved( time( NULL ) );
 	message.setIsSecret( IPMSG_SECRETOPT & packet.CommandOption() );
 	message.setIsCrypted( IPMSG_ENCRYPTOPT & packet.CommandOption() );
