@@ -1,0 +1,20 @@
+2006-11-14 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- IpMessenger.cpp separated 6 sources.
+      ->AttachFile.cpp
+      ->HostList.cpp
+      ->IpMessenger.cpp
+      ->PrivateUtils.cpp
+      ->RecievedMessage.cpp
+      ->SentMessage.cpp
+
+2006-11-10 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- initial upload sourceforge.jp.
+
+2006-11-08 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- using automake and libtool.
+
+2006-09-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- prototype crypto version implementaion end.
+
+2006-08-07 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Prototype version implementation started.
