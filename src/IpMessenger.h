@@ -264,6 +264,12 @@ class IpMessengerAgent {
 		void AddBroadcastAddress( string addr );
 		void Login( string nickname, string groupName );
 		void Logout();
+		void SetAbortDownloadAtFileChanged( bool isAbort ){
+			_IsAbortDownloadAtFileChanged = isAbort;
+		}
+		bool GetAbortDownloadAtFileChanged(){
+			return _IsAbortDownloadAtFileChanged;
+		}
 		HostList& GetHostList();
 		HostList& UpdateHostList();
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
@@ -298,6 +304,7 @@ class IpMessengerAgent {
 		SentMessageList sentMsgList;
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
+		bool _IsAbortDownloadAtFileChanged;
 		FileNameConverter *converter;
 		vector<AbsenceMode> absenceModeList;
 		string DecryptErrorMessage;
@@ -318,6 +325,8 @@ class IpMessengerAgent {
 
 		IpMessengerAgent();
 		~IpMessengerAgent();
+		bool isRetryMaxOver( SentMessage msg, int retryCount );
+		bool needSendRetry( SentMessage msg, time_t tryNow );
 		void CryptoInit();
 		void CryptoEnd();
 		void NetworkInit();
@@ -369,9 +378,8 @@ class IpMessengerAgent {
 		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
 		vector<SentMessage>::iterator SentMessageListEnd() { return sentMsgList.end(); };
 		void SendTcpPacket( int sd, char *buf, int size );
-		void SendFile( int sock, string FileName, off_t offset );
-		void SendFile( int sock, string FileName );
-		void SendDirData( int sock, string cd, string dir, vector<string> &files );
+		bool SendFile( int sock, string FileName, off_t offset=0 );
+		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
 };
 
 #if defined(DEBUG) || defined(INFO)

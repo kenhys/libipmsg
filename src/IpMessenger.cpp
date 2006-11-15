@@ -1,43 +1,6 @@
 /**
  * IP メッセンジャライブラリ(Unix用)
- * WindowsのIPメッセンジャーと通信するライブラリ。
- * このライブラリはスレッドセーフでない。注意が必要。
- * プロトコルを実装したもので他の言語との実装と通信できるように
- * Shift_JIS限定にはなっていない。
- * 但し、プロトコルの電文中の区切り文字として'\0'を使うことが有るため、
- * UTF16やUCSの様な、文字コードに'\0'を含む文字コードには対応していない。
- *
- * このライブラリのバージョンでは、暗号系はOpenSSLのcryptoライブラリを使用するため、
- * 公開鍵はRSA512,1024,2048 共通鍵はRC2-40,RC2-128,RC2-256,BLOWFISH-128,BLOWFISH-256
- * をサポートできる。（通信先のクライアントの最強強度の暗号をネゴシエートして自動選択する。）
- * 但し、Windows版は（ソース中のコメントによれば）「手抜き」の実装なので最強強度で選択
- * してしまうと、Windows版は自己の能力を虚偽申請しているので暗号化されたパケットを復号
- * 出来ないことに注意。
- *
- * Windows版ではRSA512+RC2-40, RSA1024+BLOWFISH128しかサポートしていないが
- * これはWINCOMPATマクロによりサポートする。（WINCOMPATを定義すると、Windows版の自己能力の虚偽申請に
- * 合わせて暗号化方法を選択する。）
- *
- * ダウンロード周りファイル名の変換はファイル名コンバータオブジェクトで行う。
- * ローカルファイルシステムのエンコーディングとメッセージのエンコーディングの相互変換するオブジェクトで、
- * ライブラリとしては仮想基底クラスのFileNameConverterと変換を行わないNullFileNameConverter(デフォルト)
- * を提供する。アプリケーションは必要に応じて、FileNameConverterを継承して、ファイル名変換ロジック
- * を組み込む必要がある。（Windows版はShift_JIS(CP932)、一般のUnixではeucJP or UTF-8だから。）
- *
- * コマンドオプションの実装や、リトライ等の実装は適当であるので使用には注意が必要。
- * ログはアプリ側の実装とし、当方は関知しない。
- *
- * 心残り
- * ・全体的にスレッドセーフでない。
- * ・クラスの分割がいまいち。（IpMessengerAgentの責務が多すぎる。
- * 　プロトコルのハンドリングとアプリとのインターフェイスを分離すべき）
- * ・スタック上のインスタンスが多すぎる。もっとヒープ上にとるべき。
- * 
- * @version 0.1.0
- * @author kuninobu niki(nikikuni@yahoo.co.jp)
- * @created 2006.8.7(proto-type implimentation started)
- * @updated 2006.9.5(rc1,encrypt-decrypt function completed)
- * @target Linux(Main test environment), and Unix(no test), and more Unix clones.
+ * IPメッセンジャエージェントクラス。
  */
 
 #ifdef HAVE_CONFIG_H
@@ -75,6 +38,7 @@ using namespace std;
 #define SELECT_TIMEOUT_USEC	5
 #endif
 
+#define SENDMSG_RETRY_MAX	5
 #define GETLIST_RETRY_MAX	2
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
 #define	PACKET_DELIMITER_CHAR	':'
@@ -91,6 +55,8 @@ static IpMessengerAgent *myInstance = NULL;
 
 void *GetFileDataThread( void *param );
 void *GetDirFilesThread( void *param );
+pthread_mutex_t instanceMutex;
+int mutex_init_result = pthread_mutex_init( &instanceMutex, NULL );
 
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
@@ -100,9 +66,15 @@ void *GetDirFilesThread( void *param );
 IpMessengerAgent *
 IpMessengerAgent::GetInstance()
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &instanceMutex );
+#endif
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgent();
 	}
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &instanceMutex );
+#endif
 	return myInstance;
 }
 
@@ -115,11 +87,20 @@ IpMessengerAgent::GetInstance()
 void
 IpMessengerAgent::Release()
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &instanceMutex );
+#endif
 	if ( myInstance == NULL ) {
+#ifdef HAVE_PTHREAD
+		pthread_mutex_unlock( &instanceMutex );
+#endif
 		return;
 	}
 	delete myInstance;
 	myInstance = NULL;
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &instanceMutex );
+#endif
 }
 
 /**
@@ -136,6 +117,7 @@ IpMessengerAgent::IpMessengerAgent()
 	ResetAbsence();
 	srandom( time( NULL ) );
 	converter = new NullFileNameConverter();
+	_IsAbortDownloadAtFileChanged = false;
 	NetworkInit();
 }
 
@@ -615,6 +597,10 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
 #endif
 
 	sentMsgList.append( message );
+#if defined(DEBUG)
+	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );
+	fflush(stdout);
+#endif
 
 	RecvPacket();
 
@@ -1689,9 +1675,17 @@ IpMessengerAgent::RecvPacket()
 		pack_que.pop();
 	}
 
+#if defined(INFO) || !defined(NDEBUG)
+	printf("sentMsgList.size=%d\n", sentMsgList.size() );
+	fflush(stdout);
+#endif
 	time_t tryNow = time( NULL );
 	for( vector<SentMessage>::iterator ixmsg = sentMsgList.begin(); ixmsg != sentMsgList.end(); ixmsg++ ) {
-		if ( !ixmsg->IsSent() && ixmsg->PrevTry() != tryNow && !ixmsg->IsRetryMaxOver() ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("ixmsg=%p\n", &ixmsg );
+		fflush(stdout);
+#endif
+		if ( needSendRetry( *ixmsg, tryNow ) ) {
 			//再送信
 			ixmsg->setRetryCount( ixmsg->RetryCount() + 1 );
 			ixmsg->setPrevTry( tryNow );
@@ -1707,6 +1701,22 @@ IpMessengerAgent::RecvPacket()
 	return ret;
 }
 
+bool
+IpMessengerAgent::isRetryMaxOver( SentMessage msg, int retryCount )
+{
+	if ( msg.RetryCount() > SENDMSG_RETRY_MAX ) {
+		return true;
+	}
+	return false;
+}
+bool
+IpMessengerAgent::needSendRetry( SentMessage msg, time_t tryNow )
+{
+	if ( !msg.IsSent() && msg.PrevTry() != tryNow && !msg.IsRetryMaxOver() ) {
+		return true;
+	}
+	return false;
+}
 /**
  * パケットのコマンドモードで受信イベントを振り分ける。
  * @param packet パケットオブジェクト
@@ -2655,7 +2665,7 @@ GetDirFilesThread( void *param )
  * @param dir 親ディレクトリのフルパス
  * @param files ファイル一覧
  */
-void
+bool
 IpMessengerAgent::SendDirData( int sock, string cd, string dir, vector<string> &files )
 {
 	DIR *d= opendir( dir.c_str() );
@@ -2664,7 +2674,7 @@ IpMessengerAgent::SendDirData( int sock, string cd, string dir, vector<string> &
 	char headbuf[8192];
 
 	if ( d == NULL ) {
-		return;
+		return false;
 	}
 
 	stat( cd.c_str(), &st );
@@ -2689,7 +2699,10 @@ IpMessengerAgent::SendDirData( int sock, string cd, string dir, vector<string> &
 #if defined(INFO) || !defined(NDEBUG)
 				printf( "DIR\n" );
 #endif
-				SendDirData( sock, dent->d_name, dir_name, files );
+				if ( !SendDirData( sock, dent->d_name, dir_name, files ) ){
+					closedir( d );
+					return false;
+				}
 			} else {
 #if defined(INFO) || !defined(NDEBUG)
 				printf( "FILE\n" );
@@ -2702,7 +2715,10 @@ IpMessengerAgent::SendDirData( int sock, string cd, string dir, vector<string> &
 				headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
 				send( sock, headbuf, head_len, 0 );
 
-				SendFile( sock, dir_name, 0 );
+				if ( !SendFile( sock, dir_name, 0 ) ){
+					closedir( d );
+					return false;
+				}
 			}
 		}
 		dent = readdir( d );
@@ -2711,6 +2727,7 @@ IpMessengerAgent::SendDirData( int sock, string cd, string dir, vector<string> &
 	headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
 	send( sock, headbuf, head_len, 0 );
 	closedir( d );
+	return true;
 }
 
 /**
@@ -2718,40 +2735,50 @@ IpMessengerAgent::SendDirData( int sock, string cd, string dir, vector<string> &
  * @param sock TCPソケット
  * @param FileName ファイルのフルパス
  * @param offset オフセット
+ * @retval true:成功、false:失敗
  */
-void
+bool
 IpMessengerAgent::SendFile( int sock, string FileName, off_t offset )
 {
+	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
 	char readbuf[8192];
+	struct stat st_init;
 	int read_size;
-	int fd = open( FileName.c_str(), O_RDONLY );
+	int fd = open( localFileName.c_str(), O_RDONLY );
 	if ( fd < 0 ) {
 		perror( "open" );
 		printf("FileName.c_str() [%s]", FileName.c_str() );
-		return;
+		return false;
+	}
+	int rc = fstat( fd, &st_init );
+	if ( rc != 0 ){
+		close( fd );
+		return false;
 	}
 	lseek( fd, offset, SEEK_SET );
 	read_size = read( fd, readbuf, sizeof( readbuf ) );
 	while( read_size > 0 ){
-/*
-		printf( "%s", readbuf );
-*/
+		if ( _IsAbortDownloadAtFileChanged ){
+			struct stat st_progress;
+			int rc = fstat( fd, &st_progress );
+			if ( rc != 0 ){
+				close( fd );
+				return false;
+			}
+			if ( st_init.st_mtime != st_progress.st_mtime ||
+				 st_init.st_ctime != st_progress.st_ctime ||
+				 st_init.st_uid   != st_progress.st_uid   ||
+				 st_init.st_gid   != st_progress.st_gid   ||
+				 st_init.st_size  != st_progress.st_size ) {
+				close( fd );
+				return false;
+			}
+		}
 		send( sock, readbuf, read_size, 0 );
 		read_size = read( fd, readbuf, sizeof( readbuf ) );
 	}
 	close( fd );
-}
-
-/**
- * ファイル送信。
- * @param sock TCPソケット
- * @param FileName ファイルのフルパス
- */
-void
-IpMessengerAgent::SendFile( int sock, string FileName )
-{
-	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
-	SendFile( sock, localFileName, 0 );
+	return true;
 }
 
 /**

@@ -82,10 +82,19 @@ if test "x$with_pthread" = xyes; then
 	echo "checking for pthread..."
 	have_pthread_create=yes
 	have_pthread_detach=yes
+	have_pthread_mutex_init=yes
+	have_pthread_mutex_lock=yes
+	have_pthread_mutex_unlock=yes
 	AC_CHECK_LIB(pthread,pthread_create,LIBPTHREAD="-lpthread", have_pthread_create=no)
 	AC_CHECK_LIB(pthread,pthread_detach,LIBPTHREAD="-lpthread", have_pthread_detach=no)
+	AC_CHECK_LIB(pthread,pthread_mutex_init,LIBPTHREAD="-lpthread", have_pthread_mutex_init=no)
+	AC_CHECK_LIB(pthread,pthread_mutex_lock,LIBPTHREAD="-lpthread", have_pthread_mutex_lock=no)
+	AC_CHECK_LIB(pthread,pthread_mutex_unlock,LIBPTHREAD="-lpthread", have_pthread_mutex_unlock=no)
 	if test "x$have_pthread_create" = xyes &&
-	   test "x$have_pthread_detach" = xyes;then 
+	   test "x$have_pthread_detach" = xyes &&
+	   test "x$have_pthread_mutex_init" = xyes &&
+	   test "x$have_pthread_mutex_lock" = xyes &&
+	   test "x$have_pthread_mutex_unlock" = xyes ;then 
 		AC_DEFINE(HAVE_PTHREAD, 1, [pthread support])
 		echo POSIX thread support enabled.
 	else
