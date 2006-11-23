@@ -55,8 +55,10 @@ static IpMessengerAgent *myInstance = NULL;
 
 void *GetFileDataThread( void *param );
 void *GetDirFilesThread( void *param );
+#ifdef HAVE_PTHREAD
 pthread_mutex_t instanceMutex;
 int mutex_init_result = pthread_mutex_init( &instanceMutex, NULL );
+#endif
 
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
@@ -118,6 +120,8 @@ IpMessengerAgent::IpMessengerAgent()
 	srandom( time( NULL ) );
 	converter = new NullFileNameConverter();
 	_IsAbortDownloadAtFileChanged = false;
+	_IsSaveSentMessage = true;
+	_IsSaveRecievedMessage = true;
 	NetworkInit();
 }
 
@@ -596,7 +600,9 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
 	printf( "Nickname[%s]\n", message.Host().Nickname().c_str() );
 #endif
 
-	sentMsgList.append( message );
+	if ( _IsSaveSentMessage ){
+		sentMsgList.append( message );
+	}
 #if defined(DEBUG)
 	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );
 	fflush(stdout);
@@ -2104,7 +2110,9 @@ printf("Send(%s)\n", sendBuf);
 		message.setHasAttachFile( true );
 	}
 	message.setFiles( files );
-	recvMsgList.append( message );
+	if ( _IsSaveRecievedMessage ){
+		recvMsgList.append( message );
+	}
 	return 0;
 }
 

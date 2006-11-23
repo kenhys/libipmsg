@@ -270,6 +270,18 @@ class IpMessengerAgent {
 		bool GetAbortDownloadAtFileChanged(){
 			return _IsAbortDownloadAtFileChanged;
 		}
+		void SetSaveSentMessage( bool isSave ){
+			_IsSaveSentMessage = isSave;
+		}
+		bool GetSaveSentMessage(){
+			return _IsSaveSentMessage;
+		}
+		void SetSaveRecievedMessage( bool isSave ){
+			_IsSaveRecievedMessage = isSave;
+		}
+		bool GetSaveRecievedMessage(){
+			return _IsSaveRecievedMessage;
+		}
 		HostList& GetHostList();
 		HostList& UpdateHostList();
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
@@ -305,6 +317,8 @@ class IpMessengerAgent {
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
 		bool _IsAbortDownloadAtFileChanged;
+		bool _IsSaveSentMessage;
+		bool _IsSaveRecievedMessage;
 		FileNameConverter *converter;
 		vector<AbsenceMode> absenceModeList;
 		string DecryptErrorMessage;
