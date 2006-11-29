@@ -54,10 +54,6 @@ class Packet{
 
 class NetworkInterface {
 	public:
-		NetworkInterface( string deviceName, string ipAddress){
-			setDeviceName( deviceName );
-			setDeviceName( ipAddress );
-		};
 		IPMSG_PROPERTY( string, DeviceName );
 		IPMSG_PROPERTY( string, IpAddress );
 };

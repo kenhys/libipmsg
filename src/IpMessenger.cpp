@@ -294,8 +294,13 @@ IpMessengerAgent::NetworkInit()
 		if ( strcmp("127.0.0.1", inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) == 0 ){
 			continue;
 		}
-		nics.push_back( NetworkInterface( ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) );
-//		printf( "IF=%s[%s]\n",ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+		printf( "%s,%s\n", ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+		NetworkInterface ni;
+		ni.setDeviceName( ifr[i].ifr_name );
+		ni.setIpAddress( inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+		nics.push_back( ni );
+	//	printf( "IF=%s[ip=%s]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str() );
+	//	fflush(stdout);
 	}
 
 	close(fd);
@@ -1578,7 +1583,8 @@ IpMessengerAgent::SendBroadcast( char *buf, int size )
 void
 IpMessengerAgent::InitRecv( vector<NetworkInterface> nics )
 {
-	for( int i = 0; i < nics.size(); i++ ){
+	//for( int i = 0; i < nics.size(); i++ ){
+	for( int i = 0; i < 1; i++ ){
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(IPMSG_DEFAULT_PORT);
@@ -1590,11 +1596,15 @@ IpMessengerAgent::InitRecv( vector<NetworkInterface> nics )
 		if ( sock > 0 ) {
 			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );
 			udp_sd.push_back( sock );
+		} else {
+			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );
 		}
 		sock = InitTcpRecv( addr );
 		if ( sock > 0 ) {
 			printf( "TCP_SD[%d] = %d\n", tcp_sd.size(),sock );
 			tcp_sd.push_back( sock );
+		} else {
+			printf( "TCP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );
 		}
 	}
 
