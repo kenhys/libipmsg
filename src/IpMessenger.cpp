@@ -31,11 +31,13 @@ using namespace std;
 //selectシステムコールのタイムアウト時間
 #if defined(DEBUG)
 #include <ctype.h>
-#define SELECT_TIMEOUT_SEC	1
-#define SELECT_TIMEOUT_USEC	0
+#define SELECT_TIMEOUT_SEC	0
+#define SELECT_TIMEOUT_USEC	100000
+//#define SELECT_TIMEOUT_SEC	1
+//#define SELECT_TIMEOUT_USEC	0
 #else
 #define SELECT_TIMEOUT_SEC	0
-#define SELECT_TIMEOUT_USEC	5
+#define SELECT_TIMEOUT_USEC	100000
 #endif
 
 #define SENDMSG_RETRY_MAX	5
@@ -138,8 +140,12 @@ IpMessengerAgent::~IpMessengerAgent()
 	Logout();
 	CryptoEnd();
 	delete converter;
-	close(tcp_sd);
-	close(udp_sd);
+	for(int i = 0; i< udp_sd.size(); i++ ){
+		close(udp_sd[i]);
+	}
+	for(int i = 0; i< tcp_sd.size(); i++ ){
+		close(tcp_sd[i]);
+	}
 }
 
 /**
@@ -273,17 +279,24 @@ IpMessengerAgent::NetworkInit()
 		LoginName = env;
 	}
 	int fd;
-	struct ifreq ifr;
-
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	struct ifconf ifc;
+#define IFR_MAX 20
+	struct ifreq ifr[IFR_MAX];
+	ifc.ifc_len = sizeof(ifr);
+	ifc.ifc_ifcu.ifcu_buf = (char *)ifr;
 
-	ifr.ifr_addr.sa_family = AF_INET;
-
-	/* eth0のIPアドレスを取得したい */
-//	strncpy(ifr.ifr_name, "vmnet8", IFNAMSIZ-1);
-	strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
-
-	ioctl(fd, SIOCGIFADDR, &ifr);
+	ioctl(fd, SIOCGIFCONF, &ifc);
+	int nifs = ifc.ifc_len / sizeof(struct ifreq);
+	/* ローカルループバックをのぞくIPアドレス */
+	vector<NetworkInterface> nics;
+	for( int i = 0; i < nifs; i++ ){
+		if ( strcmp("127.0.0.1", inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) == 0 ){
+			continue;
+		}
+		nics.push_back( NetworkInterface( ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) );
+//		printf( "IF=%s[%s]\n",ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+	}
 
 	close(fd);
 
@@ -295,9 +308,11 @@ IpMessengerAgent::NetworkInit()
 						  "  Please press refresh button.\r\n" \
 						  " ==============================";
 #endif	//WITH_OPENSSL
-	HostAddress = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+	if ( nics.size() > 0 ) {
+		HostAddress = nics[0].IpAddress();
+	}
 	InitSend();
-	InitRecv();
+	InitRecv( nics );
 }
 
 /**
@@ -316,7 +331,6 @@ IpMessengerAgent::Login( string nickname, string groupName )
 	int optBufLen = 0;
 
 	SendNoOperation();
-	UpdateHostList();
 
 #if defined(DEBUG) || !defined(NDEBUG)
 	memset( sendBuf, 0, MAX_UDPBUF );
@@ -354,7 +368,7 @@ IpMessengerAgent::Login( string nickname, string groupName )
 	RecvPacket();
 
 	UpdateHostList();
-
+	RecvPacket();
 }
 
 /**
@@ -403,6 +417,8 @@ IpMessengerAgent::UpdateHostList()
 	int sendBufLen;
 
 	hostList.clear();
+	AddDefaultHost();
+
 	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ISGETLIST2,
 										  LoginName, HostName,
 										  NULL, 0,
@@ -411,10 +427,12 @@ IpMessengerAgent::UpdateHostList()
 	int pcount = RecvPacket();
 	//自分以外のホストが見付からないか５回リトライする間繰り返す
 	for( int i = 0; i < 5; i++ ) {
-		if ( pcount == 0 ){
-			break;
-		}
-		pcount == RecvPacket();
+//		if ( pcount > 0 ){
+//			break;
+//		}
+		//0.1秒まつ。
+		usleep( 100000L );
+		pcount = RecvPacket();
 	}
 
 #if defined(DEBUG)
@@ -1182,10 +1200,24 @@ IpMessengerAgent::DecryptMsg( Packet &packet )
  * 注：このメソッドはスレッドセーフでない。
  */
 void
+IpMessengerAgent::ClearBroadcastAddress()
+{
+	broadcastAddr.clear();
+}
+
+/**
+ * 登録済のブロードキャストアドレスを削除
+ * @param addr 登録済のブロードキャストアドレス
+ * 注：このメソッドはスレッドセーフでない。
+ */
+void
 IpMessengerAgent::DeleteBroadcastAddress( string addr )
 {
 	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( addr );
 	if ( net != broadcastAddr.end() ) {
+#if defined(DEBUG)
+		printf( "Delete Broadcast Address from %s(%d)\n", inet_ntoa( net->sin_addr ), ntohs( net->sin_port ) );
+#endif
 		broadcastAddr.erase( net );
 		return;
 	}
@@ -1207,6 +1239,9 @@ IpMessengerAgent::AddBroadcastAddress( string addr )
 	add_addr.sin_family = AF_INET;
 	add_addr.sin_port = htons(IPMSG_DEFAULT_PORT);
 	add_addr.sin_addr.s_addr = inet_addr( addr.c_str() );
+#if defined(DEBUG)
+	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa( add_addr.sin_addr ), ntohs( add_addr.sin_port ) );
+#endif
 	broadcastAddr.push_back( add_addr );
 }
 
@@ -1490,7 +1525,7 @@ IpMessengerAgent::SendPacket( char *buf, int size, struct sockaddr_in to_addr )
 #endif
 	IpMsgPrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
 	int ret = 0;
-	ret = sendto( udp_sd, buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
+	ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
 #if defined(DEBUG)
 	if ( ret <= 0 ) {
 		printf("S E N D   F A I L E D\n");
@@ -1518,11 +1553,13 @@ IpMessengerAgent::SendBroadcast( char *buf, int size )
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 		int ret = 0;
-		ret = sendto( udp_sd, buf, size + 1, 0, ( struct sockaddr * )&(*ixaddr), sizeof( struct sockaddr ) );
-		if ( ret <= 0 ) {
+		for( int i = 0; i < udp_sd.size(); i++ ){
+			ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&(*ixaddr), sizeof( struct sockaddr ) );
+			if ( ret <= 0 ) {
 #if defined(DEBUG)
-			printf("S E N D   F A I L E D\n");
+				printf("S E N D   F A I L E D\n");
 #endif
+			}
 		}
 	}
 #if defined(DEBUG)
@@ -1539,55 +1576,119 @@ IpMessengerAgent::SendBroadcast( char *buf, int size )
  * 注：このメソッドはスレッドセーフでない。
  */
 void
-IpMessengerAgent::InitRecv()
+IpMessengerAgent::InitRecv( vector<NetworkInterface> nics )
 {
-	udp_sd = socket( AF_INET, SOCK_DGRAM, 0 );
-	tcp_sd = socket( AF_INET, SOCK_STREAM, 0 );
-	addr_recv.sin_family = AF_INET;
-	addr_recv.sin_port = htons(IPMSG_DEFAULT_PORT);
-	addr_recv.sin_addr.s_addr = INADDR_ANY;
-	if ( bind(udp_sd, (struct sockaddr *)&addr_recv, sizeof(addr_recv)) != 0 ){
-		perror("bind(udp)");
-		close( tcp_sd );
-		return;
-	}
-	if ( tcp_sd >= 0 && bind(tcp_sd, (struct sockaddr *)&addr_recv, sizeof(addr_recv)) != 0 ){
-		perror("bind(tcp)");
-		close( tcp_sd );
-		return;
+	for( int i = 0; i < nics.size(); i++ ){
+		struct sockaddr_in addr;
+		addr.sin_family = AF_INET;
+		addr.sin_port = htons(IPMSG_DEFAULT_PORT);
+		addr.sin_addr.s_addr = inet_addr( nics[i].IpAddress().c_str() );
+
+		int sock = -1;
+
+		sock = InitUdpRecv( addr );
+		if ( sock > 0 ) {
+			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );
+			udp_sd.push_back( sock );
+		}
+		sock = InitTcpRecv( addr );
+		if ( sock > 0 ) {
+			printf( "TCP_SD[%d] = %d\n", tcp_sd.size(),sock );
+			tcp_sd.push_back( sock );
+		}
 	}
 
-	int yes = 1;
-	if ( setsockopt(udp_sd, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes)) != 0 ) {
-		perror("setsockopt(broadcast)");
-		return;
-	}
-	
-	int buf_size = MAX_SOCKBUF, buf_minsize = MAX_SOCKBUF / 2;
-	if ( setsockopt(udp_sd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_size, sizeof(int)) != 0 &&
-		 setsockopt(udp_sd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
-		perror("setsockopt(sendbuf)");
-		return;
-	}
-	if ( setsockopt(udp_sd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_size, sizeof(int)) != 0 &&
-		 setsockopt(udp_sd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
-		perror("setsockopt(recvbuf)");
-		return;
-	}
-	if ( tcp_sd >= 0 && setsockopt(tcp_sd, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(yes)) != 0 ) {
-		perror("setsockopt(reuseaddr)");
-		return;
-	}
-	if ( tcp_sd >= 0 && listen(tcp_sd, 5 ) != 0 ) {
-		perror("setsockopt(reuseaddr)");
-		return;
-	}
-//	in_addr_t my_if = inet_addr( HostAddress.c_str() );
-//	setsockopt(udp_sd, IPPROTO_IP, IP_MULTICAST_IF, (char *)&my_if, sizeof(my_if));
+//		addr.sin_addr.s_addr = inet_addr( "192.168.1.111" );
+//	addr.sin_addr.s_addr = inet_addr( "192.168.163.1" );
+//	sock = InitUdpRecv( addr );
+//	if ( sock > 0 ) {
+//		udp_sd.push_back( sock );
+//	}
+//	sock = InitTcpRecv( addr );
+//	if ( sock > 0 ) {
+//		tcp_sd.push_back( sock );
+//	}
 
 	FD_ZERO( &rfds );
-	FD_SET( udp_sd, &rfds );
-	FD_SET( tcp_sd, &rfds );
+	for( int i = 0; i < udp_sd.size(); i++ ){
+		FD_SET( udp_sd[i], &rfds );
+	}
+	for( int i = 0; i < tcp_sd.size(); i++ ){
+		FD_SET( tcp_sd[i], &rfds );
+	}
+}
+
+int
+IpMessengerAgent::InitUdpRecv( struct sockaddr_in addr )
+{
+	int sock = socket( AF_INET, SOCK_DGRAM, 0 );
+	if ( bind(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0 ){
+		perror("bind(udp)");
+		close( sock );
+		return -1;
+	}
+	int yes = 1;
+	if ( setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes)) != 0 ) {
+		perror("setsockopt(broadcast)");
+		close( sock );
+		return -1;
+	}
+	int buf_size = MAX_SOCKBUF, buf_minsize = MAX_SOCKBUF / 2;
+	if ( setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&buf_size, sizeof(int)) != 0 &&
+		 setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
+		perror("setsockopt(sendbuf)");
+		close( sock );
+		return -1;
+	}
+	if ( setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char *)&buf_size, sizeof(int)) != 0 &&
+		 setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
+		perror("setsockopt(recvbuf)");
+		close( sock );
+		return -1;
+	}
+//	//マルチキャスト送信用のインターフェースの指定	
+//	in_addr_t my_if = addr.sin_addr.s_addr;
+//	if ( setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, (char *)&my_if, sizeof(my_if) ) != 0 ){
+//		perror("setsockopt(multicast_if)");
+//		close( sock );
+//		return -1;
+//	}
+//	//マルチキャスト受信の準備	
+//	struct ip_mreq mreq;
+//	memset(&mreq, 0, sizeof(mreq));
+//	mreq.imr_interface.s_addr = INADDR_ANY;
+//	mreq.imr_interface.s_addr = addr.sin_addr.s_addr;
+//	mreq.imr_multiaddr.s_addr = addr.sin_addr.s_addr;
+//	mreq.imr_multiaddr.s_addr = inet_addr("192.168.163.255");
+//	if ( setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof( mreq ) ) != 0 ) {
+//		perror("setsockopt(add_membership)");
+//		close( sock );
+//		return -1;
+//	}
+
+	return sock;
+}
+int
+IpMessengerAgent::InitTcpRecv( struct sockaddr_in addr )
+{
+	int sock = socket( AF_INET, SOCK_STREAM, 0 );
+	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0 ){
+		perror("bind(tcp)");
+		close( sock );
+		return -1;
+	}
+	int yes = 1;
+	if ( sock >= 0 && setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(yes)) != 0 ) {
+		perror("setsockopt(reuseaddr)");
+		close( sock );
+		return -1;
+	}
+	if ( sock >= 0 && listen(sock, 5 ) != 0 ) {
+		perror("setsockopt(reuseaddr)");
+		close( sock );
+		return -1;
+	}
+	return sock;
 }
 
 /**
@@ -1613,9 +1714,17 @@ IpMessengerAgent::RecvPacket()
 	char buf[MAX_UDPBUF];
 	int selret = 1;
 	int ret = 0;
-	int max_sd = udp_sd;
-	if ( udp_sd < tcp_sd ){
-		max_sd = tcp_sd;
+	int max_sd = -1;
+
+	for( int i = 0; i < udp_sd.size(); i++ ){
+		if ( max_sd < udp_sd[i] ){
+			max_sd = udp_sd[i];
+		}
+	}
+	for( int i = 0; i < tcp_sd.size(); i++ ){
+		if ( max_sd < tcp_sd[i] ){
+			max_sd = tcp_sd[i];
+		}
 	}
 
 	queue<Packet> pack_que;
@@ -1646,19 +1755,37 @@ IpMessengerAgent::RecvPacket()
 			struct sockaddr_in sender_addr;
 			socklen_t sender_addr_len = sizeof( sender_addr );
 			int sz = 0;
-			if ( FD_ISSET( udp_sd, &fds ) ){
-				sz = recvfrom( udp_sd, buf, sizeof( buf ), 0, (struct sockaddr *)&sender_addr, &sender_addr_len );
-			} else if ( FD_ISSET( tcp_sd, &fds ) ){
-				tcp_socket = accept( tcp_sd, (struct sockaddr *)&sender_addr, &sender_addr_len );
-				if ( tcp_socket < 0 ) {
-					perror("accept");
+			//とりあえず
+			bool recieved = false;
+			//UDPでソケットに変化が有ったら受信
+			for( int i = 0; i < udp_sd.size(); i++ ){
+				if ( FD_ISSET( udp_sd[i], &fds ) ){
+					sz = recvfrom( udp_sd[i], buf, sizeof( buf ), 0, (struct sockaddr *)&sender_addr, &sender_addr_len );
+					recieved = true;
+					break;
 				}
-				sz = recv( tcp_socket, buf, sizeof( buf ), 0 );
+			}
+			//UDPでソケットに変化がない。
+			if ( !recieved ) {
+				//TCPでソケットに変化が有ったら受信
+				for( int i = 0; i < tcp_sd.size(); i++ ){
+					if ( FD_ISSET( tcp_sd[i], &fds ) ){
+						tcp_socket = accept( tcp_sd[i], (struct sockaddr *)&sender_addr, &sender_addr_len );
+						if ( tcp_socket < 0 ) {
+							perror("accept");
+						}
+						sz = recv( tcp_socket, buf, sizeof( buf ), 0 );
 #if defined(INFO) || !defined(NDEBUG)
-				printf("recv buf[%s]\n", buf );
+						printf("recv buf[%s]\n", buf );
 #endif
-			} else {
-				continue;
+						recieved = true;
+						break;
+					}
+				}
+				//UDP,TCPでソケットに変化がない。
+				if ( !recieved ) {
+					continue;
+				}
 			}
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr );
 #if defined(DEBUG)
@@ -1669,6 +1796,7 @@ IpMessengerAgent::RecvPacket()
 			printf( "CommandOption[%ld]\n", packet.CommandOption() );
 			printf( "HostName     [%s]\n", packet.HostName().c_str() );
 			printf( "UserName     [%s]\n", packet.UserName().c_str() );
+			IpMsgPrintBuf("Option", (char *)packet.Option().c_str(), packet.Option().length() );
 			printf( "<= R E C V =============================================\n");
 #endif
 			packet.setTcpSocket( tcp_socket );
@@ -1681,7 +1809,7 @@ IpMessengerAgent::RecvPacket()
 		pack_que.pop();
 	}
 
-#if defined(INFO) || !defined(NDEBUG)
+#if defined(DEBUG) || defined(INFO) || !defined(NDEBUG)
 	printf("sentMsgList.size=%d\n", sentMsgList.size() );
 	fflush(stdout);
 #endif
@@ -2035,7 +2163,7 @@ printf("SENDCHECKOPT(%s)\n", packetNoBuf);
 												  packetNoBuf, packetNoBufLen,
 												  sendBuf, sizeof( sendBuf ) );
 #if defined(INFO) || !defined(NDEBUG)
-printf("Send(%s)\n", sendBuf);
+printf("Send(%s) -> IP[%s]\n", sendBuf, inet_ntoa( packet.Addr().sin_addr ) );
 #endif
 			SendPacket( sendBuf, sendBufLen, packet.Addr() );
 		}
@@ -2246,17 +2374,7 @@ IpMessengerAgent::UdpRecvEventAnsList( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsList\n");
 #endif
-	if ( hostList.size() == 0 ) {
-		HostListItem myHost;
-		myHost.setUserName( LoginName );
-		myHost.setHostName( HostName );
-		myHost.setCommandNo( packet.CommandMode() | packet.CommandOption() );
-		myHost.setIpAddress( HostAddress );
-		myHost.setNickname( Nickname );
-		myHost.setGroupName( GroupName );
-		myHost.setPortNo( IPMSG_DEFAULT_PORT );
-		hostList.AddHost( myHost );
-	}
+	AddDefaultHost();
 	int nextstart = CreateHostList( packet.Option().c_str(), packet.Option().length() );
 	if ( nextstart > 0 ) {
 		int nextbuf_len = snprintf( nextbuf, sizeof( nextbuf ), "%d", hostList.size() + 1 );
@@ -2941,6 +3059,8 @@ IpMessengerAgent::CreateHostList( const char *hostListBuf, int buf_len )
 	char *token;
 	char *ptrdmy;
 	char *hostListTmpBuf = (char *)calloc( alloc_size, 1 );
+
+	AddDefaultHost();
 	if ( hostListTmpBuf == NULL ) {
 		return 0;
 	}
@@ -3062,7 +3182,7 @@ IpMessengerAgent::CreateHostList( const char *hostListBuf, int buf_len )
 			hostListTmpPtr = nextpos;
 			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
-		if ( token == NULL ) break;
+		//最後のトークンは最後に判定する。(A)部分。
 		// ADD HOSTLIST
 		hostList.DeleteHost( item.HostName() );
 		hostList.AddHost( item );
@@ -3083,7 +3203,8 @@ IpMessengerAgent::CreateHostList( const char *hostListBuf, int buf_len )
 		addr.sin_addr.s_addr = inet_addr( item.IpAddress().c_str() );
 		SendPacket( sendBuf, sendBufLen, addr );
 #endif
-
+		//(A)最後のトークンは最後に判定する。(A)
+		if ( token == NULL ) break;
 		add_count++;
 	}
 	free( hostListTmpBuf );
@@ -3300,4 +3421,25 @@ IpMessengerAgent::DismantlePacketBuffer( char *packet_buf, int size, struct sock
 	return ret;
 }
 
+/**
+ * 念のためホストリストに自分を加えておく。
+ */
+int
+IpMessengerAgent::AddDefaultHost()
+{
+	if ( hostList.size() == 0 ) {
+		HostListItem myHost;
+		myHost.setUserName( LoginName );
+		myHost.setHostName( HostName );
+		myHost.setCommandNo( 0L );
+		myHost.setIpAddress( HostAddress );
+		myHost.setNickname( Nickname );
+		myHost.setGroupName( GroupName );
+		myHost.setPortNo( IPMSG_DEFAULT_PORT );
+		hostList.AddHost( myHost );
+//#if defined(INFO) || !defined(NDEBUG)
+		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );
+//#endif
+	}
+}
 //end of source

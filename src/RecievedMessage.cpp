@@ -50,6 +50,7 @@ fflush(stdout);
 	int fd = open( saveFileNameFullPath.c_str(), O_WRONLY | O_CREAT );
 	if ( fd < 0 ){
 		perror("open");
+		close( sock );
 		return false;
 	}
 	fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
@@ -58,11 +59,29 @@ fflush(stdout);
 	long long wroteSize = 0LL;
 	time_t startTime = time( NULL );
 	int read_len = recv( sock, readbuf, file.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : file.FileSize() - readSize, 0 );
+	if ( read_len < 0 ) {
+		perror("recv");
+		close( sock );
+		close( fd );
+		return false;
+	}
 	readSize += read_len;
 	while( read_len > 0 ){
 		int wrote_len = write( fd, readbuf, read_len );
+		if ( wrote_len < 0 ) {
+			perror("write");
+			close( sock );
+			close( fd );
+			return false;
+		}
 		wroteSize += wrote_len;
 		read_len = recv( sock, readbuf, file.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : file.FileSize() - readSize, 0 );
+		if ( read_len < 0 ) {
+			perror("recv");
+			close( sock );
+			close( fd );
+			return false;
+		}
 		readSize += read_len;
 	}
 	printf("close");

@@ -52,6 +52,16 @@ class Packet{
 
 };
 
+class NetworkInterface {
+	public:
+		NetworkInterface( string deviceName, string ipAddress){
+			setDeviceName( deviceName );
+			setDeviceName( ipAddress );
+		};
+		IPMSG_PROPERTY( string, DeviceName );
+		IPMSG_PROPERTY( string, IpAddress );
+};
+
 class HostListItem{
 	public:
 		IPMSG_PROPERTY( string, Version );
@@ -260,6 +270,7 @@ class IpMessengerAgent {
 
 		static IpMessengerAgent *GetInstance();
 		static void Release();
+		void ClearBroadcastAddress();
 		void DeleteBroadcastAddress( string addr );
 		void AddBroadcastAddress( string addr );
 		void Login( string nickname, string groupName );
@@ -328,9 +339,9 @@ class IpMessengerAgent {
 		string HostAddress;
 		string HostName;
 
-		int tcp_sd;
-		int udp_sd;
-		struct sockaddr_in addr_recv;
+		vector<int> tcp_sd;
+		vector<int> udp_sd;
+		vector<struct sockaddr_in> addr_recv;
 		struct timeval tv;
 		fd_set rfds;
 		vector<struct sockaddr_in> broadcastAddr;
@@ -345,7 +356,9 @@ class IpMessengerAgent {
 		void CryptoEnd();
 		void NetworkInit();
 		void InitSend();
-		void InitRecv();
+		void InitRecv( vector<NetworkInterface> nics );
+		int InitUdpRecv( struct sockaddr_in addr );
+		int InitTcpRecv( struct sockaddr_in addr );
 		int RecvPacket();
 		void SendPacket( char *buf, int size, struct sockaddr_in toAddr );
 		void SendBroadcast( char *buf, int size );
@@ -376,6 +389,7 @@ class IpMessengerAgent {
 		int TcpRecvEventGetFileData( Packet packet );
 		int UdpRecvEventReleaseFiles( Packet packet );
 		int TcpRecvEventGetDirFiles( Packet packet );
+		int AddDefaultHost();
 		int CreateHostList( const char *hostListBuf, int bufLen );
 		string GetCommandString(long cmd );
 		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender );
