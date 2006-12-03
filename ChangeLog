@@ -1,3 +1,8 @@
+2006-12-01 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Buffer overflow in AnsHostList packet.
+- Update:Append "GetMaxOptionBufferSize" API,It return Option buffer size.
+         This API is private, enable to use friend classes.
+
 2006-11-29 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Multiple NIC support.
 - Fix:Can't show my host.

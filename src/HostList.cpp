@@ -53,15 +53,11 @@ string HostList::ToString( int start )
 {
 	char buf[MAX_UDPBUF];
 	string ret;
-	unsigned int max;
+	int maxLength= IpMessengerAgent::GetInstance()->GetMaxOptionBufferSize();
 
-	max = start + HOST_LIST_SEND_MAX_AT_ONCE - 1;
-	if ( max > items.size() ) {
-		max = items.size();
-	}
-	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , max - start < 0 ? 0 : max - start );
-	ret = buf;
-	for( unsigned int i = start ; i < max; i++ ){
+	ret = "";
+	int hostCount = 0;
+	for( unsigned int i = start ; i < items.size(); i++ ){
 		HostListItem item = items.at( i );
 		sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
 						item.UserName() == "" ? "\b" : item.UserName().c_str(),
@@ -71,8 +67,14 @@ string HostList::ToString( int start )
 						htons( item.PortNo() ),
 						item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 						item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
+		if ( ret.length() >= maxLength ){
+			break;
+		}
 		ret = ret + buf;
+		hostCount++;
 	}
+	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , hostCount );
+	ret = buf + ret;
 	return ret;
 }
 

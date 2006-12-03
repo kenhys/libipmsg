@@ -261,6 +261,7 @@ class IpMessengerAgent {
 	public:
 		friend class RecievedMessage;
 		friend class SentMessage;
+		friend class HostList;
 		friend void *GetFileDataThread( void *param );
 		friend void *GetDirFilesThread( void *param );
 
@@ -351,6 +352,7 @@ class IpMessengerAgent {
 		void CryptoInit();
 		void CryptoEnd();
 		void NetworkInit();
+		void NetworkEnd();
 		void InitSend();
 		void InitRecv( vector<NetworkInterface> nics );
 		int InitUdpRecv( struct sockaddr_in addr );
@@ -404,6 +406,7 @@ class IpMessengerAgent {
 		void SendTcpPacket( int sd, char *buf, int size );
 		bool SendFile( int sock, string FileName, off_t offset=0 );
 		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
+		int GetMaxOptionBufferSize();
 };
 
 #if defined(DEBUG) || defined(INFO)

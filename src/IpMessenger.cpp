@@ -30,27 +30,42 @@ using namespace std;
 
 //selectシステムコールのタイムアウト時間
 #if defined(DEBUG)
+//0.1秒
 #include <ctype.h>
 #define SELECT_TIMEOUT_SEC	0
 #define SELECT_TIMEOUT_USEC	100000
-//#define SELECT_TIMEOUT_SEC	1
-//#define SELECT_TIMEOUT_USEC	0
 #else
+//0.05秒
 #define SELECT_TIMEOUT_SEC	0
-#define SELECT_TIMEOUT_USEC	100000
+#define SELECT_TIMEOUT_USEC	50000
 #endif
 
+//NICの最大数
+#define IFR_MAX 20
+
+//メッセージ送信リトライ最大数
 #define SENDMSG_RETRY_MAX	5
+//ホストリスト取得リトライ最大数
 #define GETLIST_RETRY_MAX	2
+//一回のホストリスト取得最大数
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
+//パケットのデリミタ文字
 #define	PACKET_DELIMITER_CHAR	':'
+//パケットのデリミタ文字列
 #define	PACKET_DELIMITER_STRING	":"
+//オプション部の項目区切り文字
 #define	PACKET_FIELD_SEPERATOR_CHAR	'\a'
+//バージョン文字列
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version 1.0"
 
+//暗号化キー(RSA)のビット数(最弱)
 #define RSA_KEY_LENGTH_MINIMUM	512
+//暗号化キー(RSA)のビット数(まぁまぁ)
 #define RSA_KEY_LENGTH_MIDIUM	1024
+//暗号化キー(RSA)のビット数(最強)
 #define RSA_KEY_LENGTH_MAXIMUM	2048
+
+//RSAキー生成時に使用する素数
 #define ENCRYPT_PRIME			65537
 
 static IpMessengerAgent *myInstance = NULL;
@@ -140,12 +155,7 @@ IpMessengerAgent::~IpMessengerAgent()
 	Logout();
 	CryptoEnd();
 	delete converter;
-	for(int i = 0; i< udp_sd.size(); i++ ){
-		close(udp_sd[i]);
-	}
-	for(int i = 0; i< tcp_sd.size(); i++ ){
-		close(tcp_sd[i]);
-	}
+	NetworkEnd();
 }
 
 /**
@@ -257,7 +267,7 @@ IpMessengerAgent::CryptoEnd()
  * ネットワーク関連の初期化。
  * ・環境変数からホスト名を取得。（出来なければlocalhost固定）
  * ・環境変数からユーザ名を取得。（出来なければuid）
- * ・使用するネットワークインターフェイスのIPアドレスを求める。（ TODO :現在は"eth0"固定）
+ * ・使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）
  * 注：このメソッドはスレッドセーフでない。
  */
 void
@@ -278,31 +288,39 @@ IpMessengerAgent::NetworkInit()
 	} else {
 		LoginName = env;
 	}
+
+	//情報取得のためのソケットを作成
 	int fd;
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct ifconf ifc;
-#define IFR_MAX 20
+
 	struct ifreq ifr[IFR_MAX];
 	ifc.ifc_len = sizeof(ifr);
 	ifc.ifc_ifcu.ifcu_buf = (char *)ifr;
 
 	ioctl(fd, SIOCGIFCONF, &ifc);
 	int nifs = ifc.ifc_len / sizeof(struct ifreq);
-	/* ローカルループバックをのぞくIPアドレス */
+
+	/* ローカルループバックをのぞく全てのIPアドレスが対象 */
 	vector<NetworkInterface> nics;
 	for( int i = 0; i < nifs; i++ ){
 		if ( strcmp("127.0.0.1", inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) == 0 ){
 			continue;
 		}
-		printf( "%s,%s\n", ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+#if defined(DEBUG) || !defined(NDEBUG)
+		printf( "dev=%s,ipaddress=%s\n", ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+#endif
 		NetworkInterface ni;
 		ni.setDeviceName( ifr[i].ifr_name );
 		ni.setIpAddress( inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
 		nics.push_back( ni );
-	//	printf( "IF=%s[ip=%s]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str() );
-	//	fflush(stdout);
+#if defined(DEBUG) || !defined(NDEBUG)
+		printf( "NIC device=%s[IpAddress=%s]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str() );
+		fflush(stdout);
+#endif
 	}
 
+	//情報取得のためのソケットを閉じる。
 	close(fd);
 
 #ifdef WITH_OPENSSL
@@ -318,6 +336,22 @@ IpMessengerAgent::NetworkInit()
 	}
 	InitSend();
 	InitRecv( nics );
+}
+
+/**
+ * ネットワーク関連の初期化。
+ * ・全てのソケットを閉じる。
+ * 注：このメソッドはスレッドセーフでない。
+ */
+void
+IpMessengerAgent::NetworkEnd()
+{
+	for(int i = 0; i< udp_sd.size(); i++ ){
+		close(udp_sd[i]);
+	}
+	for(int i = 0; i< tcp_sd.size(); i++ ){
+		close(tcp_sd[i]);
+	}
 }
 
 /**
@@ -432,11 +466,8 @@ IpMessengerAgent::UpdateHostList()
 	int pcount = RecvPacket();
 	//自分以外のホストが見付からないか５回リトライする間繰り返す
 	for( int i = 0; i < 5; i++ ) {
-//		if ( pcount > 0 ){
-//			break;
-//		}
-		//0.1秒まつ。
-		usleep( 100000L );
+		//0.01秒まつ。
+		usleep( 10000L );
 		pcount = RecvPacket();
 	}
 
@@ -445,7 +476,17 @@ IpMessengerAgent::UpdateHostList()
 	printf("== M Y   H O S T L I S T ==============================>\n");
 	vector<HostListItem>::iterator ix = hostList.begin();
 	for( ; ix != hostList.end(); ix++ ){
-		printf("ver[%s]adesc[%s]user[%s]host[%s]cno[%lu]ipa[%s]nick[%s]gr[%s]enc[%s]port[%lu]\n",
+		printf( "Version[%s]\n" \
+				"AbsenceDescription[%s]\n" \
+				"User[%s]\n" \
+				"Host[%s]\n" \
+				"CommandNo[%lu]\n" \
+				"IpAddress[%s]\n" \
+				"NickName[%s]\n" \
+				"Group[%s]\n" \
+				"Encoding[%s]\n" \
+				"PortNo[%lu]\n" \
+				"##########################################################\n",
 				ix->Version().c_str(),
 				ix->AbsenceDescription().c_str(),
 				ix->UserName().c_str(),
@@ -1583,8 +1624,8 @@ IpMessengerAgent::SendBroadcast( char *buf, int size )
 void
 IpMessengerAgent::InitRecv( vector<NetworkInterface> nics )
 {
-	//for( int i = 0; i < nics.size(); i++ ){
-	for( int i = 0; i < 1; i++ ){
+	for( int i = 0; i < nics.size(); i++ ){
+//	for( int i = 0; i < 1; i++ ){
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(IPMSG_DEFAULT_PORT);
@@ -1594,14 +1635,18 @@ IpMessengerAgent::InitRecv( vector<NetworkInterface> nics )
 
 		sock = InitUdpRecv( addr );
 		if ( sock > 0 ) {
+#if defined(INFO) || !defined(NDEBUG)
 			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );
+#endif
 			udp_sd.push_back( sock );
 		} else {
 			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );
 		}
 		sock = InitTcpRecv( addr );
 		if ( sock > 0 ) {
+#if defined(INFO) || !defined(NDEBUG)
 			printf( "TCP_SD[%d] = %d\n", tcp_sd.size(),sock );
+#endif
 			tcp_sd.push_back( sock );
 		} else {
 			printf( "TCP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );
@@ -3269,6 +3314,18 @@ IpMessengerAgent::CloneSentMessages()
 }
 
 /**
+ * オプション部の最大長を取得する。
+ * @retval オプション部が許容するバッファの長さ
+ */
+int
+IpMessengerAgent::GetMaxOptionBufferSize()
+{
+	char tmp[MAX_UDPBUF];
+	int headSize = snprintf(tmp, sizeof(tmp), "%d:0000000000:%s:%s:0000000000:", IPMSG_VERSION, LoginName.c_str(), HostName.c_str() );
+	return MAX_UDPBUF - headSize;
+}
+
+/**
  * 送信用バッファを作成する。
  * @param cmd コマンド
  * @param packetNo パケット番号
@@ -3281,7 +3338,7 @@ IpMessengerAgent::CloneSentMessages()
  * @retval 送信バッファの長さ
  */
 int
-IpMessengerAgent:: CreateNewPacketBuffer(long cmd, long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
+IpMessengerAgent::CreateNewPacketBuffer(long cmd, long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "CMD[%s]\n", GetCommandString( GET_MODE( cmd ) ).c_str() );
@@ -3309,7 +3366,7 @@ IpMessengerAgent:: CreateNewPacketBuffer(long cmd, long packetNo, string user, s
  * @retval 送信バッファの長さ
  */
 int
-IpMessengerAgent:: CreateNewPacketBuffer(long cmd, string user, string host, const char *opt, int optLen, char *buf, int size )
+IpMessengerAgent::CreateNewPacketBuffer(long cmd, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
 	long packetNo = random();
 	return CreateNewPacketBuffer(cmd, packetNo, user, host, opt, optLen, buf, size );
@@ -3447,9 +3504,9 @@ IpMessengerAgent::AddDefaultHost()
 		myHost.setGroupName( GroupName );
 		myHost.setPortNo( IPMSG_DEFAULT_PORT );
 		hostList.AddHost( myHost );
-//#if defined(INFO) || !defined(NDEBUG)
+#if defined(INFO) || !defined(NDEBUG)
 		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );
-//#endif
+#endif
 	}
 }
 //end of source
