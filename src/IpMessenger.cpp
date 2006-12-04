@@ -193,6 +193,17 @@ IpMessengerAgent::RestartNetwork()
 }
 
 /**
+ * ファイル名コンバータのゲッター。
+ * 注：このメソッドはスレッドセーフでない。
+ * @retval コンバータのアドレス。
+ */
+FileNameConverter *
+IpMessengerAgent::GetFileNameConverter()
+{
+	return converter;
+}
+
+/**
  * ファイル名コンバータのセッター。
  * ・割り当て済のファイル名コンバータを削除する。
  * ・新しいコンバータの割り当て。
@@ -208,6 +219,17 @@ IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
 	delete converter;
 	converter = conv;
 }
+
+/**
+ * イベントオブジェクトのゲッター。
+ * 注：このメソッドはスレッドセーフでない。
+ * @retval イベントオブジェクトのアドレス。
+ */
+IpMessengerEvent *
+IpMessengerAgent::GetEventObject()
+{
+	return event;
+}; 
 
 /**
  * イベントオブジェクトのセッター。

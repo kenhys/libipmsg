@@ -288,6 +288,9 @@ class IpMessengerAgent {
 
 		IPMSG_READONLY_PROPERTY( string, LoginName );
 		IPMSG_READONLY_PROPERTY( string, HostName );
+		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
+		IPMSG_PROPERTY( bool, SaveSentMessage );
+		IPMSG_PROPERTY( bool, SaveRecievedMessage );
 
 		static IpMessengerAgent *GetInstance();
 		static void Release();
@@ -297,24 +300,6 @@ class IpMessengerAgent {
 		void AddBroadcastAddress( string addr );
 		void Login( string nickname, string groupName );
 		void Logout();
-		void SetAbortDownloadAtFileChanged( bool isAbort ){
-			_IsAbortDownloadAtFileChanged = isAbort;
-		}
-		bool GetAbortDownloadAtFileChanged(){
-			return _IsAbortDownloadAtFileChanged;
-		}
-		void SetSaveSentMessage( bool isSave ){
-			_IsSaveSentMessage = isSave;
-		}
-		bool GetSaveSentMessage(){
-			return _IsSaveSentMessage;
-		}
-		void SetSaveRecievedMessage( bool isSave ){
-			_IsSaveRecievedMessage = isSave;
-		}
-		bool GetSaveRecievedMessage(){
-			return _IsSaveRecievedMessage;
-		}
 		HostList& GetHostList();
 		HostList& UpdateHostList();
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
@@ -334,9 +319,9 @@ class IpMessengerAgent {
 		vector<SentMessage> *GetSentMessages();
 		vector<SentMessage> CloneSentMessages();
 		void SetEventObject( IpMessengerEvent *evt );
-		IpMessengerEvent *GetEventObject(){ return event; }; 
+		IpMessengerEvent *GetEventObject();
 		void SetFileNameConverter( FileNameConverter *conv );
-		FileNameConverter *GetFileNameConverter(){ return converter; };
+		FileNameConverter *GetFileNameConverter();
 		bool IsAbsence();
 
 	private:
