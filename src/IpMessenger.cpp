@@ -171,6 +171,7 @@ IpMessengerAgent::~IpMessengerAgent()
 	Logout();
 	CryptoEnd();
 	delete converter;
+	delete event;
 	NetworkEnd();
 }
 
@@ -206,6 +207,23 @@ IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
 	}
 	delete converter;
 	converter = conv;
+}
+
+/**
+ * イベントオブジェクトのセッター。
+ * ・割り当て済のイベントオブジェクトを削除する。
+ * ・新しいイベントオブジェクトの割り当て。
+ * 注：このメソッドはスレッドセーフでない。
+ * @param conv イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
+ */
+void
+IpMessengerAgent::SetEventObject( IpMessengerEvent *evt )
+{
+	if ( evt == NULL ){
+		return;
+	}
+	delete event;
+	event = evt;
 }
 
 /**
@@ -355,15 +373,15 @@ IpMessengerAgent::NetworkInit()
 
 	env = getenv( "HOSTNAME" );
 	if ( env == NULL ){
-		HostName = "localhost";
+		_HostName = "localhost";
 	} else {
-		HostName = env;
+		_HostName = env;
 	}
 	env = getenv( "USERNAME" );
 	if ( env == NULL ){
-		LoginName = snprintf( buf, sizeof( buf ), "%d", getuid() );
+		_LoginName = snprintf( buf, sizeof( buf ), "%d", getuid() );
 	} else {
-		LoginName = env;
+		_LoginName = env;
 	}
 
 #ifdef WITH_OPENSSL
@@ -417,7 +435,7 @@ IpMessengerAgent::Login( string nickname, string groupName )
 	if ( nickname != "" ) {
 		Nickname = nickname;
 	} else {
-		Nickname = LoginName;
+		Nickname = _LoginName;
 	}
 	GroupName = groupName;
 	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", Nickname.c_str() );
@@ -431,13 +449,13 @@ IpMessengerAgent::Login( string nickname, string groupName )
 #ifdef WITH_OPENSSL
 	if ( encryptionCapacity != 0UL ) {
 		sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ENTRY | IPMSG_FILEATTACHOPT | IPMSG_ENCRYPTOPT,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  optBuf, optBufLen,
 											  sendBuf, sizeof( sendBuf ) );
 	} else {
 #endif	//WITH_OPENSSL
 		sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ENTRY | IPMSG_FILEATTACHOPT,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  optBuf, optBufLen,
 											  sendBuf, sizeof( sendBuf ) );
 #ifdef WITH_OPENSSL
@@ -462,7 +480,7 @@ IpMessengerAgent::Logout()
 	int sendBufLen;
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_EXIT,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( sendBuf, sendBufLen );
@@ -500,7 +518,7 @@ IpMessengerAgent::UpdateHostList()
 	AddDefaultHost();
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ISGETLIST2,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( sendBuf, sendBufLen );
@@ -690,7 +708,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
 										  ( isLockPassword ? IPMSG_PASSWORDOPT : 0UL ) |
 										  ( files.size() > 0 ? IPMSG_FILEATTACHOPT : 0UL ) | opt,
 										  packetNo,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, addr );
@@ -1403,7 +1421,7 @@ IpMessengerAgent::GetInfo( HostListItem host )
 
 	RecvPacket();
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETINFO,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  packetNoBuf, packetNoBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, addr );
@@ -1444,7 +1462,7 @@ IpMessengerAgent::GetAbsenceInfo( HostListItem host )
 
 	RecvPacket();
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETABSENCEINFO,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  packetNoBuf, packetNoBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, addr );
@@ -1504,7 +1522,7 @@ IpMessengerAgent::DeleteNotify( RecievedMessage msg )
 	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lu", packetNo );
 	optBuf[optBufLen++] = '\0';
 	sendBufLen = CreateNewPacketBuffer( IPMSG_DELMSG,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, msg.MessagePacket().Addr() );
@@ -1527,7 +1545,7 @@ IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
 	if ( ( IPMSG_SECRETOPT & msg.MessagePacket().CommandOption() ) && !msg.IsConfirmed() ) {
 		packetNoBufLen = snprintf( packetNoBuf, sizeof( packetNoBuf ), "%ld", msg.MessagePacket().PacketNo() );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_READMSG,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  packetNoBuf, packetNoBufLen,
 											  sendBuf, sizeof( sendBuf ) );
 		SendPacket( sendBuf, sendBufLen, msg.MessagePacket().Addr() );
@@ -2025,7 +2043,7 @@ IpMessengerAgent::SendNoOperation()
 	int sendBufLen;
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_NOOPERATION,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( sendBuf, sendBufLen );
@@ -2067,7 +2085,7 @@ IpMessengerAgent::UdpRecvEventBrEntry( Packet packet )
 	optBufLen += GroupName.size();
 	optBuf[optBufLen ] = '\0';
 	sendBufLen = CreateNewPacketBuffer( IPMSG_ANSENTRY,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2109,7 +2127,7 @@ IpMessengerAgent::SendAbsence()
 	optBuf[optBufLen ] = '\0';
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ABSENCE | ( _IsAbsence ? IPMSG_ABSENCEOPT : 0UL),
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( sendBuf, sendBufLen );
@@ -2184,7 +2202,7 @@ IpMessengerAgent::UdpRecvEventReadMsg( Packet packet )
 	if ( packet.CommandOption() & IPMSG_READCHECKOPT ) {
 		packetNoBufLen = snprintf( packetNoBuf, sizeof( packetNoBuf ), "%ld", packet.PacketNo() );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_ANSREADMSG,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  packetNoBuf, packetNoBufLen,
 											  sendBuf, sizeof( sendBuf ) );
 		SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2276,7 +2294,7 @@ IpMessengerAgent::UdpRecvEventSendMsg( Packet packet )
 printf("SENDCHECKOPT(%s)\n", packetNoBuf);
 #endif
 			sendBufLen = CreateNewPacketBuffer( IPMSG_RECVMSG,
-												  LoginName, HostName,
+												  _LoginName, _HostName,
 												  packetNoBuf, packetNoBufLen,
 												  sendBuf, sizeof( sendBuf ) );
 #if defined(INFO) || !defined(NDEBUG)
@@ -2379,7 +2397,7 @@ IpMessengerAgent::UdpRecvEventBrIsGetList( Packet packet )
 	printf("UdpRecvBrIsGetList\n");
 #endif
 	sendBufLen = CreateNewPacketBuffer( IPMSG_OKGETLIST,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2401,7 +2419,7 @@ IpMessengerAgent::UdpRecvEventBrIsGetList2( Packet packet )
 	printf("UdpRecvBrIsGetList2\n");
 #endif
 	sendBufLen = CreateNewPacketBuffer( IPMSG_OKGETLIST,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2428,7 +2446,7 @@ IpMessengerAgent::UdpRecvEventGetList( Packet packet )
 	start = strtoul( packet.Option().c_str(), &dmy, 10 );
 	hosts = hostList.ToString( start );
 	sendBufLen = CreateNewPacketBuffer( IPMSG_ANSLIST,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  hosts.c_str(), hosts.length(),
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2451,7 +2469,7 @@ IpMessengerAgent::UdpRecvEventOkGetList( Packet packet )
 	printf("UdpRecvOkGetList[%s]\n", packet.Option().c_str());
 #endif
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETLIST,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2502,7 +2520,7 @@ IpMessengerAgent::UdpRecvEventAnsList( Packet packet )
 		printf("nextbuf_len = %d\n", nextbuf_len );
 #endif
 		sendBufLen = CreateNewPacketBuffer( IPMSG_GETLIST,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  nextbuf, nextbuf_len,
 											  sendBuf, sizeof( sendBuf ) );
 		SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2526,7 +2544,7 @@ IpMessengerAgent::UdpRecvEventGetInfo( Packet packet )
 	printf("UdpRecvGetInfo[%s]\n", packet.Option().c_str());
 #endif
 	sendBufLen = CreateNewPacketBuffer( IPMSG_SENDINFO,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  version.c_str(), version.length(),
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2577,7 +2595,7 @@ IpMessengerAgent::UdpRecvEventGetAbsenceInfo( Packet packet )
 		}
 	}
 	sendBufLen = CreateNewPacketBuffer( IPMSG_SENDABSENCEINFO,
-										  LoginName, HostName,
+										  _LoginName, _HostName,
 										  AbsenceDescription.c_str(), AbsenceDescription.length(),
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -2770,7 +2788,7 @@ IpMessengerAgent::UdpRecvEventGetPubKey( Packet packet )
 	if ( rsa != NULL ){
 		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%s-%s", encryptionCapacity, BN_bn2hex(rsa->e), BN_bn2hex(rsa->n) );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_ANSPUBKEY,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  optBuf, optBufLen,
 											  sendBuf, sizeof( sendBuf ) );
 		SendPacket( sendBuf, sendBufLen, packet.Addr() );
@@ -3314,7 +3332,7 @@ IpMessengerAgent::CreateHostList( const char *hostListBuf, int buf_len )
 		int optBufLen;
 		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx", encryptionCapacity );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_GETPUBKEY,
-											  LoginName, HostName,
+											  _LoginName, _HostName,
 											  optBuf, optBufLen,
 											  sendBuf, sizeof( sendBuf ) );
 		struct sockaddr_in addr;
@@ -3386,7 +3404,7 @@ int
 IpMessengerAgent::GetMaxOptionBufferSize()
 {
 	char tmp[MAX_UDPBUF];
-	int headSize = snprintf(tmp, sizeof(tmp), "%d:0000000000:%s:%s:0000000000:", IPMSG_VERSION, LoginName.c_str(), HostName.c_str() );
+	int headSize = snprintf(tmp, sizeof(tmp), "%d:0000000000:%s:%s:0000000000:", IPMSG_VERSION, _LoginName.c_str(), _HostName.c_str() );
 	return MAX_UDPBUF - headSize;
 }
 
@@ -3561,8 +3579,8 @@ IpMessengerAgent::AddDefaultHost()
 {
 	if ( hostList.size() == 0 ) {
 		HostListItem myHost;
-		myHost.setUserName( LoginName );
-		myHost.setHostName( HostName );
+		myHost.setUserName( _LoginName );
+		myHost.setHostName( _HostName );
 		myHost.setCommandNo( 0L );
 		myHost.setIpAddress( HostAddress );
 		myHost.setNickname( Nickname );

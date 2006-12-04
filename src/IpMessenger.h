@@ -31,6 +31,9 @@
 #include <vector>
 using namespace std;
 
+#define IPMSG_READONLY_PROPERTY(t, name ) private: t _##name; \
+								public: t name() {return _##name; };
+
 #define IPMSG_PROPERTY(t, name ) private: t _##name; \
 								public: t name() {return _##name; };\
 								void set##name(t val){ _##name = val; };
@@ -283,6 +286,9 @@ class IpMessengerAgent {
 		friend void *GetFileDataThread( void *param );
 		friend void *GetDirFilesThread( void *param );
 
+		IPMSG_READONLY_PROPERTY( string, LoginName );
+		IPMSG_READONLY_PROPERTY( string, HostName );
+
 		static IpMessengerAgent *GetInstance();
 		static void Release();
 		static void GetNetworkInterfaceInfo( vector<NetworkInterface>& nics );
@@ -327,10 +333,10 @@ class IpMessengerAgent {
 		void AcceptConfirmNotify( SentMessage msg );
 		vector<SentMessage> *GetSentMessages();
 		vector<SentMessage> CloneSentMessages();
+		void SetEventObject( IpMessengerEvent *evt );
+		IpMessengerEvent *GetEventObject(){ return event; }; 
 		void SetFileNameConverter( FileNameConverter *conv );
 		FileNameConverter *GetFileNameConverter(){ return converter; };
-		string GetLoginName(){return LoginName;};
-		string GetHostName(){return HostName;};
 		bool IsAbsence();
 
 	private:
@@ -352,9 +358,7 @@ class IpMessengerAgent {
 		string DecryptErrorMessage;
 		string Nickname;
 		string GroupName;
-		string LoginName;
 		string HostAddress;
-		string HostName;
 
 		vector<int> tcp_sd;
 		vector<int> udp_sd;

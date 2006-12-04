@@ -42,7 +42,7 @@ fflush(stdout);
 	char optBuf[MAX_UDPBUF];
 	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETFILEDATA,
-												 agent->GetLoginName(), agent->GetHostName(),
+												 agent->LoginName(), agent->HostName(),
 												 optBuf, optBufLen,
 												 sendBuf, sizeof( sendBuf ) );
 	agent->SendTcpPacket( sock, sendBuf, sendBufLen );
@@ -160,7 +160,7 @@ RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBase
 	char optBuf[MAX_UDPBUF];
 	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x", MessagePacket().PacketNo(), file.FileId() );
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETDIRFILES,
-												 agent->GetLoginName(), agent->GetHostName(),
+												 agent->LoginName(), agent->HostName(),
 												 optBuf, optBufLen,
 												 sendBuf, sizeof( sendBuf ) );
 	agent->SendTcpPacket( sock, sendBuf, sendBufLen );
