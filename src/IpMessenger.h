@@ -38,6 +38,9 @@ using namespace std;
 #define IPMSG_PROPERTY_REF(t, name ) private: t _##name; \
 									public: t& name() {return _##name; };\
 									void set##name(t& val){ _##name = val; };
+
+const int IPMSG_DEFAULT_PORT=0x0979;
+
 class Packet{
 	public:
 		IPMSG_PROPERTY( unsigned long, VersionNo );
@@ -56,6 +59,7 @@ class NetworkInterface {
 	public:
 		IPMSG_PROPERTY( string, DeviceName );
 		IPMSG_PROPERTY( string, IpAddress );
+		IPMSG_PROPERTY( int, PortNo );
 };
 
 class HostListItem{
@@ -257,6 +261,20 @@ class AbsenceMode {
 		IPMSG_PROPERTY( string, AbsenceDescription );
 };
 
+class IpMessengerEvent {
+	public:
+		virtual void UpdateHostListAfter( HostList& hostList )=0;
+		virtual void GetHostListRetryError()=0;
+		virtual void RecieveAfter( RecievedMessage& msg )=0;
+		virtual void SendAfter( SentMessage& msg )=0;
+		virtual void SendRetryError( SentMessage& msg )=0;
+		virtual void OpenAfter( SentMessage& msg )=0;
+		virtual void DownloadStart( SentMessage& msg, AttachFile& file )=0;
+		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file )=0;
+		virtual void DownloadEnd( SentMessage& msg, AttachFile& file )=0;
+		virtual void DownloadError( SentMessage& msg, AttachFile& file )=0;
+};
+
 class IpMessengerAgent {
 	public:
 		friend class RecievedMessage;
@@ -267,6 +285,7 @@ class IpMessengerAgent {
 
 		static IpMessengerAgent *GetInstance();
 		static void Release();
+		static void GetNetworkInterfaceInfo( vector<NetworkInterface>& nics );
 		void ClearBroadcastAddress();
 		void DeleteBroadcastAddress( string addr );
 		void AddBroadcastAddress( string addr );
@@ -321,6 +340,7 @@ class IpMessengerAgent {
 		RSA *RsaMin;
 		unsigned long encryptionCapacity;
 #endif
+		IpMessengerEvent *event;
 		SentMessageList sentMsgList;
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
@@ -343,6 +363,7 @@ class IpMessengerAgent {
 		fd_set rfds;
 		vector<struct sockaddr_in> broadcastAddr;
 		HostList hostList;
+		vector<NetworkInterface> NICs;
 		string localEncoding;
 
 		IpMessengerAgent();
@@ -351,6 +372,7 @@ class IpMessengerAgent {
 		bool needSendRetry( SentMessage msg, time_t tryNow );
 		void CryptoInit();
 		void CryptoEnd();
+		void RestartNetwork();
 		void NetworkInit();
 		void NetworkEnd();
 		void InitSend();

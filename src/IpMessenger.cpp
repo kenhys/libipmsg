@@ -77,6 +77,20 @@ pthread_mutex_t instanceMutex;
 int mutex_init_result = pthread_mutex_init( &instanceMutex, NULL );
 #endif
 
+class IpMessengerNullEvent: public IpMessengerEvent {
+	public:
+		virtual void UpdateHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); }; 	//
+		virtual void GetHostListRetryError(){ printf("GetHostListRetryError\n"); }; 					//
+		virtual void RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n"); };					//
+		virtual void SendAfter( SentMessage& msg ){ printf("SendAfter\n"); }; 							//
+		virtual void SendRetryError( SentMessage& msg ){ printf("SendRetryError\n"); };					//
+		virtual void OpenAfter( SentMessage& msg ){ printf("OpenAfter\n"); };							//
+		virtual void DownloadStart( SentMessage& msg, AttachFile& file ){ printf("DownloadStart\n"); };
+		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file ){ printf("DownloadProcessing\n"); };
+		virtual void DownloadEnd( SentMessage& msg, AttachFile& file ){ printf("DownloadEnd\n"); };
+		virtual void DownloadError( SentMessage& msg, AttachFile& file ){ printf("DownloadError\n"); };
+};
+
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
  * Singletonパターンを採用しているので、ホスト唯一のインスタンスでなければならない。
@@ -139,7 +153,9 @@ IpMessengerAgent::IpMessengerAgent()
 	_IsAbortDownloadAtFileChanged = false;
 	_IsSaveSentMessage = true;
 	_IsSaveRecievedMessage = true;
+	IpMessengerAgent::GetNetworkInterfaceInfo( NICs );
 	NetworkInit();
+	event = new IpMessengerNullEvent();
 }
 
 /**
@@ -156,6 +172,23 @@ IpMessengerAgent::~IpMessengerAgent()
 	CryptoEnd();
 	delete converter;
 	NetworkEnd();
+}
+
+/**
+ * IP メッセンジャエージェントクラスのネットワークを再起動する。
+ * ・まず、ログアウト。
+ * ・ネットワーク終期化。
+ * ・ネットワーク初期化。
+ * ・再度ログイン。
+ * 注：このインスタンスはスレッドセーフでない。
+ */
+void
+IpMessengerAgent::RestartNetwork()
+{
+	Logout();
+	NetworkEnd();
+	NetworkInit();
+	Login( Nickname, GroupName );
 }
 
 /**
@@ -264,10 +297,54 @@ IpMessengerAgent::CryptoEnd()
 }
 
 /**
+ * NICの情報を取得する。
+ * ・使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）
+ * @param nics ネットワークインターフェースの一覧
+ * 注：このメソッドはスレッドセーフでない。
+ */
+void
+IpMessengerAgent::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
+{
+	//情報取得のためのソケットを作成
+	int fd;
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	struct ifconf ifc;
+
+	struct ifreq ifr[IFR_MAX];
+	ifc.ifc_len = sizeof(ifr);
+	ifc.ifc_ifcu.ifcu_buf = (char *)ifr;
+
+	ioctl(fd, SIOCGIFCONF, &ifc);
+	int nifs = ifc.ifc_len / sizeof(struct ifreq);
+
+	/* ローカルループバックをのぞく全てのIPアドレスが対象 */
+	/* 全てのNICを取得する */
+	for( int i = 0; i < nifs; i++ ){
+		if ( strcmp("127.0.0.1", inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) == 0 ){
+			continue;
+		}
+#if defined(DEBUG) || !defined(NDEBUG)
+		printf( "dev=%s,ipaddress=%s\n", ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+#endif
+		NetworkInterface ni;
+		ni.setDeviceName( ifr[i].ifr_name );
+		ni.setPortNo( IPMSG_DEFAULT_PORT );
+		ni.setIpAddress( inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
+		nics.push_back( ni );
+#if defined(DEBUG) || !defined(NDEBUG)
+		printf( "NIC device=%s[IpAddress=%s]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str() );
+		fflush(stdout);
+#endif
+	}
+
+	//情報取得のためのソケットを閉じる。
+	close(fd);
+}
+
+/**
  * ネットワーク関連の初期化。
  * ・環境変数からホスト名を取得。（出来なければlocalhost固定）
  * ・環境変数からユーザ名を取得。（出来なければuid）
- * ・使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）
  * 注：このメソッドはスレッドセーフでない。
  */
 void
@@ -289,40 +366,6 @@ IpMessengerAgent::NetworkInit()
 		LoginName = env;
 	}
 
-	//情報取得のためのソケットを作成
-	int fd;
-	fd = socket(AF_INET, SOCK_DGRAM, 0);
-	struct ifconf ifc;
-
-	struct ifreq ifr[IFR_MAX];
-	ifc.ifc_len = sizeof(ifr);
-	ifc.ifc_ifcu.ifcu_buf = (char *)ifr;
-
-	ioctl(fd, SIOCGIFCONF, &ifc);
-	int nifs = ifc.ifc_len / sizeof(struct ifreq);
-
-	/* ローカルループバックをのぞく全てのIPアドレスが対象 */
-	vector<NetworkInterface> nics;
-	for( int i = 0; i < nifs; i++ ){
-		if ( strcmp("127.0.0.1", inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) ) == 0 ){
-			continue;
-		}
-#if defined(DEBUG) || !defined(NDEBUG)
-		printf( "dev=%s,ipaddress=%s\n", ifr[i].ifr_name, inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
-#endif
-		NetworkInterface ni;
-		ni.setDeviceName( ifr[i].ifr_name );
-		ni.setIpAddress( inet_ntoa( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr ) );
-		nics.push_back( ni );
-#if defined(DEBUG) || !defined(NDEBUG)
-		printf( "NIC device=%s[IpAddress=%s]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str() );
-		fflush(stdout);
-#endif
-	}
-
-	//情報取得のためのソケットを閉じる。
-	close(fd);
-
 #ifdef WITH_OPENSSL
 	DecryptErrorMessage = "\r\n"\
 						  " ==== AutoReply(DecryptErr) ====\r\n" \
@@ -331,11 +374,8 @@ IpMessengerAgent::NetworkInit()
 						  "  Please press refresh button.\r\n" \
 						  " ==============================";
 #endif	//WITH_OPENSSL
-	if ( nics.size() > 0 ) {
-		HostAddress = nics[0].IpAddress();
-	}
 	InitSend();
-	InitRecv( nics );
+	InitRecv( NICs );
 }
 
 /**
@@ -454,6 +494,7 @@ IpMessengerAgent::UpdateHostList()
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
+	HostList backup = hostList;
 
 	hostList.clear();
 	AddDefaultHost();
@@ -471,6 +512,12 @@ IpMessengerAgent::UpdateHostList()
 		pcount = RecvPacket();
 	}
 
+	//Error??? TODO
+	//if ( event != NULL ) {
+	//	event->GetHostListRetryError();
+	//	hostList = backup;
+	//	return hostList;
+	//}
 #if defined(DEBUG)
 	printf("\n\n");
 	printf("== M Y   H O S T L I S T ==============================>\n");
@@ -500,6 +547,9 @@ IpMessengerAgent::UpdateHostList()
 	}
 	printf("<= M Y   H O S T L I S T ===============================\n");
 #endif
+	if ( event != NULL ) {
+		event->UpdateHostListAfter( hostList );
+	}
 	return hostList;
 }
 
@@ -663,16 +713,20 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
 	printf( "HostName[%s]\n", message.Host().HostName().c_str() );
 	printf( "Nickname[%s]\n", message.Host().Nickname().c_str() );
 #endif
-
 	if ( _IsSaveSentMessage ){
 		sentMsgList.append( message );
 	}
+
+	RecvPacket();
+
+	if ( event != NULL ){
+		event->SendAfter( message );
+	}
+
 #if defined(DEBUG)
 	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );
 	fflush(stdout);
 #endif
-
-	RecvPacket();
 
 	return message;
 }
@@ -1624,11 +1678,13 @@ IpMessengerAgent::SendBroadcast( char *buf, int size )
 void
 IpMessengerAgent::InitRecv( vector<NetworkInterface> nics )
 {
+	if ( nics.size() > 0 ) {
+		HostAddress = nics[0].IpAddress();
+	}
 	for( int i = 0; i < nics.size(); i++ ){
-//	for( int i = 0; i < 1; i++ ){
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
-		addr.sin_port = htons(IPMSG_DEFAULT_PORT);
+		addr.sin_port = htons( nics[i].PortNo());
 		addr.sin_addr.s_addr = inet_addr( nics[i].IpAddress().c_str() );
 
 		int sock = -1;
@@ -1883,6 +1939,9 @@ IpMessengerAgent::RecvPacket()
 #if defined(INFO) || !defined(NDEBUG)
 			printf("Retry Max Over\n");
 #endif
+			if ( event != NULL ){
+				event->SendRetryError( *ixmsg );
+			}
 			ixmsg->setRetryCount( 0 );
 			ixmsg->setIsRetryMaxOver( true );
 		}
@@ -2137,6 +2196,9 @@ IpMessengerAgent::UdpRecvEventReadMsg( Packet packet )
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsConfirmed( true );
 	}
+	if ( event != NULL ) {
+		event->OpenAfter( *sentMsg );
+	}
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvReadMsg\n");
 #endif
@@ -2293,6 +2355,9 @@ printf("Send(%s) -> IP[%s]\n", sendBuf, inet_ntoa( packet.Addr().sin_addr ) );
 		message.setHasAttachFile( true );
 	}
 	message.setFiles( files );
+	if ( event != NULL ) {
+		event->RecieveAfter( message );
+	}
 	if ( _IsSaveRecievedMessage ){
 		recvMsgList.append( message );
 	}

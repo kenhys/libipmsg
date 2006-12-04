@@ -10,7 +10,6 @@
 
 /*  header  */
 #define IPMSG_VERSION			0x0001
-#define IPMSG_DEFAULT_PORT		0x0979
 
 /*  command  */
 #define IPMSG_NOOPERATION		0x00000000UL
