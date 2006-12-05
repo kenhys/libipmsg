@@ -58,8 +58,9 @@ am__installdirs = "$(DESTDIR)$(libdir)" \
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libipmsg_la_LIBADD =
-am_libipmsg_la_OBJECTS = IpMessenger.lo HostList.lo AttachFile.lo \
-	RecievedMessage.lo SentMessage.lo PrivateUtils.lo
+am_libipmsg_la_OBJECTS = IpMessenger.lo IpMessengerImpl.lo HostList.lo \
+	AttachFile.lo RecievedMessage.lo SentMessage.lo \
+	PrivateUtils.lo
 libipmsg_la_OBJECTS = $(am_libipmsg_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -184,7 +185,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 lib_LTLIBRARIES = libipmsg.la
-libipmsg_la_SOURCES = IpMessenger.cpp ipmsg.h HostList.cpp AttachFile.cpp RecievedMessage.cpp SentMessage.cpp PrivateUtils.cpp
+libipmsg_la_SOURCES = IpMessenger.cpp IpMessengerImpl.h IpMessengerImpl.cpp ipmsg.h HostList.cpp AttachFile.cpp RecievedMessage.cpp SentMessage.cpp PrivateUtils.cpp
 libipmsgincludedir = $(includedir)
 libipmsginclude_HEADERS = IpMessenger.h
 all: all-am
@@ -259,6 +260,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttachFile.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HostList.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IpMessenger.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IpMessengerImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrivateUtils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RecievedMessage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SentMessage.Plo@am__quote@

@@ -8,6 +8,7 @@
 #endif
 
 #include "IpMessenger.h"
+#include "IpMessengerImpl.h"
 #include "ipmsg.h"
 using namespace std;
 
@@ -35,7 +36,7 @@ fflush(stdout);
 		return false;
 	}
 
-	IpMessengerAgent *agent = IpMessengerAgent::GetInstance();
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -153,7 +154,7 @@ RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBase
 		return false;
 	}
 
-	IpMessengerAgent *agent = IpMessengerAgent::GetInstance();
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;

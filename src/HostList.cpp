@@ -8,6 +8,7 @@
 #endif
 
 #include "IpMessenger.h"
+#include "IpMessengerImpl.h"
 #include "ipmsg.h"
 using namespace std;
 
@@ -53,7 +54,7 @@ string HostList::ToString( int start )
 {
 	char buf[MAX_UDPBUF];
 	string ret;
-	int maxLength= IpMessengerAgent::GetInstance()->GetMaxOptionBufferSize();
+	int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize();
 
 	ret = "";
 	int hostCount = 0;

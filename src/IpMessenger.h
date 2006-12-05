@@ -31,18 +31,45 @@
 #include <vector>
 using namespace std;
 
+/**
+ * 読み込み専用プロパティ
+ * IPMSG_READONLY_PROPERTY( SomeClass, PropName )は
+ * -------------------------------------------------------------------
+ *   private: SomeClass _PropName;
+ *   public: SomeClass& PropName(){ return _PropName; };
+ * -------------------------------------------------------------------
+ * に展開されます。
+ **/
 #define IPMSG_READONLY_PROPERTY(t, name ) private: t _##name; \
 								public: t name() {return _##name; };
 
+/**
+ * 読み書き両用プロパティ
+ * IPMSG_PROPERTY( SomeClass, PropName )は
+ * -------------------------------------------------------------------
+ *   private: SomeClass _PropName;
+ *   public: SomeClass PropName(){ return _PropName; };
+ *           void setPropName( SomeClass val ){ _PropName = val; };
+ * -------------------------------------------------------------------
+ * に展開されます。
+ **/
 #define IPMSG_PROPERTY(t, name ) private: t _##name; \
 								public: t name() {return _##name; };\
 								void set##name(t val){ _##name = val; };
 
+/**
+ * 読み書き両用プロパティ(参照用)
+ * IPMSG_PROPERTY_REF( SomeClass, PropName )は
+ * -------------------------------------------------------------------
+ *   private: SomeClass _PropName;
+ *   public: SomeClass& PropName(){ return _PropName; };
+ *           void setPropName( SomeClass& val ){ _PropName = val; };
+ * -------------------------------------------------------------------
+ * に展開されます。
+ **/
 #define IPMSG_PROPERTY_REF(t, name ) private: t _##name; \
 									public: t& name() {return _##name; };\
 									void set##name(t& val){ _##name = val; };
-
-const int IPMSG_DEFAULT_PORT=0x0979;
 
 class Packet{
 	public:
@@ -141,6 +168,7 @@ class AttachFile{
 #define IPMSG_SIZE_MB	(long double)(1024 * IPMSG_SIZE_KB)
 #define IPMSG_SIZE_GB	(long double)(1024 * IPMSG_SIZE_MB)
 #define IPMSG_SIZE_TB	(long double)(1024 * IPMSG_SIZE_GB)
+
 class DownloadInfo{
 	public:
 		IPMSG_PROPERTY( long long, Size );
@@ -264,20 +292,30 @@ class AbsenceMode {
 		IPMSG_PROPERTY( string, AbsenceDescription );
 };
 
+
+/**
+ * IP Messenger イベントオブジェクト
+ * （各Applicationはこのオブジェクトを継承して処理を実装してください。）
+ **/
 class IpMessengerEvent {
 	public:
-		virtual void UpdateHostListAfter( HostList& hostList )=0;
-		virtual void GetHostListRetryError()=0;
-		virtual void RecieveAfter( RecievedMessage& msg )=0;
-		virtual void SendAfter( SentMessage& msg )=0;
-		virtual void SendRetryError( SentMessage& msg )=0;
-		virtual void OpenAfter( SentMessage& msg )=0;
-		virtual void DownloadStart( SentMessage& msg, AttachFile& file )=0;
-		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file )=0;
-		virtual void DownloadEnd( SentMessage& msg, AttachFile& file )=0;
-		virtual void DownloadError( SentMessage& msg, AttachFile& file )=0;
+		virtual void UpdateHostListAfter( HostList& hostList )=0;					//ホストリスト更新後
+		virtual void GetHostListRetryError()=0;										//ホストリスト取得リトライエラー
+		virtual void RecieveAfter( RecievedMessage& msg )=0;						//メッセージ受信後
+		virtual void SendAfter( SentMessage& msg )=0;								//メッセージ送信後
+		virtual void SendRetryError( SentMessage& msg )=0;							//メッセージ送信リトライエラー
+		virtual void OpenAfter( SentMessage& msg )=0;								//開封通知後
+		virtual void DownloadStart( SentMessage& msg, AttachFile& file )=0;			//ダウンロード開始
+		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file )=0;	//ダウンロード処理中
+		virtual void DownloadEnd( SentMessage& msg, AttachFile& file )=0;			//ダウンロード終了
+		virtual void DownloadError( SentMessage& msg, AttachFile& file )=0;			//ダウンロードエラー
 };
 
+class IpMessengerAgentImpl;
+
+/**
+ * IP Messenger エージェント
+ **/
 class IpMessengerAgent {
 	public:
 		friend class RecievedMessage;
@@ -286,138 +324,198 @@ class IpMessengerAgent {
 		friend void *GetFileDataThread( void *param );
 		friend void *GetDirFilesThread( void *param );
 
-		IPMSG_READONLY_PROPERTY( string, LoginName );
-		IPMSG_READONLY_PROPERTY( string, HostName );
-		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
-		IPMSG_PROPERTY( bool, SaveSentMessage );
-		IPMSG_PROPERTY( bool, SaveRecievedMessage );
-
+		/**
+		 * インスタンスを取得
+		 **/
 		static IpMessengerAgent *GetInstance();
+
+		/**
+		 * インスタンスを解放
+		 **/
 		static void Release();
+
+		/**
+		 * NICの情報を取得
+		 **/
 		static void GetNetworkInterfaceInfo( vector<NetworkInterface>& nics );
+
+		/**
+		 * ブロードキャストアドレスのリストをクリア
+		 **/
 		void ClearBroadcastAddress();
+
+		/**
+		 * ブロードキャストアドレスのリストからアドレスを削除
+		 **/
 		void DeleteBroadcastAddress( string addr );
+
+		/**
+		 * ブロードキャストアドレスのリストにアドレスを追加
+		 **/
 		void AddBroadcastAddress( string addr );
+
+		/**
+		 * ログイン通知（参加通知）
+		 **/
 		void Login( string nickname, string groupName );
+
+		/**
+		 * ログアウト通知（脱退通知）
+		 **/
 		void Logout();
+
+		/**
+		 * ホストリストを取得
+		 **/
 		HostList& GetHostList();
+
+		/**
+		 * ホストリストを更新して取得
+		 **/
 		HostList& UpdateHostList();
+
+		/**
+		 * メッセージ送信（添付無し）
+		 **/
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+
+		/**
+		 * メッセージ送信（一つ添付）
+		 **/
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+
+		/**
+		 * メッセージ送信（複数添付）
+		 **/
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+
+		/**
+		 * 不在解除
+		 **/
 		void ResetAbsence();
+
+		/**
+		 * 不在設定
+		 **/
 		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
+
+		/**
+		 * グループ一覧取得
+		 **/
 		vector<string> GetGroupList();
+
+		/**
+		 * バージョン情報取得
+		 **/
 		string GetInfo( HostListItem host );
+
+		/**
+		 * 不在情報取得
+		 **/
 		string GetAbsenceInfo( HostListItem host );
+
+		/**
+		 * パケットの処理（ポーリング用）
+		 **/
 		int Process();
+
+		/**
+		 * 受信済メッセージの個数取得
+		 **/
 		int GetRecievedMessageCount();
+
+		/**
+		 * 受信メッセージの取り出し
+		 **/
 		RecievedMessage PopRecievedMessage();
+
+		/**
+		 * 送信元に開封通知を送信
+		 **/
 		void ConfirmMessage( RecievedMessage &msg );
+
+		/**
+		 * 送信元にメッセージ削除（廃棄）を送信
+		 **/
 		void DeleteNotify( RecievedMessage msg );
+
+		/**
+		 * 送信済メッセージに開封済であることをマーク
+		 **/
 		void AcceptConfirmNotify( SentMessage msg );
+
+		/**
+		 * 送信メッセージリストの取得
+		 **/
 		vector<SentMessage> *GetSentMessages();
+
+		/**
+		 * 送信メッセージリストのコピーの取得
+		 **/
 		vector<SentMessage> CloneSentMessages();
+
+		/**
+		 * イベントオブジェクトの設定
+		 **/
 		void SetEventObject( IpMessengerEvent *evt );
+
+		/**
+		 * イベントオブジェクトの取得
+		 **/
 		IpMessengerEvent *GetEventObject();
+
+		/**
+		 * ファイルコンバーターの設定
+		 **/
 		void SetFileNameConverter( FileNameConverter *conv );
+
+		/**
+		 * ファイルコンバーターの取得
+		 **/
 		FileNameConverter *GetFileNameConverter();
+
+		/**
+		 * 不在？
+		 **/
 		bool IsAbsence();
 
+		/**
+		 * ネットワークの再起動
+		 **/
+		void RestartNetwork();
+
+		/**
+		 * ログイン名
+		 **/
+		string LoginName();
+
+		/**
+		 * ホスト名
+		 **/
+		string HostName();
+
+		/**
+		 * ファイルが変更されたらダウンロードを中断する
+		 **/
+		bool AbortDownloadAtFileChanged();
+		void setAbortDownloadAtFileChanged( bool isAbort );
+
+		/**
+		 * 送信メッセージを記憶する
+		 **/
+		bool SaveSentMessage();
+		void setSaveSentMessage( bool isSave );
+
+		/**
+		 * 受信メッセージを記憶する
+		 **/
+		bool SaveRecievedMessage();
+		void setSaveRecievedMessage( bool isSave );
+
 	private:
-#ifdef HAVE_OPENSSL
-		RSA *RsaMax;
-		RSA *RsaMid;
-		RSA *RsaMin;
-		unsigned long encryptionCapacity;
-#endif
-		IpMessengerEvent *event;
-		SentMessageList sentMsgList;
-		RecievedMessageList recvMsgList;
-		bool _IsAbsence;
-		bool _IsAbortDownloadAtFileChanged;
-		bool _IsSaveSentMessage;
-		bool _IsSaveRecievedMessage;
-		FileNameConverter *converter;
-		vector<AbsenceMode> absenceModeList;
-		string DecryptErrorMessage;
-		string Nickname;
-		string GroupName;
-		string HostAddress;
-
-		vector<int> tcp_sd;
-		vector<int> udp_sd;
-		vector<struct sockaddr_in> addr_recv;
-		struct timeval tv;
-		fd_set rfds;
-		vector<struct sockaddr_in> broadcastAddr;
-		HostList hostList;
-		vector<NetworkInterface> NICs;
-		string localEncoding;
-
 		IpMessengerAgent();
 		~IpMessengerAgent();
-		bool isRetryMaxOver( SentMessage msg, int retryCount );
-		bool needSendRetry( SentMessage msg, time_t tryNow );
-		void CryptoInit();
-		void CryptoEnd();
-		void RestartNetwork();
-		void NetworkInit();
-		void NetworkEnd();
-		void InitSend();
-		void InitRecv( vector<NetworkInterface> nics );
-		int InitUdpRecv( struct sockaddr_in addr );
-		int InitTcpRecv( struct sockaddr_in addr );
-		int RecvPacket();
-		void SendPacket( char *buf, int size, struct sockaddr_in toAddr );
-		void SendBroadcast( char *buf, int size );
-		void DoRecvCommand( Packet packet );
-		int SendNoOperation();
-		int SendAbsence();
-		int UdpRecvEventNoOperation( Packet packet );
-		int UdpRecvEventBrEntry( Packet packet );
-		int UdpRecvEventBrExit( Packet packet );
-		int UdpRecvEventBrAbsence( Packet packet );
-		int UdpRecvEventBrIsGetList( Packet packet );
-		int UdpRecvEventBrIsGetList2( Packet packet );
-		int UdpRecvEventOkGetList( Packet packet );
-		int UdpRecvEventGetList( Packet packet );
-		int UdpRecvEventAnsEntry( Packet packet );
-		int UdpRecvEventAnsList( Packet packet );
-		int UdpRecvEventSendMsg( Packet packet );
-		int UdpRecvEventRecvMsg( Packet packet );
-		int UdpRecvEventDelMsg( Packet packet );
-		int UdpRecvEventReadMsg( Packet packet );
-		int UdpRecvEventAnsReadMsg( Packet packet );
-		int UdpRecvEventGetInfo( Packet packet );
-		int UdpRecvEventSendInfo( Packet packet );
-		int UdpRecvEventGetAbsenceInfo( Packet packet );
-		int UdpRecvEventSendAbsenceInfo( Packet packet );
-		int UdpRecvEventGetPubKey( Packet packet );
-		int UdpRecvEventAnsPubKey( Packet packet );
-		int TcpRecvEventGetFileData( Packet packet );
-		int UdpRecvEventReleaseFiles( Packet packet );
-		int TcpRecvEventGetDirFiles( Packet packet );
-		int AddDefaultHost();
-		int CreateHostList( const char *hostListBuf, int bufLen );
-		string GetCommandString(long cmd );
-		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender );
-		int CreateAttachedFileList( const char *option, AttachFileList &files );
-		bool EncryptMsg( HostListItem host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
-		bool DecryptMsg( Packet &packet );
-		vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( string addr );
-		vector<HostListItem>::iterator FindHostByAddress( string addr );
-		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
-
-		//Library Use Only
-		int CreateNewPacketBuffer(long cmd, long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
-		int CreateNewPacketBuffer(long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
-		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
-		vector<SentMessage>::iterator SentMessageListEnd() { return sentMsgList.end(); };
-		void SendTcpPacket( int sd, char *buf, int size );
-		bool SendFile( int sock, string FileName, off_t offset=0 );
-		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
-		int GetMaxOptionBufferSize();
+		IpMessengerAgentImpl *ipmsgImpl;
 };
 
 #if defined(DEBUG) || defined(INFO)
