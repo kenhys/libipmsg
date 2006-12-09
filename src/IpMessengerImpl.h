@@ -44,6 +44,7 @@ class IpMessengerAgentImpl {
 
 		IPMSG_READONLY_PROPERTY( string, LoginName );
 		IPMSG_READONLY_PROPERTY( string, HostName );
+		IPMSG_PROPERTY( bool, IsDialup );
 		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
 		IPMSG_PROPERTY( bool, SaveSentMessage );
 		IPMSG_PROPERTY( bool, SaveRecievedMessage );
@@ -125,8 +126,8 @@ class IpMessengerAgentImpl {
 		int InitUdpRecv( struct sockaddr_in addr );
 		int InitTcpRecv( struct sockaddr_in addr );
 		int RecvPacket();
-		void SendPacket( char *buf, int size, struct sockaddr_in toAddr );
-		void SendBroadcast( char *buf, int size );
+		void SendPacket( const long cmd, char *buf, int size, struct sockaddr_in toAddr );
+		void SendBroadcast( const long cmd, char *buf, int size );
 		void DoRecvCommand( Packet packet );
 		int SendNoOperation();
 		int SendAbsence();
@@ -156,7 +157,6 @@ class IpMessengerAgentImpl {
 		int TcpRecvEventGetDirFiles( Packet packet );
 		int AddDefaultHost();
 		int CreateHostList( const char *hostListBuf, int bufLen );
-		string GetCommandString(long cmd );
 		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
 		bool EncryptMsg( HostListItem host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
@@ -164,6 +164,7 @@ class IpMessengerAgentImpl {
 		vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( string addr );
 		vector<HostListItem>::iterator FindHostByAddress( string addr );
 		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
+		long AddCommonCommandOption( const long cmd );
 
 		//Library Use Only
 		int CreateNewPacketBuffer(long cmd, long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
@@ -175,5 +176,15 @@ class IpMessengerAgentImpl {
 		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
 		int GetMaxOptionBufferSize();
 };
+
+#if defined(DEBUG) || defined(INFO)
+void IpMsgPrintBuf( char* bufname, char *buf, int size );
+void IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr );
+string GetCommandString( long cmd );
+#else
+#define IpMsgPrintBuf( bufname, buf,size )
+#define IpMsgDumpPacket( packet, sender_addr )
+#define GetCommandString( cmd )
+#endif
 
 #endif
