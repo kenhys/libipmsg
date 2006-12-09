@@ -88,7 +88,7 @@ IpMessengerAgent::IpMessengerAgent()
  */
 IpMessengerAgent::~IpMessengerAgent()
 {
-	delete ipmsgImpl;
+	IpMessengerAgentImpl::Release();
 }
 
 /**
@@ -476,6 +476,26 @@ string
 IpMessengerAgent::HostName()
 {
 	return ipmsgImpl->HostName();
+}
+
+/**
+ * ダイヤルアップのゲッター
+ * @retval ダイヤルアップ
+ */
+bool
+IpMessengerAgent::IsDialup()
+{
+	return ipmsgImpl->IsDialup();
+}
+
+/**
+ * ダイヤルアップのセッター
+ * @param ダイヤルアップ
+ */
+void
+IpMessengerAgent::setIsDialup( bool isDialup )
+{
+	ipmsgImpl->setIsDialup( isDialup );
 }
 
 /**

@@ -495,6 +495,12 @@ class IpMessengerAgent {
 		string HostName();
 
 		/**
+		 * ダイヤルアップ
+		 **/
+		bool IsDialup();
+		void setIsDialup( bool isDialup );
+
+		/**
 		 * ファイルが変更されたらダウンロードを中断する
 		 **/
 		bool AbortDownloadAtFileChanged();
@@ -517,11 +523,5 @@ class IpMessengerAgent {
 		~IpMessengerAgent();
 		IpMessengerAgentImpl *ipmsgImpl;
 };
-
-#if defined(DEBUG) || defined(INFO)
-void IpMsgPrintBuf( char* bufname, char *buf, int size );
-#else
-#define IpMsgPrintBuf( bufname, buf,size )
-#endif
 
 #endif
