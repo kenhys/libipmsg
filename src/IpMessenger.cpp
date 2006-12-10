@@ -223,7 +223,7 @@ IpMessengerAgent::UpdateHostList()
 bool
 IpMessengerAgent::IsAbsence()
 {
-	ipmsgImpl->IsAbsence();
+	return ipmsgImpl->IsAbsence();
 }
 /**
  * 不在モードをクリアする。
