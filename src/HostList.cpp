@@ -23,12 +23,26 @@ HostList::AddHost( HostListItem host )
 {
 	bool is_found = false;
 
-	vector<NetworkInterface> nics = IpMessengerAgentImpl::GetInstance()->NICs;
-	for( int i = 1; i < nics.size(); i++ ){
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	string localhostName = agent->HostName();
+	vector<NetworkInterface> nics = agent->NICs;
+	for( unsigned int i = 1; i < nics.size(); i++ ){
+#if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );
+#endif
 		if ( host.IpAddress() == nics[i].IpAddress() ){
 			return;
 		}
+	}
+#if defined(INFO) || !defined(NDEBUG)
+	printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );
+	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );
+#endif
+	if ( host.IpAddress() == "127.0.0.1" ){
+		return;
+	}
+	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
+		return;
 	}
 	for( unsigned int i = 0; i < items.size(); i++ ){
 		if ( host.Equals( items.at( i ) ) ) {
@@ -74,7 +88,7 @@ HostList::ToString( int start )
 {
 	char buf[MAX_UDPBUF];
 	string ret;
-	int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize();
+	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize();
 
 	ret = "";
 	int hostCount = 0;
