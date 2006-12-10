@@ -149,7 +149,6 @@ IpMessengerAgentImpl::Release()
 IpMessengerAgentImpl::IpMessengerAgentImpl()
 {
 	CryptoInit();
-	ResetAbsence();
 	srandom( time( NULL ) );
 	converter = new NullFileNameConverter();
 	_IsAbortDownloadAtFileChanged = false;
@@ -157,6 +156,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	_IsSaveRecievedMessage = true;
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs );
 	NetworkInit();
+	ResetAbsence();
 	event = new IpMessengerNullEvent();
 }
 
@@ -486,6 +486,9 @@ IpMessengerAgentImpl::Login( string nickname, string groupName )
 	}
 #endif	//HAVE_OPENSSL
 	SendBroadcast( IPMSG_BR_ENTRY, sendBuf, sendBufLen );
+	RecvPacket();
+	//0.05秒まつ。
+	usleep( 50000L );
 	RecvPacket();
 
 //	UpdateHostList();
@@ -1784,12 +1787,12 @@ IpMessengerAgentImpl::SendBroadcast( const long cmd, char *buf, int size )
 #if defined(DEBUG)
 	printf("== S E N D   B R O A D C A S T ========================>\n");
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );
-	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
-		printf( "Send To %s(%d)\n", inet_ntoa( ixaddr->sin_addr ), ntohs( ixaddr->sin_port ) );
-	}
 #endif
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
+#if defined(DEBUG)
+		printf( "Send To %s(%d)\n", inet_ntoa( ixaddr->sin_addr ), ntohs( ixaddr->sin_port ) );
+#endif
 		int ret = 0;
 		for( int i = 0; i < udp_sd.size(); i++ ){
 			ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&(*ixaddr), sizeof( struct sockaddr ) );
@@ -1802,21 +1805,42 @@ IpMessengerAgentImpl::SendBroadcast( const long cmd, char *buf, int size )
 		}
 	}
 	for( vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ){
-		struct sockaddr_in addr;
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons( ixhost->PortNo() );
-		addr.sin_addr.s_addr = inet_addr( ixhost->IpAddress().c_str() );
-		int ret = 0;
-		for( int i = 0; i < udp_sd.size(); i++ ){
-			ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
-			if ( ret <= 0 ) {
-				perror("sendto dialup host.");
+		if ( ixhost->CommandNo() | IPMSG_DIALUPOPT ) {
+			struct sockaddr_in addr;
+			addr.sin_family = AF_INET;
+			addr.sin_port = htons( ixhost->PortNo() );
+			addr.sin_addr.s_addr = inet_addr( ixhost->IpAddress().c_str() );
 #if defined(DEBUG)
-				printf("S E N D   F A I L E D ( D I A L U P )\n");
+			printf( "Send To %s(%d)\n", inet_ntoa( addr.sin_addr ), ntohs( addr.sin_port ) );
 #endif
+			int ret = 0;
+			for( int i = 0; i < udp_sd.size(); i++ ){
+				ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
+				if ( ret <= 0 ) {
+					perror("sendto dialup host.");
+#if defined(DEBUG)
+					printf("S E N D   F A I L E D ( D I A L U P )\n");
+#endif
+				}
 			}
 		}
 	}
+	//念のため自分にも
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons( IPMSG_DEFAULT_PORT );
+	addr.sin_addr.s_addr = inet_addr( "127.0.0.1" );
+#if defined(DEBUG)
+	printf( "Send To %s(%d)\n", inet_ntoa( addr.sin_addr ), ntohs( addr.sin_port ) );
+#endif
+	int ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
+	if ( ret <= 0 ) {
+		perror("sendto myself.");
+#if defined(DEBUG)
+		printf("S E N D   F A I L E D ( D I A L U P )\n");
+#endif
+	}
+
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");
 #endif
@@ -3712,7 +3736,21 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 void
 IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
 {
-	// TODO デフォルトのNIC以外の自分自身が登録依頼されたら無視。
+#if defined(INFO) || !defined(NDEBUG)
+	printf("===================================\n");
+	printf("AddHostListFromPacket\n");
+	printf("===================================\n");
+	IpMsgDumpPacket( packet, packet.Addr() );
+	printf("===================================\n");
+#endif
+	// デフォルトのNIC(０番目)以外の自分自身のIPアドレスが登録依頼されたら無視。
+	for( int i = 1; i < NICs.size(); i++ ){
+		vector<HostListItem>::iterator hostIt = FindHostByAddress( NICs[i].IpAddress() );
+		if ( hostIt != hostList.end() ) {
+			return;
+		}
+	}
+	//デフォルトカード
 	HostListItem item;
 	item.setUserName( packet.UserName() );
 	item.setHostName( packet.HostName() );
