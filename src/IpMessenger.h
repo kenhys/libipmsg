@@ -310,6 +310,8 @@ class IpMessengerEvent {
 		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file )=0;	//ダウンロード処理中
 		virtual void DownloadEnd( SentMessage& msg, AttachFile& file )=0;			//ダウンロード終了
 		virtual void DownloadError( SentMessage& msg, AttachFile& file )=0;			//ダウンロードエラー
+		virtual void EntryAfter( HostList& hostList )=0;							//ホストの参加通知後
+		virtual void ExitAfter( HostList& hostList )=0;								//ホストの脱退通知後
 };
 
 class IpMessengerAgentImpl;
