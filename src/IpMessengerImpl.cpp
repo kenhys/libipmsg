@@ -1506,10 +1506,17 @@ vector<HostListItem>::iterator
 IpMessengerAgentImpl::FindHostByAddress( string addr )
 {
 	for( vector<HostListItem>::iterator ix = hostList.begin(); ix < hostList.end(); ix++ ){
+printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );
 		if ( ix->IpAddress() == addr ) {
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
+printf("HOST FOUND!!!\n");
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
 			return ix;
 		}
 	}
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
+printf("HOST NOT FOUND!!!\n");
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
 	return hostList.end();
 }
 
@@ -3743,10 +3750,12 @@ IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
 	IpMsgDumpPacket( packet, packet.Addr() );
 	printf("===================================\n");
 #endif
+	AddDefaultHost();
 	// ¥Ç¥Õ¥©¥ë¥È¤ÎNIC(£°ÈÖÌÜ)°Ê³°¤Î¼«Ê¬¼«¿È¤ÎIP¥¢¥É¥ì¥¹¤¬ÅÐÏ¿°ÍÍê¤µ¤ì¤¿¤éÌµ»ë¡£
+	string packetIpAddress = inet_ntoa( packet.Addr().sin_addr );
 	for( int i = 1; i < NICs.size(); i++ ){
-		vector<HostListItem>::iterator hostIt = FindHostByAddress( NICs[i].IpAddress() );
-		if ( hostIt != hostList.end() ) {
+		if ( packetIpAddress == NICs[i].IpAddress() ){
+			AddDefaultHost();
 			return;
 		}
 	}
