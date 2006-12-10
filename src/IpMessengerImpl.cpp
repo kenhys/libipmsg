@@ -153,9 +153,9 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	CryptoInit();
 	srandom( time( NULL ) );
 	converter = new NullFileNameConverter();
-	_IsAbortDownloadAtFileChanged = false;
-	_IsSaveSentMessage = true;
-	_IsSaveRecievedMessage = true;
+	setAbortDownloadAtFileChanged( false );
+	setSaveSentMessage( true );
+	setSaveRecievedMessage( true );
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs );
 	NetworkInit();
 	ResetAbsence();
@@ -766,7 +766,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	printf( "HostName[%s]\n", message.Host().HostName().c_str() );
 	printf( "Nickname[%s]\n", message.Host().Nickname().c_str() );
 #endif
-	if ( _IsSaveSentMessage ){
+	if ( SaveSentMessage() ){
 		sentMsgList.append( message );
 	}
 
@@ -2586,7 +2586,7 @@ printf("Send(%s) -> IP[%s]\n", sendBuf, inet_ntoa( packet.Addr().sin_addr ) );
 	if ( event != NULL ) {
 		event->RecieveAfter( message );
 	}
-	if ( _IsSaveRecievedMessage ){
+	if ( SaveRecievedMessage() ){
 		recvMsgList.append( message );
 	}
 	return 0;
@@ -3268,7 +3268,7 @@ IpMessengerAgentImpl::SendFile( int sock, SentMessage &msg, AttachFile &file, st
 		if ( event != NULL ) {
 			event->DownloadProcessing( msg, file );
 		}
-		if ( _IsAbortDownloadAtFileChanged ){
+		if ( AbortDownloadAtFileChanged() ){
 			struct stat st_progress;
 			int rc = fstat( fd, &st_progress );
 			if ( rc != 0 ){

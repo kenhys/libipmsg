@@ -93,9 +93,6 @@ class IpMessengerAgentImpl {
 		SentMessageList sentMsgList;
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
-		bool _IsAbortDownloadAtFileChanged;
-		bool _IsSaveSentMessage;
-		bool _IsSaveRecievedMessage;
 		FileNameConverter *converter;
 		vector<AbsenceMode> absenceModeList;
 		string DecryptErrorMessage;
