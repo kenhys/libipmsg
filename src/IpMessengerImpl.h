@@ -163,10 +163,12 @@ class IpMessengerAgentImpl {
 		bool DecryptMsg( Packet &packet );
 		vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( string addr );
 		vector<HostListItem>::iterator FindHostByAddress( string addr );
+		vector<HostListItem>::iterator FindHostByHostName( string hostName );
 		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
 		long AddCommonCommandOption( const long cmd );
 
 		//Library Use Only
+		void AddHostListFromPacket( Packet packet );
 		int CreateNewPacketBuffer(long cmd, long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
 		int CreateNewPacketBuffer(long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
 		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
