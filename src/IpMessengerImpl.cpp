@@ -57,7 +57,7 @@ using namespace std;
 //オプション部の項目区切り文字
 #define	PACKET_FIELD_SEPERATOR_CHAR	'\a'
 //バージョン文字列
-#define	IPMSG_AGENT_VERSION		"IpMessengerAgentImpl for C++ Unix Version 1.0"
+#define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version 1.0"
 
 //暗号化キー(RSA)のビット数(最弱)
 #define RSA_KEY_LENGTH_MINIMUM	512
@@ -428,10 +428,10 @@ IpMessengerAgentImpl::NetworkInit()
 void
 IpMessengerAgentImpl::NetworkEnd()
 {
-	for(int i = 0; i< udp_sd.size(); i++ ){
+	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		close(udp_sd[i]);
 	}
-	for(int i = 0; i< tcp_sd.size(); i++ ){
+	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 		close(tcp_sd[i]);
 	}
 }
@@ -1506,17 +1506,23 @@ vector<HostListItem>::iterator
 IpMessengerAgentImpl::FindHostByAddress( string addr )
 {
 	for( vector<HostListItem>::iterator ix = hostList.begin(); ix < hostList.end(); ix++ ){
+#if defined(DEBUG)
 printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );
+#endif
 		if ( ix->IpAddress() == addr ) {
+#if defined(DEBUG)
 printf("★★★★★★★★★★★★\n");
 printf("HOST FOUND!!!\n");
 printf("★★★★★★★★★★★★\n");
+#endif
 			return ix;
 		}
 	}
+#if defined(DEBUG)
 printf("★★★★★★★★★★★★\n");
 printf("HOST NOT FOUND!!!\n");
 printf("★★★★★★★★★★★★\n");
+#endif
 	return hostList.end();
 }
 
@@ -1801,7 +1807,7 @@ IpMessengerAgentImpl::SendBroadcast( const long cmd, char *buf, int size )
 		printf( "Send To %s(%d)\n", inet_ntoa( ixaddr->sin_addr ), ntohs( ixaddr->sin_port ) );
 #endif
 		int ret = 0;
-		for( int i = 0; i < udp_sd.size(); i++ ){
+		for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 			ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&(*ixaddr), sizeof( struct sockaddr ) );
 			if ( ret <= 0 ) {
 				perror("sendto broadcast.");
@@ -1821,7 +1827,7 @@ IpMessengerAgentImpl::SendBroadcast( const long cmd, char *buf, int size )
 			printf( "Send To %s(%d)\n", inet_ntoa( addr.sin_addr ), ntohs( addr.sin_port ) );
 #endif
 			int ret = 0;
-			for( int i = 0; i < udp_sd.size(); i++ ){
+			for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 				ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
 				if ( ret <= 0 ) {
 					perror("sendto dialup host.");
@@ -1867,7 +1873,20 @@ IpMessengerAgentImpl::InitRecv( vector<NetworkInterface> nics )
 	if ( nics.size() > 0 ) {
 		HostAddress = nics[0].IpAddress();
 	}
-	for( int i = 0; i < nics.size(); i++ ){
+	for( vector<struct sockaddr_in>::iterator addr = broadcastAddr.begin(); addr != broadcastAddr.end(); addr++ ){
+		int sock = -1;
+
+		sock = InitUdpRecv( *addr );
+		if ( sock > 0 ) {
+#if defined(INFO) || !defined(NDEBUG)
+			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );
+#endif
+			udp_sd.push_back( sock );
+		} else {
+			printf( "UDP Error=%s\n", inet_ntoa( addr->sin_addr ) );
+		}
+	}
+	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons( nics[i].PortNo() );
@@ -1907,10 +1926,10 @@ IpMessengerAgentImpl::InitRecv( vector<NetworkInterface> nics )
 //	}
 
 	FD_ZERO( &rfds );
-	for( int i = 0; i < udp_sd.size(); i++ ){
+	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		FD_SET( udp_sd[i], &rfds );
 	}
-	for( int i = 0; i < tcp_sd.size(); i++ ){
+	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 		FD_SET( tcp_sd[i], &rfds );
 	}
 }
@@ -2013,12 +2032,12 @@ IpMessengerAgentImpl::RecvPacket()
 	int ret = 0;
 	int max_sd = -1;
 
-	for( int i = 0; i < udp_sd.size(); i++ ){
+	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		if ( max_sd < udp_sd[i] ){
 			max_sd = udp_sd[i];
 		}
 	}
-	for( int i = 0; i < tcp_sd.size(); i++ ){
+	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 		if ( max_sd < tcp_sd[i] ){
 			max_sd = tcp_sd[i];
 		}
@@ -2054,7 +2073,7 @@ IpMessengerAgentImpl::RecvPacket()
 			//とりあえず
 			bool recieved = false;
 			//UDPでソケットに変化が有ったら受信
-			for( int i = 0; i < udp_sd.size(); i++ ){
+			for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 				if ( FD_ISSET( udp_sd[i], &fds ) ){
 					memset( &sender_addr, 0, sizeof( struct sockaddr_in ) );
 					sender_addr_len = sizeof( struct sockaddr_in );
@@ -2078,7 +2097,7 @@ IpMessengerAgentImpl::RecvPacket()
 			tcp_socket = -1;
 			if ( !recieved ) {
 				//TCPでソケットに変化が有ったら受信
-				for( int i = 0; i < tcp_sd.size(); i++ ){
+				for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 					if ( FD_ISSET( tcp_sd[i], &fds ) ){
 						memset( &sender_addr, 0, sizeof( struct sockaddr_in ) );
 						sender_addr_len = sizeof( struct sockaddr_in );
@@ -2268,8 +2287,8 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( Packet packet )
 										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
-	// TODO ホストリストに追加？
+	SendPacket( AddCommonCommandOption( IPMSG_ANSENTRY ), sendBuf, sendBufLen, packet.Addr() );
+	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
 	return 0;
 }
@@ -2581,7 +2600,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( Packet packet )
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_OKGETLIST, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( AddCommonCommandOption( IPMSG_OKGETLIST ), sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2603,7 +2622,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( Packet packet )
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_OKGETLIST, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( AddCommonCommandOption( IPMSG_OKGETLIST ), sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2630,7 +2649,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( Packet packet )
 										  _LoginName, _HostName,
 										  hosts.c_str(), hosts.length(),
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_ANSLIST, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( AddCommonCommandOption( IPMSG_ANSLIST ), sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2653,7 +2672,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( Packet packet )
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( AddCommonCommandOption( IPMSG_GETLIST ), sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2675,7 +2694,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( Packet packet )
 //										  NULL, 0,
 //										  sendBuf, sizeof( sendBuf ) );
 //	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
-	// TODO ホストリストに追加？
+	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
 	return 0;
 }
@@ -2706,7 +2725,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 											  _LoginName, _HostName,
 											  nextbuf, nextbuf_len,
 											  sendBuf, sizeof( sendBuf ) );
-		SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
+		SendPacket( AddCommonCommandOption( IPMSG_GETLIST ), sendBuf, sendBufLen, packet.Addr() );
 	}
 	return 0;
 }
@@ -2730,7 +2749,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( Packet packet )
 										  _LoginName, _HostName,
 										  version.c_str(), version.length(),
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_SENDINFO, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( AddCommonCommandOption( IPMSG_SENDINFO ), sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2781,7 +2800,7 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
 										  _LoginName, _HostName,
 										  AbsenceDescription.c_str(), AbsenceDescription.length(),
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( IPMSG_SENDABSENCEINFO, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( AddCommonCommandOption( IPMSG_SENDABSENCEINFO ), sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -3753,7 +3772,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
 	AddDefaultHost();
 	// デフォルトのNIC(０番目)以外の自分自身のIPアドレスが登録依頼されたら無視。
 	string packetIpAddress = inet_ntoa( packet.Addr().sin_addr );
-	for( int i = 1; i < NICs.size(); i++ ){
+	for( unsigned int i = 1; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			AddDefaultHost();
 			return;
@@ -3779,6 +3798,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
 
 /**
  * 念のためホストリストに自分を加えておく。
+ * @retval 登録したホスト数。
  */
 int
 IpMessengerAgentImpl::AddDefaultHost()
@@ -3801,6 +3821,8 @@ IpMessengerAgentImpl::AddDefaultHost()
 #if defined(INFO) || !defined(NDEBUG)
 		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );
 #endif
+		return 1;
 	}
+	return 0;
 }
 //end of source
