@@ -506,6 +506,9 @@ class IpMessengerAgent {
 		 **/
 		bool AbortDownloadAtFileChanged();
 		void setAbortDownloadAtFileChanged( bool isAbort );
+		/* 後方互換性の為(0.1.0) */
+		bool GetAbortDownloadAtFileChanged(){ return AbortDownloadAtFileChanged(); };
+		void SetAbortDownloadAtFileChanged( bool isAbort ){ setAbortDownloadAtFileChanged( isAbort ); };
 
 		/**
 		 * 送信メッセージを記憶する
