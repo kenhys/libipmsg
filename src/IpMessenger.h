@@ -114,6 +114,7 @@ class HostListItem{
 class HostList{
 	public:
 		void AddHost( HostListItem host );
+		void Delete( vector<HostListItem>::iterator &it );
 		void DeleteHost( string hostname );
 		static HostListItem CreateHostListItemFromPacket( Packet packet );
 		vector<HostListItem>::iterator begin(){ return items.begin(); };
