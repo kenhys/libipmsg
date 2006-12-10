@@ -10,6 +10,8 @@
 - Update:Can't trust recvfrom system call's "from" parameter on NAT environment,So using HostList's IP address.
 - Update:Send Broadcast myself.
 - Update:Entry first NIC's IP address in Host List.
+- Fix:version information
+- Fix:Broadcast can't recieve packets.
 - Fix:Warnings.
 
 2006-12-07 Niki, Kuninobu <nikikuni@yahoo.co.jp>
