@@ -110,7 +110,7 @@ if test "x$enable_debug" = xno; then
 	CXXFLAGS="-DNDEBUG"
 	echo Debug support disabled.
 else
-	CXXFLAGS="-g -DDEBUG -DINFO"
+	CXXFLAGS="-g -DDEBUG -DINFO -Werror -Wall"
 	echo Debug support enabled.
 fi
 
