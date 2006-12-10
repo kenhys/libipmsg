@@ -2188,7 +2188,9 @@ IpMessengerAgentImpl::needSendRetry( SentMessage msg, time_t tryNow )
 void
 IpMessengerAgentImpl::DoRecvCommand( Packet packet )
 {
+#if defined(DEBUG)
 	printf( "PACKET.COMMAND=[%s]\n", GetCommandString( packet.CommandMode() ).c_str() );
+#endif
 	switch( packet.CommandMode() ) {
 		case IPMSG_NOOPERATION:     UdpRecvEventNoOperation( packet ); break;
 		case IPMSG_BR_ENTRY:        UdpRecvEventBrEntry( packet ); break;
