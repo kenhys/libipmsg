@@ -91,6 +91,8 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file ){ printf("DownloadProcessing\n"); };
 		virtual void DownloadEnd( SentMessage& msg, AttachFile& file ){ printf("DownloadEnd\n"); };
 		virtual void DownloadError( SentMessage& msg, AttachFile& file ){ printf("DownloadError\n"); };
+		virtual void EntryAfter( HostList& hostList ){ printf("EntryAfter\n"); };
+		virtual void ExitAfter( HostList& hostList ){ printf("ExitAfter\n"); };
 };
 
 /**
@@ -2292,6 +2294,9 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( Packet packet )
 	SendPacket( AddCommonCommandOption( IPMSG_ANSENTRY ), sendBuf, sendBufLen, packet.Addr() );
 	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
+	if ( event != NULL ) {
+		event->EntryAfter( hostList );
+	}
 	return 0;
 }
 
@@ -2364,6 +2369,9 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( Packet packet )
 	printf("UdpRecvBrExit\n");
 #endif
 	hostList.DeleteHost( packet.HostName() );
+	if ( event != NULL ) {
+		event->ExitAfter( hostList );
+	}
 	return 0;
 }
 
@@ -2698,6 +2706,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( Packet packet )
 //	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
+	if ( event != NULL ) {
+		event->EntryAfter( hostList );
+	}
 	return 0;
 }
 
@@ -2920,8 +2931,21 @@ GetFileDataThread( void *param )
 		return 0;
 	}
 
+//		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file )=0;	//ダウンロード処理中
 	FoundFile->setIsDownloading( true );
-	IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(), FoundFile->FullPath(), GetSendFileOffsetInPacket( *packet ) );
+	IpMessengerEvent *evt = myInstance->GetEventObject();
+	if ( evt != NULL ) {
+		evt->DownloadStart( *msg, *FoundFile );
+	}
+	if ( IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(), *msg, *FoundFile, FoundFile->FullPath(), GetSendFileOffsetInPacket( *packet ) ) ){
+		if ( evt != NULL ) {
+			evt->DownloadEnd( *msg, *FoundFile );
+		}
+	} else {
+		if ( evt != NULL ) {
+			evt->DownloadError( *msg, *FoundFile );
+		}
+	}
 	FoundFile->setIsDownloading( false );
 	FoundFile->setIsDownloaded( true );
 	close( packet->TcpSocket() );
@@ -2964,7 +2988,6 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( Packet packet )
 	char optBuf[MAX_UDPBUF];
 	int optBufLen;
 
-printf("UdpRecvGetPubKey[%s]\n", packet.Option().c_str());
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvGetPubKey[%s]\n", packet.Option().c_str());
 #endif
@@ -3118,7 +3141,19 @@ GetDirFilesThread( void *param )
 
 	vector<string> DownloadFileList;
 	FoundFile->setIsDownloading( true );
-	myInstance->SendDirData( packet->TcpSocket(), FoundFile->FileName(), FoundFile->FullPath(), DownloadFileList );
+	IpMessengerEvent *evt = myInstance->GetEventObject();
+	if ( evt != NULL ) {
+		evt->DownloadStart( *msg, *FoundFile );
+	}
+	if ( myInstance->SendDirData( packet->TcpSocket(), *msg, *FoundFile, FoundFile->FileName(), FoundFile->FullPath(), DownloadFileList ) ){
+		if ( evt != NULL ) {
+			evt->DownloadEnd( *msg, *FoundFile );
+		}
+	} else {
+		if ( evt != NULL ) {
+			evt->DownloadError( *msg, *FoundFile );
+		}
+	}
 	FoundFile->setIsDownloading( false );
 	FoundFile->setIsDownloaded( true );
 	close( packet->TcpSocket() );
@@ -3135,7 +3170,7 @@ GetDirFilesThread( void *param )
  * @param files ファイル一覧
  */
 bool
-IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<string> &files )
+IpMessengerAgentImpl::SendDirData( int sock, SentMessage &msg, AttachFile &file, string cd, string dir, vector<string> &files )
 {
 	DIR *d= opendir( dir.c_str() );
 	struct dirent *dent;
@@ -3168,7 +3203,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 #if defined(INFO) || !defined(NDEBUG)
 				printf( "DIR\n" );
 #endif
-				if ( !SendDirData( sock, dent->d_name, dir_name, files ) ){
+				if ( !SendDirData( sock, msg, file, dent->d_name, dir_name, files ) ){
 					closedir( d );
 					return false;
 				}
@@ -3184,7 +3219,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 				headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
 				send( sock, headbuf, head_len, 0 );
 
-				if ( !SendFile( sock, dir_name, 0 ) ){
+				if ( !SendFile( sock, msg, file, dir_name, 0 ) ){
 					closedir( d );
 					return false;
 				}
@@ -3196,6 +3231,9 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 	headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
 	send( sock, headbuf, head_len, 0 );
 	closedir( d );
+	if ( event != NULL ) {
+		event->DownloadProcessing( msg, file );
+	}
 	return true;
 }
 
@@ -3207,7 +3245,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
  * @retval true:成功、false:失敗
  */
 bool
-IpMessengerAgentImpl::SendFile( int sock, string FileName, off_t offset )
+IpMessengerAgentImpl::SendFile( int sock, SentMessage &msg, AttachFile &file, string FileName, off_t offset )
 {
 	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
 	char readbuf[8192];
@@ -3227,6 +3265,9 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, off_t offset )
 	lseek( fd, offset, SEEK_SET );
 	read_size = read( fd, readbuf, sizeof( readbuf ) );
 	while( read_size > 0 ){
+		if ( event != NULL ) {
+			event->DownloadProcessing( msg, file );
+		}
 		if ( _IsAbortDownloadAtFileChanged ){
 			struct stat st_progress;
 			int rc = fstat( fd, &st_progress );
