@@ -20,8 +20,33 @@ using namespace std;
 bool
 RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info )
 {
+	bool ret = false;
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	IpMessengerEvent *event = agent->GetEventObject();
+	
+	if ( event == NULL ) {
+		ret = DownloadFilePrivate( file, saveFileNameFullPath, info );
+	} else {
+		while( ret ) {
+			event->DownloadStart( *this, file );
+			if ( DownloadFilePrivate( file, saveFileNameFullPath, info ) ) {
+				event->DownloadEnd( *this, file, info );
+				ret = true;
+				break;
+			} else {
+				ret = event->DownloadError( *this, file, info );
+			}
+		}
+	}
+	return ret;
+}
+
+bool
+RecievedMessage::DownloadFilePrivate( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info )
+{
 	struct sockaddr_in svr_addr;
 	int sock = socket( AF_INET, SOCK_STREAM, 0 );
+
 
 	svr_addr = MessagePacket().Addr();
 #if defined(DEBUG)
@@ -37,7 +62,8 @@ fflush(stdout);
 	}
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
-
+	IpMessengerEvent *event = agent->GetEventObject();
+	
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
@@ -76,6 +102,9 @@ fflush(stdout);
 			return false;
 		}
 		wroteSize += wrote_len;
+		if ( event != NULL ) {
+			event->DownloadProcessing( *this, file );
+		}
 		read_len = recv( sock, readbuf, file.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : file.FileSize() - readSize, 0 );
 		if ( read_len < 0 ) {
 			perror("recv");
@@ -107,9 +136,26 @@ fflush(stdout);
 bool
 RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info )
 {
-	NullFileNameConverter *codec = new NullFileNameConverter();
-	bool ret = DownloadDir( file, saveName, saveBaseDir, info, codec );
-	delete codec;
+	NullFileNameConverter *conv = new NullFileNameConverter();
+	bool ret = false;
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	IpMessengerEvent *event = agent->GetEventObject();
+	
+	if ( event == NULL ) {
+		ret = DownloadDirPrivate( file, saveName, saveBaseDir, info, conv );
+	} else {
+		while( ret ) {
+			event->DownloadStart( *this, file );
+			if ( DownloadDirPrivate( file, saveName, saveBaseDir, info, conv ) ) {
+				event->DownloadEnd( *this, file, info );
+				ret = true;
+				break;
+			} else {
+				ret = event->DownloadError( *this, file, info );
+			}
+		}
+	}
+	delete conv;
 	return ret;
 }
 
@@ -120,6 +166,30 @@ RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBase
  */
 bool
 RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv )
+{
+	bool ret = false;
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	IpMessengerEvent *event = agent->GetEventObject();
+	
+	if ( event == NULL ) {
+		ret = DownloadDirPrivate( file, saveName, saveBaseDir, info, conv );
+	} else {
+		while( ret ) {
+			event->DownloadStart( *this, file );
+			if ( DownloadDirPrivate( file, saveName, saveBaseDir, info, conv ) ) {
+				event->DownloadEnd( *this, file, info );
+				ret = true;
+				break;
+			} else {
+				ret = event->DownloadError( *this, file, info );
+			}
+		}
+	}
+	return ret;
+}
+
+bool
+RecievedMessage::DownloadDirPrivate( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv )
 {
 	if ( conv == NULL ) {
 		return false;

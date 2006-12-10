@@ -239,6 +239,9 @@ class RecievedMessage{
 		bool DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info );
 		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info );
 		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv );
+	private:
+		bool DownloadFilePrivate( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info );
+		bool DownloadDirPrivate( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv );
 };
 
 class RecievedMessageList {
