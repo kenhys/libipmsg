@@ -171,8 +171,8 @@ class IpMessengerAgentImpl {
 		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
 		vector<SentMessage>::iterator SentMessageListEnd() { return sentMsgList.end(); };
 		void SendTcpPacket( int sd, char *buf, int size );
-		bool SendFile( int sock, SentMessage &msg, AttachFile &file, string FileName, off_t offset=0 );
-		bool SendDirData( int sock, SentMessage &msg, AttachFile &file, string cd, string dir, vector<string> &files );
+		bool SendFile( int sock, string FileName, off_t offset=0 );
+		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
 		int GetMaxOptionBufferSize();
 };
 

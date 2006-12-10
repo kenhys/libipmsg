@@ -300,18 +300,19 @@ class AbsenceMode {
  **/
 class IpMessengerEvent {
 	public:
-		virtual void UpdateHostListAfter( HostList& hostList )=0;					//ホストリスト更新後
-		virtual void GetHostListRetryError()=0;										//ホストリスト取得リトライエラー
-		virtual bool RecieveAfter( RecievedMessage& msg )=0;						//メッセージ受信後(処理してメッセージを保存する必要が無ければTRUEを返す)
-		virtual void SendAfter( SentMessage& msg )=0;								//メッセージ送信後
-		virtual void SendRetryError( SentMessage& msg )=0;							//メッセージ送信リトライエラー
-		virtual void OpenAfter( SentMessage& msg )=0;								//開封通知後
-		virtual void DownloadStart( SentMessage& msg, AttachFile& file )=0;			//ダウンロード開始
-		virtual void DownloadProcessing( SentMessage& msg, AttachFile& file )=0;	//ダウンロード処理中
-		virtual void DownloadEnd( SentMessage& msg, AttachFile& file )=0;			//ダウンロード終了
-		virtual void DownloadError( SentMessage& msg, AttachFile& file )=0;			//ダウンロードエラー
-		virtual void EntryAfter( HostList& hostList )=0;							//ホストの参加通知後
-		virtual void ExitAfter( HostList& hostList )=0;								//ホストの脱退通知後
+		virtual void UpdateHostListAfter( HostList& hostList )=0;									//ホストリスト更新後
+		virtual void GetHostListRetryError()=0;														//ホストリスト取得リトライエラー
+		virtual bool RecieveAfter( RecievedMessage& msg )=0;										//メッセージ受信後
+																									//(処理してメッセージの保存が不要ならTRUEを返す)
+		virtual void SendAfter( SentMessage& msg )=0;												//メッセージ送信後
+		virtual void SendRetryError( SentMessage& msg )=0;											//メッセージ送信リトライエラー
+		virtual void OpenAfter( SentMessage& msg )=0;												//開封通知後
+		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file )=0;						//ダウンロード開始
+		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file )=0;				//ダウンロード処理中
+		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info )=0;	//ダウンロード終了
+		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info )=0;	//ダウンロードエラー(リトライする場合はTRUEを返す。)
+		virtual void EntryAfter( HostList& hostList )=0;											//ホストの参加通知後
+		virtual void ExitAfter( HostList& hostList )=0;												//ホストの脱退通知後
 };
 
 class IpMessengerAgentImpl;
