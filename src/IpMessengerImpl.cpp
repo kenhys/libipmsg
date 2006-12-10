@@ -83,7 +83,7 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
 		virtual void UpdateHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); }; 	//
 		virtual void GetHostListRetryError(){ printf("GetHostListRetryError\n"); }; 					//
-		virtual void RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n"); };					//
+		virtual bool RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n");return false; };	//
 		virtual void SendAfter( SentMessage& msg ){ printf("SendAfter\n"); }; 							//
 		virtual void SendRetryError( SentMessage& msg ){ printf("SendRetryError\n"); };					//
 		virtual void OpenAfter( SentMessage& msg ){ printf("OpenAfter\n"); };							//
@@ -2582,11 +2582,12 @@ printf("Send(%s) -> IP[%s]\n", sendBuf, inet_ntoa( packet.Addr().sin_addr ) );
 	if ( CreateAttachedFileList( packet.Option().c_str(), files ) != 0 ) {
 		message.setHasAttachFile( true );
 	}
+	bool eventRet = false;
 	message.setFiles( files );
 	if ( event != NULL ) {
-		event->RecieveAfter( message );
+		eventRet = event->RecieveAfter( message );
 	}
-	if ( SaveRecievedMessage() ){
+	if ( SaveRecievedMessage() && !eventRet ){
 		recvMsgList.append( message );
 	}
 	return 0;

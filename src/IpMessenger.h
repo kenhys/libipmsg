@@ -302,7 +302,7 @@ class IpMessengerEvent {
 	public:
 		virtual void UpdateHostListAfter( HostList& hostList )=0;					//ホストリスト更新後
 		virtual void GetHostListRetryError()=0;										//ホストリスト取得リトライエラー
-		virtual void RecieveAfter( RecievedMessage& msg )=0;						//メッセージ受信後
+		virtual bool RecieveAfter( RecievedMessage& msg )=0;						//メッセージ受信後(処理してメッセージを保存する必要が無ければTRUEを返す)
 		virtual void SendAfter( SentMessage& msg )=0;								//メッセージ送信後
 		virtual void SendRetryError( SentMessage& msg )=0;							//メッセージ送信リトライエラー
 		virtual void OpenAfter( SentMessage& msg )=0;								//開封通知後
