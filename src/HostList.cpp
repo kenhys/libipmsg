@@ -18,9 +18,18 @@ using namespace std;
  * ホスト情報をホストリストに追加する。
  * @param host ホスト情報
  */
-void HostList::AddHost( HostListItem host )
+void
+HostList::AddHost( HostListItem host )
 {
 	bool is_found = false;
+
+	vector<NetworkInterface> nics = IpMessengerAgentImpl::GetInstance()->NICs;
+	for( int i = 1; i < nics.size(); i++ ){
+		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );
+		if ( host.IpAddress() == nics[i].IpAddress() ){
+			return;
+		}
+	}
 	for( unsigned int i = 0; i < items.size(); i++ ){
 		if ( host.Equals( items.at( i ) ) ) {
 			is_found = true;
@@ -34,9 +43,19 @@ void HostList::AddHost( HostListItem host )
 
 /**
  * ホスト情報をホストリストから削除する。
+ * @param ホスト情報のイテレータ
+ */
+void
+HostList::Delete( vector<HostListItem>::iterator &it )
+{
+	items.erase( it );
+}
+/**
+ * ホスト情報をホストリストから削除する。
  * @param ホスト名
  */
-void HostList::DeleteHost( string hostname )
+void
+HostList::DeleteHost( string hostname )
 {
 	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		if ( ix->HostName() == hostname ) {
@@ -50,7 +69,8 @@ void HostList::DeleteHost( string hostname )
  * ホストリスト送信用文字列を作成する。
  * @param start 開始位置
  */
-string HostList::ToString( int start )
+string
+HostList::ToString( int start )
 {
 	char buf[MAX_UDPBUF];
 	string ret;
@@ -84,7 +104,8 @@ string HostList::ToString( int start )
  * @param packet パケットオブジェクト
  * @retval ホストリストアイテム
  */
-HostListItem HostList::CreateHostListItemFromPacket( Packet packet )
+HostListItem
+HostList::CreateHostListItemFromPacket( Packet packet )
 {
 	HostListItem ret;
 	ret.setHostName( packet.HostName() );
@@ -111,7 +132,8 @@ HostListItem HostList::CreateHostListItemFromPacket( Packet packet )
  * @param item ホストリストアイテム
  * @retval 一致：true／一致しない：false
  */
-bool HostListItem::Equals( HostListItem item )
+bool
+HostListItem::Equals( HostListItem item )
 {
 	return	item.UserName() == UserName() &&
 			item.HostName() == HostName() &&
