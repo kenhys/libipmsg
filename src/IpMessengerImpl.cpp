@@ -57,7 +57,7 @@ using namespace std;
 //オプション部の項目区切り文字
 #define	PACKET_FIELD_SEPERATOR_CHAR	'\a'
 //バージョン文字列
-#define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version 1.0"
+#define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version 0.1.1"
 
 //暗号化キー(RSA)のビット数(最弱)
 #define RSA_KEY_LENGTH_MINIMUM	512
@@ -81,16 +81,16 @@ static int mutex_init_result = pthread_mutex_init( &instanceMutex, NULL );
 
 class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
-		virtual void UpdateHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); }; 	//
-		virtual void GetHostListRetryError(){ printf("GetHostListRetryError\n"); }; 					//
-		virtual bool RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n");return false; };	//
-		virtual void SendAfter( SentMessage& msg ){ printf("SendAfter\n"); }; 							//
-		virtual void SendRetryError( SentMessage& msg ){ printf("SendRetryError\n"); };					//
-		virtual void OpenAfter( SentMessage& msg ){ printf("OpenAfter\n"); };							//
-		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file ){ printf("DownloadStart\n"); };
-		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file ){ printf("DownloadProcessing\n"); };
-		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info ){ printf("DownloadEnd\n"); };
-		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info ){ printf("DownloadError\n"); };
+		virtual void UpdateHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
+		virtual void GetHostListRetryError(){ printf("GetHostListRetryError\n"); };
+		virtual bool RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n");return false; };
+		virtual void SendAfter( SentMessage& msg ){ printf("SendAfter\n"); };
+		virtual void SendRetryError( SentMessage& msg ){ printf("SendRetryError\n"); };
+		virtual void OpenAfter( SentMessage& msg ){ printf("OpenAfter\n"); };
+		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadStart\n"); };
+		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadProcessing\n"); };
+		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadEnd\n"); };
+		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadError\n"); };
 		virtual void EntryAfter( HostList& hostList ){ printf("EntryAfter\n"); };
 		virtual void ExitAfter( HostList& hostList ){ printf("ExitAfter\n"); };
 };
