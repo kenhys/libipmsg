@@ -175,6 +175,8 @@ class DownloadInfo{
 		IPMSG_PROPERTY( long long, Size );
 		IPMSG_PROPERTY( time_t, Time );
 		IPMSG_PROPERTY( long, FileCount );
+		IPMSG_PROPERTY( string, LocalFileName );
+		IPMSG_PROPERTY_REF( AttachFile, File );
 		DownloadInfo(){
 			setSize( 0LL );
 			setTime( 0 );
@@ -215,12 +217,15 @@ class AttachFileList{
 		vector<AttachFile>::iterator end() { return files.end(); };
 		int size() { return files.size(); };
 		void clear() { return files.clear(); };
-		vector<AttachFile>::iterator erase(vector<AttachFile>::iterator item) { return files.erase( item ); };
+		vector<AttachFile>::iterator erase( vector<AttachFile>::iterator item ) { return files.erase( item ); };
+		vector<AttachFile>::iterator erase( AttachFile &item ) { return erase( FindByFileId( item.FileId() ) ); };
 		vector<AttachFile>::iterator FindByFullPath( string fullPath );
 		vector<AttachFile>::iterator FindByFileId( int file_id );
 	private:
 		vector<AttachFile> files;
 };
+
+class IpMessengerEvent;
 
 class RecievedMessage{
 	public:
@@ -236,12 +241,13 @@ class RecievedMessage{
 		IPMSG_PROPERTY( bool, IsMulticast );
 		IPMSG_PROPERTY( bool, HasAttachFile );
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
-		bool DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info );
-		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info );
-		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv );
+		bool DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 	private:
-		bool DownloadFilePrivate( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info );
-		bool DownloadDirPrivate( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv );
+		bool DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		bool DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		string GetFormalDir( string dirName );
+		string GetSaveDir( string saveName, string saveBaseDir );
 };
 
 class RecievedMessageList {
@@ -303,19 +309,30 @@ class AbsenceMode {
  **/
 class IpMessengerEvent {
 	public:
-		virtual void UpdateHostListAfter( HostList& hostList )=0;									//ホストリスト更新後
-		virtual void GetHostListRetryError()=0;														//ホストリスト取得リトライエラー
-		virtual bool RecieveAfter( RecievedMessage& msg )=0;										//メッセージ受信後
-																									//(処理してメッセージの保存が不要ならTRUEを返す)
-		virtual void SendAfter( SentMessage& msg )=0;												//メッセージ送信後
-		virtual void SendRetryError( SentMessage& msg )=0;											//メッセージ送信リトライエラー
-		virtual void OpenAfter( SentMessage& msg )=0;												//開封通知後
-		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file )=0;						//ダウンロード開始
-		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file )=0;				//ダウンロード処理中
-		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info )=0;	//ダウンロード終了
-		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info )=0;	//ダウンロードエラー(リトライする場合はTRUEを返す。)
-		virtual void EntryAfter( HostList& hostList )=0;											//ホストの参加通知後
-		virtual void ExitAfter( HostList& hostList )=0;												//ホストの脱退通知後
+		//ホストリスト更新後
+		virtual void UpdateHostListAfter( HostList& hostList )=0;
+		//ホストリスト取得リトライエラー
+		virtual void GetHostListRetryError()=0;
+		//メッセージ受信後(処理してメッセージの保存が不要ならTRUEを返す)
+		virtual bool RecieveAfter( RecievedMessage& msg )=0;
+		//メッセージ送信後
+		virtual void SendAfter( SentMessage& msg )=0;
+		//メッセージ送信リトライエラー
+		virtual void SendRetryError( SentMessage& msg )=0;
+		//開封通知後
+		virtual void OpenAfter( SentMessage& msg )=0;
+		//ダウンロード開始
+		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
+		//ダウンロード処理中
+		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
+		//ダウンロード終了
+		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
+		//ダウンロードエラー(リトライする場合はTRUEを返す。)
+		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
+		//ホストの参加通知後
+		virtual void EntryAfter( HostList& hostList )=0;
+		//ホストの脱退通知後
+		virtual void ExitAfter( HostList& hostList )=0;
 };
 
 class IpMessengerAgentImpl;
