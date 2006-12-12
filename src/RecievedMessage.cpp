@@ -18,51 +18,65 @@ using namespace std;
  * 注：このメソッドはスレッドセーフでない。
  */
 bool
-RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info )
+RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-	bool ret = false;
+printf("DownloadFile\n" );
+	bool ret = true;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	IpMessengerEvent *event = agent->GetEventObject();
-	
+	FileNameConverter *converter = conv;
+	if ( conv == NULL ){
+		converter = new NullFileNameConverter();
+	}
+
+	info.setFile( file );
+	info.setLocalFileName( saveFileNameFullPath );
 	if ( event == NULL ) {
-		ret = DownloadFilePrivate( file, saveFileNameFullPath, info );
+		ret = DownloadFilePrivate( NULL, file, saveFileNameFullPath, info, converter, data );
 	} else {
 		while( ret ) {
-			event->DownloadStart( *this, file );
-			if ( DownloadFilePrivate( file, saveFileNameFullPath, info ) ) {
-				event->DownloadEnd( *this, file, info );
+			event->DownloadStart( *this, file, info, data );
+			if ( DownloadFilePrivate( event, file, saveFileNameFullPath, info, converter, data ) ) {
+				event->DownloadEnd( *this, file, info, data );
 				ret = true;
 				break;
 			} else {
-				ret = event->DownloadError( *this, file, info );
+				ret = event->DownloadError( *this, file, info, data );
 			}
 		}
+	}
+	if ( conv == NULL ){
+		delete converter;
 	}
 	return ret;
 }
 
+/**
+ * ファイル受信処理。（非公開）
+ * ・サーバにファイル受信要求パケットを送信し、ファイルを受信する。
+ * 注：このメソッドはスレッドセーフでない。
+ */
 bool
-RecievedMessage::DownloadFilePrivate( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info )
+RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 	struct sockaddr_in svr_addr;
 	int sock = socket( AF_INET, SOCK_STREAM, 0 );
 
-
 	svr_addr = MessagePacket().Addr();
 #if defined(DEBUG)
 printf("IP[%s]\n", inet_ntoa( svr_addr.sin_addr ) );
+printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );
 fflush(stdout);
 #endif
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 #if defined(DEBUG)
 		printf("errno=[%s][%d]\n", strerror(errno), errno);
 #endif
-		herror("connect");
+		perror("connect");
 		return false;
 	}
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
-	IpMessengerEvent *event = agent->GetEventObject();
 	
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -102,8 +116,18 @@ fflush(stdout);
 			return false;
 		}
 		wroteSize += wrote_len;
+		info.setSize( readSize );
+		info.setTime( time( NULL ) - startTime );
 		if ( event != NULL ) {
-			event->DownloadProcessing( *this, file );
+			event->DownloadProcessing( *this, file, info, data );
+		}
+#if defined(DEBUG)
+		printf( "read_len = %d\n", read_len );
+		printf( "readSize = %d\n", readSize );
+		printf( "file.FileSize() = %ld\n", file.FileSize() );
+#endif
+		if ( file.FileSize() == readSize ) {
+			break;
 		}
 		read_len = recv( sock, readbuf, file.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : file.FileSize() - readSize, 0 );
 		if ( read_len < 0 ) {
@@ -114,7 +138,9 @@ fflush(stdout);
 		}
 		readSize += read_len;
 	}
+#if defined(DEBUG)
 	printf("close");
+#endif
 	close( fd );
 	close( sock );
 	struct utimbuf ubuf;
@@ -129,86 +155,93 @@ fflush(stdout);
 }
 
 /**
- * ディレクトリ受信処理。
- * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
- * 注：このメソッドはスレッドセーフでない。
- */
-bool
-RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info )
-{
-	NullFileNameConverter *conv = new NullFileNameConverter();
-	bool ret = false;
-	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
-	IpMessengerEvent *event = agent->GetEventObject();
-	
-	if ( event == NULL ) {
-		ret = DownloadDirPrivate( file, saveName, saveBaseDir, info, conv );
-	} else {
-		while( ret ) {
-			event->DownloadStart( *this, file );
-			if ( DownloadDirPrivate( file, saveName, saveBaseDir, info, conv ) ) {
-				event->DownloadEnd( *this, file, info );
-				ret = true;
-				break;
-			} else {
-				ret = event->DownloadError( *this, file, info );
-			}
-		}
-	}
-	delete conv;
-	return ret;
-}
-
-/**
  * ディレクトリ受信処理（ファイル名コンバータオプション付き）。
  * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
  * 注：このメソッドはスレッドセーフでない。
  */
 bool
-RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv )
+RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-	bool ret = false;
+printf("DownloadDir\n" );
+	bool ret = true;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	IpMessengerEvent *event = agent->GetEventObject();
+	FileNameConverter *converter = conv;
+	if ( conv == NULL ){
+		converter = new NullFileNameConverter();
+	}
 	
+	info.setFile( file );
+	info.setLocalFileName( GetSaveDir( saveName, saveBaseDir ) );
 	if ( event == NULL ) {
-		ret = DownloadDirPrivate( file, saveName, saveBaseDir, info, conv );
+		ret = DownloadDirPrivate( NULL, file, saveName, saveBaseDir, info, converter, data );
 	} else {
 		while( ret ) {
-			event->DownloadStart( *this, file );
-			if ( DownloadDirPrivate( file, saveName, saveBaseDir, info, conv ) ) {
-				event->DownloadEnd( *this, file, info );
+			event->DownloadStart( *this, file, info, data );
+			if ( DownloadDirPrivate( event, file, saveName, saveBaseDir, info, converter, data ) ) {
+				event->DownloadEnd( *this, file, info, data );
 				ret = true;
 				break;
 			} else {
-				ret = event->DownloadError( *this, file, info );
+				ret = event->DownloadError( *this, file, info, data );
 			}
 		}
+	}
+	if ( conv == NULL ){
+		delete converter;
 	}
 	return ret;
 }
 
+string
+RecievedMessage::GetFormalDir( string dirName )
+{
+	if ( dirName.at( dirName.length() - 1 ) != '/' ) {
+		return dirName + "/";
+	}
+	return dirName;
+}
+
+string
+RecievedMessage::GetSaveDir( string saveName, string saveBaseDir )
+{
+	return GetFormalDir( saveBaseDir ) + saveName + "/";
+}
+
+/**
+ * ディレクトリ受信処理（ファイル名コンバータオプション付き）。（非公開）
+ * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
+ * 注：このメソッドはスレッドセーフでない。
+ */
 bool
-RecievedMessage::DownloadDirPrivate( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv )
+RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 	if ( conv == NULL ) {
 		return false;
 	}
 	struct stat st;
-	string saveBaseDirFormal = saveBaseDir;
-	if ( saveBaseDirFormal.at( saveBaseDirFormal.length() - 1 ) != '/' ) {
-		saveBaseDirFormal = saveBaseDir + "/";
-	}
-	string saveDir = saveBaseDirFormal + saveName + "/";
+	string saveBaseDirFormal = GetFormalDir( saveBaseDir );
+	string saveDir = GetSaveDir( saveName, saveBaseDir );
 
+#if defined(DEBUG)
+printf("saveName[%s]\n", saveName.c_str() );
+printf("saveBaseDir[%s]\n", saveBaseDir.c_str() );
+printf("saveDir[%s]\n", saveDir.c_str() );
+printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );
+fflush(stdout);
+#endif
 	if ( stat( saveBaseDir.c_str(), &st ) != 0 ) {
 		perror("stat");
+#if defined(DEBUG)
 		printf("saveBaseDir == [%s]\n", saveBaseDir.c_str());
+#endif
 		return false;
 	}
 	if ( mkdir( saveDir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
 		perror("mkdir");
+#if defined(DEBUG)
 		printf("saveDir == [%s]\n", saveDir.c_str());
+#endif
 		return false;
 	}
 
@@ -313,7 +346,7 @@ fflush(stdout);
 #endif
 			int read_len = recv( sock, readbuf, f.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : f.FileSize() - readSize, 0 );
 #if defined(DEBUG)
-//IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
+IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 #endif
 			readSize += read_len;
 			while( read_len > 0 ){
@@ -322,8 +355,19 @@ fflush(stdout);
 					isEob = true;
 					break;
 				}
-
-				wroteSize += write( fd, readbuf, read_len );
+				int wrote_len = write( fd, readbuf, read_len );
+				if ( wrote_len < 0 ) {
+					perror("write");
+					close( sock );
+					close( fd );
+					return false;
+				}
+				wroteSize += wrote_len;
+				info.setSize( totalReadSize );
+				info.setTime( time( NULL ) - startTime );
+				if ( event != NULL ) {
+					event->DownloadProcessing( *this, file, info, data );
+				}
 				memset( readbuf, 0, sizeof( readbuf ) );
 				read_len = recv( sock, readbuf, f.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : f.FileSize() - readSize, 0 );
 #if defined(DEBUG)
@@ -356,6 +400,9 @@ fflush(stdout);
 			}
 			info.setTime( time( NULL ) - startTime );
 			info.setFileCount( ++totalFileCount );
+			if ( event != NULL ) {
+				event->DownloadProcessing( *this, file, info, data );
+			}
 		} else if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_RETPARENT ) {
 			dir.pop_back();
 		}
