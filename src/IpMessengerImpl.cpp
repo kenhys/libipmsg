@@ -3311,7 +3311,9 @@ fflush(stdout);
 			if ( token != NULL && *token == '\a' ) eob = true;
 			if ( token == NULL || *token == '\a' ) break;
 			file.setFileId( strtoul( token, &ptrdmy, 10 ) );
+#if defined(DEBUG) || !defined(NDEBUG)
 			printf( "file.FileId() %d token [%s]\n", file.FileId(), token );
+#endif
 			// FILE NAME
 			file_list_tmp_ptr = nextpos;
 			token = strtok_r( file_list_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
