@@ -148,7 +148,7 @@ HostList::CreateHostListItemFromPacket( Packet packet )
 bool
 HostListItem::IsFileAttachSupport()
 {
-	return CommandNo() | IPMSG_FILEATTACHOPT;
+	return CommandNo() & IPMSG_FILEATTACHOPT;
 }
 
 /**
@@ -158,7 +158,7 @@ HostListItem::IsFileAttachSupport()
 bool
 HostListItem::IsEncryptSupport()
 {
-	return CommandNo() | IPMSG_ENCRYPTOPT;
+	return CommandNo() & IPMSG_ENCRYPTOPT;
 }
 
 /**
@@ -168,7 +168,7 @@ HostListItem::IsEncryptSupport()
 bool
 HostListItem::IsAbsence()
 {
-	return CommandNo() | IPMSG_ABSENCEOPT;
+	return CommandNo() & IPMSG_ABSENCEOPT;
 }
 
 /**
