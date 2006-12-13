@@ -142,6 +142,36 @@ HostList::CreateHostListItemFromPacket( Packet packet )
 }
 
 /**
+ * ホストがファイル添付をサポートしているか？
+ * @retval サポート：true／サポートしない：false
+ */
+bool
+HostListItem::IsFileAttachSupport()
+{
+	return CommandNo() | IPMSG_FILEATTACHOPT;
+}
+
+/**
+ * ホストが暗号をサポートしているか？
+ * @retval サポート：true／サポートしない：false
+ */
+bool
+HostListItem::IsEncryptSupport()
+{
+	return CommandNo() | IPMSG_ENCRYPTOPT;
+}
+
+/**
+ * ホストが今、不在か？
+ * @retval 不在：true／不在でない：false
+ */
+bool
+HostListItem::IsAbsence()
+{
+	return CommandNo() | IPMSG_ABSENCEOPT;
+}
+
+/**
  * ホストリストアイテムオブジェクトが自分と一致するかを返す。
  * @param item ホストリストアイテム
  * @retval 一致：true／一致しない：false

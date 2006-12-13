@@ -2,6 +2,7 @@
 - Update:Implemented Download events.
 - Update:Add parameters(DownloadInfo &info, void *data) to All Download events.
 - Fix:Version information.
+- Update:Add API( IsEncryptSupport, IsAttachFileSupport, IsAbsence )
 
 2006-12-11 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Implementation missing,All Download events.

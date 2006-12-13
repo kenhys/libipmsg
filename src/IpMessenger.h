@@ -108,6 +108,9 @@ class HostListItem{
 		IPMSG_PROPERTY( unsigned long, EncryptionCapacity );
 		IPMSG_PROPERTY( string, PubKeyHex );
 		IPMSG_PROPERTY( string, EncryptMethodHex );
+		bool IsFileAttachSupport();
+		bool IsEncryptSupport();
+		bool IsAbsence();
 		bool Equals( HostListItem item );
 };
 
