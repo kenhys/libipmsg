@@ -1,3 +1,7 @@
+2006-12-17 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Some API Change.
+- Update:Source file sepearated.(Encrypt,Decrypt)
+
 2006-12-14 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Login Name Empty.
 

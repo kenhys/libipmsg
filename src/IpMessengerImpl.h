@@ -1,5 +1,10 @@
 #ifndef _IPMESSENGER_IMPL_H_
 #define _IPMESSENGER_IMPL_H_
+
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -87,6 +92,7 @@ class IpMessengerAgentImpl {
 		RSA *RsaMax;
 		RSA *RsaMid;
 		RSA *RsaMin;
+		RSA *GetOptimizedRsa( unsigned long cap );
 		unsigned long encryptionCapacity;
 #endif
 		IpMessengerEvent *event;
@@ -170,6 +176,37 @@ class IpMessengerAgentImpl {
 		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
 		int GetMaxOptionBufferSize();
 };
+
+//selectシステムコールのタイムアウト時間
+#if defined(DEBUG)
+//0.1秒
+#include <ctype.h>
+#define SELECT_TIMEOUT_SEC	0
+#define SELECT_TIMEOUT_USEC	100000
+#else	//DEBUG
+//0.05秒
+#define SELECT_TIMEOUT_SEC	0
+#define SELECT_TIMEOUT_USEC	50000
+#endif	//DEBUG
+
+//NICの最大数
+#define IFR_MAX 20
+
+//メッセージ送信リトライ最大数
+#define SENDMSG_RETRY_MAX	5
+//ホストリスト取得リトライ最大数
+#define GETLIST_RETRY_MAX	2
+//一回のホストリスト取得最大数
+#define HOST_LIST_SEND_MAX_AT_ONCE	100
+//パケットのデリミタ文字
+#define	PACKET_DELIMITER_CHAR	':'
+//パケットのデリミタ文字列
+#define	PACKET_DELIMITER_STRING	":"
+//オプション部の項目区切り文字
+#define	PACKET_FIELD_SEPERATOR_CHAR	'\a'
+//バージョン文字列
+#define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
+
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
