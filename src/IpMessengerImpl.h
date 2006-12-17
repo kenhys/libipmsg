@@ -73,8 +73,8 @@ class IpMessengerAgentImpl {
 		void ConfirmMessage( RecievedMessage &msg );
 		void DeleteNotify( RecievedMessage msg );
 		void AcceptConfirmNotify( SentMessage msg );
-		vector<SentMessage> *GetSentMessages();
-		vector<SentMessage> CloneSentMessages();
+		SentMessageList *GetSentMessages();
+		SentMessageList CloneSentMessages();
 		void SetEventObject( IpMessengerEvent *evt );
 		IpMessengerEvent *GetEventObject();
 		void SetFileNameConverter( FileNameConverter *conv );
@@ -123,8 +123,8 @@ class IpMessengerAgentImpl {
 		int InitUdpRecv( struct sockaddr_in addr );
 		int InitTcpRecv( struct sockaddr_in addr );
 		int RecvPacket();
-		void SendPacket( const long cmd, char *buf, int size, struct sockaddr_in toAddr );
-		void SendBroadcast( const long cmd, char *buf, int size );
+		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_in toAddr );
+		void SendBroadcast( const unsigned long cmd, char *buf, int size );
 		void DoRecvCommand( Packet packet );
 		int SendNoOperation();
 		int SendAbsence();
@@ -159,17 +159,12 @@ class IpMessengerAgentImpl {
 		bool EncryptMsg( HostListItem host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
 		bool DecryptMsg( Packet &packet );
 		vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( string addr );
-		vector<HostListItem>::iterator FindHostByAddress( string addr );
-		vector<HostListItem>::iterator FindHostByHostName( string hostName );
-		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
-		long AddCommonCommandOption( const long cmd );
+		unsigned long AddCommonCommandOption( const unsigned long cmd );
 
 		//Library Use Only
 		void AddHostListFromPacket( Packet packet );
-		int CreateNewPacketBuffer(long cmd, long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
-		int CreateNewPacketBuffer(long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
-		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
-		vector<SentMessage>::iterator SentMessageListEnd() { return sentMsgList.end(); };
+		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
+		int CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
 		void SendTcpPacket( int sd, char *buf, int size );
 		bool SendFile( int sock, string FileName, off_t offset=0 );
 		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
@@ -177,9 +172,9 @@ class IpMessengerAgentImpl {
 };
 
 #if defined(DEBUG) || defined(INFO)
-void IpMsgPrintBuf( char* bufname, char *buf, int size );
+void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
 void IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr );
-string GetCommandString( long cmd );
+string GetCommandString( unsigned  long cmd );
 #else
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )

@@ -142,6 +142,53 @@ HostList::CreateHostListItemFromPacket( Packet packet )
 }
 
 /**
+ * ホストリストをホスト名で検索し、該当するHostListItemを返却する。
+ * @param hostName ホスト名
+ * @retval HostListItem
+ * 注：このメソッドはスレッドセーフでない。
+ */
+vector<HostListItem>::iterator
+HostList::FindHostByHostName( string hostName )
+{
+	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
+		if ( ix->HostName() == hostName ) {
+			return ix;
+		}
+	}
+	return end();
+}
+
+/**
+ * ホストリストをIPアドレスで検索し、該当するHostListItemを返却する。
+ * @param addr IPアドレス文字列
+ * @retval HostListItem
+ * 注：このメソッドはスレッドセーフでない。
+ */
+vector<HostListItem>::iterator
+HostList::FindHostByAddress( string addr )
+{
+	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
+#if defined(DEBUG)
+printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );
+#endif
+		if ( ix->IpAddress() == addr ) {
+#if defined(DEBUG)
+printf("★★★★★★★★★★★★\n");
+printf("HOST FOUND!!!\n");
+printf("★★★★★★★★★★★★\n");
+#endif
+			return ix;
+		}
+	}
+#if defined(DEBUG)
+printf("★★★★★★★★★★★★\n");
+printf("HOST NOT FOUND!!!\n");
+printf("★★★★★★★★★★★★\n");
+#endif
+	return end();
+}
+
+/**
  * ホストがファイル添付をサポートしているか？
  * @retval サポート：true／サポートしない：false
  */

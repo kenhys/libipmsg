@@ -1,3 +1,6 @@
+2006-12-14 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Login Name Empty.
+
 2006-12-13 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Implemented Download events.
 - Update:Add parameters(DownloadInfo &info, void *data) to All Download events.

@@ -442,7 +442,7 @@ IpMessengerAgent::PopRecievedMessage()
  * 送信済メッセージリストのポインタを取得する。
  * @retval 送信済メッセージリストのポインタ。
  */
-vector<SentMessage> *
+SentMessageList *
 IpMessengerAgent::GetSentMessages()
 {
 	return ipmsgImpl->GetSentMessages();
@@ -452,7 +452,7 @@ IpMessengerAgent::GetSentMessages()
  * 送信済メッセージリストのコピーを取得する。
  * @retval 送信済メッセージリストのコピー。
  */
-vector<SentMessage>
+SentMessageList
 IpMessengerAgent::CloneSentMessages()
 {
 	return ipmsgImpl->CloneSentMessages();

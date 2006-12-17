@@ -123,8 +123,8 @@ fflush(stdout);
 		}
 #if defined(DEBUG)
 		printf( "read_len = %d\n", read_len );
-		printf( "readSize = %d\n", readSize );
-		printf( "file.FileSize() = %ld\n", file.FileSize() );
+		printf( "readSize = %lld\n", readSize );
+		printf( "file.FileSize() = %lld\n", file.FileSize() );
 #endif
 		if ( file.FileSize() == readSize ) {
 			break;

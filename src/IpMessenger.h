@@ -41,7 +41,7 @@ using namespace std;
  * に展開されます。
  **/
 #define IPMSG_READONLY_PROPERTY(t, name ) private: t _##name; \
-								public: t name() {return _##name; };
+								public: t name() const { return _##name; };
 
 /**
  * 読み書き両用プロパティ
@@ -54,8 +54,8 @@ using namespace std;
  * に展開されます。
  **/
 #define IPMSG_PROPERTY(t, name ) private: t _##name; \
-								public: t name() {return _##name; };\
-								void set##name(t val){ _##name = val; };
+								public: t name() const { return _##name; };\
+								void set##name( const t val ){ _##name = val; };
 
 /**
  * 読み書き両用プロパティ(参照用)
@@ -68,8 +68,8 @@ using namespace std;
  * に展開されます。
  **/
 #define IPMSG_PROPERTY_REF(t, name ) private: t _##name; \
-									public: t& name() {return _##name; };\
-									void set##name(t& val){ _##name = val; };
+									public: t& name() { return _##name; };\
+									void set##name( t& val ){ _##name = val; };
 
 class Packet{
 	public:
@@ -82,7 +82,6 @@ class Packet{
 		IPMSG_PROPERTY( string, Option );
 		IPMSG_PROPERTY( struct sockaddr_in, Addr );
 		IPMSG_PROPERTY( int, TcpSocket );
-
 };
 
 class NetworkInterface {
@@ -119,6 +118,8 @@ class HostList{
 		void AddHost( HostListItem host );
 		void Delete( vector<HostListItem>::iterator &it );
 		void DeleteHost( string hostname );
+		vector<HostListItem>::iterator FindHostByAddress( string addr );
+		vector<HostListItem>::iterator FindHostByHostName( string hostName );
 		static HostListItem CreateHostListItemFromPacket( Packet packet );
 		vector<HostListItem>::iterator begin(){ return items.begin(); };
 		vector<HostListItem>::iterator end(){ return items.end(); };
@@ -175,16 +176,19 @@ class AttachFile{
 
 class DownloadInfo{
 	public:
-		IPMSG_PROPERTY( long long, Size );
+		IPMSG_PROPERTY( unsigned long long, Size );
 		IPMSG_PROPERTY( time_t, Time );
 		IPMSG_PROPERTY( long, FileCount );
 		IPMSG_PROPERTY( string, LocalFileName );
 		IPMSG_PROPERTY_REF( AttachFile, File );
-		DownloadInfo(){
+		DownloadInfo():_Size( 0ULL ), _Time( 0 ), _FileCount( 0L ), _LocalFileName(""){};
+#if 0
+		DownloadInfo():_Size( 0ULL ), _Time( 0 ), _FileCount( 0L ), _LocalFileName(""){
 			setSize( 0LL );
 			setTime( 0 );
 			setFileCount( 0L );
 		};
+#endif
 		long double getSpeed(){ return Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() ); };
 		string getSpeedString() { return getUnitSizeString( ( long long )getSpeed() ) + "/sec"; };
 		string getSizeString() { return getUnitSizeString( Size() ); };
@@ -290,6 +294,8 @@ class SentMessageList {
 		vector<SentMessage>::iterator begin(){ return messages.begin(); };
 		vector<SentMessage>::iterator end(){ return messages.end(); };
 		vector<SentMessage>::iterator erase( vector<SentMessage>::iterator item ){ return messages.erase( item ); };
+		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
+		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
 		void append( SentMessage item ){ messages.push_back( item ); };
 		int size(){ return messages.size(); };
 		void clear(){ return messages.clear(); };
@@ -474,12 +480,12 @@ class IpMessengerAgent {
 		/**
 		 * 送信メッセージリストの取得
 		 **/
-		vector<SentMessage> *GetSentMessages();
+		SentMessageList *GetSentMessages();
 
 		/**
 		 * 送信メッセージリストのコピーの取得
 		 **/
-		vector<SentMessage> CloneSentMessages();
+		SentMessageList CloneSentMessages();
 
 		/**
 		 * イベントオブジェクトの設定

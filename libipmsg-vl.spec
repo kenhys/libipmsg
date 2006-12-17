@@ -1,6 +1,6 @@
 %define name libipmsg
-%define version 0.1.0
-%define release 1
+%define version 0.1.1
+%define release 0vl0
 
 Summary: 	Ip Messenger Library
 Summary(ja):Ipメッセンジャーライブラリ
@@ -11,8 +11,8 @@ Source0: 	%{name}-%{version}.tar.gz
 License: 	LGPL
 Group:		System Environment/Libraries
 BuildRoot: 	%{_tmppath}/%{name}-buildroot
-Requires: 	kdelibs, kdebase, qt
-BuildRequires: 	kdelibs-devel, kdebase-devel, qt-devel
+Requires: 	openssl
+BuildRequires: 	openssl-devel
 
 %description
 Ip Messenger Library is comunicate with The IpMessenger(famous windows application)
@@ -24,7 +24,7 @@ Ip Messenger ライブラリはIpMessengerと会話します(Windows上の有名なアプリケーショ
 Summary: 	Ip Messenger Library Development kit
 Summary(ja):Ipメッセンジャーライブラリ開発キット
 Group:		System Environment/Libraries
-Requires: 	kdelibs-devel, kdebase-devel, qt-devel
+Requires: 	openssl-devel
 %description devel
 The Ip Messenger Library Development kit
 
@@ -57,5 +57,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libipmsg.*a
 
 %changelog
-* Sat Nov 18 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.0
-- Initial version
+* Tue Dec 12 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.1-0vl0
+- New upstream release.
+
+* Sat Nov 18 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.0-0vl0
+- Initial version.

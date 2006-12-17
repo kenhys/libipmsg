@@ -13,7 +13,7 @@
  * 注：このメソッドはスレッドセーフでない。
  */
 inline void
-IpMsgPrintBuf( char* bufname, char *buf, int size )
+IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 {
 	int continue_count = 0;
 	unsigned char pchar = *buf;
@@ -53,7 +53,7 @@ IpMsgPrintBuf( char* bufname, char *buf, int size )
  * @retval コマンド文字列
  */
 string
-GetCommandString(long cmd )
+GetCommandString( unsigned long cmd )
 {
 	switch( cmd ){
 		case IPMSG_NOOPERATION:     return "IPMSG_NOOPERATION";
@@ -94,7 +94,7 @@ IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 	printf( "CommandOption[%ld]\n", packet.CommandOption() );
 	printf( "HostName     [%s]\n", packet.HostName().c_str() );
 	printf( "UserName     [%s]\n", packet.UserName().c_str() );
-	IpMsgPrintBuf("Option", (char *)packet.Option().c_str(), packet.Option().length() );
+	IpMsgPrintBuf("Option", packet.Option().c_str(), packet.Option().length() );
 	printf( "<< R E C V <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n");
 }
 #endif
