@@ -80,6 +80,8 @@ class IpMessengerAgentImpl {
 		void AcceptConfirmNotify( SentMessage msg );
 		SentMessageList *GetSentMessages();
 		SentMessageList CloneSentMessages();
+		void SetSortHostListComparator( HostListComparator *comparator );
+		HostListComparator *GetSortHostListComparator();
 		void SetEventObject( IpMessengerEvent *evt );
 		IpMessengerEvent *GetEventObject();
 		void SetFileNameConverter( FileNameConverter *conv );
@@ -96,6 +98,7 @@ class IpMessengerAgentImpl {
 		unsigned long encryptionCapacity;
 #endif
 		IpMessengerEvent *event;
+		HostListComparator *compare;
 		SentMessageList sentMsgList;
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
