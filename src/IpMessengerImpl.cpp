@@ -99,6 +99,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	CryptoInit();
 	srandom( time( NULL ) );
 	converter = new NullFileNameConverter();
+	compare = new HostListDefaultComparator();
 	setAbortDownloadAtFileChanged( false );
 	setSaveSentMessage( true );
 	setSaveRecievedMessage( true );
@@ -121,6 +122,7 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
 	Logout();
 	CryptoEnd();
 	delete converter;
+	delete compare;
 	delete event;
 	NetworkEnd();
 }
@@ -171,6 +173,34 @@ IpMessengerAgentImpl::SetFileNameConverter( FileNameConverter *conv )
 }
 
 /**
+ * ホストリスト比較オブジェクトのゲッター。
+ * 注：このメソッドはスレッドセーフでない。
+ * @retval ホストリスト比較オブジェクトのアドレス。
+ */
+HostListComparator *
+IpMessengerAgentImpl::GetSortHostListComparator()
+{
+	return compare;
+}; 
+
+/**
+ * ホストリスト比較オブジェクトのセッター。
+ * ・割り当て済のホストリスト比較オブジェクトを削除する。
+ * ・新しいホストリスト比較オブジェクトの割り当て。
+ * 注：このメソッドはスレッドセーフでない。
+ * @param comparator ホストリスト比較オブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
+ */
+void
+IpMessengerAgentImpl::SetSortHostListComparator( HostListComparator *comparator )
+{
+	if ( comparator == NULL ){
+		return;
+	}
+	delete compare;
+	compare = comparator;
+}
+
+/**
  * イベントオブジェクトのゲッター。
  * 注：このメソッドはスレッドセーフでない。
  * @retval イベントオブジェクトのアドレス。
@@ -186,7 +216,7 @@ IpMessengerAgentImpl::GetEventObject()
  * ・割り当て済のイベントオブジェクトを削除する。
  * ・新しいイベントオブジェクトの割り当て。
  * 注：このメソッドはスレッドセーフでない。
- * @param conv イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
+ * @param evt イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
 IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
@@ -433,9 +463,8 @@ IpMessengerAgentImpl::UpdateHostList()
 	//}
 #if defined(DEBUG)
 	printf("\n\n");
-	printf("== M Y   H O S T L I S T ==============================>\n");
-	vector<HostListItem>::iterator ix = hostList.begin();
-	for( ; ix != hostList.end(); ix++ ){
+	printf("== M Y   H O S T L I S T ( BEFORE SORT )===============>\n");
+	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
 		printf( "Version[%s]\n" \
 				"AbsenceDescription[%s]\n" \
 				"User[%s]\n" \
@@ -464,7 +493,44 @@ IpMessengerAgentImpl::UpdateHostList()
 				ix->EncryptMethodHex().c_str(),
 				ix->PortNo() );
 	}
-	printf("<= M Y   H O S T L I S T ===============================\n");
+	printf("<= M Y   H O S T L I S T ( BEFORE SORT )================\n");
+#endif
+	if ( compare != NULL ) {
+		hostList.sort( compare );
+	}
+#if defined(DEBUG)
+	printf("\n\n");
+	printf("== M Y   H O S T L I S T ( AFTER SORT )================>\n");
+	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
+		printf( "Version[%s]\n" \
+				"AbsenceDescription[%s]\n" \
+				"User[%s]\n" \
+				"Host[%s]\n" \
+				"CommandNo[%lu]\n" \
+				"IpAddress[%s]\n" \
+				"NickName[%s]\n" \
+				"Group[%s]\n" \
+				"Encoding[%s]\n" \
+				"EncryptionCapacity[%lu]\n" \
+				"PubKeyHex[%s]\n" \
+				"EncryptMethodHex[%s]\n" \
+				"PortNo[%lu]\n" \
+				"##########################################################\n",
+				ix->Version().c_str(),
+				ix->AbsenceDescription().c_str(),
+				ix->UserName().c_str(),
+				ix->HostName().c_str(),
+				ix->CommandNo(),
+				ix->IpAddress().c_str(),
+				ix->Nickname().c_str(),
+				ix->GroupName().c_str(),
+				ix->EncodingName().c_str(),
+				ix->EncryptionCapacity(),
+				ix->PubKeyHex().c_str(),
+				ix->EncryptMethodHex().c_str(),
+				ix->PortNo() );
+	}
+	printf("<= M Y   H O S T L I S T ( AFTER SORT )=================\n");
 #endif
 	if ( event != NULL ) {
 		event->UpdateHostListAfter( hostList );
@@ -1508,7 +1574,7 @@ IpMessengerAgentImpl::SendAbsence()
 	optBufLen += GroupName.size();
 	optBuf[optBufLen ] = '\0';
 
-	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ABSENCE | ( _IsAbsence ? IPMSG_ABSENCEOPT : 0UL),
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ABSENCE ) | ( _IsAbsence ? IPMSG_ABSENCEOPT : 0UL),
 										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
@@ -2755,7 +2821,8 @@ IpMessengerAgentImpl::GetMaxOptionBufferSize()
 {
 	char tmp[MAX_UDPBUF];
 	int headSize = snprintf(tmp, sizeof(tmp), "%d:0000000000:%s:%s:0000000000:", IPMSG_VERSION, _LoginName.c_str(), _HostName.c_str() );
-	return MAX_UDPBUF - headSize;
+	int ret = MAX_UDPBUF - headSize;
+	return ret < 0 ? 0 : ret;
 }
 
 unsigned long
