@@ -134,6 +134,30 @@ IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
  * 注：このメソッドはスレッドセーフでない。
  * @retval イベントオブジェクトのアドレス。
  */
+HostListComparator *
+IpMessengerAgent::GetSortHostListComparator()
+{
+	return ipmsgImpl->GetSortHostListComparator();
+}; 
+
+/**
+ * ホストリスト比較オブジェクトのセッター。
+ * ・割り当て済のホストリスト比較オブジェクトを削除する。
+ * ・新しいホストリスト比較オブジェクトの割り当て。
+ * 注：このメソッドはスレッドセーフでない。
+ * @param comparator ホストリスト比較オブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
+ */
+void
+IpMessengerAgent::SetSortHostListComparator( HostListComparator *comparator )
+{
+	ipmsgImpl->SetSortHostListComparator( comparator );
+}
+
+/**
+ * イベントオブジェクトのゲッター。
+ * 注：このメソッドはスレッドセーフでない。
+ * @retval イベントオブジェクトのアドレス。
+ */
 IpMessengerEvent *
 IpMessengerAgent::GetEventObject()
 {

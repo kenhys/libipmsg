@@ -10,6 +10,8 @@
 #include "IpMessenger.h"
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
+#include <algorithm>
+
 using namespace std;
 
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
@@ -52,6 +54,9 @@ HostList::AddHost( HostListItem host )
 	}
 	if ( !is_found ) {
 		items.push_back( host );
+	}
+	if ( agent->GetSortHostListComparator() != NULL ){
+		qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
 	}
 }
 
@@ -226,12 +231,77 @@ HostListItem::IsAbsence()
 bool
 HostListItem::Equals( HostListItem item )
 {
-	return	item.UserName() == UserName() &&
-			item.HostName() == HostName() &&
-			item.IpAddress() == IpAddress();
-//			item.Nickname() == Nickname() &&
-//			item.GroupName() == GroupName() &&
-//			item.PortNo() == PortNo();
+	return	Compare( item ) == 0;
+}
+int
+HostListItem::Compare( HostListItem item )
+{
+//	if ( item.UserName()  == UserName() &&
+//		 item.HostName()  == HostName() &&
+//		 item.IpAddress() == IpAddress() &&
+//		 item.Nickname()  == Nickname() &&
+//		 item.GroupName() == GroupName() &&
+//		 item.PortNo()    == PortNo() {
+	if ( item.UserName()  == UserName() &&
+		 item.HostName()  == HostName() &&
+		 item.IpAddress() == IpAddress() ){
+		return 0;
+	}
+//	if ( item.UserName()  > UserName() &&
+//		 item.HostName()  > HostName() &&
+//		 item.IpAddress() > IpAddress() &&
+//		 item.Nickname()  > Nickname() &&
+//		 item.GroupName() > GroupName() &&
+//		 item.PortNo()    > PortNo() {
+	if ( item.UserName()  > UserName() &&
+		 item.HostName()  > HostName() &&
+		 item.IpAddress() > IpAddress() ){
+		return 1;
+	}
+	return -1;
 }
 
+/**
+ * ホストリストを比較オブジェクトのソート順序に沿ってソートします。
+ * @param comparator 比較オブジェクト
+ */
+void
+HostList::qsort( HostListComparator *comparator, int left, int right )
+{
+	//範囲の開始、終了位置
+	int i = left, j = right;
+printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );
+printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );
+	//基準値
+	vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
+	//クイックソート
+	while( true ){
+		while( comparator->compare( items.begin() + i, pivot ) < 0 ) i++;
+		while( comparator->compare( pivot, items.begin() + j ) < 0 ) j--;
+		if ( i >= j ) break;
+printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );
+printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );
+		iter_swap( items.begin() + i, items.begin() + j );
+printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );
+printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );
+		i++;
+		j--;
+	}
+	if ( left < i - 1 ) {	//基準値の左に２個以上要素があれば左の配列をソートする。
+		qsort( comparator, left, i - 1 );
+	}
+	if ( j + 1 < right ) {	//基準値の右に２個以上要素があれば右の配列をソートする。
+		qsort( comparator, j + 1, right );
+	}
+}
+
+/**
+ * ホストリストを比較オブジェクトのソート順序に沿ってソートします。
+ * @param comparator 比較オブジェクト
+ */
+void
+HostList::sort( HostListComparator *comparator )
+{
+	qsort( comparator, 0, items.size() - 1 );
+}
 //end of source

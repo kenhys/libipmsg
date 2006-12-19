@@ -111,6 +111,19 @@ class HostListItem{
 		bool IsEncryptSupport();
 		bool IsAbsence();
 		bool Equals( HostListItem item );
+		int Compare( HostListItem item );
+};
+
+class HostListComparator{
+	public:
+		virtual int compare( vector<HostListItem>::iterator host1, vector<HostListItem>::iterator host2 )=0;
+};
+
+class HostListDefaultComparator: public HostListComparator{
+	public:
+		virtual int compare( vector<HostListItem>::iterator host1, vector<HostListItem>::iterator host2 ){
+			return host1->Compare( *host2 );
+		};
 };
 
 class HostList{
@@ -126,7 +139,9 @@ class HostList{
 		int size(){ return items.size(); };
 		void clear(){ return items.clear(); };
 		string ToString( int start );
+		void sort( HostListComparator *comparator );
 	private:
+		void qsort( HostListComparator *comparator, int left, int right );
 		vector<HostListItem>items;
 };
 
@@ -486,6 +501,16 @@ class IpMessengerAgent {
 		 * 送信メッセージリストのコピーの取得
 		 **/
 		SentMessageList CloneSentMessages();
+
+		/**
+		 * ホストリスト比較オブジェクトの設定
+		 **/
+		void SetSortHostListComparator( HostListComparator *comparator );
+
+		/**
+		 * ホストリスト比較オブジェクトの取得
+		 **/
+		HostListComparator *GetSortHostListComparator();
 
 		/**
 		 * イベントオブジェクトの設定
