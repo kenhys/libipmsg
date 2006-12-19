@@ -1,3 +1,9 @@
+2006-12-19 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add Sorting API.
+- Fix:Some comment typo.
+- Fix:Absence mode Common option.
+- Fix:GetMaxOptionBufferSize API returns minus value.
+
 2006-12-17 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Some API Change.
 - Update:Source file sepearated.(Encrypt,Decrypt)
