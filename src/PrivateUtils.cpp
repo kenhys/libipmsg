@@ -99,10 +99,10 @@ IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 }
 
 void
-IpMsgDumpHostList( char *s, HostList& hostList )
+IpMsgDumpHostList( const char *s, HostList& hostList )
 {
-	char head[]="=======================================================>\n");
-	char foot[]="<=======================================================\n");
+	char head[]="=======================================================>\n";
+	char foot[]="<=======================================================\n";
 
 	memcpy( head+2, s, strlen( s ) );
 	memcpy( foot+2, s, strlen( s ) );
