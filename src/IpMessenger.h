@@ -357,6 +357,7 @@ class IpMessengerEvent {
 		virtual void EntryAfter( HostList& hostList )=0;
 		//ホストの脱退通知後
 		virtual void ExitAfter( HostList& hostList )=0;
+		virtual ~IpMessengerEvent()=0;
 };
 
 class IpMessengerAgentImpl;

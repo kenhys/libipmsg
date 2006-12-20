@@ -20,6 +20,7 @@ static pthread_mutex_t instanceMutex;
 static int mutex_init_result = pthread_mutex_init( &instanceMutex, NULL );
 #endif
 
+IpMessengerEvent::~IpMessengerEvent(){};
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
  * Singletonパターンを採用しているので、ホスト唯一のインスタンスでなければならない。
