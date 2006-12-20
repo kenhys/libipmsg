@@ -12,7 +12,7 @@
  * @param size バッファサイズ
  * 注：このメソッドはスレッドセーフでない。
  */
-inline void
+void
 IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 {
 	int continue_count = 0;
@@ -96,5 +96,47 @@ IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 	printf( "UserName     [%s]\n", packet.UserName().c_str() );
 	IpMsgPrintBuf("Option", packet.Option().c_str(), packet.Option().length() );
 	printf( "<< R E C V <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n");
+}
+
+void
+IpMsgDumpHostList( char *s, HostList& hostList )
+{
+	char head[]="=======================================================>\n");
+	char foot[]="<=======================================================\n");
+
+	memcpy( head+2, s, strlen( s ) );
+	memcpy( foot+2, s, strlen( s ) );
+	printf("\n\n");
+	printf("%s", head );
+	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
+		printf( "Version[%s]\n" \
+				"AbsenceDescription[%s]\n" \
+				"User[%s]\n" \
+				"Host[%s]\n" \
+				"CommandNo[%lu]\n" \
+				"IpAddress[%s]\n" \
+				"NickName[%s]\n" \
+				"Group[%s]\n" \
+				"Encoding[%s]\n" \
+				"EncryptionCapacity[%lu]\n" \
+				"PubKeyHex[%s]\n" \
+				"EncryptMethodHex[%s]\n" \
+				"PortNo[%lu]\n" \
+				"##########################################################\n",
+				ix->Version().c_str(),
+				ix->AbsenceDescription().c_str(),
+				ix->UserName().c_str(),
+				ix->HostName().c_str(),
+				ix->CommandNo(),
+				ix->IpAddress().c_str(),
+				ix->Nickname().c_str(),
+				ix->GroupName().c_str(),
+				ix->EncodingName().c_str(),
+				ix->EncryptionCapacity(),
+				ix->PubKeyHex().c_str(),
+				ix->EncryptMethodHex().c_str(),
+				ix->PortNo() );
+	}
+	printf("%s", foot );
 }
 #endif
