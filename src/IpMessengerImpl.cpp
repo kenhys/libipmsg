@@ -462,13 +462,13 @@ IpMessengerAgentImpl::UpdateHostList()
 	//	return hostList;
 	//}
 #if defined(DEBUG)
-	IpMsgDumpHostList(" M Y   H O S T L I S T ( BEFORE SORT ) ", hostList );
+	IpMsgDumpHostList( " M Y   H O S T L I S T ( BEFORE SORT ) ", hostList );
 #endif
 	if ( compare != NULL ) {
 		hostList.sort( compare );
 	}
 #if defined(DEBUG)
-	IpMsgDumpHostList(" M Y   H O S T L I S T ( AFTER SORT ) ", hostList );
+	IpMsgDumpHostList( " M Y   H O S T L I S T ( AFTER SORT ) ", hostList );
 #endif
 	if ( event != NULL ) {
 		event->UpdateHostListAfter( hostList );
@@ -2557,7 +2557,7 @@ IpMessengerAgentImpl::CreateHostList( const char *hostListBuf, int buf_len )
 	char *hostListTmpBuf = (char *)calloc( alloc_size, 1 );
 
 #if defined(DEBUG) || !defined(NDEBUG)
-printf( "hostListBuf[%s]\n", hostListBuf );
+IpMsgPrintBuf( "hostListBuf", hostListBuf, buf_len );
 #endif
 	AddDefaultHost();
 	if ( hostListTmpBuf == NULL ) {
@@ -2602,85 +2602,92 @@ printf( "hostListBuf[%s]\n", hostListBuf );
 		// USER NAME
 		if ( *token == '\b' ) {
 			item.setUserName( "" );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setUserName( token );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		if ( token == NULL ) break;
 		// HOST NAME
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setHostName( "" );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setHostName( token );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		if ( token == NULL ) break;
 		// CommandNo
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setCommandNo( 0L );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setCommandNo( strtoul( token, &ptrdmy, 10 ) );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		if ( token == NULL ) break;
 		// IP ADDRESS
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setIpAddress( "" );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setIpAddress( token );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		if ( token == NULL ) break;
 		// PORTNO
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setPortNo( 0L );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setPortNo( ntohs( strtoul( token, &ptrdmy, 10 ) ) );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		if ( token == NULL ) break;
 		// NICKNAME
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setNickname( "" );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setNickname( token );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		if ( token == NULL ) break;
 		// GROUPNAME
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setGroupName( "" );
-			token++;
+			//'\b'と区切り文字'\a'の分を飛ばす。
+			token += 2;
 			nextpos = token;
 		} else {
 			item.setGroupName( token );
-			hostListTmpPtr = nextpos;
-			token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		}
+		hostListTmpPtr = nextpos;
+		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		//最後のトークンは最後に判定する。(A)部分。
 		// ADD HOSTLIST
 		hostList.DeleteHost( item.HostName() );
