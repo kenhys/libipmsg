@@ -270,8 +270,10 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 {
 	//範囲の開始、終了位置
 	int i = left, j = right;
+#if defined(INFO) || !defined(NDEBUG)
 printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );
 printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );
+#endif
 	//基準値
 	vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
 	//クイックソート
@@ -279,11 +281,15 @@ printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAd
 		while( comparator->compare( items.begin() + i, pivot ) < 0 ) i++;
 		while( comparator->compare( pivot, items.begin() + j ) < 0 ) j--;
 		if ( i >= j ) break;
+#if defined(INFO) || !defined(NDEBUG)
 printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );
 printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );
+#endif
 		iter_swap( items.begin() + i, items.begin() + j );
+#if defined(INFO) || !defined(NDEBUG)
 printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );
 printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );
+#endif
 		i++;
 		j--;
 	}
