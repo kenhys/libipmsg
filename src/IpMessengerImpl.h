@@ -212,10 +212,10 @@ class IpMessengerAgentImpl {
 
 
 #if defined(DEBUG) || defined(INFO)
-inline void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
-inline void IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr );
-inline string GetCommandString( unsigned  long cmd );
-inline void IpMsgDumpHostList( char *s, HostList& hostList );
+void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
+void IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr );
+string GetCommandString( unsigned  long cmd );
+void IpMsgDumpHostList( const char *s, HostList& hostList );
 #else
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )
