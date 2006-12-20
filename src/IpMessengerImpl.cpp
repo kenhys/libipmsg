@@ -404,7 +404,7 @@ IpMessengerAgentImpl::Logout()
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
-	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_EXIT,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_EXIT ),
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
@@ -442,7 +442,7 @@ IpMessengerAgentImpl::UpdateHostList()
 	hostList.clear();
 	AddDefaultHost();
 
-	sendBufLen = CreateNewPacketBuffer( IPMSG_BR_ISGETLIST2,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ISGETLIST2 ),
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
@@ -462,75 +462,13 @@ IpMessengerAgentImpl::UpdateHostList()
 	//	return hostList;
 	//}
 #if defined(DEBUG)
-	printf("\n\n");
-	printf("== M Y   H O S T L I S T ( BEFORE SORT )===============>\n");
-	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
-		printf( "Version[%s]\n" \
-				"AbsenceDescription[%s]\n" \
-				"User[%s]\n" \
-				"Host[%s]\n" \
-				"CommandNo[%lu]\n" \
-				"IpAddress[%s]\n" \
-				"NickName[%s]\n" \
-				"Group[%s]\n" \
-				"Encoding[%s]\n" \
-				"EncryptionCapacity[%lu]\n" \
-				"PubKeyHex[%s]\n" \
-				"EncryptMethodHex[%s]\n" \
-				"PortNo[%lu]\n" \
-				"##########################################################\n",
-				ix->Version().c_str(),
-				ix->AbsenceDescription().c_str(),
-				ix->UserName().c_str(),
-				ix->HostName().c_str(),
-				ix->CommandNo(),
-				ix->IpAddress().c_str(),
-				ix->Nickname().c_str(),
-				ix->GroupName().c_str(),
-				ix->EncodingName().c_str(),
-				ix->EncryptionCapacity(),
-				ix->PubKeyHex().c_str(),
-				ix->EncryptMethodHex().c_str(),
-				ix->PortNo() );
-	}
-	printf("<= M Y   H O S T L I S T ( BEFORE SORT )================\n");
+	IpMsgDumpHostList(" M Y   H O S T L I S T ( BEFORE SORT ) ", hostList );
 #endif
 	if ( compare != NULL ) {
 		hostList.sort( compare );
 	}
 #if defined(DEBUG)
-	printf("\n\n");
-	printf("== M Y   H O S T L I S T ( AFTER SORT )================>\n");
-	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
-		printf( "Version[%s]\n" \
-				"AbsenceDescription[%s]\n" \
-				"User[%s]\n" \
-				"Host[%s]\n" \
-				"CommandNo[%lu]\n" \
-				"IpAddress[%s]\n" \
-				"NickName[%s]\n" \
-				"Group[%s]\n" \
-				"Encoding[%s]\n" \
-				"EncryptionCapacity[%lu]\n" \
-				"PubKeyHex[%s]\n" \
-				"EncryptMethodHex[%s]\n" \
-				"PortNo[%lu]\n" \
-				"##########################################################\n",
-				ix->Version().c_str(),
-				ix->AbsenceDescription().c_str(),
-				ix->UserName().c_str(),
-				ix->HostName().c_str(),
-				ix->CommandNo(),
-				ix->IpAddress().c_str(),
-				ix->Nickname().c_str(),
-				ix->GroupName().c_str(),
-				ix->EncodingName().c_str(),
-				ix->EncryptionCapacity(),
-				ix->PubKeyHex().c_str(),
-				ix->EncryptMethodHex().c_str(),
-				ix->PortNo() );
-	}
-	printf("<= M Y   H O S T L I S T ( AFTER SORT )=================\n");
+	IpMsgDumpHostList(" M Y   H O S T L I S T ( AFTER SORT ) ", hostList );
 #endif
 	if ( event != NULL ) {
 		event->UpdateHostListAfter( hostList );
@@ -1372,6 +1310,9 @@ IpMessengerAgentImpl::RecvPacket()
 				}
 			}
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr );
+#if defined(INFO) || !defined(NDEBUG)
+			printf("recv from[%s]\n", packet.HostName().c_str() );
+#endif
 			IpMsgDumpPacket( packet, packet.Addr() );
 			packet.setTcpSocket( tcp_socket );
 			ret++;
@@ -1528,11 +1469,11 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( Packet packet )
 	snprintf( &optBuf[ optBufLen ], sizeof( optBuf ) - optBufLen - 1, "%s", GroupName.c_str() );
 	optBufLen += GroupName.size();
 	optBuf[optBufLen ] = '\0';
-	sendBufLen = CreateNewPacketBuffer( IPMSG_ANSENTRY,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSENTRY ),
 										  _LoginName, _HostName,
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_ANSENTRY ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
 	if ( event != NULL ) {
@@ -1848,11 +1789,11 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrIsGetList\n");
 #endif
-	sendBufLen = CreateNewPacketBuffer( IPMSG_OKGETLIST,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_OKGETLIST ),
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_OKGETLIST ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_OKGETLIST, sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -1870,11 +1811,11 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrIsGetList2\n");
 #endif
-	sendBufLen = CreateNewPacketBuffer( IPMSG_OKGETLIST,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_OKGETLIST ),
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_OKGETLIST ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_OKGETLIST, sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -1897,11 +1838,11 @@ IpMessengerAgentImpl::UdpRecvEventGetList( Packet packet )
 #endif
 	start = strtoul( packet.Option().c_str(), &dmy, 10 );
 	hosts = hostList.ToString( start );
-	sendBufLen = CreateNewPacketBuffer( IPMSG_ANSLIST,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSLIST ),
 										  _LoginName, _HostName,
 										  hosts.c_str(), hosts.length(),
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_ANSLIST ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_ANSLIST, sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -1920,11 +1861,11 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvOkGetList[%s]\n", packet.Option().c_str());
 #endif
-	sendBufLen = CreateNewPacketBuffer( IPMSG_GETLIST,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 										  _LoginName, _HostName,
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_GETLIST ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -1976,11 +1917,11 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 		printf("nextbuf_len = %d\n", nextbuf_len );
 #endif
-		sendBufLen = CreateNewPacketBuffer( IPMSG_GETLIST,
+		sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 											  _LoginName, _HostName,
 											  nextbuf, nextbuf_len,
 											  sendBuf, sizeof( sendBuf ) );
-		SendPacket( AddCommonCommandOption( IPMSG_GETLIST ), sendBuf, sendBufLen, packet.Addr() );
+		SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	}
 	return 0;
 }
@@ -2000,11 +1941,11 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvGetInfo[%s]\n", packet.Option().c_str());
 #endif
-	sendBufLen = CreateNewPacketBuffer( IPMSG_SENDINFO,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_SENDINFO ),
 										  _LoginName, _HostName,
 										  version.c_str(), version.length(),
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_SENDINFO ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_SENDINFO, sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2051,11 +1992,11 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
 			break;
 		}
 	}
-	sendBufLen = CreateNewPacketBuffer( IPMSG_SENDABSENCEINFO,
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_SENDABSENCEINFO ),
 										  _LoginName, _HostName,
 										  AbsenceDescription.c_str(), AbsenceDescription.length(),
 										  sendBuf, sizeof( sendBuf ) );
-	SendPacket( AddCommonCommandOption( IPMSG_SENDABSENCEINFO ), sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( IPMSG_SENDABSENCEINFO, sendBuf, sendBufLen, packet.Addr() );
 	return 0;
 }
 
@@ -2615,6 +2556,9 @@ IpMessengerAgentImpl::CreateHostList( const char *hostListBuf, int buf_len )
 	char *ptrdmy;
 	char *hostListTmpBuf = (char *)calloc( alloc_size, 1 );
 
+#if defined(DEBUG) || !defined(NDEBUG)
+printf( "hostListBuf[%s]\n", hostListBuf );
+#endif
 	AddDefaultHost();
 	if ( hostListTmpBuf == NULL ) {
 		return 0;
@@ -2850,7 +2794,6 @@ IpMessengerAgentImpl::CreateNewPacketBuffer(unsigned long cmd, unsigned long pac
 	printf( "CMD[%s]\n", GetCommandString( GET_MODE( cmd ) ).c_str() );
 #endif
 	memset( buf, 0, size );
-	cmd = AddCommonCommandOption( cmd );
 	//Version:PacketNo:UserName:HostName:Command[:Option]
 	int send_size = snprintf(buf, size, "%d:%ld:%s:%s:%ld:",
 										IPMSG_VERSION,
