@@ -1,8 +1,11 @@
+2006-12-21 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Check for Interapt with select system call.
+
 2006-12-20 Niki, Kuninobu <nikikuni@yahoo.co.jp>
-Update:HostList dump helper method in PrivateUtils.cpp moved from IpMessengerImpl.cpp.
-Fix:Host list trancated at Host list creating.
-Fix:Other host's group name empty at login.
-Fix:Common Option.
+- Update:HostList dump helper method in PrivateUtils.cpp moved from IpMessengerImpl.cpp.
+- Fix:Host list trancated at Host list creating.
+- Fix:Other host's group name empty at login.
+- Fix:Common Option.
 
 2006-12-19 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add Sorting API.

@@ -1234,6 +1234,9 @@ IpMessengerAgentImpl::RecvPacket()
 		tv.tv_usec = SELECT_TIMEOUT_USEC;
 		selret = select( max_sd + 1, &fds, NULL, NULL, &tv );
 		if ( selret == -1 ) {
+			if ( errno == EINTR ){
+				continue;
+			}
 			perror( "select()" );
 			break;
 		} else if ( selret == 0 ){
