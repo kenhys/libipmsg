@@ -2955,7 +2955,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
 	item.setIpAddress( inet_ntoa( packet.Addr().sin_addr ) );
 	int NicknameLen = strlen( packet.Option().c_str() );
 	item.setNickname( packet.Option().c_str() );
-	item.setGroupName( packet.Option().c_str() + NicknameLen );
+	item.setGroupName( packet.Option().c_str() + NicknameLen + 1 );
 	item.setEncodingName( "" );
 	item.setPriority( "" );
 	item.setPortNo( ntohs( packet.Addr().sin_port ) );
