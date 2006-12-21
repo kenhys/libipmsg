@@ -1341,7 +1341,7 @@ IpMessengerAgentImpl::RecvPacket()
 	//一定以上前のチェック用のパケットベクタを消す。
 	for( vector<Packet>::iterator pack = PacketsForChecking.begin(); pack != PacketsForChecking.end(); pack++ ){
 		if ( nowTime > pack->Recieved() + PACKET_CHECK_FOR_SAVING_INTERVAL ) {
-			pack = PacketsForChecking.erase( pack );
+			pack = PacketsForChecking.erase( pack ) - 1;
 		} else {
 			break;
 		}

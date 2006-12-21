@@ -1,6 +1,7 @@
 2006-12-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Get Host List Retry Error Implimentation.
 - Fix:Packet unique check.
+- Fix:SEGV happend.Use missing erase method with vector.
 
 2006-12-21 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Send Retry Error Implimentation.
