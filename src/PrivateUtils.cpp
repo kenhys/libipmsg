@@ -1,7 +1,7 @@
-#if defined(DEBUG) || defined(INFO)
-#include <stdio.h>
-#include <ctype.h>
 #include <IpMessenger.h>
+#if defined(DEBUG) || defined(INFO)
+#include <IpMessengerImpl.h>
+#include <ctype.h>
 #include <ipmsg.h>
 
 /**
@@ -10,7 +10,6 @@
  * @param bufname バッファタイトル
  * @param buf バッファ
  * @param size バッファサイズ
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
@@ -87,7 +86,8 @@ GetCommandString( unsigned long cmd )
 void
 IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-	printf( "send from %s(%d)\n", inet_ntoa( sender_addr.sin_addr ), ntohs( sender_addr.sin_port ) );
+	char ipaddrbuf[100];
+	printf( "send from %s(%d)\n", inet_ntoa_r( sender_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );
 	printf( "VersionNo    [%ld]\n", packet.VersionNo() );
 	printf( "PacketNo     [%ld]\n", packet.PacketNo() );
 	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), GetCommandString( packet.CommandMode() ).c_str() );
@@ -140,3 +140,41 @@ IpMsgDumpHostList( const char *s, HostList& hostList )
 	printf("%s", foot );
 }
 #endif
+
+static bool inet_ntoa_init();
+static bool inet_init = inet_ntoa_init();
+static int inet_index_1 = 0;
+static int inet_index_2 = 1;
+static int inet_index_3 = 2;
+static int inet_index_4 = 3;
+
+static bool
+inet_ntoa_init()
+{
+	in_addr_t netaddr = inet_addr( "0.1.2.3" );
+	unsigned char addr[4];
+	memcpy( addr, &netaddr, sizeof( addr ) );
+	inet_index_1 = addr[0];
+	inet_index_2 = addr[1];
+	inet_index_3 = addr[2];
+	inet_index_4 = addr[3];
+#if defined(DEBUG) || defined(INFO)
+	printf( "index:%d.%d.%d.%d", inet_index_1, inet_index_2, inet_index_3, inet_index_4);
+	fflush( stdout );
+#endif
+	return true;
+}
+
+char *
+inet_ntoa_r( in_addr_t s_addr, char *ret, int size )
+{
+	unsigned char addr[4];
+	memcpy( addr, &s_addr, sizeof( addr ) );
+#if defined(DEBUG) || defined(INFO)
+	printf( "ip:%d.%d.%d.%d\n", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);
+	fflush( stdout );
+#endif
+	snprintf( ret, size, "%d.%d.%d.%d", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);
+	return ret;
+}
+

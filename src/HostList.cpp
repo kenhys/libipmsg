@@ -130,7 +130,8 @@ HostList::CreateHostListItemFromPacket( Packet packet )
 	ret.setHostName( packet.HostName() );
 	ret.setUserName( packet.UserName() );
 	ret.setCommandNo( packet.CommandMode() | packet.CommandOption() );
-	ret.setIpAddress( inet_ntoa( packet.Addr().sin_addr ) );
+	char tmp[100];
+	ret.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, tmp, sizeof( tmp ) ) );
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "CreateHostListItemFromPacket port %d\n", packet.Addr().sin_port );
 #endif

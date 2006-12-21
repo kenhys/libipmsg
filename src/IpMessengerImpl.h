@@ -213,6 +213,7 @@ class IpMessengerAgentImpl {
 //バージョン文字列
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
 
+char *inet_ntoa_r( in_addr_t in, char *ret, int size );
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );

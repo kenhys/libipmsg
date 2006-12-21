@@ -64,14 +64,12 @@ RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file,
 
 	svr_addr = MessagePacket().Addr();
 #if defined(DEBUG)
-printf("IP[%s]\n", inet_ntoa( svr_addr.sin_addr ) );
+char ipaddrbuf[100];
+printf("IP[%s]\n", inet_ntoa_r( svr_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
 printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );
 fflush(stdout);
 #endif
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
-#if defined(DEBUG)
-		printf("errno=[%s][%d]\n", strerror(errno), errno);
-#endif
 		perror("connect");
 		return false;
 	}
