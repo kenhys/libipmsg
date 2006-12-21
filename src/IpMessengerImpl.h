@@ -63,10 +63,10 @@ class IpMessengerAgentImpl {
 		void Login( string nickname, string groupName );
 		void Logout();
 		HostList& GetHostList();
-		HostList& UpdateHostList();
+		HostList& UpdateHostList( bool isRetry=false );
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
 		void ResetAbsence();
 		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
 		vector<string> GetGroupList();
@@ -115,14 +115,13 @@ class IpMessengerAgentImpl {
 		struct timeval tv;
 		fd_set rfds;
 		vector<struct sockaddr_in> broadcastAddr;
+		vector<Packet> PacketsForChecking;
 		HostList hostList;
 		vector<NetworkInterface> NICs;
 		string localEncoding;
 
 		IpMessengerAgentImpl();
 		~IpMessengerAgentImpl();
-		bool isRetryMaxOver( SentMessage msg, int retryCount );
-		bool needSendRetry( SentMessage msg, time_t tryNow );
 		void CryptoInit();
 		void CryptoEnd();
 		void NetworkInit();
@@ -163,7 +162,7 @@ class IpMessengerAgentImpl {
 		int TcpRecvEventGetDirFiles( Packet packet );
 		int AddDefaultHost();
 		int CreateHostList( const char *hostListBuf, int bufLen );
-		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender );
+		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender, time_t nowTime );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
 		bool EncryptMsg( HostListItem host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
 		bool DecryptMsg( Packet &packet );
@@ -192,13 +191,17 @@ class IpMessengerAgentImpl {
 #define SELECT_TIMEOUT_USEC	50000
 #endif	//DEBUG
 
+//パケットの一意性チェック用のパケット保存期間(秒)
+#define	PACKET_CHECK_FOR_SAVING_INTERVAL	20
+
 //NICの最大数
 #define IFR_MAX 20
 
-//メッセージ送信リトライ最大数
-#define SENDMSG_RETRY_MAX	5
+//ホストリスト取得リトライ間隔
+#define GETLIST_RETRY_INTERVAL	2
 //ホストリスト取得リトライ最大数
-#define GETLIST_RETRY_MAX	2
+#define GETLIST_RETRY_MAX		2
+
 //一回のホストリスト取得最大数
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
 //パケットのデリミタ文字

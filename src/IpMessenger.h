@@ -77,6 +77,7 @@ class Packet{
 		IPMSG_PROPERTY( unsigned long, PacketNo );
 		IPMSG_PROPERTY( unsigned long, CommandMode );
 		IPMSG_PROPERTY( unsigned long, CommandOption );
+		IPMSG_PROPERTY( time_t, Recieved );
 		IPMSG_PROPERTY( string, HostName );
 		IPMSG_PROPERTY( string, UserName );
 		IPMSG_PROPERTY( string, Option );
@@ -128,6 +129,10 @@ class HostListDefaultComparator: public HostListComparator{
 
 class HostList{
 	public:
+		IPMSG_PROPERTY( bool, IsAsking );
+		IPMSG_PROPERTY( time_t, AskStartTime );
+		IPMSG_PROPERTY( time_t, PrevTry );
+		IPMSG_PROPERTY( int, RetryCount );
 		void AddHost( HostListItem host );
 		void Delete( vector<HostListItem>::iterator &it );
 		void DeleteHost( string hostname );
@@ -300,7 +305,11 @@ class SentMessage{
 		IPMSG_PROPERTY( bool, IsConfirmed );
 		IPMSG_PROPERTY( bool, IsConfirmAnswered );
 		IPMSG_PROPERTY( bool, IsSecret );
+		IPMSG_PROPERTY( int, HostCountAtSameTime );
+		IPMSG_PROPERTY( unsigned long, Opt );
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
+		bool isRetryMaxOver();
+		bool needSendRetry( time_t tryNow );
 		vector<AttachFile>::iterator FindAttachFileByPacket( Packet packet );
 };
 
@@ -336,13 +345,13 @@ class IpMessengerEvent {
 		//ホストリスト更新後
 		virtual void UpdateHostListAfter( HostList& hostList )=0;
 		//ホストリスト取得リトライエラー
-		virtual void GetHostListRetryError()=0;
+		virtual bool GetHostListRetryError()=0;
 		//メッセージ受信後(処理してメッセージの保存が不要ならTRUEを返す)
 		virtual bool RecieveAfter( RecievedMessage& msg )=0;
 		//メッセージ送信後
 		virtual void SendAfter( SentMessage& msg )=0;
 		//メッセージ送信リトライエラー
-		virtual void SendRetryError( SentMessage& msg )=0;
+		virtual bool SendRetryError( SentMessage& msg )=0;
 		//開封通知後
 		virtual void OpenAfter( SentMessage& msg )=0;
 		//ダウンロード開始
