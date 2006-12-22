@@ -1380,7 +1380,9 @@ IpMessengerAgentImpl::RecvPacket()
 			ixmsg->setRetryCount( 0 );
 			ixmsg->setIsRetryMaxOver( true );
 			if ( event != NULL ){
-				//リトライを続ける場合はFalseをセット。続けない場合はTrueをセット。
+				//リトライを続ける場合はTrueをセット。続けない場合はFalseをセット。
+				//（RetryMaxOver(メッセージはエラー)状態にすれば、継続しません）
+				//イベントの戻り値はtrue:継続、false:中断になります。
 				ixmsg->setIsRetryMaxOver( !event->SendRetryError( *ixmsg ) );
 			}
 			//イベントで継続を設定しない場合はリトライマックスオーバーしたらやめる。
@@ -1401,7 +1403,8 @@ IpMessengerAgentImpl::RecvPacket()
 				hostList.setRetryCount( 0 );
 				hostList.setIsAsking( false );
 				if ( event != NULL ) {
-					//リトライを続ける場合はFalseをセット。続けない場合はTrueをセット。
+					//リトライを続ける場合はTrueをセット。続けない場合はFalseをセット。
+					//イベントの戻り値はtrue:継続、false:中断になります。
 					hostList.setIsAsking( event->GetHostListRetryError() );
 				}
 			}
