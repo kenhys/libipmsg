@@ -366,6 +366,8 @@ class IpMessengerEvent {
 		virtual void EntryAfter( HostList& hostList )=0;
 		//ホストの脱退通知後
 		virtual void ExitAfter( HostList& hostList )=0;
+		//不在モード更新後
+		virtual void AbsenceModeChangeAfter( HostList& hostList )=0;
 		virtual ~IpMessengerEvent()=0;
 };
 

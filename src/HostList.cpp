@@ -41,6 +41,9 @@ HostList::AddHost( HostListItem host )
 	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );
 #endif
 	if ( host.IpAddress() == "127.0.0.1" ){
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );
+#endif
 		return;
 	}
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){

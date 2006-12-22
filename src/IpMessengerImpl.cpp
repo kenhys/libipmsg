@@ -39,6 +39,7 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadError\n"); return false; };
 		virtual void EntryAfter( HostList& hostList ){ printf("EntryAfter\n"); };
 		virtual void ExitAfter( HostList& hostList ){ printf("ExitAfter\n"); };
+		virtual void AbsenceModeChangeAfter( HostList& hostList ){ printf("AbsenceModeChangeAfter\n"); };
 };
 
 /**
@@ -425,7 +426,19 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
-	hostList.clear();
+	if ( !isRetry && !hostList.IsAsking() ) {
+#if defined(DEBUG)
+		for(int i=0;i < 6;i++)
+			printf("!! HOSTLIST CLEAR !! ");
+		printf("\n");fflush(stdout);
+#endif
+		hostList.clear();
+#if defined(DEBUG)
+		for(int i=0;i < 6;i++)
+			printf("!! HOSTLIST CLEARED !! ");
+		printf("\n");fflush(stdout);
+#endif
+	}
 	hostList.setIsAsking( true );
 	if ( !isRetry ) {
 		hostList.setAskStartTime( time( NULL ) );
@@ -1926,7 +1939,11 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 	printf("UdpRecvAnsList\n");
 #endif
 	AddDefaultHost();
-	int nextstart = CreateHostList( packet.Option().c_str(), packet.Option().length() );
+	char ipaddrbuf[100];
+	int nextstart = CreateHostList( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ),
+									packet.HostName().c_str(),
+									packet.Option().c_str(),
+									packet.Option().length() );
 	if ( nextstart > 0 ) {
 		int nextbuf_len = snprintf( nextbuf, sizeof( nextbuf ), "%d", hostList.size() + 1 );
 #if defined(INFO) || !defined(NDEBUG)
@@ -1938,7 +1955,6 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 											sendBuf, sizeof( sendBuf ) );
 		SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	}
-	char ipaddrbuf[100];
 	string packetIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) );
 	for( unsigned int i = 0; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
@@ -2042,6 +2058,9 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( Packet packet )
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setAbsenceDescription( packet.Option() );
+	}
+	if ( event != NULL ){
+		event->AbsenceModeChangeAfter( hostList );
 	}
 	return 0;
 }
@@ -2577,7 +2596,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
  * @param buf_len バッファの長さ
  */
 int
-IpMessengerAgentImpl::CreateHostList( const char *hostListBuf, int buf_len )
+IpMessengerAgentImpl::CreateHostList( const char * packetIpAddress, const char *packetHostName, const char *hostListBuf, int buf_len )
 {
 	int alloc_size = buf_len + 1;
 	int add_count = 0;
@@ -2676,7 +2695,19 @@ IpMsgPrintBuf( "hostListBuf", hostListBuf, buf_len );
 			token += 2;
 			nextpos = token;
 		} else {
-			item.setIpAddress( token );
+			//ANSLISTで送られてくるホストリストのIPアドレスがループバックの場合が有る。（IPメッセンジャーのバグなのかな？）
+			if ( strcmp( token, "127.0.0.1" ) == 0 ){
+				//パケットを送信したホストのIPアドレスがループバックの場合はパケット送付元のIPアドレスを設定する。
+				if ( item.HostName() == packetHostName ) {
+					item.setIpAddress( packetIpAddress );
+				} else {
+					//そうでない場合はあきらめる。（AddHostメソッド内で無視されホストリストに追加されない。）
+					item.setIpAddress( token );
+				}
+			} else {
+				//ローカルループバックアドレスでは無い場合はそのまま設定する。
+				item.setIpAddress( token );
+			}
 		}
 		hostListTmpPtr = nextpos;
 		token = strtok_r( hostListTmpPtr, "\a", &nextpos );

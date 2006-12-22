@@ -1,8 +1,10 @@
 2006-12-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Get Host List Retry Error Implementation.
+- Update:Add AbsenceModeChangeAfter event.
 - Fix:Packet unique check.
 - Fix:SEGV happend.Use missing erase method with vector.
 - Fix:inet_ntoa is thread unsafe function.implement inet_ntoa_r.
+- Fix:Host list item's IP address was local loopback address,In this case,Set packet sender IP address.
 
 2006-12-21 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Send Retry Error Implimentation.

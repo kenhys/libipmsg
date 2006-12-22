@@ -161,7 +161,7 @@ class IpMessengerAgentImpl {
 		int UdpRecvEventReleaseFiles( Packet packet );
 		int TcpRecvEventGetDirFiles( Packet packet );
 		int AddDefaultHost();
-		int CreateHostList( const char *hostListBuf, int bufLen );
+		int CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int bufLen );
 		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender, time_t nowTime );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
 		bool EncryptMsg( HostListItem host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
