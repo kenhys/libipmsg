@@ -70,8 +70,8 @@ class IpMessengerAgentImpl {
 		void ResetAbsence();
 		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
 		vector<string> GetGroupList();
-		string GetInfo( HostListItem host );
-		string GetAbsenceInfo( HostListItem host );
+		string GetInfo( HostListItem& host );
+		string GetAbsenceInfo( HostListItem& host );
 		int Process();
 		int GetRecievedMessageCount();
 		RecievedMessage PopRecievedMessage();
@@ -88,6 +88,8 @@ class IpMessengerAgentImpl {
 		FileNameConverter *GetFileNameConverter();
 		bool IsAbsence();
 		void RestartNetwork();
+		void QueryVersionInfo( HostListItem& host );
+		void QueryAbsenceInfo( HostListItem& host );
 
 	private:
 #ifdef HAVE_OPENSSL

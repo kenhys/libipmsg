@@ -1,3 +1,10 @@
+2006-12-24 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add QueryVersionInfo API.
+- Update:Add QueryAbsenceInfo API.
+- Update:Add AbsenceDetailRecieveAfter event.
+- Update:Add VersionInfoRecieveAfter event.
+- Fix:AbsenceModeChangeAfter event's timing.
+
 2006-12-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Get Host List Retry Error Implementation.
 - Update:Add AbsenceModeChangeAfter event.

@@ -113,6 +113,8 @@ class HostListItem{
 		bool IsAbsence();
 		bool Equals( HostListItem item );
 		int Compare( HostListItem item );
+		void QueryVersionInfo();
+		void QueryAbsenceInfo();
 };
 
 class HostListComparator{
@@ -368,6 +370,10 @@ class IpMessengerEvent {
 		virtual void ExitAfter( HostList& hostList )=0;
 		//不在モード更新後
 		virtual void AbsenceModeChangeAfter( HostList& hostList )=0;
+		//バージョン情報受信後
+		virtual void VersionInfoRecieveAfter( HostListItem &host, string version )=0;
+		//不在詳細情報受信後
+		virtual void AbsenceDetailRecieveAfter( HostListItem& host, string absenceDetail )=0;
 		virtual ~IpMessengerEvent()=0;
 };
 
@@ -467,12 +473,12 @@ class IpMessengerAgent {
 		/**
 		 * バージョン情報取得
 		 **/
-		string GetInfo( HostListItem host );
+		string GetInfo( HostListItem& host );
 
 		/**
 		 * 不在情報取得
 		 **/
-		string GetAbsenceInfo( HostListItem host );
+		string GetAbsenceInfo( HostListItem& host );
 
 		/**
 		 * パケットの処理（ポーリング用）

@@ -365,7 +365,7 @@ IpMessengerAgent::AddBroadcastAddress( string addr )
  * 注：このメソッドはスレッドセーフでない。
  */
 string
-IpMessengerAgent::GetInfo( HostListItem host )
+IpMessengerAgent::GetInfo( HostListItem& host )
 {
 	return ipmsgImpl->GetInfo( host );
 #if 0
@@ -382,7 +382,7 @@ IpMessengerAgent::GetInfo( HostListItem host )
  * 注：このメソッドはスレッドセーフでない。
  */
 string
-IpMessengerAgent::GetAbsenceInfo( HostListItem host )
+IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
 {
 	return ipmsgImpl->GetAbsenceInfo( host );
 }

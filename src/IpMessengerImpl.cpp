@@ -40,6 +40,8 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		virtual void EntryAfter( HostList& hostList ){ printf("EntryAfter\n"); };
 		virtual void ExitAfter( HostList& hostList ){ printf("ExitAfter\n"); };
 		virtual void AbsenceModeChangeAfter( HostList& hostList ){ printf("AbsenceModeChangeAfter\n"); };
+		virtual void VersionInfoRecieveAfter( HostListItem &host, string version ){ printf("VersionInfoRecieveAfter\n"); };
+		virtual void AbsenceDetailRecieveAfter( HostListItem &host, string absenceDetail ){ printf("AbsenceDetailRecieveAfter\n"); };
 };
 
 /**
@@ -732,38 +734,43 @@ IpMessengerAgentImpl::FindBroadcastNetworkByAddress( string addr )
 }
 
 /**
- * 対象ホストのバージョン情報を取得。
+ * 対象ホストのバージョン情報を問い合わせる。
  * ・GETINFOパケットを送信。
- * ・他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）
- * ・IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を取得
  * @param host 対象のホスト
- * @retval 対象ホストのバージョン情報
  * 注：このメソッドはスレッドセーフでない。
  */
-string
-IpMessengerAgentImpl::GetInfo( HostListItem host )
+void
+IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
 {
-	char sendBuf[MAX_UDPBUF];
+	char sendBuf[MAX_UDPBUF]={0};
 	int sendBufLen;
-	char packetNoBuf[MAX_UDPBUF];
-	int packetNoBufLen = sizeof( packetNoBuf );
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons( host.PortNo() );
 	addr.sin_addr.s_addr = inet_addr(host.IpAddress().c_str());
 
-	RecvPacket();
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETINFO,
-										  _LoginName, _HostName,
-										  packetNoBuf, packetNoBufLen,
-										  sendBuf, sizeof( sendBuf ) );
+										_LoginName, _HostName,
+										NULL, 0,
+										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_GETINFO, sendBuf, sendBufLen, addr );
-	int pcount = RecvPacket();
+}
+
+/**
+ * 対象ホストのバージョン情報を取得。
+ * ・バージョン情報を問い合わせる。
+ * ・他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）
+ * ・IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を返す。
+ * @param host 対象のホスト
+ * @retval 対象ホストのバージョン情報
+ * 注：このメソッドはスレッドセーフでない。
+ */
+string
+IpMessengerAgentImpl::GetInfo( HostListItem& host )
+{
+	RecvPacket();
 	for( int i = 0; i < 5; i++ ) {
-		if ( pcount == 0 ) {
-			break;
-		}
-		pcount = RecvPacket();
+		RecvPacket();
 	}
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
@@ -773,38 +780,44 @@ IpMessengerAgentImpl::GetInfo( HostListItem host )
 }
 
 /**
- * 対象ホストの不在説明文字列情報を取得。
+ * 対象ホストの不在説明文字列情報を問い合わせる。
  * ・GETABSENCEINFOパケットを送信。
- * ・他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）
- * ・IPアドレスでマッチングしてANSABSENCEINFOで更新されたバージョン情報を取得
  * @param host 対象のホスト
- * @retval 対象ホストの不在説明文字列情報
  * 注：このメソッドはスレッドセーフでない。
  */
-string
-IpMessengerAgentImpl::GetAbsenceInfo( HostListItem host )
+void
+IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
 {
-	char sendBuf[MAX_UDPBUF];
+	char sendBuf[MAX_UDPBUF]={0};
 	int sendBufLen;
-	char packetNoBuf[MAX_UDPBUF];
-	int packetNoBufLen = sizeof( packetNoBuf );
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons( host.PortNo() );
 	addr.sin_addr.s_addr = inet_addr(host.IpAddress().c_str());
 
-	RecvPacket();
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETABSENCEINFO,
-										  _LoginName, _HostName,
-										  packetNoBuf, packetNoBufLen,
-										  sendBuf, sizeof( sendBuf ) );
+										_LoginName, _HostName,
+										NULL, 0,
+										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_GETABSENCEINFO, sendBuf, sendBufLen, addr );
-	int pcount = RecvPacket();
+}
+
+/**
+ * 対象ホストの不在説明文字列情報を取得。
+ * ・不在説明文字列情報を問い合わせる。
+ * ・他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）
+ * ・IPアドレスでマッチングしてANSABSENCEINFOで更新された不在説明文字列情報を返す。
+ * @param host 対象のホスト
+ * @retval 対象ホストの不在説明文字列情報
+ * 注：このメソッドはスレッドセーフでない。
+ */
+string
+IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
+{
+	QueryAbsenceInfo( host );
+	RecvPacket();
 	for( int i = 0; i < 5; i++ ) {
-		if ( pcount == 0 ) {
-			break;
-		}
-		pcount = RecvPacket();
+		RecvPacket();
 	}
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
@@ -1584,6 +1597,9 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( Packet packet )
 #endif
 	hostList.DeleteHost( packet.HostName() );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
+	if ( event != NULL ){
+		event->AbsenceModeChangeAfter( hostList );
+	}
 	return 0;
 }
 
@@ -2008,6 +2024,9 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( Packet packet )
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setVersion( packet.Option() );
+		if ( event != NULL ){
+			event->VersionInfoRecieveAfter( *hostIt, packet.Option() );
+		}
 	}
 	return 0;
 }
@@ -2040,6 +2059,9 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
 			break;
 		}
 	}
+	if ( AbsenceDescription == "" ){
+		AbsenceDescription = "Not Absence mode";
+	}
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_SENDABSENCEINFO ),
 										_LoginName, _HostName,
 										AbsenceDescription.c_str(), AbsenceDescription.length(),
@@ -2061,9 +2083,9 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( Packet packet )
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setAbsenceDescription( packet.Option() );
-	}
-	if ( event != NULL ){
-		event->AbsenceModeChangeAfter( hostList );
+		if ( event != NULL ){
+			event->AbsenceDetailRecieveAfter( *hostIt, packet.Option() );
+		}
 	}
 	return 0;
 }

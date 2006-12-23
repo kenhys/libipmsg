@@ -16,6 +16,20 @@ using namespace std;
 
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
 
+void
+HostListItem::QueryVersionInfo()
+{
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	agent->QueryVersionInfo( *this );
+}
+
+void
+HostListItem::QueryAbsenceInfo()
+{
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	agent->QueryAbsenceInfo( *this );
+}
+
 /**
  * ホスト情報をホストリストに追加する。
  * @param host ホスト情報
