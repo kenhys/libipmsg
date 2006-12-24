@@ -3,6 +3,8 @@
 - Update:Add QueryAbsenceInfo API.
 - Update:Add AbsenceDetailRecieveAfter event.
 - Update:Add VersionInfoRecieveAfter event.
+- Update:Add to checking parameter for SendFile.(modified time, file size).
+- Update:Change to file checking method,fstat to stat.
 - Fix:AbsenceModeChangeAfter event's timing.
 
 2006-12-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>

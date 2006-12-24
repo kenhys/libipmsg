@@ -2166,7 +2166,11 @@ GetFileDataThread( void *param )
 	}
 
 	FoundFile->setIsDownloading( true );
-	IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(), FoundFile->FullPath(), GetSendFileOffsetInPacket( *packet ) );
+	IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(),
+												   FoundFile->FullPath(),
+												   FoundFile->MTime(),
+												   FoundFile->FileSize(),
+												   GetSendFileOffsetInPacket( *packet ) );
 	FoundFile->setIsDownloading( false );
 	FoundFile->setIsDownloaded( true );
 	close( packet->TcpSocket() );
@@ -2374,7 +2378,8 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 
 	stat( cd.c_str(), &st );
 	int head_len = snprintf( headbuf, sizeof( headbuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
-														converter->ConvertLocalToNetwork( cd.c_str() ).c_str(), (unsigned long long)st.st_size,
+														converter->ConvertLocalToNetwork( cd.c_str() ).c_str(),
+														(unsigned long long)st.st_size,
 														IPMSG_FILE_DIR,
 														IPMSG_FILE_MTIME, st.st_mtime,
 														IPMSG_FILE_CREATETIME, st.st_ctime );
@@ -2403,14 +2408,15 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 				printf( "FILE\n" );
 #endif
 				int head_len = snprintf( headbuf, sizeof( headbuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
-																	converter->ConvertLocalToNetwork( dent->d_name ).c_str(), (unsigned long long)st.st_size,
+																	converter->ConvertLocalToNetwork( dent->d_name ).c_str(),
+																	(unsigned long long)st.st_size,
 																	IPMSG_FILE_REGULAR,
 																	IPMSG_FILE_MTIME, st.st_mtime,
 																	IPMSG_FILE_CREATETIME, st.st_ctime );
 				headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
 				send( sock, headbuf, head_len, 0 );
 
-				if ( !SendFile( sock, dir_name, 0 ) ){
+				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size , 0 ) ){
 					closedir( d );
 					return false;
 				}
@@ -2433,7 +2439,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
  * @retval true:À®¸ù¡¢false:¼ºÇÔ
  */
 bool
-IpMessengerAgentImpl::SendFile( int sock, string FileName, off_t offset )
+IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigned long long size, off_t offset )
 {
 	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
 	char readbuf[8192];
@@ -2442,7 +2448,9 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, off_t offset )
 	int fd = open( localFileName.c_str(), O_RDONLY );
 	if ( fd < 0 ) {
 		perror( "open" );
-		printf("FileName.c_str() [%s]", FileName.c_str() );
+#ifdef DEBUG
+		printf("FileName.c_str() [%s]\n", FileName.c_str() );fflush(stdout);
+#endif
 		return false;
 	}
 	int rc = fstat( fd, &st_init );
@@ -2455,19 +2463,28 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, off_t offset )
 	while( read_size > 0 ){
 		if ( AbortDownloadAtFileChanged() ){
 			struct stat st_progress;
-			int rc = fstat( fd, &st_progress );
+			int rc = stat( localFileName.c_str(), &st_progress );
 			if ( rc != 0 ){
+#ifdef DEBUG
+				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
+#endif
 				close( fd );
 				return false;
 			}
-			if ( st_init.st_mtime != st_progress.st_mtime ||
+			if ( mtime            != st_progress.st_mtime ||
 				 st_init.st_ctime != st_progress.st_ctime ||
 				 st_init.st_uid   != st_progress.st_uid   ||
 				 st_init.st_gid   != st_progress.st_gid   ||
-				 st_init.st_size  != st_progress.st_size ) {
+				 size             != (unsigned long long)st_progress.st_size ) {
+#ifdef DEBUG
+				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
+#endif
 				close( fd );
 				return false;
 			}
+#ifdef DEBUG
+			printf("FileName.c_str() [%s]\nFile Unchanged.\n", FileName.c_str() );fflush(stdout);
+#endif
 		}
 		send( sock, readbuf, read_size, 0 );
 		read_size = read( fd, readbuf, sizeof( readbuf ) );
