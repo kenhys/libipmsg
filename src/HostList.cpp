@@ -37,6 +37,23 @@ HostListItem::QueryAbsenceInfo()
 }
 
 /**
+ * IPアドレスを元にローカルホストかどうかを求める。
+ * @retval true:ローカルホスト、false:ローカルホストではない。
+ */
+bool
+HostListItem::IsLocalHost()
+{
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	vector<NetworkInterface> nics = agent->NICs;
+	for( unsigned int i = 1; i < nics.size(); i++ ){
+		if ( IpAddress() == nics[i].IpAddress() ){
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * ホスト情報をホストリストに追加する。
  * @param host ホスト情報
  */

@@ -108,6 +108,7 @@ class HostListItem{
 		IPMSG_PROPERTY( unsigned long, EncryptionCapacity );
 		IPMSG_PROPERTY( string, PubKeyHex );
 		IPMSG_PROPERTY( string, EncryptMethodHex );
+		bool IsLocalHost();
 		bool IsFileAttachSupport();
 		bool IsEncryptSupport();
 		bool IsAbsence();
@@ -384,12 +385,6 @@ class IpMessengerAgentImpl;
  **/
 class IpMessengerAgent {
 	public:
-		friend class RecievedMessage;
-		friend class SentMessage;
-		friend class HostList;
-		friend void *GetFileDataThread( void *param );
-		friend void *GetDirFilesThread( void *param );
-
 		/**
 		 * インスタンスを取得
 		 **/

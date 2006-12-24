@@ -44,6 +44,7 @@ class IpMessengerAgentImpl {
 		friend class RecievedMessage;
 		friend class SentMessage;
 		friend class HostList;
+		friend class HostListItem;
 		friend void *GetFileDataThread( void *param );
 		friend void *GetDirFilesThread( void *param );
 
