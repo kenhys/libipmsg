@@ -213,10 +213,9 @@ class DownloadInfo{
 		};
 #endif
 		long double getSpeed(){ return Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() ); };
-		string getSpeedString() { return getUnitSizeString( ( long long )getSpeed() ) + "/sec"; };
-		string getSizeString() { return getUnitSizeString( Size() ); };
-	private:
-		string getUnitSizeString( long long size )
+		string getSpeedString() { return DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec"; };
+		string getSizeString() { return DownloadInfo::getUnitSizeString( Size() ); };
+		static string getUnitSizeString( long long size )
 		{
 			long double dsize = (long double)size;
 			char buf[100];
