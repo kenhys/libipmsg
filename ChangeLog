@@ -1,3 +1,6 @@
+2006-12-25 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Add DEBUG printf after fflush(stdout).
+
 2006-12-24 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add QueryVersionInfo API.
 - Update:Add QueryAbsenceInfo API.
