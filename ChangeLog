@@ -5,6 +5,7 @@
 - Update:Add VersionInfoRecieveAfter event.
 - Update:Add to checking parameter for SendFile.(modified time, file size).
 - Update:Change to file checking method,fstat to stat.
+- Fix:AttachedFile list parsing bug.
 - Fix:AbsenceModeChangeAfter event's timing.
 - Fix:"Not Absence mode" returns in absence mode.
 

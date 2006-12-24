@@ -597,7 +597,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 		ixfile->GetLocalFileInfo();
 		string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
 		int wsize = snprintf( &optBuf[ optBufLen ], sizeof( optBuf ) - optBufLen - 1,
-							"%d:%s:%llx:%lx:%lx\a",
+							"%d:%s:%llx:%lx:%lx:\a",
 							ixfile->FileId(), filename.c_str(), ixfile->FileSize(), ixfile->MTime(), ixfile->Attr() );
 		optBufLen += wsize;
 		optBuf[optBufLen] = '\0';
@@ -2545,14 +2545,14 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 		while( 1 ) {
 			AttachFile file;
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("AttachFile(-1)\n" );
+			printf("AttachFile(-1)\n" );fflush(stdout);
 #endif
 			// FILE ID
 			if ( token != NULL && *token == '\a' ) eob = true;
 			if ( token == NULL || *token == '\a' ) break;
 			file.setFileId( strtoul( token, &ptrdmy, 10 ) );
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf( "file.FileId() %d token [%s]\n", file.FileId(), token );
+			printf( "file.FileId() %d token [%s]\n", file.FileId(), token );fflush(stdout);
 #endif
 			// FILE NAME
 			file_list_tmp_ptr = nextpos;
@@ -2578,7 +2578,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 			if ( token != NULL && *token == '\a' ) eob = true;
 			if ( token == NULL || *token == '\a' ) break;
 			file.setAttr( strtoul( token, &ptrdmy, 16 ) );
-			while( token != NULL && *token != 'a' ) {
+			while( token != NULL && *token != '\a' ) {
 				file_list_tmp_ptr = nextpos;
 				token = strtok_r( file_list_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
 				if ( token != NULL && *token == '\a' ) eob = true;
@@ -2594,14 +2594,14 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 				if ( pos >= 0 ) {
 					ptrdmy = &token[pos];
 					char *topchar = ptrdmy;
-					while( *ptrdmy != '0' ) {
+					while( *ptrdmy != '\0' ) {
 						file.addExtAttrs( token, strtoul( topchar, &ptrdmy, 16 ) );
 						topchar = ++ptrdmy;
 					}
 				}
 			}
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("\n\n");
+			printf("\n\n");fflush(stdout);
 			printf("== FILE  ==============================>\n");
 			printf("FILE ID[%d]\n", file.FileId());
 			printf("FILE NAME[%s]\n", file.FileName().c_str());
@@ -2627,6 +2627,9 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 		}
 		// FILE ID(not 1st)
 		if ( token == NULL ){
+#if defined(DEBUG) || !defined(NDEBUG)
+			printf("File END,break;\n" );
+#endif
 			break;
 		}
 		if ( *token == '\a' ){
