@@ -174,6 +174,7 @@ class AttachFile{
 		IPMSG_PROPERTY( string, FileName );
 		IPMSG_PROPERTY( string, Location );
 		IPMSG_PROPERTY( long long, FileSize );
+		IPMSG_PROPERTY( long long, TransSize );
 		IPMSG_PROPERTY( bool, IsDownloaded );
 		IPMSG_PROPERTY( bool, IsDownloading );
 		IPMSG_PROPERTY( time_t, MTime );

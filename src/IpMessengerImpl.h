@@ -176,7 +176,7 @@ class IpMessengerAgentImpl {
 		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
 		int CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
 		void SendTcpPacket( int sd, char *buf, int size );
-		bool SendFile( int sock, string FileName, time_t mtime, unsigned long long size, off_t offset=0 );
+		bool SendFile( int sock, string FileName, time_t mtime, unsigned long long size, AttachFile *trans, off_t offset=0 );
 		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
 		int GetMaxOptionBufferSize();
 };

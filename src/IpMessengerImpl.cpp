@@ -2171,6 +2171,7 @@ GetFileDataThread( void *param )
 												   FoundFile->FullPath(),
 												   FoundFile->MTime(),
 												   FoundFile->FileSize(),
+												   &(*FoundFile),
 												   GetSendFileOffsetInPacket( *packet ) );
 	FoundFile->setIsDownloading( false );
 	FoundFile->setIsDownloaded( true );
@@ -2417,7 +2418,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 				headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
 				send( sock, headbuf, head_len, 0 );
 
-				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size , 0 ) ){
+				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size, NULL , 0 ) ){
 					closedir( d );
 					return false;
 				}
@@ -2440,13 +2441,17 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
  * @retval true:À®¸ù¡¢false:¼ºÇÔ
  */
 bool
-IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigned long long size, off_t offset )
+IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
 {
 	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
 	char readbuf[8192];
 	struct stat st_init;
 	int read_size;
+	unsigned long long transSize = 0LL;
 	int fd = open( localFileName.c_str(), O_RDONLY );
+
+	if ( file != NULL ) file->setTransSize( offset );
+
 	if ( fd < 0 ) {
 		perror( "open" );
 #ifdef DEBUG
@@ -2488,6 +2493,8 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 #endif
 		}
 		send( sock, readbuf, read_size, 0 );
+		transSize += read_size;
+		if ( file != NULL ) file->setTransSize( transSize );
 		read_size = read( fd, readbuf, sizeof( readbuf ) );
 	}
 	close( fd );
