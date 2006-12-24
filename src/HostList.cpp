@@ -16,6 +16,9 @@ using namespace std;
 
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
 
+/**
+ * バージョン情報問い合わせを行う。
+ */
 void
 HostListItem::QueryVersionInfo()
 {
@@ -23,6 +26,9 @@ HostListItem::QueryVersionInfo()
 	agent->QueryVersionInfo( *this );
 }
 
+/**
+ * 不在説明文字列問い合わせを行う。
+ */
 void
 HostListItem::QueryAbsenceInfo()
 {
