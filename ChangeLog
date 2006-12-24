@@ -6,6 +6,7 @@
 - Update:Add to checking parameter for SendFile.(modified time, file size).
 - Update:Change to file checking method,fstat to stat.
 - Fix:AbsenceModeChangeAfter event's timing.
+- Fix:"Not Absence mode" returns in absence mode.
 
 2006-12-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Get Host List Retry Error Implementation.

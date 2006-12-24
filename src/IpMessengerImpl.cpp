@@ -2045,21 +2045,22 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvGetAbsenceInfo[%s]\n", packet.Option().c_str());
 #endif
-	char ipaddrbuf[100];
-	string IpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) );
-	string EncodingName = localEncoding;
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( IpAddress );
-	if ( hostIt != hostList.end() ) {
-		EncodingName = hostIt->EncodingName();
-	}
 	string AbsenceDescription = "";
-	for( vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
-		if ( i->EncodingName() == localEncoding ) {
-			AbsenceDescription = i->AbsenceDescription();
-			break;
+	if ( _IsAbsence  ){
+		char ipaddrbuf[100];
+		string IpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) );
+		string EncodingName = localEncoding;
+		vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( IpAddress );
+		if ( hostIt != hostList.end() ) {
+			EncodingName = hostIt->EncodingName();
 		}
-	}
-	if ( AbsenceDescription == "" ){
+		for( vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
+			if ( i->EncodingName() == localEncoding ) {
+				AbsenceDescription = i->AbsenceDescription();
+				break;
+			}
+		}
+	} else {
 		AbsenceDescription = "Not Absence mode";
 	}
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_SENDABSENCEINFO ),
