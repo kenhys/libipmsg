@@ -39,10 +39,9 @@ AttachFileList::FindByFileId( int file_id )
 {
 	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
-		printf( "file_id  %d\n", file_id );
-		printf( "ixfile->FileId %d\n", ixfile->FileId() );
-		printf( "ixfile->FileName %s\n", ixfile->FileName().c_str() );
-		fflush( stdout );
+		printf( "file_id  %d\n", file_id );fflush(stdout);
+		printf( "ixfile->FileId %d\n", ixfile->FileId() );fflush(stdout);
+		printf( "ixfile->FileName %s\n", ixfile->FileName().c_str() );fflush(stdout);
 #endif
 		if ( file_id == ixfile->FileId() ) {
 			return ixfile;
@@ -58,12 +57,12 @@ AttachFileList::FindByFileId( int file_id )
 AttachFile::AttachFile()
 {
 #ifdef DEBUG
-	printf("file_id before     == %d\n", file_id );
+	printf("file_id before     == %d\n", file_id );fflush(stdout);
 #endif
 	_FileId = file_id++;
 #ifdef DEBUG
-	printf("AttachFile::FileId == %d\n", FileId() );
-	printf("file_id after      == %d\n", file_id );
+	printf("AttachFile::FileId == %d\n", FileId() );fflush(stdout);
+	printf("file_id after      == %d\n", file_id );fflush(stdout);
 #endif
 }
 
@@ -131,7 +130,7 @@ AttachFile::CreateDirFullPath( vector<string> dirstack )
 		if ( *d != "" ) {
 			retdir += *d + ( d->at(d->size() - 1) == '/' ? "" : "/" );
 #ifdef DEBUG
-			printf("retdir = %s\n", retdir.c_str());
+			printf("retdir = %s\n", retdir.c_str());fflush(stdout);
 #endif
 		}
 	}

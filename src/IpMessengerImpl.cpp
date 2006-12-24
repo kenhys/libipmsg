@@ -260,7 +260,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
 			continue;
 		}
 #if defined(DEBUG) || !defined(NDEBUG)
-		printf( "dev=%s,ipaddress=%s\n", ifr[i].ifr_name, inet_ntoa_r( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
+		printf( "dev=%s,ipaddress=%s\n", ifr[i].ifr_name, inet_ntoa_r( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush( stdout );
 #endif
 		NetworkInterface ni;
 		ni.setDeviceName( ifr[i].ifr_name );
@@ -268,8 +268,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
 		ni.setIpAddress( inet_ntoa_r( ( (struct sockaddr_in *)&ifr[i].ifr_addr )->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
 		nics.push_back( ni );
 #if defined(DEBUG) || !defined(NDEBUG)
-		printf( "NIC device=%s[IpAddress=%s][Port=%d]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str(), nics[nics.size()-1].PortNo() );
-		fflush(stdout);
+		printf( "NIC device=%s[IpAddress=%s][Port=%d]\n",nics[nics.size() - 1].DeviceName().c_str(),nics[nics.size()-1].IpAddress().c_str(), nics[nics.size()-1].PortNo() );fflush( stdout );
 #endif
 	}
 
@@ -431,13 +430,13 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	if ( !isRetry && !hostList.IsAsking() ) {
 #if defined(DEBUG)
 		for(int i=0;i < 6;i++)
-			printf("!! HOSTLIST CLEAR !! ");
+			printf("!! HOSTLIST CLEAR !! ");fflush( stdout );
 		printf("\n");fflush(stdout);
 #endif
 		hostList.clear();
 #if defined(DEBUG)
 		for(int i=0;i < 6;i++)
-			printf("!! HOSTLIST CLEARED !! ");
+			printf("!! HOSTLIST CLEARED !! ");fflush( stdout );
 		printf("\n");fflush(stdout);
 #endif
 	}
@@ -644,9 +643,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	message.setIsSent( false );
 
 #if defined(DEBUG)
-	printf( "UserName[%s]\n", message.Host().UserName().c_str() );
-	printf( "HostName[%s]\n", message.Host().HostName().c_str() );
-	printf( "Nickname[%s]\n", message.Host().Nickname().c_str() );
+	printf( "UserName[%s]\n", message.Host().UserName().c_str() );fflush( stdout );
+	printf( "HostName[%s]\n", message.Host().HostName().c_str() );fflush( stdout );
+	printf( "Nickname[%s]\n", message.Host().Nickname().c_str() );fflush( stdout );
 #endif
 	if ( SaveSentMessage() && !isRetry ){
 		sentMsgList.append( message );
@@ -655,8 +654,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 //	RecvPacket();
 
 #if defined(DEBUG)
-	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );
-	fflush(stdout);
+	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );fflush( stdout );
 #endif
 
 	return message;
@@ -685,7 +683,7 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
 	if ( net != broadcastAddr.end() ) {
 #if defined(DEBUG)
 		char ipaddrbuf[100];
-		printf( "Delete Broadcast Address from %s(%d)\n", inet_ntoa_r( net->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( net->sin_port ) );
+		printf( "Delete Broadcast Address from %s(%d)\n", inet_ntoa_r( net->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( net->sin_port ) );fflush( stdout );
 #endif
 		broadcastAddr.erase( net );
 		return;
@@ -710,7 +708,7 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 	add_addr.sin_addr.s_addr = inet_addr( addr.c_str() );
 #if defined(DEBUG)
 	char ipaddrbuf[100];
-	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa_r( add_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( add_addr.sin_port ) );
+	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa_r( add_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( add_addr.sin_port ) );fflush( stdout );
 #endif
 	broadcastAddr.push_back( add_addr );
 }
@@ -943,7 +941,7 @@ void
 IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 {
 #if defined(DEBUG)
-	printf("== S E N D   T C P ====================================>\n");
+	printf("== S E N D   T C P ====================================>\n");fflush( stdout );
 #endif
 	IpMsgPrintBuf( "SendTcpPacket:SendTcpBufer", buf, size );
 	int ret = 0;
@@ -951,11 +949,11 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 	if ( ret <= 0 ) {
 		perror("send");
 #if defined(DEBUG)
-		printf("S E N D   T C P   F A I L E D\n");
+		printf("S E N D   T C P   F A I L E D\n");fflush( stdout );
 #endif
 	}
 #if defined(DEBUG)
-	printf("<= S E N D   T C P======================================\n");
+	printf("<= S E N D   T C P======================================\n");fflush( stdout );
 #endif
 }
 
@@ -970,10 +968,10 @@ void
 IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_in to_addr )
 {
 #if defined(DEBUG)
-	printf("== S E N D ============================================>\n");
-	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );
+	printf("== S E N D ============================================>\n");fflush( stdout );
+	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 	char ipaddrbuf[100];
-	printf( "Send  %s(%d)\n", inet_ntoa_r( to_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( to_addr.sin_port ) );
+	printf( "Send  %s(%d)\n", inet_ntoa_r( to_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( to_addr.sin_port ) );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
 	int ret = 0;
@@ -981,11 +979,11 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 	if ( ret <= 0 ) {
 		perror("sendto unicast");
 #if defined(DEBUG)
-		printf("S E N D   F A I L E D ( ret = %d)\n", ret );
+		printf("S E N D   F A I L E D ( ret = %d)\n", ret );fflush( stdout );
 #endif
 	}
 #if defined(DEBUG)
-	printf("<= S E N D =============================================\n");
+	printf("<= S E N D =============================================\n");fflush( stdout );
 #endif
 }
 
@@ -1000,14 +998,14 @@ void
 IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int size )
 {
 #if defined(DEBUG)
-	printf("== S E N D   B R O A D C A S T ========================>\n");
-	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );
+	printf("== S E N D   B R O A D C A S T ========================>\n");fflush( stdout );
+	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 #if defined(DEBUG)
 		char ipaddrbuf[100];
-		printf( "Send To %s(%d)\n", inet_ntoa_r( ixaddr->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( ixaddr->sin_port ) );
+		printf( "Send To %s(%d)\n", inet_ntoa_r( ixaddr->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( ixaddr->sin_port ) );fflush( stdout );
 #endif
 		int ret = 0;
 		for( unsigned int i = 0; i < udp_sd.size(); i++ ){
@@ -1015,7 +1013,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 			if ( ret <= 0 ) {
 				perror("sendto broadcast.");
 #if defined(DEBUG)
-				printf("S E N D   F A I L E D\n");
+				printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
 			}
 		}
@@ -1028,7 +1026,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 			addr.sin_addr.s_addr = inet_addr( ixhost->IpAddress().c_str() );
 #if defined(DEBUG)
 			char ipaddrbuf[100];
-			printf( "Send To %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( addr.sin_port ) );
+			printf( "Send To %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
 #endif
 			int ret = 0;
 			for( unsigned int i = 0; i < udp_sd.size(); i++ ){
@@ -1036,7 +1034,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 				if ( ret <= 0 ) {
 					perror("sendto dialup host.");
 #if defined(DEBUG)
-					printf("S E N D   F A I L E D ( D I A L U P )\n");
+					printf("S E N D   F A I L E D ( D I A L U P )\n");fflush( stdout );
 #endif
 				}
 			}
@@ -1049,18 +1047,18 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	addr.sin_addr.s_addr = inet_addr( "127.0.0.1" );
 #if defined(DEBUG)
 	char ipaddrbuf[100];
-	printf( "Send To %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( addr.sin_port ) );
+	printf( "Send To %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
 #endif
 	int ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
 	if ( ret <= 0 ) {
 		perror("sendto myself.");
 #if defined(DEBUG)
-		printf("S E N D   F A I L E D ( D I A L U P )\n");
+		printf("S E N D   F A I L E D ( D I A L U P )\n");fflush( stdout );
 #endif
 	}
 
 #if defined(DEBUG)
-	printf("<= S E N D   B R O A D C A S T =========================\n");
+	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
 #endif
 }
 
@@ -1083,12 +1081,12 @@ IpMessengerAgentImpl::InitRecv( vector<NetworkInterface> nics )
 		sock = InitUdpRecv( *addr );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );
+			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );fflush( stdout );
 #endif
 			udp_sd.push_back( sock );
 		} else {
 			char ipaddrbuf[100];
-			printf( "UDP Error=%s\n", inet_ntoa_r( addr->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
+			printf( "UDP Error=%s\n", inet_ntoa_r( addr->sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush( stdout );
 		}
 	}
 	for( unsigned int i = 0; i < nics.size(); i++ ){
@@ -1102,20 +1100,20 @@ IpMessengerAgentImpl::InitRecv( vector<NetworkInterface> nics )
 		sock = InitUdpRecv( addr );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );
+			printf( "UDP_SD[%d] = %d\n", udp_sd.size(),sock );fflush( stdout );
 #endif
 			udp_sd.push_back( sock );
 		} else {
-			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );
+			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
 		}
 		sock = InitTcpRecv( addr );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "TCP_SD[%d] = %d\n", tcp_sd.size(),sock );
+			printf( "TCP_SD[%d] = %d\n", tcp_sd.size(),sock );fflush( stdout );
 #endif
 			tcp_sd.push_back( sock );
 		} else {
-			printf( "TCP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );
+			printf( "TCP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
 		}
 	}
 
@@ -1276,14 +1274,14 @@ IpMessengerAgentImpl::RecvPacket()
 			break;
 		} else if ( selret == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
-			printf(".");
+			printf(".");fflush( stdout );
 #endif
 			break;
 		} else {
 			int tcp_socket = -1;
 #if defined(DEBUG)
-			printf("\n");
-			printf( "select returns == %d\n\n", selret );
+			printf("\n");fflush( stdout );
+			printf( "select returns == %d\n\n", selret );fflush( stdout );
 #endif
 			struct sockaddr_in sender_addr;
 			socklen_t sender_addr_len = 0;
@@ -1321,7 +1319,7 @@ IpMessengerAgentImpl::RecvPacket()
 							perror("recv");
 						}
 #if defined(INFO) || !defined(NDEBUG)
-						printf("recv buf[%s]\n", buf );
+						printf("recv buf[%s]\n", buf );fflush( stdout );
 #endif
 						recieved = true;
 						break;
@@ -1334,7 +1332,7 @@ IpMessengerAgentImpl::RecvPacket()
 			}
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr, nowTime );
 #if defined(INFO) || !defined(NDEBUG)
-			printf("recv from[%s]\n", packet.HostName().c_str() );
+			printf("recv from[%s]\n", packet.HostName().c_str() );fflush( stdout );
 #endif
 			packet.setTcpSocket( tcp_socket );
 			ret++;
@@ -1388,7 +1386,7 @@ IpMessengerAgentImpl::RecvPacket()
 		}
 		if ( ixmsg->isRetryMaxOver() ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf("Retry Max Over\n");
+			printf("Retry Max Over\n");fflush( stdout );
 #endif
 			ixmsg->setRetryCount( 0 );
 			ixmsg->setIsRetryMaxOver( true );
@@ -1434,7 +1432,7 @@ void
 IpMessengerAgentImpl::DoRecvCommand( Packet packet )
 {
 #if defined(DEBUG)
-	printf( "PACKET.COMMAND=[%s]\n", GetCommandString( packet.CommandMode() ).c_str() );
+	printf( "PACKET.COMMAND=[%s]\n", GetCommandString( packet.CommandMode() ).c_str() );fflush( stdout );
 #endif
 	switch( packet.CommandMode() ) {
 		case IPMSG_NOOPERATION:     UdpRecvEventNoOperation( packet ); break;
@@ -1473,7 +1471,7 @@ int
 IpMessengerAgentImpl::UdpRecvEventNoOperation( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvNoOperation\n");
+	printf("UdpRecvNoOperation\n");fflush( stdout );
 #endif
 	return 0;
 }
@@ -1511,7 +1509,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( Packet packet )
 	int optBufLen = 0;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvBrEntry\n");
+	printf("UdpRecvBrEntry\n");fflush( stdout );
 #endif
 	if ( _IsAbsence ) {
 		string AbsenceName = "";
@@ -1556,7 +1554,7 @@ IpMessengerAgentImpl::SendAbsence()
 	int optBufLen = 0;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("SendBrAbsence\n");
+	printf("SendBrAbsence\n");fflush( stdout );
 #endif
 	if ( _IsAbsence ) {
 		string AbsenceName = "";
@@ -1593,7 +1591,7 @@ int
 IpMessengerAgentImpl::UdpRecvEventBrAbsence( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvBrAbsence\n");
+	printf("UdpRecvBrAbsence\n");fflush( stdout );
 #endif
 	hostList.DeleteHost( packet.HostName() );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
@@ -1612,7 +1610,7 @@ int
 IpMessengerAgentImpl::UdpRecvEventBrExit( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvBrExit\n");
+	printf("UdpRecvBrExit\n");fflush( stdout );
 #endif
 	hostList.DeleteHost( packet.HostName() );
 	if ( event != NULL ) {
@@ -1642,7 +1640,7 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( Packet packet )
 	}
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvRecvMsg\n");
+	printf("UdpRecvRecvMsg\n");fflush( stdout );
 #endif
 	return 0;
 }
@@ -1680,7 +1678,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( Packet packet )
 		event->OpenAfter( *sentMsg );
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvReadMsg\n");
+	printf("UdpRecvReadMsg\n");fflush( stdout );
 #endif
 	return 0;
 }
@@ -1700,7 +1698,7 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( Packet packet )
 		sentMsgList.erase(sentMsg);
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvDelMsg\n");
+	printf("UdpRecvDelMsg\n");fflush( stdout );
 #endif
 	return 0;
 }
@@ -1714,7 +1712,7 @@ int
 IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvAnsReadMsg\n");
+	printf("UdpRecvAnsReadMsg\n");fflush( stdout );
 #endif
 	return 0;
 }
@@ -1737,22 +1735,22 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 	int packetNoBufLen;
 
 #if defined(DEBUG) || !defined(NDEBUG)
-	printf("受信済メッセージ件数(%d)\n", recvMsgList.size() );
+	printf("受信済メッセージ件数(%d)\n", recvMsgList.size() );fflush( stdout );
 #endif
 	for( vector<RecievedMessage>::iterator ixmsg = recvMsgList.begin(); ixmsg != recvMsgList.end(); ixmsg++ ) {
 #if defined(DEBUG) || !defined(NDEBUG)
 			printf("受信メッセージ検索中...現在処理中のパケット(%ld) 検索中のメッセージのパケット(%ld)\n",
-					packet.PacketNo(), ixmsg->MessagePacket().PacketNo() );
+					packet.PacketNo(), ixmsg->MessagePacket().PacketNo() );fflush( stdout );
 #endif
 		if ( packet.PacketNo() == ixmsg->MessagePacket().PacketNo() ) {
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("すでに追加済み\n");
+			printf("すでに追加済み\n");fflush( stdout );
 #endif
 			return 0;
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvSendMsg[Packet = %lu]\n", packet.PacketNo() );
+	printf("UdpRecvSendMsg[Packet = %lu]\n", packet.PacketNo() );fflush( stdout );
 #endif
 	if ( packet.CommandOption() & IPMSG_BROADCASTOPT ||  packet.CommandOption() & IPMSG_AUTORETOPT ) {
 		;
@@ -1841,7 +1839,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( Packet packet )
 	int sendBufLen;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvBrIsGetList\n");
+	printf("UdpRecvBrIsGetList\n");fflush( stdout );
 #endif
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_OKGETLIST ),
 										_LoginName, _HostName,
@@ -1863,7 +1861,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( Packet packet )
 	int sendBufLen;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvBrIsGetList2\n");
+	printf("UdpRecvBrIsGetList2\n");fflush( stdout );
 #endif
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_OKGETLIST ),
 										_LoginName, _HostName,
@@ -1888,7 +1886,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( Packet packet )
 	string hosts;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvGetList[%s]\n", packet.Option().c_str());
+	printf("UdpRecvGetList[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	start = strtoul( packet.Option().c_str(), &dmy, 10 );
 	hosts = hostList.ToString( start );
@@ -1913,7 +1911,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( Packet packet )
 	string hosts;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvOkGetList[%s]\n", packet.Option().c_str());
+	printf("UdpRecvOkGetList[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 										_LoginName, _HostName,
@@ -1932,7 +1930,7 @@ int
 IpMessengerAgentImpl::UdpRecvEventAnsEntry( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvAnsEntry\n");
+	printf("UdpRecvAnsEntry\n");fflush( stdout );
 #endif
 	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
@@ -1955,7 +1953,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 	char nextbuf[1024];
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvAnsList\n");
+	printf("UdpRecvAnsList\n");fflush( stdout );
 #endif
 	AddDefaultHost();
 	char ipaddrbuf[100];
@@ -1966,7 +1964,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 	if ( nextstart > 0 ) {
 		int nextbuf_len = snprintf( nextbuf, sizeof( nextbuf ), "%d", hostList.size() + 1 );
 #if defined(INFO) || !defined(NDEBUG)
-		printf("nextbuf_len = %d\n", nextbuf_len );
+		printf("nextbuf_len = %d\n", nextbuf_len );fflush( stdout );
 #endif
 		sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 											_LoginName, _HostName,
@@ -2001,7 +1999,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( Packet packet )
 	string version = IPMSG_AGENT_VERSION;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvGetInfo[%s]\n", packet.Option().c_str());
+	printf("UdpRecvGetInfo[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_SENDINFO ),
 										_LoginName, _HostName,
@@ -2043,7 +2041,7 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
 	int sendBufLen;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvGetAbsenceInfo[%s]\n", packet.Option().c_str());
+	printf("UdpRecvGetAbsenceInfo[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	string AbsenceDescription = "";
 	if ( _IsAbsence  ){
@@ -2120,7 +2118,7 @@ int
 IpMessengerAgentImpl::TcpRecvEventGetFileData( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "TcpRecvEventGetFileData\n" );
+	printf( "TcpRecvEventGetFileData\n" );fflush( stdout );
 #endif
 
 #ifdef HAVE_PTHREAD
@@ -2151,6 +2149,10 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( Packet packet )
 void *
 GetFileDataThread( void *param )
 {
+#if defined(INFO) || !defined(NDEBUG)
+	printf( "GetFileDataThread\n" );fflush( stdout );
+#endif
+
 	Packet *packet = (Packet *)param;
 
 	vector<SentMessage>::iterator msg = IpMessengerAgentImpl::GetInstance()->GetSentMessages()->FindSentMessageByPacket( *packet );
@@ -2190,7 +2192,7 @@ int
 IpMessengerAgentImpl::UdpRecvEventReleaseFiles( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "TcpRecvEventReleaseFiles\n" );
+	printf( "TcpRecvEventReleaseFiles\n" );fflush( stdout );
 #endif
 	char *dmyptr;
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 10 );
@@ -2216,7 +2218,7 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( Packet packet )
 	int optBufLen;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvGetPubKey[%s]\n", packet.Option().c_str());
+	printf("UdpRecvGetPubKey[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	char *dmyptr;
 	unsigned long cap = strtoul( packet.Option().c_str(), &dmyptr, 16 );
@@ -2243,7 +2245,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( Packet packet )
 {
 #ifdef HAVE_OPENSSL
 #if defined(INFO) || !defined(NDEBUG)
-	printf("UdpRecvAnsPubKey[%s]\n", packet.Option().c_str());
+	printf("UdpRecvAnsPubKey[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	//OptionはHex表現で
 	//XXXXX:EEEEE-NNNNN
@@ -2333,7 +2335,7 @@ GetDirFilesThread( void *param )
 {
 	Packet *packet = (Packet *)param;
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "TcpRecvEventGetDirFiles\n" );
+	printf( "TcpRecvEventGetDirFiles\n" );fflush( stdout );
 #endif
 	vector<SentMessage>::iterator msg = myInstance->GetSentMessages()->FindSentMessageByPacket( *packet );
 	if ( msg == myInstance->GetSentMessages()->end() ){
@@ -2393,13 +2395,13 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 		if ( strcmp(dent->d_name, "." ) != 0 && strcmp(dent->d_name, ".." ) != 0 ) {
 			string dir_name = dir + "/" + dent->d_name;
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "dir[%s]", dir_name.c_str() );
+			printf( "dir[%s]", dir_name.c_str() );fflush( stdout );
 #endif
 			stat( dir_name.c_str(), &st );
 			files.push_back( dir_name );
 			if ( S_ISDIR( st.st_mode ) ){
 #if defined(INFO) || !defined(NDEBUG)
-				printf( "DIR\n" );
+				printf( "DIR\n" );fflush( stdout );
 #endif
 				if ( !SendDirData( sock, dent->d_name, dir_name, files ) ){
 					closedir( d );
@@ -2407,7 +2409,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 				}
 			} else {
 #if defined(INFO) || !defined(NDEBUG)
-				printf( "FILE\n" );
+				printf( "FILE\n" );fflush( stdout );
 #endif
 				int head_len = snprintf( headbuf, sizeof( headbuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
 																	converter->ConvertLocalToNetwork( dent->d_name ).c_str(),
@@ -2528,8 +2530,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 	memset( file_list_tmp_buf, 0, alloc_size );
 	memcpy( file_list_tmp_buf,  &option[filelist_startpos] , alloc_size - 1 );
 #if defined(INFO) || !defined(NDEBUG)
-	printf("File List Buffer = [%s]\n", file_list_tmp_buf);
-	fflush(stdout);
+	printf("File List Buffer = [%s]\n", file_list_tmp_buf);fflush( stdout );
 #endif
 
 	IpMsgPrintBuf("CreateAttachedFileList:file_list_tmp_buf",  file_list_tmp_buf, alloc_size );
@@ -2602,25 +2603,25 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 			}
 #if defined(DEBUG) || !defined(NDEBUG)
 			printf("\n\n");fflush(stdout);
-			printf("== FILE  ==============================>\n");
-			printf("FILE ID[%d]\n", file.FileId());
-			printf("FILE NAME[%s]\n", file.FileName().c_str());
-			printf("FILE SIZE[%lld]\n", file.FileSize());
+			printf("== FILE  ==============================>\n");fflush( stdout );
+			printf("FILE ID[%d]\n", file.FileId());fflush( stdout );
+			printf("FILE NAME[%s]\n", file.FileName().c_str());fflush( stdout );
+			printf("FILE SIZE[%lld]\n", file.FileSize());fflush( stdout );
 			time_t tt = file.MTime();
-			printf("MTIME[%s]\n", ctime( &tt ) );
-			printf("ATTR[%lu]\n", file.Attr() );
+			printf("MTIME[%s]\n", ctime( &tt ) );fflush( stdout );
+			printf("ATTR[%lu]\n", file.Attr() );fflush( stdout );
 			for( map<string, vector<unsigned long> >::iterator ixextattr = file.beginExtAttrs(); ixextattr != file.endExtAttrs(); ixextattr++){
-				printf("EXT ATTR[%s]==", ixextattr->first.c_str() );
+				printf("EXT ATTR[%s]==", ixextattr->first.c_str() );fflush( stdout );
 				for( vector<unsigned long>::iterator ixextattrv = ixextattr->second.begin(); ixextattrv != ixextattr->second.end(); ixextattrv++){
-					printf("[%lu]", *ixextattrv );
+					printf("[%lu]", *ixextattrv );fflush( stdout );
 				}
-				printf("\n" );
+				printf("\n" );fflush( stdout );
 			}
-			printf("<= FILE  ===============================\n");
+			printf("<= FILE  ===============================\n");fflush( stdout );
 #endif
 			// ADD FILELIST
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("AddFile()\n" );
+			printf("AddFile()\n" );fflush( stdout );
 #endif
 			files.AddFile( file );
 			break;
@@ -2628,7 +2629,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 		// FILE ID(not 1st)
 		if ( token == NULL ){
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("File END,break;\n" );
+			printf("File END,break;\n" );fflush( stdout );
 #endif
 			break;
 		}
@@ -2900,9 +2901,9 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 #endif	//HAVE_OPENSSL
 							| ( IsAbsence() ? IPMSG_ABSENCEOPT : 0UL ) | ( IsDialup() ? IPMSG_DIALUPOPT : 0UL );
 #if defined(INFO) || !defined(NDEBUG)
-	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<AddCommonCommandOption<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-	printf( "Option=%lu\n", ret );
-	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>AddCommonCommandOption>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<AddCommonCommandOption<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");fflush( stdout );
+	printf( "Option=%lu\n", ret );fflush( stdout );
+	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>AddCommonCommandOption>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush( stdout );
 #endif
 	return ret;
 }
@@ -2923,7 +2924,7 @@ int
 IpMessengerAgentImpl::CreateNewPacketBuffer(unsigned long cmd, unsigned long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "CMD[%s]\n", GetCommandString( GET_MODE( cmd ) ).c_str() );
+	printf( "CMD[%s]\n", GetCommandString( GET_MODE( cmd ) ).c_str() );fflush( stdout );
 #endif
 	memset( buf, 0, size );
 	//Version:PacketNo:UserName:HostName:Command[:Option]
@@ -3058,11 +3059,11 @@ void
 IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
-	printf("===================================\n");
-	printf("AddHostListFromPacket\n");
-	printf("===================================\n");
+	printf("===================================\n");fflush( stdout );
+	printf("AddHostListFromPacket\n");fflush( stdout );
+	printf("===================================\n");fflush( stdout );
 	IpMsgDumpPacket( packet, packet.Addr() );
-	printf("===================================\n");
+	printf("===================================\n");fflush( stdout );
 #endif
 	AddDefaultHost();
 	// デフォルトのNIC(０番目)以外の自分自身のIPアドレスが登録依頼されたら無視。
@@ -3111,7 +3112,7 @@ IpMessengerAgentImpl::AddDefaultHost()
 		myHost.setPortNo( IPMSG_DEFAULT_PORT );
 		hostList.AddHost( myHost );
 #if defined(INFO) || !defined(NDEBUG)
-		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );
+		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
 #endif
 		return 1;
 	}

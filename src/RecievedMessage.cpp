@@ -20,7 +20,7 @@ using namespace std;
 bool
 RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-printf("DownloadFile\n" );
+printf("DownloadFile\n" );fflush(stdout);
 	bool ret = true;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	IpMessengerEvent *event = agent->GetEventObject();
@@ -65,9 +65,8 @@ RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file,
 	svr_addr = MessagePacket().Addr();
 #if defined(DEBUG)
 char ipaddrbuf[100];
-printf("IP[%s]\n", inet_ntoa_r( svr_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
-printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );
-fflush(stdout);
+printf("IP[%s]\n", inet_ntoa_r( svr_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdout);
 #endif
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 		perror("connect");
@@ -120,9 +119,9 @@ fflush(stdout);
 			event->DownloadProcessing( *this, file, info, data );
 		}
 #if defined(DEBUG)
-		printf( "read_len = %d\n", read_len );
-		printf( "readSize = %lld\n", readSize );
-		printf( "file.FileSize() = %lld\n", file.FileSize() );
+		printf( "read_len = %d\n", read_len );fflush(stdout);
+		printf( "readSize = %lld\n", readSize );fflush(stdout);
+		printf( "file.FileSize() = %lld\n", file.FileSize() );fflush(stdout);
 #endif
 		if ( file.FileSize() == readSize ) {
 			break;
@@ -137,7 +136,7 @@ fflush(stdout);
 		readSize += read_len;
 	}
 #if defined(DEBUG)
-	printf("close");
+	printf("close");fflush(stdout);
 #endif
 	close( fd );
 	close( sock );
@@ -160,7 +159,7 @@ fflush(stdout);
 bool
 RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-printf("DownloadDir\n" );
+printf("DownloadDir\n" );fflush(stdout);
 	bool ret = true;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	IpMessengerEvent *event = agent->GetEventObject();
@@ -222,23 +221,22 @@ RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, 
 	string saveDir = GetSaveDir( saveName, saveBaseDir );
 
 #if defined(DEBUG)
-printf("saveName[%s]\n", saveName.c_str() );
-printf("saveBaseDir[%s]\n", saveBaseDir.c_str() );
-printf("saveDir[%s]\n", saveDir.c_str() );
-printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );
-fflush(stdout);
+printf("saveName[%s]\n", saveName.c_str() );fflush(stdout);
+printf("saveBaseDir[%s]\n", saveBaseDir.c_str() );fflush(stdout);
+printf("saveDir[%s]\n", saveDir.c_str() );fflush(stdout);
+printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 #endif
 	if ( stat( saveBaseDir.c_str(), &st ) != 0 ) {
 		perror("stat");
 #if defined(DEBUG)
-		printf("saveBaseDir == [%s]\n", saveBaseDir.c_str());
+		printf("saveBaseDir == [%s]\n", saveBaseDir.c_str());fflush(stdout);
 #endif
 		return false;
 	}
 	if ( mkdir( saveDir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
 		perror("mkdir");
 #if defined(DEBUG)
-		printf("saveDir == [%s]\n", saveDir.c_str());
+		printf("saveDir == [%s]\n", saveDir.c_str());fflush(stdout);
 #endif
 		return false;
 	}
@@ -280,13 +278,12 @@ fflush(stdout);
 	time_t startTime = time( NULL );
 #define HEADER_LENGTH_LEN	5
 #if defined(DEBUG)
-	printf("start DIR [%s]\n", AttachFile::CreateDirFullPath( dir ).c_str() );
+	printf("start DIR [%s]\n", AttachFile::CreateDirFullPath( dir ).c_str() );fflush(stdout);
 #endif
 	while( !isEob ){
 #if defined(DEBUG)
-		fflush(stdout);
-		printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );
-		printf("AttachFile::CreateDirFullPath( dir )[%s]\n", AttachFile::CreateDirFullPath( dir ).c_str() );
+		printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
+		printf("AttachFile::CreateDirFullPath( dir )[%s]\n", AttachFile::CreateDirFullPath( dir ).c_str() );fflush(stdout);
 #endif
 		if ( saveBaseDirFormal == AttachFile::CreateDirFullPath( dir ) ) {
 			isEob = true;
@@ -300,7 +297,7 @@ fflush(stdout);
 			break;
 		}
 #if defined(DEBUG)
-printf("HEADER=%d\n", read_len );
+printf("HEADER=%d\n", read_len );fflush(stdout);
 IpMsgPrintBuf( "DownloadDir:readbuf", readbuf, read_len );
 #endif
 		if ( read_len < HEADER_LENGTH_LEN ) {
@@ -313,7 +310,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf", readbuf, read_len );
 		memset( readbuf, 0, sizeof( readbuf ) );
 		read_len = recv( sock, readbuf, header_len - HEADER_LENGTH_LEN, 0 );
 #if defined(DEBUG)
-printf("NEXT RECV=%d\n", header_len - HEADER_LENGTH_LEN);
+printf("NEXT RECV=%d\n", header_len - HEADER_LENGTH_LEN);fflush(stdout);
 IpMsgPrintBuf( "DownloadDir:readbuf2", readbuf, read_len );
 #endif
 		if ( read_len < 0 ) {
@@ -339,8 +336,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf2", readbuf, read_len );
 			fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
 			memset( readbuf, 0, sizeof( readbuf ) );
 #if defined(DEBUG)
-printf("FileSize=%lld\n", f.FileSize() );
-fflush(stdout);
+printf("FileSize=%lld\n", f.FileSize() );fflush(stdout);
 #endif
 			int read_len = recv( sock, readbuf, f.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : f.FileSize() - readSize, 0 );
 #if defined(DEBUG)
@@ -382,7 +378,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 			info.setTime( time( NULL ) - startTime );
 			info.setFileCount( ++totalFileCount );
 #if defined(DEBUG)
-			printf("read=%lld,wrote=%lld\n", readSize, wroteSize);
+			printf("read=%lld,wrote=%lld\n", readSize, wroteSize);fflush(stdout);
 #endif
 		} else if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_DIR ) {
 			if ( isTopDir ) {
@@ -406,8 +402,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 		}
 	}
 #if defined(DEBUG)
-	printf("close socket");
-	fflush(stdout);
+	printf("close socket");fflush(stdout);
 #endif
 	close( sock );
 	file.setIsDownloading( false );

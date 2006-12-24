@@ -17,11 +17,11 @@ IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 	int continue_count = 0;
 	unsigned char pchar = *buf;
 	bool can_not_print = true;
-	printf("%s[", bufname);
+	printf("%s[", bufname);fflush(stdout);
 	for( int i = 0; i < size; i++ ){
 		if ( !isprint( buf[i] ) && buf[i] != 0x20 ) {
 			if ( pchar != buf[i] ){
-				printf( "(\\%02x", (unsigned char)buf[i] );
+				printf( "(\\%02x", (unsigned char)buf[i] );fflush(stdout);
 			}
 			continue_count++;
 			can_not_print = true;
@@ -33,17 +33,16 @@ IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 		} else {
 			if ( can_not_print ) {
 				if ( continue_count > 1 ) {
-					printf( " %dtimes)", continue_count );
+					printf( " %dtimes)", continue_count );fflush(stdout);
 				} else {
-					printf( ")" );
+					printf( ")" );fflush(stdout);
 				}
 				continue_count = 0;
 			}
 		}
 		pchar = buf[i];
 	}
-	printf( "]\n" );
-	fflush(stdout);
+	printf( "]\n" );fflush(stdout);
 }
 
 /**
@@ -85,17 +84,17 @@ GetCommandString( unsigned long cmd )
 
 void
 IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
-	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
 	char ipaddrbuf[100];
-	printf( "send from %s(%d)\n", inet_ntoa_r( sender_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );
-	printf( "VersionNo    [%ld]\n", packet.VersionNo() );
-	printf( "PacketNo     [%ld]\n", packet.PacketNo() );
-	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), GetCommandString( packet.CommandMode() ).c_str() );
-	printf( "CommandOption[%ld]\n", packet.CommandOption() );
-	printf( "HostName     [%s]\n", packet.HostName().c_str() );
-	printf( "UserName     [%s]\n", packet.UserName().c_str() );
+	printf( "send from %s(%d)\n", inet_ntoa_r( sender_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );fflush(stdout);
+	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
+	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
+	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
+	printf( "CommandOption[%ld]\n", packet.CommandOption() );fflush(stdout);
+	printf( "HostName     [%s]\n", packet.HostName().c_str() );fflush(stdout);
+	printf( "UserName     [%s]\n", packet.UserName().c_str() );fflush(stdout);
 	IpMsgPrintBuf("Option", packet.Option().c_str(), packet.Option().length() );
-	printf( "<< R E C V <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n");
+	printf( "<< R E C V <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n");fflush(stdout);
 }
 
 void
@@ -106,8 +105,8 @@ IpMsgDumpHostList( const char *s, HostList& hostList )
 
 	memcpy( head+2, s, strlen( s ) );
 	memcpy( foot+2, s, strlen( s ) );
-	printf("\n\n");
-	printf("%s", head );
+	printf("\n\n");fflush(stdout);
+	printf("%s", head );fflush(stdout);
 	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
 		printf( "Version[%s]\n" \
 				"AbsenceDescription[%s]\n" \
@@ -135,9 +134,9 @@ IpMsgDumpHostList( const char *s, HostList& hostList )
 				ix->EncryptionCapacity(),
 				ix->PubKeyHex().c_str(),
 				ix->EncryptMethodHex().c_str(),
-				ix->PortNo() );
+				ix->PortNo() );fflush(stdout);
 	}
-	printf("%s", foot );
+	printf("%s", foot );fflush(stdout);
 }
 #endif
 
@@ -159,8 +158,7 @@ inet_ntoa_init()
 	inet_index_3 = addr[2];
 	inet_index_4 = addr[3];
 #if defined(DEBUG) || defined(INFO)
-	printf( "index:%d.%d.%d.%d", inet_index_1, inet_index_2, inet_index_3, inet_index_4);
-	fflush( stdout );
+	printf( "index:%d.%d.%d.%d", inet_index_1, inet_index_2, inet_index_3, inet_index_4);fflush(stdout);
 #endif
 	return true;
 }
@@ -171,8 +169,7 @@ inet_ntoa_r( in_addr_t s_addr, char *ret, int size )
 	unsigned char addr[4];
 	memcpy( addr, &s_addr, sizeof( addr ) );
 #if defined(DEBUG) || defined(INFO)
-	printf( "ip:%d.%d.%d.%d\n", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);
-	fflush( stdout );
+	printf( "ip:%d.%d.%d.%d\n", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);fflush(stdout);
 #endif
 	snprintf( ret, size, "%d.%d.%d.%d", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);
 	return ret;

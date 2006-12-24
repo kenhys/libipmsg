@@ -44,19 +44,19 @@ HostList::AddHost( HostListItem host )
 	vector<NetworkInterface> nics = agent->NICs;
 	for( unsigned int i = 1; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );
+		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
 		if ( host.IpAddress() == nics[i].IpAddress() ){
 			return;
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );
-	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );
+	printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );fflush(stdout);
+	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );fflush(stdout);
 #endif
 	if ( host.IpAddress() == "127.0.0.1" ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );
+		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
 		return;
 	}
@@ -150,7 +150,7 @@ HostList::CreateHostListItemFromPacket( Packet packet )
 	char tmp[100];
 	ret.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, tmp, sizeof( tmp ) ) );
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "CreateHostListItemFromPacket port %d\n", packet.Addr().sin_port );
+	printf( "CreateHostListItemFromPacket port %d\n", packet.Addr().sin_port );fflush(stdout);
 #endif
 	ret.setPortNo( packet.Addr().sin_port );
 	unsigned int loc = packet.Option().find_first_of( '\0' );
@@ -192,21 +192,21 @@ HostList::FindHostByAddress( string addr )
 {
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(DEBUG)
-printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );
+printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );fflush(stdout);
 #endif
 		if ( ix->IpAddress() == addr ) {
 #if defined(DEBUG)
-printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
-printf("HOST FOUND!!!\n");
-printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");fflush(stdout);
+printf("HOST FOUND!!!\n");fflush(stdout);
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");fflush(stdout);
 #endif
 			return ix;
 		}
 	}
 #if defined(DEBUG)
-printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
-printf("HOST NOT FOUND!!!\n");
-printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");fflush(stdout);
+printf("HOST NOT FOUND!!!\n");fflush(stdout);
+printf("¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú¡ú\n");fflush(stdout);
 #endif
 	return end();
 }
@@ -289,8 +289,8 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 	//ÈÏ°Ï¤Î³«»Ï¡¢½ªÎ»°ÌÃÖ
 	int i = left, j = right;
 #if defined(INFO) || !defined(NDEBUG)
-printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );
-printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );
+printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );fflush(stdout);
+printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );fflush(stdout);
 #endif
 	//´ð½àÃÍ
 	vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
@@ -300,13 +300,13 @@ printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAd
 		while( comparator->compare( pivot, items.begin() + j ) < 0 ) j--;
 		if ( i >= j ) break;
 #if defined(INFO) || !defined(NDEBUG)
-printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );
-printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );
+printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
+printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
 #endif
 		iter_swap( items.begin() + i, items.begin() + j );
 #if defined(INFO) || !defined(NDEBUG)
-printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );
-printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );
+printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
+printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
 #endif
 		i++;
 		j--;
