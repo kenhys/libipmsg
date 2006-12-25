@@ -45,11 +45,17 @@ HostListItem::IsLocalHost()
 {
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	vector<NetworkInterface> nics = agent->NICs;
-	for( unsigned int i = 1; i < nics.size(); i++ ){
+	for( unsigned int i = 0; i < nics.size(); i++ ){
 		if ( IpAddress() == nics[i].IpAddress() ){
+#if defined(INFO) || !defined(NDEBUG)
+			printf("LOCALHOST\n");fflush(stdout);
+#endif
 			return true;
 		}
 	}
+#if defined(INFO) || !defined(NDEBUG)
+	printf("OTHERHOST\n");fflush(stdout);
+#endif
 	return false;
 }
 
