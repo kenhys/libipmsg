@@ -1752,6 +1752,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvSendMsg[Packet = %lu]\n", packet.PacketNo() );fflush( stdout );
 #endif
+	bool noRaiseEvent = false;
 	if ( packet.CommandOption() & IPMSG_BROADCASTOPT ||  packet.CommandOption() & IPMSG_AUTORETOPT ) {
 		;
 	} else {
@@ -1792,6 +1793,8 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 			host.setPortNo( ntohs( packet.Addr().sin_port ) );
 			SendMsg( host, DecryptErrorMessage.c_str(), false, IPMSG_AUTORETOPT );
 			packet.setOption("");
+			//暗号解除失敗による自動応答時はイベントを起こさない。
+			noRaiseEvent = true;
 		}
 	}
 	RecievedMessage message;
@@ -1818,7 +1821,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 	}
 	bool eventRet = false;
 	message.setFiles( files );
-	if ( event != NULL ) {
+	if ( !noRaiseEvent && event != NULL ) {
 		eventRet = event->RecieveAfter( message );
 	}
 	if ( SaveRecievedMessage() && !eventRet ){
