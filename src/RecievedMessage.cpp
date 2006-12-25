@@ -234,7 +234,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 		return false;
 	}
 	if ( mkdir( saveDir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
-		perror("mkdir");
+		perror("mkdir(1)");
 #if defined(DEBUG)
 		printf("saveDir == [%s]\n", saveDir.c_str());fflush(stdout);
 #endif
@@ -388,7 +388,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 			dir.push_back( f.FileName().c_str() );
 			string FullPath = f.CreateDirFullPath( dir );
 			if ( mkdir( FullPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
-				perror("mkdir");
+				perror("mkdir(2)");
 				isEob = true;
 				break;
 			}
