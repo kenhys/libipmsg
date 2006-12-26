@@ -203,16 +203,11 @@ class DownloadInfo{
 		IPMSG_PROPERTY( unsigned long long, Size );
 		IPMSG_PROPERTY( time_t, Time );
 		IPMSG_PROPERTY( long, FileCount );
+		IPMSG_PROPERTY( bool, Processing );
 		IPMSG_PROPERTY( string, LocalFileName );
 		IPMSG_PROPERTY_REF( AttachFile, File );
+
 		DownloadInfo():_Size( 0ULL ), _Time( 0 ), _FileCount( 0L ), _LocalFileName(""){};
-#if 0
-		DownloadInfo():_Size( 0ULL ), _Time( 0 ), _FileCount( 0L ), _LocalFileName(""){
-			setSize( 0LL );
-			setTime( 0 );
-			setFileCount( 0L );
-		};
-#endif
 		long double getSpeed(){ return Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() ); };
 		string getSpeedString() { return DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec"; };
 		string getSizeString() { return DownloadInfo::getUnitSizeString( Size() ); };
