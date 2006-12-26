@@ -20,7 +20,9 @@ using namespace std;
 bool
 RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-printf("DownloadFile\n" );fflush(stdout);
+#if defined(DEBUG)
+	printf("DownloadFile\n" );fflush(stdout);
+#endif
 	bool ret = true;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	IpMessengerEvent *event = agent->GetEventObject();
@@ -29,6 +31,7 @@ printf("DownloadFile\n" );fflush(stdout);
 		converter = new NullFileNameConverter();
 	}
 
+	info.setProcessing( true );
 	info.setFile( file );
 	info.setLocalFileName( saveFileNameFullPath );
 	if ( event == NULL ) {
@@ -70,6 +73,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 #endif
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 		perror("connect");
+		info.setProcessing( false );
 		return false;
 	}
 
@@ -89,6 +93,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	if ( fd < 0 ){
 		perror("open");
 		close( sock );
+		info.setProcessing( false );
 		return false;
 	}
 	fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
@@ -101,6 +106,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 		perror("recv");
 		close( sock );
 		close( fd );
+		info.setProcessing( false );
 		return false;
 	}
 	readSize += read_len;
@@ -110,6 +116,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 			perror("write");
 			close( sock );
 			close( fd );
+			info.setProcessing( false );
 			return false;
 		}
 		wroteSize += wrote_len;
@@ -131,6 +138,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 			perror("recv");
 			close( sock );
 			close( fd );
+			info.setProcessing( false );
 			return false;
 		}
 		readSize += read_len;
@@ -148,6 +156,10 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	info.setSize( readSize );
 	info.setTime( time( NULL ) - startTime );
 	info.setFileCount( 1L );
+	info.setProcessing( false );
+	if ( event != NULL ) {
+		event->DownloadProcessing( *this, file, info, data );
+	}
 	return true;
 }
 
@@ -159,7 +171,9 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 bool
 RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-printf("DownloadDir\n" );fflush(stdout);
+#if defined(DEBUG)
+	printf("DownloadDir\n" );fflush(stdout);
+#endif
 	bool ret = true;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	IpMessengerEvent *event = agent->GetEventObject();
@@ -170,6 +184,7 @@ printf("DownloadDir\n" );fflush(stdout);
 	
 	info.setFile( file );
 	info.setLocalFileName( GetSaveDir( saveName, saveBaseDir ) );
+	info.setProcessing( true );
 	if ( event == NULL ) {
 		ret = DownloadDirPrivate( NULL, file, saveName, saveBaseDir, info, converter, data );
 	} else {
@@ -214,6 +229,7 @@ bool
 RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 	if ( conv == NULL ) {
+		info.setProcessing( false );
 		return false;
 	}
 	struct stat st;
@@ -231,6 +247,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 #if defined(DEBUG)
 		printf("saveBaseDir == [%s]\n", saveBaseDir.c_str());fflush(stdout);
 #endif
+		info.setProcessing( false );
 		return false;
 	}
 	if ( mkdir( saveDir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
@@ -238,6 +255,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 #if defined(DEBUG)
 		printf("saveDir == [%s]\n", saveDir.c_str());fflush(stdout);
 #endif
+		info.setProcessing( false );
 		return false;
 	}
 
@@ -250,6 +268,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	svr_addr = MessagePacket().Addr();
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 		perror("connect");
+		info.setProcessing( false );
 		return false;
 	}
 
@@ -331,6 +350,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf2", readbuf, read_len );
 			int fd = open( FullPath.c_str(), O_WRONLY | O_CREAT );
 			if ( fd < 0 ){
 				perror("open");
+				info.setProcessing( false );
 				return false;
 			}
 			fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
@@ -354,6 +374,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 					perror("write");
 					close( sock );
 					close( fd );
+					info.setProcessing( false );
 					return false;
 				}
 				wroteSize += wrote_len;
@@ -410,5 +431,9 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 	info.setSize( totalReadSize );
 	info.setTime( time( NULL ) - startTime );
 	info.setFileCount( totalFileCount );
+	info.setProcessing( false );
+	if ( event != NULL ) {
+		event->DownloadProcessing( *this, file, info, data );
+	}
 	return true;
 }
