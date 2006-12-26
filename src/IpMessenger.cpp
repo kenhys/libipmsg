@@ -392,7 +392,7 @@ IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
  * @retval グループリスト
  * 注：このメソッドはスレッドセーフでない。
  */
-vector<string>
+vector<GroupItem>
 IpMessengerAgent::GetGroupList()
 {
 	return ipmsgImpl->GetGroupList();

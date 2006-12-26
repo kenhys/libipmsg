@@ -70,7 +70,7 @@ class IpMessengerAgentImpl {
 		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
 		void ResetAbsence();
 		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
-		vector<string> GetGroupList();
+		vector<GroupItem> GetGroupList();
 		string GetInfo( HostListItem& host );
 		string GetAbsenceInfo( HostListItem& host );
 		int Process();

@@ -829,20 +829,23 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
  * @retval グループリスト
  * 注：このメソッドはスレッドセーフでない。
  */
-vector<string>
+vector<GroupItem>
 IpMessengerAgentImpl::GetGroupList()
 {
-	vector<string> ret;
+	vector<GroupItem> ret;
 	for( vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ) {
 		bool is_found = false;
-		for( vector<string>::iterator ixret = ret.begin(); ixret != ret.end(); ixret++){
-			if ( ixhost->GroupName() == *ixret ) {
+		for( vector<GroupItem>::iterator ixret = ret.begin(); ixret != ret.end(); ixret++){
+			if ( ixhost->GroupName() == ixret->GroupName() && ixhost->EncodingName() == ixret->EncodingName() ) {
 				is_found = true;
 				break;
 			}
 		}
 		if ( !is_found ){
-			ret.push_back( ixhost->GroupName() );
+			GroupItem item;
+			item.setGroupName( ixhost->GroupName() );
+			item.setEncodingName( ixhost->EncodingName() );
+			ret.push_back( item );
 		}
 	}
 	return ret;

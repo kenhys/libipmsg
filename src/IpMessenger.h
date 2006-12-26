@@ -92,6 +92,12 @@ class NetworkInterface {
 		IPMSG_PROPERTY( int, PortNo );
 };
 
+class GroupItem{
+	public:
+		IPMSG_PROPERTY( string, GroupName );
+		IPMSG_PROPERTY( string, EncodingName );
+};
+
 class HostListItem{
 	public:
 		IPMSG_PROPERTY( string, Version );
@@ -458,7 +464,7 @@ class IpMessengerAgent {
 		/**
 		 * グループ一覧取得
 		 **/
-		vector<string> GetGroupList();
+		vector<GroupItem> GetGroupList();
 
 		/**
 		 * バージョン情報取得
