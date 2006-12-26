@@ -1,5 +1,7 @@
 2006-12-26 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Change perror arguments("mkdir"->"mkdir(1)","mkdir(2)").
+- Update:Add Processing property to DownloadInfo class.
+- Update:Add timing of DownloadProcessing event to download end before.
 - Fix:Raise event on decrypt error.
 - Fix:IsLocalHost API's NIC range.
 
