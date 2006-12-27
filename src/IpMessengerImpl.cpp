@@ -571,7 +571,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	char optBuf[MAX_UDPBUF];
+	char optBuf[GetMaxOptionBufferSize() + 1];
 	int optBufLen = 0;
 	struct sockaddr_in addr;
 	bool isEncrypted = false;
@@ -589,21 +589,50 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", msg.c_str() );
 	}
 #endif	//HAVE_OPENSSL
+	//切り捨てられた。
+	if ( optBufLen >= (int)sizeof( optBuf ) - 1 ) {
+		optBufLen = sizeof( optBuf ) - 1;
+	}
+
+	printf("isEncrypted=%s sizeof(optBuf)=%d optBuf[optBufLen=%d]\n", isEncrypted ? "true":"false", sizeof(optBuf), optBufLen);fflush(stdout);
+	printf("optBuf[%d]=0x%02x\n", optBufLen, optBuf[optBufLen]);fflush(stdout);
+
 	optBuf[optBufLen++] = '\0';
 	IpMsgPrintBuf( "optBuf:", optBuf, optBufLen );
+
+	int fileBufLen = 0;
+	char fileBuf[MAX_UDPBUF];
 
 	for( vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
 		ixfile->GetLocalFileInfo();
 		string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
-		int wsize = snprintf( &optBuf[ optBufLen ], sizeof( optBuf ) - optBufLen - 1,
+		int wsize = snprintf( &fileBuf[ fileBufLen ], sizeof( fileBuf ) - fileBufLen - 1,
 							"%d:%s:%llx:%lx:%lx:\a",
 							ixfile->FileId(), filename.c_str(), ixfile->FileSize(), ixfile->MTime(), ixfile->Attr() );
-		optBufLen += wsize;
-		optBuf[optBufLen] = '\0';
+		if ( optBufLen + fileBufLen + wsize - 1 > MAX_UDPBUF ) {
+#if defined(DEBUG)
+			printf( "break;\n" );fflush(stdout);
+#endif
+			break;
+		}
+		fileBufLen += wsize;
+		fileBuf[fileBufLen] = '\0';
 	}
-	optBufLen++;
-	optBuf[optBufLen ] = '\0';
+#if defined(DEBUG)
+	printf( "(1)optBufLen = %d, fileBufLen = %d", optBufLen, fileBufLen );fflush(stdout);
+#endif
+	memcpy( &optBuf[ optBufLen ], fileBuf, fileBufLen );
+	optBufLen += fileBufLen;
+#if defined(DEBUG)
+	printf( "(2)optBufLen = %d, fileBufLen = %d", optBufLen, fileBufLen );fflush(stdout);
+#endif
+	IpMsgPrintBuf( "fileBuf2:", fileBuf, fileBufLen );
+	if ( optBufLen >= MAX_UDPBUF ) {
+		optBufLen = MAX_UDPBUF - 1;
+	}
+	optBuf[ optBufLen ] = '\0';
 
+	IpMsgPrintBuf( "optBuf2:", optBuf, optBufLen );
 
 	unsigned long packetNo = (isRetry && PrevPacketNo != 0UL ? PrevPacketNo : random() );
 
@@ -898,7 +927,7 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 		SendPacket( IPMSG_READMSG, sendBuf, sendBufLen, msg.MessagePacket().Addr() );
 	}
 	msg.setIsConfirmed( true );
-	RecvPacket();
+//	RecvPacket();
 }
 
 /**
