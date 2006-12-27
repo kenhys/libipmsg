@@ -234,7 +234,7 @@ class DownloadInfo{
 				snprintf( buf, sizeof( buf ), "%.2Lf KB", (dsize / IPMSG_SIZE_KB) );
 				return buf;
 			}
-			snprintf( buf, sizeof( buf ), "%.2Lf B", dsize );
+			snprintf( buf, sizeof( buf ), "%lld B", size );
 			return buf;
 		};
 };
