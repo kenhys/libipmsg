@@ -1,5 +1,11 @@
 2006-12-28 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Delete DEBUG print.
 - Fix:Buffer overflow.
+- Fix:Getting local file information by stat.
+- Fix:Show buffer size in DEBUG API.
+- Fix:Change condition for size of option buffer checking.
+- Fix:Change timing OpenAfter event.
+- Fix:Change format string,"%.2Lf B" to "%lld B" in getUnitSizeString.
 
 2006-12-27 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Change GetGroupList API.
