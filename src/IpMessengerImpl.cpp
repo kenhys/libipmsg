@@ -594,9 +594,6 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 		optBufLen = sizeof( optBuf ) - 1;
 	}
 
-	printf("isEncrypted=%s sizeof(optBuf)=%d optBuf[optBufLen=%d]\n", isEncrypted ? "true":"false", sizeof(optBuf), optBufLen);fflush(stdout);
-	printf("optBuf[%d]=0x%02x\n", optBufLen, optBuf[optBufLen]);fflush(stdout);
-
 	optBuf[optBufLen++] = '\0';
 	IpMsgPrintBuf( "optBuf:", optBuf, optBufLen );
 
@@ -627,8 +624,8 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	printf( "(2)optBufLen = %d, fileBufLen = %d", optBufLen, fileBufLen );fflush(stdout);
 #endif
 	IpMsgPrintBuf( "fileBuf2:", fileBuf, fileBufLen );
-	if ( optBufLen >= MAX_UDPBUF ) {
-		optBufLen = MAX_UDPBUF - 1;
+	if ( optBufLen >= (int)sizeof( optBuf ) - 1 ) {
+		optBufLen = sizeof( optBuf ) - 1;
 	}
 	optBuf[ optBufLen ] = '\0';
 
@@ -1705,9 +1702,9 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( Packet packet )
 	vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packet_no );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsConfirmed( true );
-	}
-	if ( event != NULL ) {
-		event->OpenAfter( *sentMsg );
+		if ( event != NULL ) {
+			event->OpenAfter( *sentMsg );
+		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvReadMsg\n");fflush( stdout );
