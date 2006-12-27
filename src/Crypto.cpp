@@ -36,6 +36,7 @@
 //RSAキー生成時に使用する素数
 #define ENCRYPT_PRIME			65537
 
+#define ERR_BUF_SIZE	1024
 /**
  * 暗号関連の初期化。
  * 注：このメソッドはスレッドセーフでない。
@@ -45,13 +46,13 @@ IpMessengerAgentImpl::CryptoInit()
 {
 #ifdef HAVE_OPENSSL
 	ERR_load_crypto_strings();
-	char errbuf[1024];
 
 	encryptionCapacity = 0UL;
 	RsaMax = NULL;
 #ifdef SUPPORT_RSA_2048
 	RsaMax = RSA_generate_key( RSA_KEY_LENGTH_MAXIMUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMax == NULL ) {
+		char errbuf[ERR_BUF_SIZE];
 		printf("in encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_2048;
@@ -62,6 +63,7 @@ IpMessengerAgentImpl::CryptoInit()
 #ifdef SUPPORT_RSA_1024
 	RsaMid = RSA_generate_key( RSA_KEY_LENGTH_MIDIUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMid == NULL ) {
+		char errbuf[ERR_BUF_SIZE];
 		printf("in encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_1024;
@@ -72,6 +74,7 @@ IpMessengerAgentImpl::CryptoInit()
 #ifdef SUPPORT_RSA_512
 	RsaMin = RSA_generate_key( RSA_KEY_LENGTH_MINIMUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMin == NULL ) {
+		char errbuf[ERR_BUF_SIZE];
 		printf("in encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_512;
@@ -140,7 +143,6 @@ IpMessengerAgentImpl::EncryptMsg( HostListItem host, unsigned char *optBuf, int 
 #ifdef HAVE_OPENSSL
 	unsigned long pubKeyMethod = 0UL;
 	unsigned char iv[EVP_MAX_IV_LENGTH];
-	char errbuf[200];
 
 	//EVPのSeal系の公開鍵暗号の暗号化APIは使いにくいので、自分でEncrypt系、RSA系のAPIで実装します。
 #ifndef WINCOMPAT
@@ -176,6 +178,7 @@ IpMessengerAgentImpl::EncryptMsg( HostListItem host, unsigned char *optBuf, int 
 	rsa->e = BN_new();
 	if ( BN_hex2bn( &rsa->e, host.EncryptMethodHex().c_str() ) == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
+		char errbuf[ERR_BUF_SIZE];
 		printf( "BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
 #endif
 		RSA_free( rsa );
@@ -184,6 +187,7 @@ IpMessengerAgentImpl::EncryptMsg( HostListItem host, unsigned char *optBuf, int 
 	rsa->n = BN_new();
 	if ( BN_hex2bn( &rsa->n, host.PubKeyHex().c_str() ) == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
+		char errbuf[ERR_BUF_SIZE];
 		printf( "BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
 #endif
 		RSA_free( rsa );
