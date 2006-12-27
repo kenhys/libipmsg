@@ -83,7 +83,7 @@ AttachFile::GetLocalFileInfo()
 	}
 	setFileName( filename );
 	setLocation( location );
-	stat( FullPath().c_str(), &st );
+	lstat( FullPath().c_str(), &st );
 	setAttr( 0 );
 	if ( S_ISDIR( st.st_mode ) ) {
 		setAttr( IPMSG_FILE_DIR );
