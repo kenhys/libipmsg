@@ -17,7 +17,7 @@ IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 	int continue_count = 0;
 	unsigned char pchar = *buf;
 	bool can_not_print = true;
-	printf("%s[", bufname);fflush(stdout);
+	printf("%s(%d bytes)[", bufname, size);fflush(stdout);
 	for( int i = 0; i < size; i++ ){
 		if ( !isprint( buf[i] ) && buf[i] != 0x20 ) {
 			if ( pchar != buf[i] ){
