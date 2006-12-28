@@ -198,12 +198,6 @@ class AttachFile{
 		static string CreateDirFullPath( vector<string> dirstack );
 };
 
-#define IPMSG_SIZE_B	(long double)(1)
-#define IPMSG_SIZE_KB	(long double)(1024 * IPMSG_SIZE_B)
-#define IPMSG_SIZE_MB	(long double)(1024 * IPMSG_SIZE_KB)
-#define IPMSG_SIZE_GB	(long double)(1024 * IPMSG_SIZE_MB)
-#define IPMSG_SIZE_TB	(long double)(1024 * IPMSG_SIZE_GB)
-
 class DownloadInfo{
 	public:
 		IPMSG_PROPERTY( unsigned long long, Size );
@@ -214,29 +208,10 @@ class DownloadInfo{
 		IPMSG_PROPERTY_REF( AttachFile, File );
 
 		DownloadInfo():_Size( 0ULL ), _Time( 0 ), _FileCount( 0L ), _LocalFileName(""){};
-		long double getSpeed(){ return Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() ); };
-		string getSpeedString() { return DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec"; };
-		string getSizeString() { return DownloadInfo::getUnitSizeString( Size() ); };
-		static string getUnitSizeString( long long size )
-		{
-			long double dsize = (long double)size;
-			char buf[100];
-			if ( dsize >= IPMSG_SIZE_TB ) {
-				snprintf( buf, sizeof( buf ), "%.2Lf TB", (dsize / IPMSG_SIZE_TB) );
-				return buf;
-			} else if ( dsize >= IPMSG_SIZE_GB ) {
-				snprintf( buf, sizeof( buf ), "%.2Lf GB", (dsize / IPMSG_SIZE_GB) );
-				return buf;
-			} else if ( dsize >= IPMSG_SIZE_MB ) {
-				snprintf( buf, sizeof( buf ), "%.2Lf MB", (dsize / IPMSG_SIZE_MB) );
-				return buf;
-			} else if ( dsize >= IPMSG_SIZE_KB ) {
-				snprintf( buf, sizeof( buf ), "%.2Lf KB", (dsize / IPMSG_SIZE_KB) );
-				return buf;
-			}
-			snprintf( buf, sizeof( buf ), "%lld B", size );
-			return buf;
-		};
+		long double getSpeed();
+		string getSpeedString();
+		string getSizeString();
+		static string getUnitSizeString( long long size );
 };
 
 class AttachFileList{

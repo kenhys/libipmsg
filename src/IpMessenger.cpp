@@ -582,4 +582,66 @@ IpMessengerAgent::setSaveRecievedMessage( bool isSave )
 {
 	ipmsgImpl->setSaveRecievedMessage( isSave );
 }
+
+/**
+ * ダウンロード速度を算出する。
+ * @retval ダウンロード速度（バイト／秒）。
+ */
+long double
+DownloadInfo::getSpeed()
+{
+	return Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() );
+}
+
+/**
+ * ダウンロード速度文字列を生成する。
+ * @retval ダウンロード速度文字列（単位／秒）。
+ */
+string
+DownloadInfo::getSpeedString()
+{
+	return DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec";
+}
+
+/**
+ * 容量文字列を生成する。
+ * @retval 容量文字列（単位）。
+ */
+string
+DownloadInfo::getSizeString()
+{
+	return DownloadInfo::getUnitSizeString( Size() );
+}
+
+#define IPMSG_SIZE_B	(long double)(1)
+#define IPMSG_SIZE_KB	(long double)(1024 * IPMSG_SIZE_B)
+#define IPMSG_SIZE_MB	(long double)(1024 * IPMSG_SIZE_KB)
+#define IPMSG_SIZE_GB	(long double)(1024 * IPMSG_SIZE_MB)
+#define IPMSG_SIZE_TB	(long double)(1024 * IPMSG_SIZE_GB)
+
+/**
+ * 容量文字列を生成する。
+ * @retval 容量文字列（単位）。
+ */
+string
+DownloadInfo::getUnitSizeString( long long size )
+{
+	long double dsize = (long double)size;
+	char buf[100];
+	if ( dsize >= IPMSG_SIZE_TB ) {
+		snprintf( buf, sizeof( buf ), "%.2Lf TB", (dsize / IPMSG_SIZE_TB) );
+		return buf;
+	} else if ( dsize >= IPMSG_SIZE_GB ) {
+		snprintf( buf, sizeof( buf ), "%.2Lf GB", (dsize / IPMSG_SIZE_GB) );
+		return buf;
+	} else if ( dsize >= IPMSG_SIZE_MB ) {
+		snprintf( buf, sizeof( buf ), "%.2Lf MB", (dsize / IPMSG_SIZE_MB) );
+		return buf;
+	} else if ( dsize >= IPMSG_SIZE_KB ) {
+		snprintf( buf, sizeof( buf ), "%.2Lf KB", (dsize / IPMSG_SIZE_KB) );
+		return buf;
+	}
+	snprintf( buf, sizeof( buf ), "%lld B", size );
+	return buf;
+}
 //end of source
