@@ -1982,7 +1982,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	char nextbuf[1024];
+	char nextBuf[1024];
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsList\n");fflush( stdout );
@@ -1994,13 +1994,13 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
 									packet.Option().c_str(),
 									packet.Option().length() );
 	if ( nextstart > 0 ) {
-		int nextbuf_len = snprintf( nextbuf, sizeof( nextbuf ), "%d", hostList.size() + 1 );
+		int nextBufLen = snprintf( nextBuf, sizeof( nextBuf ), "%d", hostList.size() + 1 );
 #if defined(INFO) || !defined(NDEBUG)
-		printf("nextbuf_len = %d\n", nextbuf_len );fflush( stdout );
+		printf("nextBufLen = %d\n", nextBufLen );fflush( stdout );
 #endif
 		sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 											_LoginName, _HostName,
-											nextbuf, nextbuf_len,
+											nextBuf, nextBufLen,
 											sendBuf, sizeof( sendBuf ) );
 		SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	}
@@ -2406,21 +2406,21 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 	DIR *d= opendir( dir.c_str() );
 	struct dirent *dent;
 	struct stat st;
-	char headbuf[8192];
+	char headBuf[8192];
 
 	if ( d == NULL ) {
 		return false;
 	}
 
 	stat( cd.c_str(), &st );
-	int head_len = snprintf( headbuf, sizeof( headbuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
+	int headBufLen = snprintf( headBuf, sizeof( headBuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
 														converter->ConvertLocalToNetwork( cd.c_str() ).c_str(),
 														(unsigned long long)st.st_size,
 														IPMSG_FILE_DIR,
 														IPMSG_FILE_MTIME, st.st_mtime,
 														IPMSG_FILE_CREATETIME, st.st_ctime );
-	headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
-	send( sock, headbuf, head_len, 0 );
+	headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
+	send( sock, headBuf, headBufLen, 0 );
 
 	dent = readdir( d );
 	while( dent != NULL ) {
@@ -2443,14 +2443,14 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 #if defined(INFO) || !defined(NDEBUG)
 				printf( "FILE\n" );fflush( stdout );
 #endif
-				int head_len = snprintf( headbuf, sizeof( headbuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
+				int headBufLen = snprintf( headBuf, sizeof( headBuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
 																	converter->ConvertLocalToNetwork( dent->d_name ).c_str(),
 																	(unsigned long long)st.st_size,
 																	IPMSG_FILE_REGULAR,
 																	IPMSG_FILE_MTIME, st.st_mtime,
 																	IPMSG_FILE_CREATETIME, st.st_ctime );
-				headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
-				send( sock, headbuf, head_len, 0 );
+				headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
+				send( sock, headBuf, headBufLen, 0 );
 
 				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size, NULL , 0 ) ){
 					closedir( d );
@@ -2460,9 +2460,9 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 		}
 		dent = readdir( d );
 	}
-	head_len = snprintf( headbuf, sizeof( headbuf ), "0000:.:0:%lx:", IPMSG_FILE_RETPARENT );
-	headbuf[ snprintf( headbuf, sizeof(headbuf),"%04x", head_len) ] = ':';
-	send( sock, headbuf, head_len, 0 );
+	headBufLen = snprintf( headBuf, sizeof( headBuf ), "0000:.:0:%lx:", IPMSG_FILE_RETPARENT );
+	headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
+	send( sock, headBuf, headBufLen, 0 );
 	closedir( d );
 	return true;
 }
@@ -2479,8 +2479,8 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 {
 	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
 	char readbuf[8192];
-	struct stat st_init;
-	int read_size;
+	struct stat statInit;
+	int readSize;
 	unsigned long long transSize = 0LL;
 	int fd = open( localFileName.c_str(), O_RDONLY );
 
@@ -2493,29 +2493,24 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 #endif
 		return false;
 	}
-	int rc = fstat( fd, &st_init );
+	int rc = fstat( fd, &statInit );
 	if ( rc != 0 ){
 		close( fd );
 		return false;
 	}
 	lseek( fd, offset, SEEK_SET );
-	read_size = read( fd, readbuf, sizeof( readbuf ) );
-	while( read_size > 0 ){
+	readSize = read( fd, readbuf, sizeof( readbuf ) );
+	while( readSize > 0 ){
 		if ( AbortDownloadAtFileChanged() ){
-			struct stat st_progress;
-			int rc = stat( localFileName.c_str(), &st_progress );
-			if ( rc != 0 ){
+			struct stat statProgress;
+			if ( stat( localFileName.c_str(), &statProgress ) != 0 ){
 #ifdef DEBUG
 				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
 				close( fd );
 				return false;
 			}
-			if ( mtime            != st_progress.st_mtime ||
-				 st_init.st_ctime != st_progress.st_ctime ||
-				 st_init.st_uid   != st_progress.st_uid   ||
-				 st_init.st_gid   != st_progress.st_gid   ||
-				 size             != (unsigned long long)st_progress.st_size ) {
+			if ( IsFileChanged( mtime, size, statInit, statProgress ) ){
 #ifdef DEBUG
 				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
@@ -2526,15 +2521,24 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 			printf("FileName.c_str() [%s]\nFile Unchanged.\n", FileName.c_str() );fflush(stdout);
 #endif
 		}
-		send( sock, readbuf, read_size, 0 );
-		transSize += read_size;
+		send( sock, readbuf, readSize, 0 );
+		transSize += readSize;
 		if ( file != NULL ) file->setTransSize( transSize );
-		read_size = read( fd, readbuf, sizeof( readbuf ) );
+		readSize = read( fd, readbuf, sizeof( readbuf ) );
 	}
 	close( fd );
 	return true;
 }
 
+bool
+IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress )
+{
+	return mtime             != statProgress.st_mtime ||
+		   statInit.st_ctime != statProgress.st_ctime ||
+		   statInit.st_uid   != statProgress.st_uid   ||
+		   statInit.st_gid   != statProgress.st_gid   ||
+		   size              != (unsigned long long)statProgress.st_size;
+}
 /**
  * メッセージ受信時、パケットメッセージ本文の末尾の'\0'以降からファイル一覧情報を生成する。
  * @param option パケットオプション部

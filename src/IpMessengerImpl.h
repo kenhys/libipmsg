@@ -171,6 +171,7 @@ class IpMessengerAgentImpl {
 		bool DecryptMsg( Packet &packet );
 		vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( string addr );
 		unsigned long AddCommonCommandOption( const unsigned long cmd );
+		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 
 		//Library Use Only
 		void AddHostListFromPacket( Packet packet );
