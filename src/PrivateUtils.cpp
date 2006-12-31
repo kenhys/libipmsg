@@ -1,4 +1,9 @@
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include <IpMessenger.h>
+
 #if defined(DEBUG) || defined(INFO)
 #include <IpMessengerImpl.h>
 #include <ctype.h>
