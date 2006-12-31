@@ -13,6 +13,114 @@
 using namespace std;
 
 /**
+ * コンストラクタ。
+ * ・受信済メッセージリストをロックするためのミューテックスを生成。
+ */
+RecievedMessageList::RecievedMessageList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_init( &messagesMutex, NULL );
+#endif
+}
+
+/**
+ * デストラクタ。
+ * ・受信済メッセージリストをロックするためのミューテックスを破棄。
+ */
+RecievedMessageList::~RecievedMessageList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_destroy( &messagesMutex );
+#endif
+}
+
+/**
+ * 受信済メッセージリストの先頭を示すイテレータを返す。
+ * @retval 受信済メッセージリストの先頭を示すイテレータ。
+ */
+vector<RecievedMessage>::iterator
+RecievedMessageList::begin()
+{
+	return messages.begin();
+}
+
+/**
+ * 受信済メッセージリストの末尾＋１を示すイテレータを返す。
+ * @retval 受信済メッセージリストの末尾＋１を示すイテレータ。
+ */
+vector<RecievedMessage>::iterator
+RecievedMessageList::end()
+{
+	return messages.end();
+}
+
+/**
+ * 指定されたイテレータで受信済メッセージを受信済メッセージリストから削除する。
+ * @param 削除対象の受信済メッセージを示すイテレータ。
+ * @retval 削除された受信済メッセージの次の要素を示すイテレータ。
+ */
+vector<RecievedMessage>::iterator
+RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	vector<RecievedMessage>::iterator ret = messages.erase( item );
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+	return ret;
+}
+
+/**
+ * 受信済メッセージリストにメッセージを追加する。
+ * @param 受信済メッセージ。
+ */
+void
+RecievedMessageList::append( const RecievedMessage &item )
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	messages.push_back( item );
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+}
+
+/**
+ * 受信済メッセージリストの個数を返す。
+ * @retval 受信済メッセージリストの個数。
+ */
+int
+RecievedMessageList::size()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	int ret = messages.size();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+	return ret;
+}
+
+/**
+ * 受信済メッセージリストをクリアする。
+ */
+void
+RecievedMessageList::clear()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	messages.clear();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+}
+
+/**
  * ファイル受信処理。
  * ・サーバにファイル受信要求パケットを送信し、ファイルを受信する。
  * 注：このメソッドはスレッドセーフでない。
