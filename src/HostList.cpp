@@ -17,6 +17,80 @@ using namespace std;
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
 
 /**
+ * コンストラクタ。
+ * ・ホストリストをロックするためのミューテックスを生成。
+ */
+HostList::HostList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_init( &hostListMutex, NULL );
+#endif
+}
+
+/**
+ * デストラクタ。
+ * ・ホストリストをロックするためのミューテックスを破棄。
+ */
+HostList::~HostList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_destroy( &hostListMutex );
+#endif
+}
+
+/**
+ * ホストリストの先頭を示すイテレータを返す。
+ * @retval ホストリストの先頭を示すイテレータ。
+ */
+vector<HostListItem>::iterator
+HostList::begin()
+{
+	return items.begin();
+}
+
+/**
+ * ホストリストの末尾＋１を示すイテレータを返す。
+ * @retval ホストリストの末尾＋１を示すイテレータ。
+ */
+vector<HostListItem>::iterator
+HostList::end()
+{
+	return items.end();
+}
+
+/**
+ * ホストリストの個数を返す。
+ * @retval ホストリストの個数。
+ */
+int
+HostList::size()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
+	int ret = items.size();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
+	return ret;
+}
+
+/**
+ * ホストリストをクリアする。
+ */
+void
+HostList::clear()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
+	items.clear();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
+}
+
+/**
  * バージョン情報問い合わせを行う。
  */
 void
@@ -64,8 +138,11 @@ HostListItem::IsLocalHost()
  * @param host ホスト情報
  */
 void
-HostList::AddHost( HostListItem host )
+HostList::AddHost( const HostListItem& host )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
 	bool is_found = false;
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
@@ -76,6 +153,9 @@ HostList::AddHost( HostListItem host )
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
 		if ( host.IpAddress() == nics[i].IpAddress() ){
+#ifdef HAVE_PTHREAD
+			pthread_mutex_unlock( &hostListMutex );
+#endif
 			return;
 		}
 	}
@@ -87,13 +167,20 @@ HostList::AddHost( HostListItem host )
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
+#ifdef HAVE_PTHREAD
+		pthread_mutex_unlock( &hostListMutex );
+#endif
 		return;
 	}
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
+#ifdef HAVE_PTHREAD
+		pthread_mutex_unlock( &hostListMutex );
+#endif
 		return;
 	}
 	for( unsigned int i = 0; i < items.size(); i++ ){
-		if ( host.Equals( items.at( i ) ) ) {
+		HostListItem host = items.at( i );
+		if ( host.Equals( host ) ) {
 			is_found = true;
 			break;
 		}
@@ -104,6 +191,9 @@ HostList::AddHost( HostListItem host )
 	if ( agent->GetSortHostListComparator() != NULL ){
 		qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
 	}
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
 }
 
 /**
@@ -113,7 +203,13 @@ HostList::AddHost( HostListItem host )
 void
 HostList::Delete( vector<HostListItem>::iterator &it )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
 	items.erase( it );
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
 }
 /**
  * ホスト情報をホストリストから削除する。
@@ -122,21 +218,31 @@ HostList::Delete( vector<HostListItem>::iterator &it )
 void
 HostList::DeleteHost( string hostname )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
 	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		if ( ix->HostName() == hostname ) {
 			items.erase( ix );
 			break;
 		}
 	}
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
 }
 
 /**
  * ホストリスト送信用文字列を作成する。
  * @param start 開始位置
+ * @retval ホストリスト送信用文字列。
  */
 string
 HostList::ToString( int start )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
 	char buf[MAX_UDPBUF];
 	string ret;
 	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize();
@@ -161,6 +267,9 @@ HostList::ToString( int start )
 	}
 	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , hostCount );
 	ret = buf + ret;
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
 	return ret;
 }
 
@@ -170,7 +279,7 @@ HostList::ToString( int start )
  * @retval ホストリストアイテム
  */
 HostListItem
-HostList::CreateHostListItemFromPacket( Packet packet )
+HostList::CreateHostListItemFromPacket( const Packet& packet )
 {
 	HostListItem ret;
 	ret.setHostName( packet.HostName() );
@@ -197,47 +306,57 @@ HostList::CreateHostListItemFromPacket( Packet packet )
  * ホストリストをホスト名で検索し、該当するHostListItemを返却する。
  * @param hostName ホスト名
  * @retval HostListItem
- * 注：このメソッドはスレッドセーフでない。
  */
 vector<HostListItem>::iterator
 HostList::FindHostByHostName( string hostName )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
+	vector<HostListItem>::iterator ret = end();
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 		if ( ix->HostName() == hostName ) {
-			return ix;
+			ret = ix;
+			break;
 		}
 	}
-	return end();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
+	return ret;
 }
 
 /**
  * ホストリストをIPアドレスで検索し、該当するHostListItemを返却する。
  * @param addr IPアドレス文字列
  * @retval HostListItem
- * 注：このメソッドはスレッドセーフでない。
  */
 vector<HostListItem>::iterator
 HostList::FindHostByAddress( string addr )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &hostListMutex );
+#endif
+	vector<HostListItem>::iterator ret = end();
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(DEBUG)
-printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );fflush(stdout);
+		printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );fflush(stdout);
 #endif
 		if ( ix->IpAddress() == addr ) {
 #if defined(DEBUG)
-printf("★★★★★★★★★★★★\n");fflush(stdout);
-printf("HOST FOUND!!!\n");fflush(stdout);
-printf("★★★★★★★★★★★★\n");fflush(stdout);
+			printf("HOST FOUND!!!\n");fflush(stdout);
 #endif
-			return ix;
+			ret = ix;
+			break;
 		}
 	}
 #if defined(DEBUG)
-printf("★★★★★★★★★★★★\n");fflush(stdout);
-printf("HOST NOT FOUND!!!\n");fflush(stdout);
-printf("★★★★★★★★★★★★\n");fflush(stdout);
+	printf("HOST NOT FOUND!!!\n");fflush(stdout);
 #endif
-	return end();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &hostListMutex );
+#endif
+	return ret;
 }
 
 /**
@@ -276,12 +395,12 @@ HostListItem::IsAbsence()
  * @retval 一致：true／一致しない：false
  */
 bool
-HostListItem::Equals( HostListItem item )
+HostListItem::Equals( const HostListItem& item )
 {
 	return	Compare( item ) == 0;
 }
 int
-HostListItem::Compare( HostListItem item )
+HostListItem::Compare( const HostListItem& item )
 {
 //	if ( item.UserName()  == UserName() &&
 //		 item.HostName()  == HostName() &&
@@ -318,8 +437,8 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 	//範囲の開始、終了位置
 	int i = left, j = right;
 #if defined(INFO) || !defined(NDEBUG)
-printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );fflush(stdout);
-printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );fflush(stdout);
+	printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );fflush(stdout);
+	printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );fflush(stdout);
 #endif
 	//基準値
 	vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
@@ -329,13 +448,13 @@ printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAd
 		while( comparator->compare( pivot, items.begin() + j ) < 0 ) j--;
 		if ( i >= j ) break;
 #if defined(INFO) || !defined(NDEBUG)
-printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
-printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
+			printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
+			printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
 #endif
 		iter_swap( items.begin() + i, items.begin() + j );
 #if defined(INFO) || !defined(NDEBUG)
-printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
-printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
+		printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
+		printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
 #endif
 		i++;
 		j--;
