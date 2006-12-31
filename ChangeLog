@@ -1,3 +1,8 @@
+2006-12-31 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Thread safe.
+- Update:Parameter object copy to const reference.
+- Update:include config.h in PrivateUtils.cpp.
+
 2006-12-28 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Delete DEBUG print.
 - Fix:Buffer overflow.

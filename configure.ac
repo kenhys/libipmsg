@@ -4,7 +4,7 @@
 AC_PREREQ(2.59)
 AC_INIT
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(libipmsg, 0.1.1)
+AM_INIT_AUTOMAKE(libipmsg, 0.1.2)
 AC_CONFIG_SRCDIR([src/ipmsg.h])
 
 # Checks for programs.
@@ -76,32 +76,26 @@ else
 	echo libipmsg was not support encryption.
 fi
 
-AC_ARG_WITH(pthread,
-		AC_HELP_STRING([--with-pthread],[Encryption support @<:@default=yes@:>@]), ,[with_pthread=yes])
-if test "x$with_pthread" = xyes; then
-	echo "checking for pthread..."
-	have_pthread_create=yes
-	have_pthread_detach=yes
-	have_pthread_mutex_init=yes
-	have_pthread_mutex_lock=yes
-	have_pthread_mutex_unlock=yes
-	AC_CHECK_LIB(pthread,pthread_create,LIBPTHREAD="-lpthread", have_pthread_create=no)
-	AC_CHECK_LIB(pthread,pthread_detach,LIBPTHREAD="-lpthread", have_pthread_detach=no)
-	AC_CHECK_LIB(pthread,pthread_mutex_init,LIBPTHREAD="-lpthread", have_pthread_mutex_init=no)
-	AC_CHECK_LIB(pthread,pthread_mutex_lock,LIBPTHREAD="-lpthread", have_pthread_mutex_lock=no)
-	AC_CHECK_LIB(pthread,pthread_mutex_unlock,LIBPTHREAD="-lpthread", have_pthread_mutex_unlock=no)
-	if test "x$have_pthread_create" = xyes &&
-	   test "x$have_pthread_detach" = xyes &&
-	   test "x$have_pthread_mutex_init" = xyes &&
-	   test "x$have_pthread_mutex_lock" = xyes &&
-	   test "x$have_pthread_mutex_unlock" = xyes ;then 
-		AC_DEFINE(HAVE_PTHREAD, 1, [pthread support])
-		echo POSIX thread support enabled.
-	else
-		AC_MSG_ERROR([--with-pthread was given, but test for libpthread failed])
-	fi
+echo "checking for pthread..."
+have_pthread_create=yes
+have_pthread_detach=yes
+have_pthread_mutex_init=yes
+have_pthread_mutex_lock=yes
+have_pthread_mutex_unlock=yes
+AC_CHECK_LIB(pthread,pthread_create,LIBPTHREAD="-lpthread", have_pthread_create=no)
+AC_CHECK_LIB(pthread,pthread_detach,LIBPTHREAD="-lpthread", have_pthread_detach=no)
+AC_CHECK_LIB(pthread,pthread_mutex_init,LIBPTHREAD="-lpthread", have_pthread_mutex_init=no)
+AC_CHECK_LIB(pthread,pthread_mutex_lock,LIBPTHREAD="-lpthread", have_pthread_mutex_lock=no)
+AC_CHECK_LIB(pthread,pthread_mutex_unlock,LIBPTHREAD="-lpthread", have_pthread_mutex_unlock=no)
+if test "x$have_pthread_create" = xyes &&
+   test "x$have_pthread_detach" = xyes &&
+   test "x$have_pthread_mutex_init" = xyes &&
+   test "x$have_pthread_mutex_lock" = xyes &&
+   test "x$have_pthread_mutex_unlock" = xyes ;then 
+	AC_DEFINE(HAVE_PTHREAD, 1, [pthread support])
+	echo POSIX thread support enabled.
 else
-	echo libipmsg was not support POSIX thread.
+	AC_MSG_ERROR([libipmsg required pthread library, but test for libpthread failed])
 fi
 
 AC_ARG_ENABLE(debug,
