@@ -70,7 +70,6 @@ using namespace std;
 #define IPMSG_PROPERTY_REF(t, name ) private: t _##name; \
 									public: t& name() { return _##name; };\
 									void set##name( t& val ){ _##name = val; };
-
 class Packet{
 	public:
 		IPMSG_PROPERTY( unsigned long, VersionNo );
@@ -118,8 +117,8 @@ class HostListItem{
 		bool IsFileAttachSupport();
 		bool IsEncryptSupport();
 		bool IsAbsence();
-		bool Equals( HostListItem item );
-		int Compare( HostListItem item );
+		bool Equals( const HostListItem& item );
+		int Compare( const HostListItem& item );
 		void QueryVersionInfo();
 		void QueryAbsenceInfo();
 };
@@ -142,21 +141,24 @@ class HostList{
 		IPMSG_PROPERTY( time_t, AskStartTime );
 		IPMSG_PROPERTY( time_t, PrevTry );
 		IPMSG_PROPERTY( int, RetryCount );
-		void AddHost( HostListItem host );
+		void AddHost( const HostListItem& host );
 		void Delete( vector<HostListItem>::iterator &it );
 		void DeleteHost( string hostname );
 		vector<HostListItem>::iterator FindHostByAddress( string addr );
 		vector<HostListItem>::iterator FindHostByHostName( string hostName );
-		static HostListItem CreateHostListItemFromPacket( Packet packet );
-		vector<HostListItem>::iterator begin(){ return items.begin(); };
-		vector<HostListItem>::iterator end(){ return items.end(); };
-		int size(){ return items.size(); };
-		void clear(){ return items.clear(); };
+		static HostListItem CreateHostListItemFromPacket( const Packet& packet );
+		vector<HostListItem>::iterator begin();
+		vector<HostListItem>::iterator end();
+		int size();
+		void clear();
 		string ToString( int start );
 		void sort( HostListComparator *comparator );
+		HostList();
+		~HostList();
 	private:
 		void qsort( HostListComparator *comparator, int left, int right );
 		vector<HostListItem>items;
+		pthread_mutex_t hostListMutex;
 };
 
 class FileNameConverter {
@@ -195,7 +197,7 @@ class AttachFile{
 		map<string, vector<unsigned long> > _ExtAttrs;
 	public:
 		static AttachFile AnalyzeHeader( char *buf, FileNameConverter *conv );
-		static string CreateDirFullPath( vector<string> dirstack );
+		static string CreateDirFullPath( const vector<string>& dirstack );
 };
 
 class DownloadInfo{
@@ -227,8 +229,11 @@ class AttachFileList{
 		vector<AttachFile>::iterator erase( AttachFile &item ) { return erase( FindByFileId( item.FileId() ) ); };
 		vector<AttachFile>::iterator FindByFullPath( string fullPath );
 		vector<AttachFile>::iterator FindByFileId( int file_id );
+		AttachFileList();
+		~AttachFileList();
 	private:
 		vector<AttachFile> files;
+		pthread_mutex_t filesMutex;
 };
 
 class IpMessengerEvent;
@@ -258,14 +263,17 @@ class RecievedMessage{
 
 class RecievedMessageList {
 	public:
-		vector<RecievedMessage>::iterator begin(){ return messages.begin(); };
-		vector<RecievedMessage>::iterator end(){ return messages.end(); };
-		vector<RecievedMessage>::iterator erase( vector<RecievedMessage>::iterator item ){ return messages.erase( item ); };
-		void append( RecievedMessage item ){ messages.push_back( item ); };
-		int size(){ return messages.size(); };
-		void clear(){ return messages.clear(); };
+		vector<RecievedMessage>::iterator begin();
+		vector<RecievedMessage>::iterator end();
+		vector<RecievedMessage>::iterator erase( vector<RecievedMessage>::iterator item );
+		void append( const RecievedMessage &item );
+		int size();
+		void clear();
+		RecievedMessageList();
+		~RecievedMessageList();
 	private:
 		vector<RecievedMessage> messages;
+		pthread_mutex_t messagesMutex;
 };
 
 class SentMessage{
@@ -289,22 +297,26 @@ class SentMessage{
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
 		bool isRetryMaxOver();
 		bool needSendRetry( time_t tryNow );
-		vector<AttachFile>::iterator FindAttachFileByPacket( Packet packet );
+		vector<AttachFile>::iterator FindAttachFileByPacket( const Packet &packet );
 };
 
 class SentMessageList {
 	public:
-		vector<SentMessage>::iterator begin(){ return messages.begin(); };
-		vector<SentMessage>::iterator end(){ return messages.end(); };
-		vector<SentMessage>::iterator erase( vector<SentMessage>::iterator item ){ return messages.erase( item ); };
+		vector<SentMessage>::iterator begin();
+		vector<SentMessage>::iterator end();
+		vector<SentMessage>::iterator erase( vector<SentMessage>::iterator item );
 		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
 		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
-		void append( SentMessage item ){ messages.push_back( item ); };
-		int size(){ return messages.size(); };
-		void clear(){ return messages.clear(); };
-		vector<SentMessage> *GetMessageList(){ return &messages; };
+		void append( const SentMessage &item );
+		int size();
+		void clear();
+		vector<SentMessage> *GetMessageList();
+		SentMessageList();
+		~SentMessageList();
+
 	private:
 		vector<SentMessage> messages;
+		pthread_mutex_t messagesMutex;
 };
 
 class AbsenceMode {

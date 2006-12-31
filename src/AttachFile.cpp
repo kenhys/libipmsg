@@ -14,6 +14,28 @@ using namespace std;
 static int file_id = 0;
 
 /**
+ * コンストラクタ。
+ * ・ファイルリストをロックするためのミューテックスを生成。
+ */
+AttachFileList::AttachFileList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_init( &filesMutex, NULL );
+#endif
+}
+
+/**
+ * デストラクタ。
+ * ・ファイルリストをロックするためのミューテックスを破棄。
+ */
+AttachFileList::~AttachFileList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_destroy( &filesMutex );
+#endif
+}
+
+/**
  * 添付ファイル一覧からフルパスで検索
  * @param fullParh 検索対象のフルパス
  * @retval 見付かったAttachFileのイテレータ。見付からない場合end();
@@ -21,12 +43,20 @@ static int file_id = 0;
 vector<AttachFile>::iterator
 AttachFileList::FindByFullPath( string fullPath )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &filesMutex );
+#endif
+	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
 		if ( i->FullPath() == fullPath ) {
-			return i;
+			ret = i;
+			break;
 		}
 	}
-	return end();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &filesMutex );
+#endif
+	return ret;
 }
 
 /**
@@ -37,6 +67,10 @@ AttachFileList::FindByFullPath( string fullPath )
 vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &filesMutex );
+#endif
+	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
 		printf( "file_id  %d\n", file_id );fflush(stdout);
@@ -44,10 +78,14 @@ AttachFileList::FindByFileId( int file_id )
 		printf( "ixfile->FileName %s\n", ixfile->FileName().c_str() );fflush(stdout);
 #endif
 		if ( file_id == ixfile->FileId() ) {
-			return ixfile;
+			ret = ixfile;
+			break;
 		}
 	}
-	return end();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &filesMutex );
+#endif
+	return ret;
 }
 
 /**
@@ -123,12 +161,17 @@ AttachFile::IsDirectory()
  * @retval フルパス
  */
 string
-AttachFile::CreateDirFullPath( vector<string> dirstack )
+AttachFile::CreateDirFullPath( const vector<string>& dirstack )
 {
 	string retdir = "";
-	for( vector<string>::iterator d = dirstack.begin(); d != dirstack.end(); d++ ){
-		if ( *d != "" ) {
-			retdir += *d + ( d->at(d->size() - 1) == '/' ? "" : "/" );
+#if 0
+//	for( vector<string>::iterator d = dirstack.begin(); d != dirstack.end(); d++ ){
+//		if ( *d != "" ) {
+//			retdir += *d + ( d->at(d->size() - 1) == '/' ? "" : "/" );
+#endif
+	for( int i = 0; i < dirstack.size(); i++ ){
+		if ( dirstack[i] != "" ) {
+			retdir += dirstack[i] + ( dirstack[i].at(dirstack[i].size() - 1) == '/' ? "" : "/" );
 #ifdef DEBUG
 			printf("retdir = %s\n", retdir.c_str());fflush(stdout);
 #endif

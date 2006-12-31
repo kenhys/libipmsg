@@ -15,13 +15,128 @@ using namespace std;
 #define SENDMSG_RETRY_MAX	5
 
 /**
+ * コンストラクタ。
+ * ・送信済メッセージリストをロックするためのミューテックスを生成。
+ */
+SentMessageList::SentMessageList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_init( &messagesMutex, NULL );
+#endif
+}
+
+/**
+ * デストラクタ。
+ * ・送信済メッセージリストをロックするためのミューテックスを破棄。
+ */
+SentMessageList::~SentMessageList()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_destroy( &messagesMutex );
+#endif
+}
+
+/**
+ * 送信済メッセージリストの先頭を示すイテレータを返す。
+ * @retval 送信済メッセージリストの先頭を示すイテレータ。
+ */
+vector<SentMessage>::iterator
+SentMessageList::begin()
+{
+	return messages.begin();
+}
+
+/**
+ * 送信済メッセージリストの末尾＋１を示すイテレータを返す。
+ * @retval 送信済メッセージリストの末尾＋１を示すイテレータ。
+ */
+vector<SentMessage>::iterator
+SentMessageList::end(){
+	return messages.end();
+}
+
+/**
+ * 指定されたイテレータで送信済メッセージを送信済メッセージリストから削除する。
+ * @param 削除対象の送信済メッセージを示すイテレータ。
+ * @retval 削除された送信済メッセージの次の要素を示すイテレータ。
+ */
+vector<SentMessage>::iterator
+SentMessageList::erase( vector<SentMessage>::iterator item )
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	vector<SentMessage>::iterator ret = messages.erase( item );
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+}
+
+/**
+ * 送信済メッセージリストにメッセージを追加する。
+ * @param 送信済メッセージ。
+ */
+void
+SentMessageList::append( const SentMessage &item )
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	messages.push_back( item );
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+}
+
+/**
+ * 送信済メッセージリストの個数を返す。
+ * @retval 送信済メッセージリストの個数。
+ */
+int
+SentMessageList::size()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	int ret = messages.size();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+}
+
+/**
+ * 送信済メッセージリストをクリアする。
+ */
+void
+SentMessageList::clear()
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock( &messagesMutex );
+#endif
+	messages.clear();
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock( &messagesMutex );
+#endif
+}
+
+/**
+ * 送信済メッセージリストのポインタを返す。
+ * @retval 送信済メッセージリストのポインタ。
+ */
+vector<SentMessage> *
+SentMessageList::GetMessageList()
+{
+	return &messages;
+}
+
+/**
  * パケットから添付ファイルを検索します。
  * ・パケットからファイルIDを抽出しファイルIDを基に添付ファイルを検索し、AttachFileのイテレータを返します。
  * @param packet パケットオブジェクト
  * @retval AttachFileのイテレータ。見付からない場合、end()を返す。
  */
 vector<AttachFile>::iterator
-SentMessage::FindAttachFileByPacket( Packet packet )
+SentMessage::FindAttachFileByPacket( const Packet& packet )
 {
 	char *dmyptr;
 	char *startptr;
