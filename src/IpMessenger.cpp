@@ -283,9 +283,9 @@ IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes 
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
-	return ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, opt );
+	return ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
 
 /**
@@ -300,9 +300,9 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool is
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
-	return ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, opt );
+	return ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
 
 /**
@@ -317,9 +317,9 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
-	return ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, opt );
+	return ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
 
 /**

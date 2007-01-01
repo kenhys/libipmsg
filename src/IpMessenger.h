@@ -245,6 +245,7 @@ class RecievedMessage{
 		IPMSG_PROPERTY( time_t, Recieved );
 		IPMSG_PROPERTY( bool, IsConfirmed );
 		IPMSG_PROPERTY( bool, IsSecret );
+		IPMSG_PROPERTY( bool, IsNoLogging );
 		IPMSG_PROPERTY( bool, IsCrypted );
 		IPMSG_PROPERTY( HostListItem, Host );
 		IPMSG_PROPERTY( bool, IsPasswordLock );
@@ -292,6 +293,7 @@ class SentMessage{
 		IPMSG_PROPERTY( bool, IsConfirmed );
 		IPMSG_PROPERTY( bool, IsConfirmAnswered );
 		IPMSG_PROPERTY( bool, IsSecret );
+		IPMSG_PROPERTY( bool, IsNoLogging );
 		IPMSG_PROPERTY( int, HostCountAtSameTime );
 		IPMSG_PROPERTY( unsigned long, Opt );
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
@@ -426,17 +428,17 @@ class IpMessengerAgent {
 		/**
 		 * メッセージ送信（添付無し）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（一つ添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（複数添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * 不在解除
