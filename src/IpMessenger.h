@@ -543,7 +543,7 @@ class IpMessengerAgent {
 		/**
 		 * ネットワークの再起動
 		 **/
-		void RestartNetwork();
+		void RestartNetwork( const vector<NetworkInterface>& nics );
 
 		/**
 		 * ログイン名

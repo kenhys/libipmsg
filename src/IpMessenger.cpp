@@ -101,9 +101,9 @@ IpMessengerAgent::~IpMessengerAgent()
  * 注：このインスタンスはスレッドセーフでない。
  */
 void
-IpMessengerAgent::RestartNetwork()
+IpMessengerAgent::RestartNetwork( const vector<NetworkInterface>& nics )
 {
-	ipmsgImpl->RestartNetwork();
+	ipmsgImpl->RestartNetwork( nics );
 }
 
 /**

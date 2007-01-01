@@ -88,7 +88,7 @@ class IpMessengerAgentImpl {
 		void SetFileNameConverter( FileNameConverter *conv );
 		FileNameConverter *GetFileNameConverter();
 		bool IsAbsence();
-		void RestartNetwork();
+		void RestartNetwork( const vector<NetworkInterface>& nics );
 		void QueryVersionInfo( HostListItem& host );
 		void QueryAbsenceInfo( HostListItem& host );
 
@@ -128,7 +128,7 @@ class IpMessengerAgentImpl {
 		~IpMessengerAgentImpl();
 		void CryptoInit();
 		void CryptoEnd();
-		void NetworkInit();
+		void NetworkInit( const vector<NetworkInterface>& nics );
 		void NetworkEnd();
 		void InitSend();
 		void InitRecv( const vector<NetworkInterface>& nics );

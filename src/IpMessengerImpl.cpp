@@ -107,7 +107,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	setSaveSentMessage( true );
 	setSaveRecievedMessage( true );
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs );
-	NetworkInit();
+	NetworkInit( NICs );
 	ResetAbsence();
 	event = new IpMessengerNullEvent();
 }
@@ -139,11 +139,11 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
  * 注：このインスタンスはスレッドセーフでない。
  */
 void
-IpMessengerAgentImpl::RestartNetwork()
+IpMessengerAgentImpl::RestartNetwork( const vector<NetworkInterface>& nics )
 {
 	Logout();
 	NetworkEnd();
-	NetworkInit();
+	NetworkInit( nics );
 	Login( Nickname, GroupName );
 }
 
@@ -283,7 +283,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
  * 注：このメソッドはスレッドセーフでない。
  */
 void
-IpMessengerAgentImpl::NetworkInit()
+IpMessengerAgentImpl::NetworkInit( const vector<NetworkInterface>& nics )
 {
 	char buf[100];
 	char *env;
@@ -318,7 +318,11 @@ IpMessengerAgentImpl::NetworkInit()
 						  " ==============================";
 #endif	//HAVE_OPENSSL
 	InitSend();
-	InitRecv( NICs );
+	if ( nics.size() > 0 ){
+		InitRecv( nics );
+	} else {
+		InitRecv( NICs );
+	}
 }
 
 /**
