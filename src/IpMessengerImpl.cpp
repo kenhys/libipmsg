@@ -1101,7 +1101,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
  * 注：このメソッドはスレッドセーフでない。
  */
 void
-IpMessengerAgentImpl::InitRecv( vector<NetworkInterface> nics )
+IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 {
 	if ( nics.size() > 0 ) {
 		HostAddress = nics[0].IpAddress();
@@ -1533,7 +1533,7 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
  * @param packet パケットオブジェクト
  */
 void
-IpMessengerAgentImpl::DoRecvCommand( Packet packet )
+IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 {
 #if defined(DEBUG)
 	printf( "PACKET.COMMAND=[%s]\n", GetCommandString( packet.CommandMode() ).c_str() );fflush( stdout );
@@ -1572,7 +1572,7 @@ IpMessengerAgentImpl::DoRecvCommand( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventNoOperation( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvNoOperation\n");fflush( stdout );
@@ -1605,7 +1605,7 @@ IpMessengerAgentImpl::SendNoOperation()
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventBrEntry( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -1692,7 +1692,7 @@ IpMessengerAgentImpl::SendAbsence()
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventBrAbsence( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrAbsence\n");fflush( stdout );
@@ -1711,7 +1711,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventBrExit( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrExit\n");fflush( stdout );
@@ -1729,7 +1729,7 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventRecvMsg( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 {
 	char *dmyptr;
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 10 );
@@ -1756,7 +1756,7 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventReadMsg( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -1793,7 +1793,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventDelMsg( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 {
 	char *dmyptr;
 	unsigned long packet_no = strtoul( packet.Option().c_str(), &dmyptr, 10 );
@@ -1813,7 +1813,7 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsReadMsg\n");fflush( stdout );
@@ -1831,7 +1831,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -1889,21 +1889,22 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 		}
 	}
 
+	string optionMessage = packet.Option();
 	if ( packet.CommandOption() & IPMSG_ENCRYPTOPT ){
-		if ( !DecryptMsg( packet ) ) {
+		if ( !DecryptMsg( packet, optionMessage ) ) {
 			HostListItem host;
 			char ipaddrbuf[100];
 			host.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
 			host.setPortNo( ntohs( packet.Addr().sin_port ) );
 			SendMsg( host, DecryptErrorMessage.c_str(), false, 1, true, IPMSG_AUTORETOPT );
-			packet.setOption("");
+			optionMessage = "";
 			//暗号解除失敗による自動応答時はイベントを起こさない。
 			noRaiseEvent = true;
 		}
 	}
 	RecievedMessage message;
 	message.setMessagePacket( packet );
-	message.setMessage( packet.Option().c_str() );
+	message.setMessage( optionMessage );
 	message.setRecieved( time( NULL ) );
 	message.setIsNoLogging( IPMSG_NOLOGOPT & packet.CommandOption() );
 	message.setIsSecret( IPMSG_SECRETOPT & packet.CommandOption() );
@@ -1941,7 +1942,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventBrIsGetList( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -1963,7 +1964,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -1985,7 +1986,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventGetList( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -2012,7 +2013,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventOkGetList( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -2035,7 +2036,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventAnsEntry( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsEntry\n");fflush( stdout );
@@ -2054,7 +2055,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -2100,7 +2101,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventGetInfo( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -2123,7 +2124,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventSendInfo( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 {
 	char ipaddrbuf[100];
 	string pIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) );
@@ -2143,7 +2144,7 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -2183,7 +2184,7 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 {
 	char ipaddrbuf[100];
 	string pIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) );
@@ -2204,7 +2205,7 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( Packet packet )
  * @retval ファイルオフセット。
  */
 static unsigned long
-GetSendFileOffsetInPacket( Packet packet )
+GetSendFileOffsetInPacket( const Packet& packet )
 {
 	char *dmyptr;
 	char *startptr;
@@ -2223,7 +2224,7 @@ GetSendFileOffsetInPacket( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::TcpRecvEventGetFileData( Packet packet )
+IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "TcpRecvEventGetFileData\n" );fflush( stdout );
@@ -2297,7 +2298,7 @@ GetFileDataThread( void *param )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventReleaseFiles( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "TcpRecvEventReleaseFiles\n" );fflush( stdout );
@@ -2317,7 +2318,7 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventGetPubKey( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 {
 #ifdef HAVE_OPENSSL
 	char sendBuf[MAX_UDPBUF];
@@ -2349,7 +2350,7 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::UdpRecvEventAnsPubKey( Packet packet )
+IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 {
 #ifdef HAVE_OPENSSL
 #if defined(INFO) || !defined(NDEBUG)
@@ -2411,7 +2412,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( Packet packet )
  * @param packet パケットオブジェクト
  */
 int
-IpMessengerAgentImpl::TcpRecvEventGetDirFiles( Packet packet )
+IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 {
 #ifdef HAVE_PTHREAD
 	pthread_t t_id;
@@ -3047,7 +3048,7 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
  * @retval 送信バッファの長さ
  */
 int
-IpMessengerAgentImpl::CreateNewPacketBuffer(unsigned long cmd, unsigned long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
+IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "CMD[%s]\n", GetCommandString( GET_MODE( cmd ) ).c_str() );fflush( stdout );
@@ -3080,7 +3081,7 @@ IpMessengerAgentImpl::CreateNewPacketBuffer(unsigned long cmd, unsigned long pac
  * @retval 送信バッファの長さ
  */
 int
-IpMessengerAgentImpl::CreateNewPacketBuffer(unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size )
+IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
 	unsigned long packetNo = random();
 	return CreateNewPacketBuffer(cmd, packetNo, user, host, opt, optLen, buf, size );
