@@ -1,5 +1,5 @@
 %define name libipmsg
-%define version 0.1.1
+%define version 0.1.2
 %define release 0vl0
 
 Summary: 	Ip Messenger Library
@@ -57,6 +57,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libipmsg.*a
 
 %changelog
+* Mon Jan 29 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.2-0vl0
+- New upstream release.
+
 * Fri Dec 29 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.1-0vl0
 - New upstream release.
 
