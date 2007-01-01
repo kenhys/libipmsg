@@ -65,9 +65,9 @@ class IpMessengerAgentImpl {
 		void Logout();
 		HostList& GetHostList();
 		HostList& UpdateHostList( bool isRetry=false );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
 		void ResetAbsence();
 		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
 		vector<GroupItem> GetGroupList();
@@ -114,6 +114,7 @@ class IpMessengerAgentImpl {
 
 		vector<int> tcp_sd;
 		vector<int> udp_sd;
+		int max_sd;
 		vector<struct sockaddr_in> addr_recv;
 		struct timeval tv;
 		fd_set rfds;
@@ -134,6 +135,12 @@ class IpMessengerAgentImpl {
 		int InitUdpRecv( struct sockaddr_in addr );
 		int InitTcpRecv( struct sockaddr_in addr );
 		int RecvPacket();
+		bool RecvUdp( fd_set *fds, struct sockaddr_in *sender_addr, int *sz, char *buf );
+		bool RecvTcp( fd_set *fds, struct sockaddr_in *sender_addr, int *sz, char *buf, int *tcp_socket );
+		bool FindDuplicatePacket( const Packet &packet );
+		void PurgePacket( time_t nowTime );
+		void CheckSendMsgRetry( time_t nowTime );
+		void CheckGetHostListRetry( time_t nowTime );
 		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_in toAddr );
 		void SendBroadcast( const unsigned long cmd, char *buf, int size );
 		void DoRecvCommand( Packet packet );
@@ -174,7 +181,7 @@ class IpMessengerAgentImpl {
 		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 
 		//Library Use Only
-		void AddHostListFromPacket( Packet packet );
+		void AddHostListFromPacket( const Packet& packet );
 		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
 		int CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
 		void SendTcpPacket( int sd, char *buf, int size );

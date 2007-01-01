@@ -530,10 +530,10 @@ IpMessengerAgentImpl::SetAbsence( string encoding, vector<AbsenceMode> absenceMo
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
-	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, opt, false, 0UL );
+	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL );
 }
 
 /**
@@ -548,11 +548,11 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, boo
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
 	files.AddFile( file );
-	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, opt, false, 0UL );
+	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL );
 }
 
 /**
@@ -567,7 +567,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
+IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -637,6 +637,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 #ifdef HAVE_OPENSSL
 										  ( isEncrypted ? IPMSG_ENCRYPTOPT : 0UL ) |
 #endif	//HAVE_OPENSSL
+										  ( IsNoLogging ? IPMSG_NOLOGOPT : 0UL ) |
 										  ( isSecret ? IPMSG_SECRETOPT : 0UL ) |
 										  ( _IsAbsence ? IPMSG_AUTORETOPT : 0UL ) |
 										  ( isLockPassword ? IPMSG_PASSWORDOPT : 0UL ) |
@@ -664,6 +665,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	message.setIsConfirmAnswered( false );
 	message.setHostCountAtSameTime( hostCountAtSameTime );
 	message.setOpt( opt );
+	message.setIsNoLogging( isSecret );
 	message.setIsSecret( isSecret );
 	message.setFiles( files );
 	message.setIsSent( false );
@@ -1147,11 +1149,20 @@ IpMessengerAgentImpl::InitRecv( vector<NetworkInterface> nics )
 	}
 
 	FD_ZERO( &rfds );
+
+	max_sd = -1;
+
 	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		FD_SET( udp_sd[i], &rfds );
+		if ( max_sd < udp_sd[i] ){
+			max_sd = udp_sd[i];
+		}
 	}
 	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 		FD_SET( tcp_sd[i], &rfds );
+		if ( max_sd < tcp_sd[i] ){
+			max_sd = tcp_sd[i];
+		}
 	}
 }
 
@@ -1270,19 +1281,6 @@ IpMessengerAgentImpl::RecvPacket()
 	char buf[MAX_UDPBUF];
 	int selret = 1;
 	int ret = 0;
-	int max_sd = -1;
-
-	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
-		if ( max_sd < udp_sd[i] ){
-			max_sd = udp_sd[i];
-		}
-	}
-	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
-		if ( max_sd < tcp_sd[i] ){
-			max_sd = tcp_sd[i];
-		}
-	}
-
 	time_t nowTime = time( NULL );
 
 	vector<Packet> pack_que;
@@ -1313,47 +1311,13 @@ IpMessengerAgentImpl::RecvPacket()
 			printf( "select returns == %d\n\n", selret );fflush( stdout );
 #endif
 			struct sockaddr_in sender_addr;
-			socklen_t sender_addr_len = 0;
-			int sz = 0;
-			//とりあえず
-			bool recieved = false;
-			//UDPでソケットに変化が有ったら受信
-			for( unsigned int i = 0; i < udp_sd.size(); i++ ){
-				if ( FD_ISSET( udp_sd[i], &fds ) ){
-					memset( &sender_addr, 0, sizeof( struct sockaddr_in ) );
-					sender_addr_len = sizeof( struct sockaddr_in );
-					sz = recvfrom( udp_sd[i], buf, sizeof( buf ), 0, (struct sockaddr *)&sender_addr, &sender_addr_len );
-					if ( sz < 0 ) {
-						perror("recvfrom");
-					}
-					IpMsgPrintBuf( "recvfrom buf", buf, sz );
-					recieved = true;
-					break;
-				}
-			}
+			int sz = sizeof( buf );
+			bool recieved = RecvUdp( &fds, &sender_addr, &sz, buf );
 			//UDPでソケットに変化がない。
 			tcp_socket = -1;
 			if ( !recieved ) {
-				//TCPでソケットに変化が有ったら受信
-				for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
-					if ( FD_ISSET( tcp_sd[i], &fds ) ){
-						memset( &sender_addr, 0, sizeof( struct sockaddr_in ) );
-						sender_addr_len = sizeof( struct sockaddr_in );
-						tcp_socket = accept( tcp_sd[i], (struct sockaddr *)&sender_addr, &sender_addr_len );
-						if ( tcp_socket < 0 ) {
-							perror("accept");
-						}
-						sz = recv( tcp_socket, buf, sizeof( buf ), 0 );
-						if ( sz < 0 ) {
-							perror("recv");
-						}
-#if defined(INFO) || !defined(NDEBUG)
-						printf("recv buf[%s]\n", buf );fflush( stdout );
-#endif
-						recieved = true;
-						break;
-					}
-				}
+				sz = sizeof( buf );
+				recieved = RecvTcp( &fds, &sender_addr, &sz, buf, &tcp_socket );
 				//UDP,TCPでソケットに変化がない。
 				if ( !recieved ) {
 					continue;
@@ -1364,31 +1328,127 @@ IpMessengerAgentImpl::RecvPacket()
 			printf("recv from[%s]\n", packet.HostName().c_str() );fflush( stdout );
 #endif
 			packet.setTcpSocket( tcp_socket );
-			ret++;
-			//同一セッション内だけパケットの一意性をチェック。重複パケットは無視（後ろから探す）
-			bool isFound = false;
-	
-			for(  int i = (int)PacketsForChecking.size() - 1; i >= 0; i-- ){
-				if ( PacketsForChecking[i].PacketNo()             == packet.PacketNo() &&
-					 PacketsForChecking[i].Addr().sin_addr.s_addr == packet.Addr().sin_addr.s_addr &&
-					 PacketsForChecking[i].Addr().sin_port        == packet.Addr().sin_port ) {
-					isFound = true;
-					break;
-				}
-			}
-			if ( !isFound ) {
+			//同一セッション内だけパケットの一意性をチェック。重複パケットは無視
+			if ( !FindDuplicatePacket( packet ) ) {
 				IpMsgDumpPacket( packet, packet.Addr() );
 				pack_que.push_back( packet );
 				PacketsForChecking.push_back( packet );
+				ret++;
 			}
 		}
 	}
+	//パケットを処理する。
 	while( !pack_que.empty() ) {
 		DoRecvCommand( pack_que.front() );
 		pack_que.erase( pack_que.begin() );
 	}
 
 	//一定以上前のチェック用のパケットベクタを消す。
+	PurgePacket( nowTime );
+
+	//メッセージ送信リトライのチェック
+	CheckSendMsgRetry( nowTime );
+
+	//ホストリスト取得のリトライチェック
+	CheckGetHostListRetry( nowTime );
+
+	return ret;
+}
+
+/**
+ * TCPパケットを受信し、パケットオブジェクトを生成する。
+ * @param fds FD_SET構造体
+ * @param sender_addr IPアドレスのアドレス
+ * @param sz 受信バッファのサイズのアドレス
+ * @param buf 受信バッファのアドレス
+ */
+bool
+IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_in *sender_addr, int *sz, char *buf )
+{
+	socklen_t sender_addr_len = 0;
+	bool recieved = false;
+	int size = *sz;
+
+	//UDPでソケットに変化が有ったら受信
+	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
+		if ( FD_ISSET( udp_sd[i], fds ) ){
+			memset( sender_addr, 0, sizeof( struct sockaddr_in ) );
+			sender_addr_len = sizeof( struct sockaddr_in );
+			size = recvfrom( udp_sd[i], buf, size, 0, (struct sockaddr *)sender_addr, &sender_addr_len );
+			if ( size < 0 ) {
+				perror("recvfrom");
+			}
+			IpMsgPrintBuf( "recvfrom buf", buf, size );
+			recieved = true;
+			break;
+		}
+	}
+	return recieved;
+}
+
+/**
+ * TCPパケットを受信し、パケットオブジェクトを生成する。
+ * @param fds FD_SET構造体
+ * @param sender_addr IPアドレスのアドレス
+ * @param sz 受信バッファのサイズのアドレス
+ * @param buf 受信バッファのアドレス
+ * @param tcp_socket acceptしたTCPソケット
+ */
+bool
+IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_in *sender_addr, int *sz, char *buf, int *tcp_socket )
+{
+	socklen_t sender_addr_len = 0;
+	bool recieved = false;
+	int size = *sz;
+
+	//TCPでソケットに変化が有ったら受信
+	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
+		if ( FD_ISSET( tcp_sd[i], fds ) ){
+			memset( sender_addr, 0, sizeof( struct sockaddr_in ) );
+			sender_addr_len = sizeof( struct sockaddr_in );
+			*tcp_socket = accept( tcp_sd[i], (struct sockaddr *)sender_addr, &sender_addr_len );
+			if ( *tcp_socket < 0 ) {
+				perror("accept");
+			}
+			size = recv( *tcp_socket, buf, size, 0 );
+			if ( size < 0 ) {
+				perror("recv");
+			}
+#if defined(INFO) || !defined(NDEBUG)
+			printf("recv buf[%s]\n", buf );fflush( stdout );
+#endif
+			recieved = true;
+			break;
+		}
+	}
+	return recieved;
+}
+
+/**
+ * 過去のパケットから重複パケットを検索する。
+ * @param packet パケット
+ * @retval true:存在、false:存在しない。
+ */
+bool
+IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
+{
+	for( int i = (int)PacketsForChecking.size() - 1; i >= 0; i-- ){
+		if ( PacketsForChecking[i].PacketNo()             == packet.PacketNo() &&
+			 PacketsForChecking[i].Addr().sin_addr.s_addr == packet.Addr().sin_addr.s_addr &&
+			 PacketsForChecking[i].Addr().sin_port        == packet.Addr().sin_port ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * 過去のパケットから必要ない（古い）パケットを削除する。
+ * @param nowTime システム時刻
+ */
+void
+IpMessengerAgentImpl::PurgePacket( time_t nowTime )
+{
 	for( vector<Packet>::iterator pack = PacketsForChecking.begin(); pack != PacketsForChecking.end(); pack++ ){
 		if ( nowTime > pack->Recieved() + PACKET_CHECK_FOR_SAVING_INTERVAL ) {
 			pack = PacketsForChecking.erase( pack ) - 1;
@@ -1396,8 +1456,15 @@ IpMessengerAgentImpl::RecvPacket()
 			break;
 		}
 	}
+}
 
-	//メッセージ送信リトライのチェック
+/**
+ * メッセージ送信のリトライの必要性をチェックし、必要ならリトライを行う。
+ * @param nowTime システム時刻
+ */
+void
+IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
+{
 	for( vector<SentMessage>::iterator ixmsg = sentMsgList.begin(); ixmsg != sentMsgList.end(); ixmsg++ ) {
 		if ( ixmsg->needSendRetry( nowTime ) ) {
 			//再送信
@@ -1409,6 +1476,7 @@ IpMessengerAgentImpl::RecvPacket()
 					 ixmsg->Files(),
 					 ixmsg->IsPasswordLock(),
 					 ixmsg->HostCountAtSameTime(),
+					 ixmsg->IsNoLogging(),
 					 ixmsg->Opt(),
 					 true,
 					 ixmsg->PacketNo() );
@@ -1428,7 +1496,15 @@ IpMessengerAgentImpl::RecvPacket()
 			//イベントで継続を設定しない場合はリトライマックスオーバーしたらやめる。
 		}
 	}
-	//ホストリストのリトライチェック
+}
+
+/**
+ * ホストリスト取得のリトライの必要性をチェックし、必要ならリトライを行う。
+ * @param nowTime システム時刻
+ */
+void
+IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
+{
 	if ( hostList.IsAsking() ){
 		hostList.setPrevTry( time( NULL ) );
 		if ( hostList.PrevTry() - hostList.AskStartTime() > GETLIST_RETRY_INTERVAL ) {
@@ -1450,7 +1526,6 @@ IpMessengerAgentImpl::RecvPacket()
 			}
 		}
 	}
-	return ret;
 }
 
 /**
@@ -1810,7 +1885,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 					break;
 				}
 			}
-			SendMsg( host, AbsenceDescription.c_str(), false );
+			SendMsg( host, AbsenceDescription.c_str(), false, 1, true );
 		}
 	}
 
@@ -1820,7 +1895,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 			char ipaddrbuf[100];
 			host.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );
 			host.setPortNo( ntohs( packet.Addr().sin_port ) );
-			SendMsg( host, DecryptErrorMessage.c_str(), false, IPMSG_AUTORETOPT );
+			SendMsg( host, DecryptErrorMessage.c_str(), false, 1, true, IPMSG_AUTORETOPT );
 			packet.setOption("");
 			//暗号解除失敗による自動応答時はイベントを起こさない。
 			noRaiseEvent = true;
@@ -1830,6 +1905,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( Packet packet )
 	message.setMessagePacket( packet );
 	message.setMessage( packet.Option().c_str() );
 	message.setRecieved( time( NULL ) );
+	message.setIsNoLogging( IPMSG_NOLOGOPT & packet.CommandOption() );
 	message.setIsSecret( IPMSG_SECRETOPT & packet.CommandOption() );
 	message.setIsCrypted( IPMSG_ENCRYPTOPT & packet.CommandOption() );
 	message.setIsPasswordLock( IPMSG_PASSWORDOPT & packet.CommandOption() );
@@ -2530,6 +2606,14 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 	return true;
 }
 
+/**
+ * ファイルが更新されたか。
+ * @param mtime 更新時刻
+ * @param size ファイルサイズ
+ * @param statInit ファイル属性初期状態
+ * @param statProgress ファイル属性現在状態
+ * @retval true:更新された、false:更新されていない。
+ */
 bool
 IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress )
 {
@@ -2539,6 +2623,7 @@ IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, stru
 		   statInit.st_gid   != statProgress.st_gid   ||
 		   size              != (unsigned long long)statProgress.st_size;
 }
+
 /**
  * メッセージ受信時、パケットメッセージ本文の末尾の'\0'以降からファイル一覧情報を生成する。
  * @param option パケットオプション部
@@ -2686,7 +2771,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
  * @param buf_len バッファの長さ
  */
 int
-IpMessengerAgentImpl::CreateHostList( const char * packetIpAddress, const char *packetHostName, const char *hostListBuf, int buf_len )
+IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int buf_len )
 {
 	int alloc_size = buf_len + 1;
 	int add_count = 0;
@@ -2928,6 +3013,11 @@ IpMessengerAgentImpl::GetMaxOptionBufferSize()
 	return ret < 0 ? 0 : ret;
 }
 
+/**
+ * 共通コマンドオプションを追加する。
+ * @param 追加前のコマンドオプション
+ * @retval 追加後のコマンドオプション
+ */
 unsigned long
 IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 {
@@ -3090,9 +3180,10 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 
 /**
  * パケットからホストリストに加える。
+ * @param packet パケットオブジェクト
  */
 void
-IpMessengerAgentImpl::AddHostListFromPacket( Packet packet )
+IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("===================================\n");fflush( stdout );
