@@ -70,6 +70,7 @@ SentMessageList::erase( vector<SentMessage>::iterator item )
 #ifdef HAVE_PTHREAD
 	pthread_mutex_unlock( &messagesMutex );
 #endif
+	return ret;
 }
 
 /**
@@ -102,6 +103,7 @@ SentMessageList::size()
 #ifdef HAVE_PTHREAD
 	pthread_mutex_unlock( &messagesMutex );
 #endif
+	return ret;
 }
 
 /**
