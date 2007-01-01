@@ -169,7 +169,7 @@ AttachFile::CreateDirFullPath( const vector<string>& dirstack )
 //		if ( *d != "" ) {
 //			retdir += *d + ( d->at(d->size() - 1) == '/' ? "" : "/" );
 #endif
-	for( int i = 0; i < dirstack.size(); i++ ){
+	for( int i = 0; i < (int)dirstack.size(); i++ ){
 		if ( dirstack[i] != "" ) {
 			retdir += dirstack[i] + ( dirstack[i].at(dirstack[i].size() - 1) == '/' ? "" : "/" );
 #ifdef DEBUG
