@@ -179,8 +179,8 @@ HostList::AddHost( const HostListItem& host )
 		return;
 	}
 	for( unsigned int i = 0; i < items.size(); i++ ){
-		HostListItem host = items.at( i );
-		if ( host.Equals( host ) ) {
+		HostListItem tmpHost = items.at( i );
+		if ( tmpHost.Equals( host ) ) {
 			is_found = true;
 			break;
 		}
