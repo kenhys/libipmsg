@@ -138,7 +138,7 @@ IpMessengerAgentImpl::CryptoEnd()
  * 注：このメソッドはスレッドセーフでない。
  */
 bool
-IpMessengerAgentImpl::EncryptMsg( HostListItem host, unsigned char *optBuf, int optBufLen, int *enc_optBufLen, int opt_size )
+IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBuf, int optBufLen, int *enc_optBufLen, int opt_size )
 {
 #ifdef HAVE_OPENSSL
 	unsigned long pubKeyMethod = 0UL;
@@ -418,7 +418,7 @@ IpMessengerAgentImpl::EncryptMsg( HostListItem host, unsigned char *optBuf, int 
  * 注：このメソッドはスレッドセーフでない。
  */
 bool
-IpMessengerAgentImpl::DecryptMsg( Packet &packet )
+IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
 {
 #ifdef HAVE_OPENSSL
 	EVP_CIPHER_CTX ctx;
@@ -746,7 +746,7 @@ IpMessengerAgentImpl::DecryptMsg( Packet &packet )
 		memcpy( &optBuf[tmp_len+1], file_info, file_info_len );
 		tmp_len += ( file_info_len + 1 );
 	}
-	packet.setOption( string( (char *)optBuf, tmp_len ) );
+	msg = string( (char *)optBuf, tmp_len );
 	IpMsgPrintBuf( "optBuf(2):", (char *)optBuf, tmp_len );
 	free( optBuf );
 	free( file_info );
