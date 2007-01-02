@@ -730,19 +730,32 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
 void
 IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 {
-	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( addr );
+	struct addrinfo hints, *res;
+	memset( &hints, 0, sizeof( hints ) );
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_family = AF_INET;
+
+	int err = getaddrinfo( addr.c_str(), NULL, &hints, &res );
+	if ( err != 0 ){
+		fprintf(stderr, "getaddrinfo:%s\n", gai_strerror( err ) );
+		return;
+	}
+	struct sockaddr_in addAddr;
+	addAddr.sin_family = AF_INET;
+	addAddr.sin_port = htons(IPMSG_DEFAULT_PORT);
+	addAddr.sin_addr.s_addr = ((struct sockaddr_in *)(res->ai_addr) )->sin_addr.s_addr;
+	freeaddrinfo( res );
+
+	char ipaddrbuf[100];
+	string broadIp = inet_ntoa_r( addAddr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) );
+	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( broadIp );
 	if ( net != broadcastAddr.end() ) {
 		return;
 	}
-	struct sockaddr_in add_addr;
-	add_addr.sin_family = AF_INET;
-	add_addr.sin_port = htons(IPMSG_DEFAULT_PORT);
-	add_addr.sin_addr.s_addr = inet_addr( addr.c_str() );
-#if defined(DEBUG)
-	char ipaddrbuf[100];
-	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa_r( add_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( add_addr.sin_port ) );fflush( stdout );
-#endif
-	broadcastAddr.push_back( add_addr );
+//#if defined(DEBUG)
+	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa_r( addAddr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( addAddr.sin_port ) );fflush( stdout );
+//#endif
+	broadcastAddr.push_back( addAddr );
 }
 
 /**
