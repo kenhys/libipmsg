@@ -752,9 +752,9 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 	if ( net != broadcastAddr.end() ) {
 		return;
 	}
-//#if defined(DEBUG)
+#if defined(DEBUG)
 	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa_r( addAddr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( addAddr.sin_port ) );fflush( stdout );
-//#endif
+#endif
 	broadcastAddr.push_back( addAddr );
 }
 
