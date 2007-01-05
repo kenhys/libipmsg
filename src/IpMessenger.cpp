@@ -282,7 +282,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool is
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
@@ -298,7 +298,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }

@@ -69,7 +69,7 @@ using namespace std;
  **/
 #define IPMSG_PROPERTY_REF(t, name ) private: t _##name; \
 									public: t& name() { return _##name; };\
-									void set##name( t& val ){ _##name = val; };
+									void set##name( const t& val ){ _##name = val; };
 class Packet{
 	public:
 		IPMSG_PROPERTY( unsigned long, VersionNo );
@@ -113,12 +113,12 @@ class HostListItem{
 		IPMSG_PROPERTY( unsigned long, EncryptionCapacity );
 		IPMSG_PROPERTY( string, PubKeyHex );
 		IPMSG_PROPERTY( string, EncryptMethodHex );
-		bool IsLocalHost();
-		bool IsFileAttachSupport();
-		bool IsEncryptSupport();
-		bool IsAbsence();
-		bool Equals( const HostListItem& item );
-		int Compare( const HostListItem& item );
+		bool IsLocalHost() const;
+		bool IsFileAttachSupport() const;
+		bool IsEncryptSupport() const;
+		bool IsAbsence() const;
+		bool Equals( const HostListItem& item ) const;
+		int Compare( const HostListItem& item ) const;
 		void QueryVersionInfo();
 		void QueryAbsenceInfo();
 };
@@ -149,7 +149,7 @@ class HostList{
 		static HostListItem CreateHostListItemFromPacket( const Packet& packet );
 		vector<HostListItem>::iterator begin();
 		vector<HostListItem>::iterator end();
-		int size();
+		int size() const;
 		void clear();
 		string ToString( int start );
 		void sort( HostListComparator *comparator );
@@ -157,6 +157,8 @@ class HostList{
 		~HostList();
 	private:
 		void qsort( HostListComparator *comparator, int left, int right );
+		void Lock( const char *pos ) const;
+		void Unlock( const char *pos ) const;
 		vector<HostListItem>items;
 		pthread_mutex_t hostListMutex;
 };
@@ -175,8 +177,8 @@ class NullFileNameConverter:public FileNameConverter {
 
 class AttachFile{
 	public:
-		map<string, vector<unsigned long> >::iterator beginExtAttrs(){ return _ExtAttrs.begin(); };
-		map<string, vector<unsigned long> >::iterator endExtAttrs(){ return _ExtAttrs.end(); };
+		map<string, vector<unsigned long> >::iterator beginExtAttrs() { return _ExtAttrs.begin(); };
+		map<string, vector<unsigned long> >::iterator endExtAttrs() { return _ExtAttrs.end(); };
 		void addExtAttrs( string key, unsigned long val ){ _ExtAttrs[key].push_back( val ); };
 		IPMSG_PROPERTY( int, FileId );
 		IPMSG_PROPERTY( string, FullPath );
@@ -190,8 +192,8 @@ class AttachFile{
 		IPMSG_PROPERTY( unsigned long, Attr );
 
 		AttachFile();
-		bool IsRegularFile();
-		bool IsDirectory();
+		bool IsRegularFile() const;
+		bool IsDirectory() const;
 		void GetLocalFileInfo();
 	private:
 		map<string, vector<unsigned long> > _ExtAttrs;
@@ -218,20 +220,21 @@ class DownloadInfo{
 
 class AttachFileList{
 	public:
-		inline void AddFile( AttachFile& file ){
-			files.push_back( file );
-		};
-		vector<AttachFile>::iterator begin() { return files.begin(); };
-		vector<AttachFile>::iterator end() { return files.end(); };
-		int size() { return files.size(); };
-		void clear() { return files.clear(); };
-		vector<AttachFile>::iterator erase( vector<AttachFile>::iterator item ) { return files.erase( item ); };
-		vector<AttachFile>::iterator erase( AttachFile &item ) { return erase( FindByFileId( item.FileId() ) ); };
-		vector<AttachFile>::iterator FindByFullPath( string fullPath );
+		void AddFile( const AttachFile& file );
+		vector<AttachFile>::iterator begin();
+		vector<AttachFile>::iterator end();
+		int size() const;
+		void clear();
+		vector<AttachFile>::iterator erase( vector<AttachFile>::iterator item );
+		vector<AttachFile>::iterator erase( const AttachFile& item );
+		vector<AttachFile>::iterator FindByFullPath( const string& fullPath );
 		vector<AttachFile>::iterator FindByFileId( int file_id );
 		AttachFileList();
+		AttachFileList( const AttachFileList& other );
 		~AttachFileList();
 	private:
+		void Lock( const char *pos ) const;
+		void Unlock( const char *pos ) const;
 		vector<AttachFile> files;
 		pthread_mutex_t filesMutex;
 };
@@ -253,6 +256,8 @@ class RecievedMessage{
 		IPMSG_PROPERTY( bool, IsMulticast );
 		IPMSG_PROPERTY( bool, HasAttachFile );
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
+		RecievedMessage();
+		RecievedMessage( const RecievedMessage& other );
 		bool DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 	private:
@@ -268,11 +273,13 @@ class RecievedMessageList {
 		vector<RecievedMessage>::iterator end();
 		vector<RecievedMessage>::iterator erase( vector<RecievedMessage>::iterator item );
 		void append( const RecievedMessage &item );
-		int size();
+		int size() const;
 		void clear();
 		RecievedMessageList();
 		~RecievedMessageList();
 	private:
+		void Lock( const char *pos ) const;
+		void Unlock( const char *pos ) const;
 		vector<RecievedMessage> messages;
 		pthread_mutex_t messagesMutex;
 };
@@ -297,8 +304,10 @@ class SentMessage{
 		IPMSG_PROPERTY( int, HostCountAtSameTime );
 		IPMSG_PROPERTY( unsigned long, Opt );
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
-		bool isRetryMaxOver();
-		bool needSendRetry( time_t tryNow );
+		SentMessage();
+		SentMessage( const SentMessage& other );
+		bool isRetryMaxOver() const;
+		bool needSendRetry( time_t tryNow ) const;
 		vector<AttachFile>::iterator FindAttachFileByPacket( const Packet &packet );
 };
 
@@ -310,13 +319,15 @@ class SentMessageList {
 		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
 		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
 		void append( const SentMessage &item );
-		int size();
+		int size() const;
 		void clear();
 		vector<SentMessage> *GetMessageList();
 		SentMessageList();
 		~SentMessageList();
 
 	private:
+		void Lock( const char *pos ) const;
+		void Unlock( const char *pos ) const;
 		vector<SentMessage> messages;
 		pthread_mutex_t messagesMutex;
 };
@@ -433,12 +444,12 @@ class IpMessengerAgent {
 		/**
 		 * メッセージ送信（一つ添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（複数添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * 不在解除
