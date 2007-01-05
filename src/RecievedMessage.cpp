@@ -14,6 +14,31 @@ using namespace std;
 
 /**
  * コンストラクタ。
+ */
+RecievedMessage::RecievedMessage(){}
+
+/**
+ * コピーコンストラクタ。
+ */
+RecievedMessage::RecievedMessage( const RecievedMessage& other )
+{
+	_MessagePacket = other. _MessagePacket;
+	_Message = other. _Message;
+	_Recieved = other. _Recieved;
+	_IsConfirmed = other. _IsConfirmed;
+	_IsSecret = other. _IsSecret;
+	_IsNoLogging = other. _IsNoLogging;
+	_IsCrypted = other. _IsCrypted;
+	_Host = other. _Host;
+	_IsPasswordLock = other. _IsPasswordLock;
+	_IsBroadcast = other. _IsBroadcast;
+	_IsMulticast = other. _IsMulticast;
+	_HasAttachFile = other. _HasAttachFile;
+	_Files = other._Files;
+}
+
+/**
+ * コンストラクタ。
  * ・受信済メッセージリストをロックするためのミューテックスを生成。
  */
 RecievedMessageList::RecievedMessageList()
@@ -28,6 +53,26 @@ RecievedMessageList::RecievedMessageList()
 RecievedMessageList::~RecievedMessageList()
 {
 	IpMsgMutexDestroy( "RecievedMessageList::~RecievedMessageList()", &messagesMutex );
+}
+
+/**
+ * 受信メッセージリストをロック
+ * @param pos ロックしている位置を示す文字列。
+ */
+void
+RecievedMessageList::Lock( const char *pos ) const
+{
+	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &messagesMutex ) );
+}
+
+/**
+ * 受信メッセージリストをアンロック
+ * @param pos アンロックしている位置を示す文字列。
+ */
+void
+RecievedMessageList::Unlock( const char *pos ) const
+{
+	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &messagesMutex ) );
 }
 
 /**
@@ -58,9 +103,9 @@ RecievedMessageList::end()
 vector<RecievedMessage>::iterator
 RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
 {
-	IpMsgMutexLock( "RecievedMessageList::erase()", &messagesMutex );
+	Lock( "RecievedMessageList::erase()" );
 	vector<RecievedMessage>::iterator ret = messages.erase( item );
-	IpMsgMutexUnlock( "RecievedMessageList::erase()", &messagesMutex );
+	Unlock( "RecievedMessageList::erase()" );
 	return ret;
 }
 
@@ -71,9 +116,9 @@ RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
 void
 RecievedMessageList::append( const RecievedMessage &item )
 {
-	IpMsgMutexLock( "RecievedMessageList::append()", &messagesMutex );
+	Lock( "RecievedMessageList::append()" );
 	messages.push_back( item );
-	IpMsgMutexUnlock( "RecievedMessageList::append()", &messagesMutex );
+	Unlock( "RecievedMessageList::append()" );
 }
 
 /**
@@ -81,11 +126,11 @@ RecievedMessageList::append( const RecievedMessage &item )
  * @retval 受信済メッセージリストの個数。
  */
 int
-RecievedMessageList::size()
+RecievedMessageList::size() const
 {
-	IpMsgMutexLock( "RecievedMessageList::size()", &messagesMutex );
+	Lock( "RecievedMessageList::size()" );
 	int ret = messages.size();
-	IpMsgMutexUnlock( "RecievedMessageList::size()", &messagesMutex );
+	Unlock( "RecievedMessageList::size()" );
 	return ret;
 }
 
@@ -95,9 +140,9 @@ RecievedMessageList::size()
 void
 RecievedMessageList::clear()
 {
-	IpMsgMutexLock( "RecievedMessageList::clear()", &messagesMutex );
+	Lock( "RecievedMessageList::clear()" );
 	messages.clear();
-	IpMsgMutexUnlock( "RecievedMessageList::clear()", &messagesMutex );
+	Unlock( "RecievedMessageList::clear()" );
 }
 
 /**
@@ -293,6 +338,11 @@ RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBase
 	return ret;
 }
 
+/**
+ * 正規化されたディレクトリ名を取得する。
+ * @param dirName 正規化前のディレクトリ名
+ * @retval 正規化後のディレクトリ名
+ */
 string
 RecievedMessage::GetFormalDir( string dirName )
 {
@@ -302,6 +352,14 @@ RecievedMessage::GetFormalDir( string dirName )
 	return dirName;
 }
 
+/**
+ * 保存するファイル名（またはディレクトリ名）を取得する。
+ * ・保存先のディレクトリ、ファイル（またはディレクトリ）名
+ * 　（これはプロトコル上、ファイル名のみで飛んでくる為）を組み合わせてフルパスを得る。
+ * @param saveName 保存ファイル（またはディレクトリ名）名
+ * @param saveBaseDir 保存先ディレクトリ名
+ * @retval 保存するファイル（またはディレクトリ名）
+ */
 string
 RecievedMessage::GetSaveDir( string saveName, string saveBaseDir )
 {
