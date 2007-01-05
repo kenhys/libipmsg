@@ -17,6 +17,36 @@ using namespace std;
 
 /**
  * コンストラクタ。
+ */
+SentMessage::SentMessage(){}
+
+/**
+ * コピーコンストラクタ。
+ */
+SentMessage::SentMessage( const SentMessage& other )
+{
+	_To = other. _To;
+	_Host = other. _Host;
+	_PacketNo = other. _PacketNo;
+	_Message = other. _Message;
+	_Sent = other. _Sent;
+	_PrevTry = other. _PrevTry;
+	_IsRetryMaxOver = other. _IsRetryMaxOver;
+	_IsSent = other. _IsSent;
+	_IsPasswordLock = other. _IsPasswordLock;
+	_IsCrypted = other. _IsCrypted;
+	_RetryCount = other. _RetryCount;
+	_IsConfirmed = other. _IsConfirmed;
+	_IsConfirmAnswered = other. _IsConfirmAnswered;
+	_IsSecret = other. _IsSecret;
+	_IsNoLogging = other. _IsNoLogging;
+	_HostCountAtSameTime = other. _HostCountAtSameTime;
+	_Opt = other. _Opt;
+	_Files = other._Files;
+}
+
+/**
+ * コンストラクタ。
  * ・送信済メッセージリストをロックするためのミューテックスを生成。
  */
 SentMessageList::SentMessageList()
@@ -31,6 +61,26 @@ SentMessageList::SentMessageList()
 SentMessageList::~SentMessageList()
 {
 	IpMsgMutexDestroy( "SentMessageList::~SentMessageList()", &messagesMutex );
+}
+
+/**
+ * 送信メッセージリストをロック
+ * @param pos ロックしている位置を示す文字列。
+ */
+void
+SentMessageList::Lock( const char *pos ) const
+{
+	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &messagesMutex ) );
+}
+
+/**
+ * 送信メッセージリストをアンロック
+ * @param pos アンロックしている位置を示す文字列。
+ */
+void
+SentMessageList::Unlock( const char *pos ) const
+{
+	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &messagesMutex ) );
 }
 
 /**
@@ -60,9 +110,9 @@ SentMessageList::end(){
 vector<SentMessage>::iterator
 SentMessageList::erase( vector<SentMessage>::iterator item )
 {
-	IpMsgMutexLock( "SentMessageList::erase()", &messagesMutex );
+	Lock( "SentMessageList::erase()" );
 	vector<SentMessage>::iterator ret = messages.erase( item );
-	IpMsgMutexUnlock( "SentMessageList::erase()", &messagesMutex );
+	Unlock( "SentMessageList::erase()" );
 	return ret;
 }
 
@@ -73,9 +123,9 @@ SentMessageList::erase( vector<SentMessage>::iterator item )
 void
 SentMessageList::append( const SentMessage &item )
 {
-	IpMsgMutexLock( "SentMessageList::append()", &messagesMutex );
+	Lock( "SentMessageList::append()" );
 	messages.push_back( item );
-	IpMsgMutexUnlock( "SentMessageList::append()", &messagesMutex );
+	Unlock( "SentMessageList::append()" );
 }
 
 /**
@@ -83,11 +133,11 @@ SentMessageList::append( const SentMessage &item )
  * @retval 送信済メッセージリストの個数。
  */
 int
-SentMessageList::size()
+SentMessageList::size() const
 {
-	IpMsgMutexLock( "SentMessageList::size()", &messagesMutex );
+	Lock( "SentMessageList::size()" );
 	int ret = messages.size();
-	IpMsgMutexUnlock( "SentMessageList::size()", &messagesMutex );
+	Unlock( "SentMessageList::size()" );
 	return ret;
 }
 
@@ -97,9 +147,9 @@ SentMessageList::size()
 void
 SentMessageList::clear()
 {
-	IpMsgMutexLock( "SentMessageList::clear()", &messagesMutex );
+	Lock( "SentMessageList::clear()" );
 	messages.clear();
-	IpMsgMutexUnlock( "SentMessageList::clear()", &messagesMutex );
+	Unlock( "SentMessageList::clear()" );
 }
 
 /**
@@ -138,7 +188,7 @@ SentMessage::FindAttachFileByPacket( const Packet& packet )
  * @retval true:リトライマックスオーバー、false:オーバーしていない。
  */
 bool
-SentMessage::isRetryMaxOver()
+SentMessage::isRetryMaxOver() const
 {
 	if ( RetryCount() > SENDMSG_RETRY_MAX ) {
 		return true;
@@ -152,7 +202,7 @@ SentMessage::isRetryMaxOver()
  * @retval true:リトライが必要、false:リトライ不要。
  */
 bool
-SentMessage::needSendRetry( time_t tryNow )
+SentMessage::needSendRetry( time_t tryNow ) const
 {
 	if ( !IsSent() && PrevTry() != tryNow && !IsRetryMaxOver() ) {
 		return true;
@@ -169,12 +219,16 @@ SentMessage::needSendRetry( time_t tryNow )
 vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 {
+	Lock( "SentMessageList::FindSentMessageByPacketNo()" );
+	vector<SentMessage>::iterator ret = end();
 	for( vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
 		if ( PacketNo == ixmsg->PacketNo() ) {
-			return ixmsg;
+			ret = ixmsg;
+			break;
 		}
 	}
-	return end();
+	Unlock( "SentMessageList::FindSentMessageByPacketNo()" );
+	return ret;
 }
 
 /**
@@ -191,12 +245,15 @@ SentMessageList::FindSentMessageByPacket( Packet packet )
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 16 );
 	startptr = ++dmyptr;
 
-	vector<AttachFile>::iterator FoundFile;
+	Lock( "SentMessageList::FindSentMessageByPacket()" );
+	vector<SentMessage>::iterator ret = end();
 	for( vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
 		if ( packetNo == ixmsg->PacketNo() ) {
-			return ixmsg; 
+			ret = ixmsg;
+			break;
 		}
 	}
-	return end(); 
+	Unlock( "SentMessageList::FindSentMessageByPacket()" );
+	return ret; 
 }
 
