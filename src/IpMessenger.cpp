@@ -17,7 +17,7 @@ static IpMessengerAgent *myInstance = NULL;
 
 #ifdef HAVE_PTHREAD
 static pthread_mutex_t instanceMutex;
-static int mutex_init_result = pthread_mutex_init( &instanceMutex, NULL );
+static int mutex_init_result = IpMsgMutexInit( "IpMessenger::Global", &instanceMutex, NULL );
 #endif
 
 IpMessengerEvent::~IpMessengerEvent(){};
@@ -30,13 +30,13 @@ IpMessengerAgent *
 IpMessengerAgent::GetInstance()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &instanceMutex );
+	IpMsgMutexLock( "IpMessengerAgent::GetInstance()", &instanceMutex );
 #endif
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgent();
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &instanceMutex );
+	IpMsgMutexUnlock( "IpMessengerAgent::GetInstance()", &instanceMutex );
 #endif
 	return myInstance;
 }
@@ -51,28 +51,23 @@ void
 IpMessengerAgent::Release()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &instanceMutex );
+	IpMsgMutexLock( "IpMessengerAgent::Release()", &instanceMutex );
 #endif
 	if ( myInstance == NULL ) {
 #ifdef HAVE_PTHREAD
-		pthread_mutex_unlock( &instanceMutex );
+		IpMsgMutexUnlock( "IpMessengerAgent::Release()", &instanceMutex );
 #endif
 		return;
 	}
 	delete myInstance;
 	myInstance = NULL;
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &instanceMutex );
+	IpMsgMutexUnlock( "IpMessengerAgent::Release()", &instanceMutex );
 #endif
 }
 
 /**
  * IP メッセンジャエージェントクラスのコンストラクタ。
- * ・暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の生成を行う。
- * ・パケットNoに使用する乱数シードを時刻で初期化する。
- * ・ファイル名コンバータを初期セットアップする。（変換を行わないNullConverterがデフォルト）
- * ・ネットワークの初期化。
- * 注：このインスタンスはスレッドセーフでない。
  */
 IpMessengerAgent::IpMessengerAgent()
 {
@@ -81,11 +76,6 @@ IpMessengerAgent::IpMessengerAgent()
 
 /**
  * IP メッセンジャエージェントクラスのデストラクタ。
- * ・まず、ログアウト。
- * ・暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の破棄を行う。
- * ・割り当て済のファイル名コンバータを削除する。
- * ・ソケットのクローズ。
- * 注：このインスタンスはスレッドセーフでない。
  */
 IpMessengerAgent::~IpMessengerAgent()
 {
@@ -93,12 +83,47 @@ IpMessengerAgent::~IpMessengerAgent()
 }
 
 /**
+ * NICを指定せずにIP メッセンジャエージェントクラスのネットワークを起動する。
+ * ・全てのNICに対してデフォルトポートでネットワークを起動する。
+ */
+void
+IpMessengerAgent::StartNetwork()
+{
+	ipmsgImpl->StartNetwork();
+}
+
+/**
+ * IP メッセンジャエージェントクラスのネットワークを起動する。
+ * @parem nics 起動時に対象とするNICのベクタ。
+ */
+void
+IpMessengerAgent::StartNetwork( const vector<NetworkInterface>& nics )
+{
+	ipmsgImpl->StartNetwork( nics );
+}
+
+/**
+ * IP メッセンジャエージェントクラスのネットワークを停止する。
+ */
+void
+IpMessengerAgent::StopNetwork()
+{
+	ipmsgImpl->StopNetwork();
+}
+
+/**
+ * NICを指定せずにIP メッセンジャエージェントクラスのネットワークを再起動する。
+ * ・全てのNICに対してデフォルトポートでネットワークを起動する。
+ */
+void
+IpMessengerAgent::RestartNetwork()
+{
+	ipmsgImpl->RestartNetwork();
+}
+
+/**
  * IP メッセンジャエージェントクラスのネットワークを再起動する。
- * ・まず、ログアウト。
- * ・ネットワーク終期化。
- * ・ネットワーク初期化。
- * ・再度ログイン。
- * 注：このインスタンスはスレッドセーフでない。
+ * @parem nics 起動時に対象とするNICのベクタ。
  */
 void
 IpMessengerAgent::RestartNetwork( const vector<NetworkInterface>& nics )
@@ -108,7 +133,6 @@ IpMessengerAgent::RestartNetwork( const vector<NetworkInterface>& nics )
 
 /**
  * ファイル名コンバータのゲッター。
- * 注：このメソッドはスレッドセーフでない。
  * @retval コンバータのアドレス。
  */
 FileNameConverter *
@@ -119,9 +143,6 @@ IpMessengerAgent::GetFileNameConverter()
 
 /**
  * ファイル名コンバータのセッター。
- * ・割り当て済のファイル名コンバータを削除する。
- * ・新しいコンバータの割り当て。
- * 注：このメソッドはスレッドセーフでない。
  * @param conv コンバータのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
@@ -132,7 +153,6 @@ IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
 
 /**
  * イベントオブジェクトのゲッター。
- * 注：このメソッドはスレッドセーフでない。
  * @retval イベントオブジェクトのアドレス。
  */
 HostListComparator *
@@ -143,9 +163,6 @@ IpMessengerAgent::GetSortHostListComparator()
 
 /**
  * ホストリスト比較オブジェクトのセッター。
- * ・割り当て済のホストリスト比較オブジェクトを削除する。
- * ・新しいホストリスト比較オブジェクトの割り当て。
- * 注：このメソッドはスレッドセーフでない。
  * @param comparator ホストリスト比較オブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
@@ -156,7 +173,6 @@ IpMessengerAgent::SetSortHostListComparator( HostListComparator *comparator )
 
 /**
  * イベントオブジェクトのゲッター。
- * 注：このメソッドはスレッドセーフでない。
  * @retval イベントオブジェクトのアドレス。
  */
 IpMessengerEvent *
@@ -167,9 +183,6 @@ IpMessengerAgent::GetEventObject()
 
 /**
  * イベントオブジェクトのセッター。
- * ・割り当て済のイベントオブジェクトを削除する。
- * ・新しいイベントオブジェクトの割り当て。
- * 注：このメソッドはスレッドセーフでない。
  * @param conv イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
@@ -180,9 +193,7 @@ IpMessengerAgent::SetEventObject( IpMessengerEvent *evt )
 
 /**
  * NICの情報を取得する。
- * ・使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）
  * @param nics ネットワークインターフェースの一覧
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
@@ -192,10 +203,6 @@ IpMessengerAgent::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
 
 /**
  * ログイン（サービス参加通知）。
- * ・NOOPERATIONパケットを送信しネットワークが使用可能かどうかを確認した上でホストリストを取得。
- * ・BR_ENTRYをブロードキャスト。
- * ・パケットを受信した上で、ホストリストを再度取得。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::Login( string nickname, string groupName )
@@ -205,8 +212,6 @@ IpMessengerAgent::Login( string nickname, string groupName )
 
 /**
  * ログアウト（サービス脱退通知）。
- * ・BR_EXITをブロードキャスト。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::Logout()
@@ -217,7 +222,6 @@ IpMessengerAgent::Logout()
 /**
  * ホストリスト取得。
  * @retval エージェントが保持しているHostListオブジェクト
- * @retval ホストリスト
  */
 HostList&
 IpMessengerAgent::GetHostList()
@@ -227,11 +231,6 @@ IpMessengerAgent::GetHostList()
 
 /**
  * ホストリスト更新取得。
- * ・BR_ISGETLIST2をブロードキャスト。
- * ・他のメソッド（ANSLIST受信）にて取得するまで待機。（五回まで）
- * 注：ホストリストの構築はANSLIST受信時に行われるので、このメソッドではひたすら待機。
- * 注：ホストリストはANSLIST受信時に追加／更新されることがあるので常に同じホストリストを返すとは限らない。
- * 注：このメソッドはスレッドセーフでない。
  * @retval 取得したHostListオブジェクト
  */
 HostList&
@@ -243,7 +242,6 @@ IpMessengerAgent::UpdateHostList()
 /**
  * 不在モードかどうかを判定。
  * @retval 設定済の不在モードを返す。
- * 注：このメソッドはスレッドセーフでない。
  */
 bool
 IpMessengerAgent::IsAbsence()
@@ -252,7 +250,6 @@ IpMessengerAgent::IsAbsence()
 }
 /**
  * 不在モードをクリアする。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::ResetAbsence()
@@ -264,7 +261,6 @@ IpMessengerAgent::ResetAbsence()
  * 不在モードを設定する。
  * @param encoding ローカルエンコーディング
  * @param absenceModes AbsenceModeオブジェクトのベクタ（自動応答時に複数エンコーディング対応するため）
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes )
@@ -280,7 +276,6 @@ IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes 
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
  * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
 IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
@@ -297,7 +292,6 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool is
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
  * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
 IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
@@ -314,7 +308,6 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
  * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
 IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
@@ -325,7 +318,6 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
 /**
  * 登録済のブロードキャストアドレスを削除
  * @param addr 登録済のブロードキャストアドレス
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::ClearBroadcastAddress()
@@ -336,7 +328,6 @@ IpMessengerAgent::ClearBroadcastAddress()
 /**
  * 登録済のブロードキャストアドレスを削除
  * @param addr 登録済のブロードキャストアドレス
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::DeleteBroadcastAddress( string addr )
@@ -347,7 +338,6 @@ IpMessengerAgent::DeleteBroadcastAddress( string addr )
 /**
  * ブロードキャストアドレスを登録
  * @param addr 登録するブロードキャストアドレス
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::AddBroadcastAddress( string addr )
@@ -357,29 +347,19 @@ IpMessengerAgent::AddBroadcastAddress( string addr )
 
 /**
  * 対象ホストのバージョン情報を取得。
- * ・GETINFOパケットを送信。
- * ・他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）
- * ・IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を取得
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
- * 注：このメソッドはスレッドセーフでない。
  */
 string
 IpMessengerAgent::GetInfo( HostListItem& host )
 {
 	return ipmsgImpl->GetInfo( host );
-#if 0
-#endif
 }
 
 /**
  * 対象ホストの不在説明文字列情報を取得。
- * ・GETABSENCEINFOパケットを送信。
- * ・他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）
- * ・IPアドレスでマッチングしてANSABSENCEINFOで更新されたバージョン情報を取得
  * @param host 対象のホスト
  * @retval 対象ホストの不在説明文字列情報
- * 注：このメソッドはスレッドセーフでない。
  */
 string
 IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
@@ -390,7 +370,6 @@ IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
 /**
  * 保持中のホストリストからグループリストを取得する。
  * @retval グループリスト
- * 注：このメソッドはスレッドセーフでない。
  */
 vector<GroupItem>
 IpMessengerAgent::GetGroupList()
@@ -401,7 +380,6 @@ IpMessengerAgent::GetGroupList()
 /**
  * 送信元にメッセージを削除したことを通知する。
  * @param msg 受信メッセージオブジェクト。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::DeleteNotify( RecievedMessage msg )
@@ -412,7 +390,6 @@ IpMessengerAgent::DeleteNotify( RecievedMessage msg )
 /**
  * 送信元にメッセージを開封したことを通知する。
  * @param msg 受信メッセージオブジェクト。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
@@ -423,7 +400,6 @@ IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
 /**
  * 送信済メッセージリストに開封されたことをマークする。
  * @param msg 送信メッセージオブジェクト。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )

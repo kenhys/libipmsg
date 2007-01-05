@@ -541,9 +541,29 @@ class IpMessengerAgent {
 		bool IsAbsence();
 
 		/**
-		 * ネットワークの再起動
+		 * ネットワークの起動（NIC指定）
+		 **/
+		void StartNetwork( const vector<NetworkInterface>& nics );
+
+		/**
+		 * ネットワークの起動(デフォルト)
+		 **/
+		void StartNetwork();
+
+		/**
+		 * ネットワークの終了
+		 **/
+		void StopNetwork();
+
+		/**
+		 * ネットワークの再起動（NIC指定）
 		 **/
 		void RestartNetwork( const vector<NetworkInterface>& nics );
+
+		/**
+		 * ネットワークの再起動(デフォルト)
+		 **/
+		void RestartNetwork();
 
 		/**
 		 * ログイン名
