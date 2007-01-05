@@ -24,6 +24,18 @@ AttachFileList::AttachFileList()
 }
 
 /**
+ * コピーコンストラクタ。
+ * ・ファイルリストをロックするためのミューテックスを生成。
+ */
+AttachFileList::AttachFileList( const AttachFileList& other )
+{
+	IpMsgMutexInit( "AttachFileList::AttachFileList(AttachFileList&)", &filesMutex, NULL );
+	other.Lock( "AttachFileList::AttachFileList(AttachFileList&)" );
+	files = other.files;
+	other.Unlock( "AttachFileList::AttachFileList(AttachFileList&)" );
+}
+
+/**
  * デストラクタ。
  * ・ファイルリストをロックするためのミューテックスを破棄。
  */
@@ -33,14 +45,114 @@ AttachFileList::~AttachFileList()
 }
 
 /**
+ * ファイルリストをロック
+ * @param pos ロックしている位置を示す文字列。
+ */
+void
+AttachFileList::Lock( const char *pos ) const
+{
+	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &filesMutex ) );
+}
+
+/**
+ * ファイルリストをアンロック
+ * @param pos アンロックしている位置を示す文字列。
+ */
+void
+AttachFileList::Unlock( const char *pos ) const
+{
+	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &filesMutex ) );
+}
+
+/**
+ * ファイルを一覧に追加します。
+ * @param file 追加する添付ファイルオブジェクト
+ */
+void
+AttachFileList::AddFile( const AttachFile& file )
+{
+	Lock( "AttachFileList::AddFile()" );
+	files.push_back( file );
+	Unlock( "AttachFileList::AddFile()" );
+}
+
+/**
+ * ファイル一覧の先頭を指すイテレータを返します。
+ */
+vector<AttachFile>::iterator
+AttachFileList::begin()
+{
+	return files.begin();
+}
+
+/**
+ * ファイル一覧の終端の一つ後方を指すイテレータを返します。
+ */
+vector<AttachFile>::iterator
+AttachFileList::end()
+{
+	return files.end();
+}
+
+/**
+ * ファイルを一覧に存在する添付ファイルの個数を返します。
+ * @retval 添付ファイルオブジェクトの個数。
+ */
+int
+AttachFileList::size() const
+{
+	Lock( "AttachFileList::size()" );
+	int ret = files.size();
+	Unlock( "AttachFileList::size()" );
+	return ret;
+}
+
+/**
+ * ファイルを一覧をクリアします。
+ */
+void
+AttachFileList::clear()
+{
+	Lock( "AttachFileList::clear()" );
+	files.clear();
+	Unlock( "AttachFileList::clear()" );
+}
+
+/**
+ * ファイルを一覧から添付ファイルを削除します。
+ * @param item 削除する添付ファイルオブジェクト
+ */
+vector<AttachFile>::iterator
+AttachFileList::erase( vector<AttachFile>::iterator item )
+{
+	Lock( "AttachFileList::erase(vector<AttachFile>::iterator)" );
+	vector<AttachFile>::iterator ret = files.erase( item );
+	Unlock( "AttachFileList::erase(vector<AttachFile>::iterator)" );
+	return ret;
+}
+
+/**
+ * ファイルを一覧から添付ファイルを削除します。
+ * @param item 削除する添付ファイルオブジェクト
+ */
+vector<AttachFile>::iterator
+AttachFileList::erase( const AttachFile& item )
+{
+	Lock( "AttachFileList::erase(AttachFile&)" );
+	vector<AttachFile>::iterator ret = erase( FindByFileId( item.FileId() ) );
+	Unlock( "AttachFileList::erase(AttachFile&)" );
+	return ret;
+}
+
+/**
  * 添付ファイル一覧からフルパスで検索
  * @param fullParh 検索対象のフルパス
  * @retval 見付かったAttachFileのイテレータ。見付からない場合end();
  */
 vector<AttachFile>::iterator
-AttachFileList::FindByFullPath( string fullPath )
+AttachFileList::FindByFullPath( const string& fullPath )
 {
-	IpMsgMutexLock( "AttachFileList::FindByFullPath()", &filesMutex );
+	Lock( "AttachFileList::FindByFullPath()" );
 	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
 		if ( i->FullPath() == fullPath ) {
@@ -48,7 +160,7 @@ AttachFileList::FindByFullPath( string fullPath )
 			break;
 		}
 	}
-	IpMsgMutexUnlock( "AttachFileList::FindByFullPath()", &filesMutex );
+	Unlock( "AttachFileList::FindByFullPath()" );
 	return ret;
 }
 
@@ -60,7 +172,7 @@ AttachFileList::FindByFullPath( string fullPath )
 vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
 {
-	IpMsgMutexLock( "AttachFileList::FindByFileId()", &filesMutex );
+	Lock( "AttachFileList::FindByFileId()" );
 	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
@@ -73,7 +185,7 @@ AttachFileList::FindByFileId( int file_id )
 			break;
 		}
 	}
-	IpMsgMutexUnlock( "AttachFileList::FindByFileId()", &filesMutex );
+	Unlock( "AttachFileList::FindByFileId()" );
 	return ret;
 }
 
@@ -129,7 +241,7 @@ AttachFile::GetLocalFileInfo()
  * @retval 一般ファイル:true／一般ファイルでない:false
  */
 bool
-AttachFile::IsRegularFile()
+AttachFile::IsRegularFile() const
 {
 	return GET_FILETYPE( Attr() ) == IPMSG_FILE_REGULAR;
 }
@@ -139,7 +251,7 @@ AttachFile::IsRegularFile()
  * @retval ディレクトリ:true／ディレクトリでない:false
  */
 bool
-AttachFile::IsDirectory()
+AttachFile::IsDirectory() const
 {
 	return GET_FILETYPE( Attr() ) == IPMSG_FILE_DIR;
 }
