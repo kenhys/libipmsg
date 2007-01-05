@@ -88,7 +88,11 @@ class IpMessengerAgentImpl {
 		void SetFileNameConverter( FileNameConverter *conv );
 		FileNameConverter *GetFileNameConverter();
 		bool IsAbsence();
+		void StartNetwork( const vector<NetworkInterface>& nics );
+		void StartNetwork();
+		void StopNetwork();
 		void RestartNetwork( const vector<NetworkInterface>& nics );
+		void RestartNetwork();
 		void QueryVersionInfo( HostListItem& host );
 		void QueryAbsenceInfo( HostListItem& host );
 
@@ -105,6 +109,7 @@ class IpMessengerAgentImpl {
 		SentMessageList sentMsgList;
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
+		bool networkStarted;
 		FileNameConverter *converter;
 		vector<AbsenceMode> absenceModeList;
 		string DecryptErrorMessage;
@@ -237,5 +242,9 @@ void IpMsgDumpHostList( const char *s, HostList& hostList );
 #define GetCommandString( cmd )
 #define IpMsgDumpHostList( s, hostList );
 #endif
+int IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr );
+int IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex );
+int IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex );
+int IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex );
 
 #endif
