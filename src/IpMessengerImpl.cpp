@@ -596,7 +596,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, boo
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
 	files.AddFile( file );
@@ -615,7 +615,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
  * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
+IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
