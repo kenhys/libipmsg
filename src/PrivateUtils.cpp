@@ -87,6 +87,11 @@ GetCommandString( unsigned long cmd )
 	return "no match";
 }
 
+/**
+ * パケットオブジェクトをダンプする。
+ * @param packet パケットオブジェクト
+ * @param sender_addr 送信元IPアドレス
+ */
 void
 IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
@@ -102,6 +107,11 @@ IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 	printf( "<< R E C V <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n");fflush(stdout);
 }
 
+/**
+ * ホストリストをダンプする。
+ * @param s ヘッダー／フッタタイトル文字列
+ * @param hostList ホストリストオブジェクト
+ */
 void
 IpMsgDumpHostList( const char *s, HostList& hostList )
 {
@@ -152,6 +162,10 @@ static int inet_index_2 = 1;
 static int inet_index_3 = 2;
 static int inet_index_4 = 3;
 
+/**
+ * 私家版スレッドセーフinet_ntoaの初期化
+ * @retval 常にtrue
+ */
 static bool
 inet_ntoa_init()
 {
@@ -168,6 +182,13 @@ inet_ntoa_init()
 	return true;
 }
 
+/**
+ * 私家版スレッドセーフinet_ntoa
+ * @param s_addr 送信元IPアドレス
+ * @param *ret 書込対象のバッファアドレス
+ * @param size 書込対象のバッファのバイト数
+ * @retval 書込対象のバッファアドレス(retが戻る)
+ */
 char *
 inet_ntoa_r( in_addr_t s_addr, char *ret, int size )
 {
@@ -180,3 +201,79 @@ inet_ntoa_r( in_addr_t s_addr, char *ret, int size )
 	return ret;
 }
 
+/**
+ * 私家版ミューテックス初期化
+ * @param pos プリントする文字列
+ * @param mutex ミューテックスのアドレス
+ * @param mutexattr ミューテックスの属性
+ * @retval pthread_mutex_initの戻り値
+ */
+int
+IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr )
+{
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexInit before:%s\n", pos );fflush(stdout);
+#endif
+	int ret = pthread_mutex_init(mutex, mutexattr);
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexInit after :%s\n", pos );fflush(stdout);
+#endif
+	return ret;
+}
+
+/**
+ * 私家版ミューテックスロック
+ * @param pos プリントする文字列
+ * @param mutex ミューテックスのアドレス
+ * @retval pthread_mutex_lockの戻り値
+ */
+int
+IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
+{
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexLock before:%s\n", pos );fflush(stdout);
+#endif
+	int ret = pthread_mutex_lock( mutex );
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexLock after :%s\n", pos );fflush(stdout);
+#endif
+	return ret;
+}
+
+/**
+ * 私家版ミューテックスアンロック
+ * @param pos プリントする文字列
+ * @param mutex ミューテックスのアドレス
+ * @retval pthread_mutex_unlockの戻り値
+ */
+int
+IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
+{
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexUnlock before:%s\n", pos );fflush(stdout);
+#endif
+	int ret = pthread_mutex_unlock( mutex );
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexUnlock after :%s\n", pos );fflush(stdout);
+#endif
+	return ret;
+}
+
+/**
+ * 私家版ミューテックス破棄
+ * @param pos プリントする文字列
+ * @param mutex ミューテックスのアドレス
+ * @retval pthread_mutex_destroyの戻り値
+ */
+int
+IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
+{
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexDestroy before:%s\n", pos );fflush(stdout);
+#endif
+	int ret = pthread_mutex_destroy( mutex );
+#if defined(DEBUG) || defined(INFO)
+	printf( "MutexDestroy after :%s\n", pos );fflush(stdout);
+#endif
+	return ret;
+}
