@@ -8,6 +8,7 @@
 #endif
 
 #include "IpMessenger.h"
+#include "IpMessengerImpl.h"
 #include "ipmsg.h"
 using namespace std;
 
@@ -20,7 +21,7 @@ static int file_id = 0;
 AttachFileList::AttachFileList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_init( &filesMutex, NULL );
+	IpMsgMutexInit( "AttachFileList::AttachFileList()", &filesMutex, NULL );
 #endif
 }
 
@@ -31,7 +32,7 @@ AttachFileList::AttachFileList()
 AttachFileList::~AttachFileList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy( &filesMutex );
+	IpMsgMutexDestroy( "AttachFileList::~AttachFileList()", &filesMutex );
 #endif
 }
 
@@ -44,7 +45,7 @@ vector<AttachFile>::iterator
 AttachFileList::FindByFullPath( string fullPath )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &filesMutex );
+	IpMsgMutexLock( "AttachFileList::FindByFullPath()", &filesMutex );
 #endif
 	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
@@ -54,7 +55,7 @@ AttachFileList::FindByFullPath( string fullPath )
 		}
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &filesMutex );
+	IpMsgMutexUnlock( "AttachFileList::FindByFullPath()", &filesMutex );
 #endif
 	return ret;
 }
@@ -68,7 +69,7 @@ vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &filesMutex );
+	IpMsgMutexLock( "AttachFileList::FindByFileId()", &filesMutex );
 #endif
 	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
@@ -83,7 +84,7 @@ AttachFileList::FindByFileId( int file_id )
 		}
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &filesMutex );
+	IpMsgMutexUnlock( "AttachFileList::FindByFileId()", &filesMutex );
 #endif
 	return ret;
 }

@@ -23,7 +23,7 @@ using namespace std;
 HostList::HostList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_init( &hostListMutex, NULL );
+	IpMsgMutexInit( "HostList::HostList()", &hostListMutex, NULL );
 #endif
 }
 
@@ -34,7 +34,7 @@ HostList::HostList()
 HostList::~HostList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy( &hostListMutex );
+	IpMsgMutexDestroy( "HostList::~HostList()", &hostListMutex );
 #endif
 }
 
@@ -66,11 +66,11 @@ int
 HostList::size()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::size()", &hostListMutex );
 #endif
 	int ret = items.size();
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::size()", &hostListMutex );
 #endif
 	return ret;
 }
@@ -82,11 +82,11 @@ void
 HostList::clear()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::clear()", &hostListMutex );
 #endif
 	items.clear();
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::clear()", &hostListMutex );
 #endif
 }
 
@@ -141,7 +141,7 @@ void
 HostList::AddHost( const HostListItem& host )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::AddHost()", &hostListMutex );
 #endif
 	bool is_found = false;
 
@@ -154,7 +154,7 @@ HostList::AddHost( const HostListItem& host )
 #endif
 		if ( host.IpAddress() == nics[i].IpAddress() ){
 #ifdef HAVE_PTHREAD
-			pthread_mutex_unlock( &hostListMutex );
+			IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
 #endif
 			return;
 		}
@@ -168,13 +168,13 @@ HostList::AddHost( const HostListItem& host )
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
 #ifdef HAVE_PTHREAD
-		pthread_mutex_unlock( &hostListMutex );
+		IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
 #endif
 		return;
 	}
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
 #ifdef HAVE_PTHREAD
-		pthread_mutex_unlock( &hostListMutex );
+		IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
 #endif
 		return;
 	}
@@ -192,7 +192,7 @@ HostList::AddHost( const HostListItem& host )
 		qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
 #endif
 }
 
@@ -204,11 +204,11 @@ void
 HostList::Delete( vector<HostListItem>::iterator &it )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::Delete()", &hostListMutex );
 #endif
 	items.erase( it );
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::Delete()", &hostListMutex );
 #endif
 }
 /**
@@ -219,7 +219,7 @@ void
 HostList::DeleteHost( string hostname )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::DeleteHost()", &hostListMutex );
 #endif
 	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		if ( ix->HostName() == hostname ) {
@@ -228,7 +228,7 @@ HostList::DeleteHost( string hostname )
 		}
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::DeleteHost()", &hostListMutex );
 #endif
 }
 
@@ -241,7 +241,7 @@ string
 HostList::ToString( int start )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::ToString", &hostListMutex );
 #endif
 	char buf[MAX_UDPBUF];
 	string ret;
@@ -268,7 +268,7 @@ HostList::ToString( int start )
 	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , hostCount );
 	ret = buf + ret;
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::ToString", &hostListMutex );
 #endif
 	return ret;
 }
@@ -311,7 +311,7 @@ vector<HostListItem>::iterator
 HostList::FindHostByHostName( string hostName )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::FindHostByHostName()", &hostListMutex );
 #endif
 	vector<HostListItem>::iterator ret = end();
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
@@ -321,7 +321,7 @@ HostList::FindHostByHostName( string hostName )
 		}
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::FindHostByHostName()", &hostListMutex );
 #endif
 	return ret;
 }
@@ -335,7 +335,7 @@ vector<HostListItem>::iterator
 HostList::FindHostByAddress( string addr )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &hostListMutex );
+	IpMsgMutexLock( "HostList::FindHostByAddress()", &hostListMutex );
 #endif
 	vector<HostListItem>::iterator ret = end();
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
@@ -354,7 +354,7 @@ HostList::FindHostByAddress( string addr )
 	printf("HOST NOT FOUND!!!\n");fflush(stdout);
 #endif
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &hostListMutex );
+	IpMsgMutexUnlock( "HostList::FindHostByAddress()", &hostListMutex );
 #endif
 	return ret;
 }
