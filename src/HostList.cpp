@@ -35,9 +35,30 @@ HostList::~HostList()
 }
 
 /**
+ * ホストリストをロック
+ * @param pos ロックしている位置を示す文字列。
+ */
+void
+HostList::Lock( const char *pos ) const
+{
+	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &hostListMutex ) );
+}
+
+/**
+ * ホストリストをアンロック
+ * @param pos アンロックしている位置を示す文字列。
+ */
+void
+HostList::Unlock( const char *pos ) const
+{
+	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &hostListMutex ) );
+}
+
+/**
  * ホストリストの先頭を示すイテレータを返す。
  * @retval ホストリストの先頭を示すイテレータ。
  */
+inline
 vector<HostListItem>::iterator
 HostList::begin()
 {
@@ -48,6 +69,7 @@ HostList::begin()
  * ホストリストの末尾＋１を示すイテレータを返す。
  * @retval ホストリストの末尾＋１を示すイテレータ。
  */
+inline
 vector<HostListItem>::iterator
 HostList::end()
 {
@@ -59,11 +81,11 @@ HostList::end()
  * @retval ホストリストの個数。
  */
 int
-HostList::size()
+HostList::size() const
 {
-	IpMsgMutexLock( "HostList::size()", &hostListMutex );
+	Lock( "HostList::size()" );
 	int ret = items.size();
-	IpMsgMutexUnlock( "HostList::size()", &hostListMutex );
+	Unlock( "HostList::size()" );
 	return ret;
 }
 
@@ -73,9 +95,9 @@ HostList::size()
 void
 HostList::clear()
 {
-	IpMsgMutexLock( "HostList::clear()", &hostListMutex );
+	Lock( "HostList::clear()" );
 	items.clear();
-	IpMsgMutexUnlock( "HostList::clear()", &hostListMutex );
+	Unlock( "HostList::clear()" );
 }
 
 /**
@@ -103,7 +125,7 @@ HostListItem::QueryAbsenceInfo()
  * @retval true:ローカルホスト、false:ローカルホストではない。
  */
 bool
-HostListItem::IsLocalHost()
+HostListItem::IsLocalHost() const
 {
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	vector<NetworkInterface> nics = agent->NICs;
@@ -128,7 +150,7 @@ HostListItem::IsLocalHost()
 void
 HostList::AddHost( const HostListItem& host )
 {
-	IpMsgMutexLock( "HostList::AddHost()", &hostListMutex );
+	Lock( "HostList::AddHost()" );
 	bool is_found = false;
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
@@ -139,7 +161,7 @@ HostList::AddHost( const HostListItem& host )
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
 		if ( host.IpAddress() == nics[i].IpAddress() ){
-			IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
+			Unlock( "HostList::AddHost()" );
 			return;
 		}
 	}
@@ -151,11 +173,11 @@ HostList::AddHost( const HostListItem& host )
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
-		IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
+		Unlock( "HostList::AddHost()" );
 		return;
 	}
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
-		IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
+		Unlock( "HostList::AddHost()" );
 		return;
 	}
 	for( unsigned int i = 0; i < items.size(); i++ ){
@@ -171,7 +193,7 @@ HostList::AddHost( const HostListItem& host )
 	if ( agent->GetSortHostListComparator() != NULL ){
 		qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
 	}
-	IpMsgMutexUnlock( "HostList::AddHost()", &hostListMutex );
+	Unlock( "HostList::AddHost()" );
 }
 
 /**
@@ -181,9 +203,9 @@ HostList::AddHost( const HostListItem& host )
 void
 HostList::Delete( vector<HostListItem>::iterator &it )
 {
-	IpMsgMutexLock( "HostList::Delete()", &hostListMutex );
+	Lock( "HostList::Delete()" );
 	items.erase( it );
-	IpMsgMutexUnlock( "HostList::Delete()", &hostListMutex );
+	Unlock( "HostList::Delete()" );
 }
 /**
  * ホスト情報をホストリストから削除する。
@@ -192,14 +214,14 @@ HostList::Delete( vector<HostListItem>::iterator &it )
 void
 HostList::DeleteHost( string hostname )
 {
-	IpMsgMutexLock( "HostList::DeleteHost()", &hostListMutex );
+	Lock( "HostList::DeleteHost()" );
 	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		if ( ix->HostName() == hostname ) {
 			items.erase( ix );
 			break;
 		}
 	}
-	IpMsgMutexUnlock( "HostList::DeleteHost()", &hostListMutex );
+	Unlock( "HostList::DeleteHost()" );
 }
 
 /**
@@ -210,7 +232,7 @@ HostList::DeleteHost( string hostname )
 string
 HostList::ToString( int start )
 {
-	IpMsgMutexLock( "HostList::ToString", &hostListMutex );
+	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
 	string ret;
 	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize();
@@ -235,7 +257,7 @@ HostList::ToString( int start )
 	}
 	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , hostCount );
 	ret = buf + ret;
-	IpMsgMutexUnlock( "HostList::ToString", &hostListMutex );
+	Unlock( "HostList::ToString" );
 	return ret;
 }
 
@@ -276,7 +298,7 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 vector<HostListItem>::iterator
 HostList::FindHostByHostName( string hostName )
 {
-	IpMsgMutexLock( "HostList::FindHostByHostName()", &hostListMutex );
+	Lock( "HostList::FindHostByHostName()" );
 	vector<HostListItem>::iterator ret = end();
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 		if ( ix->HostName() == hostName ) {
@@ -284,7 +306,7 @@ HostList::FindHostByHostName( string hostName )
 			break;
 		}
 	}
-	IpMsgMutexUnlock( "HostList::FindHostByHostName()", &hostListMutex );
+	Unlock( "HostList::FindHostByHostName()" );
 	return ret;
 }
 
@@ -296,7 +318,7 @@ HostList::FindHostByHostName( string hostName )
 vector<HostListItem>::iterator
 HostList::FindHostByAddress( string addr )
 {
-	IpMsgMutexLock( "HostList::FindHostByAddress()", &hostListMutex );
+	Lock( "HostList::FindHostByAddress()" );
 	vector<HostListItem>::iterator ret = end();
 	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(DEBUG)
@@ -313,7 +335,7 @@ HostList::FindHostByAddress( string addr )
 #if defined(DEBUG)
 	printf("HOST NOT FOUND!!!\n");fflush(stdout);
 #endif
-	IpMsgMutexUnlock( "HostList::FindHostByAddress()", &hostListMutex );
+	Unlock( "HostList::FindHostByAddress()" );
 	return ret;
 }
 
@@ -322,7 +344,7 @@ HostList::FindHostByAddress( string addr )
  * @retval サポート：true／サポートしない：false
  */
 bool
-HostListItem::IsFileAttachSupport()
+HostListItem::IsFileAttachSupport() const
 {
 	return CommandNo() & IPMSG_FILEATTACHOPT;
 }
@@ -332,7 +354,7 @@ HostListItem::IsFileAttachSupport()
  * @retval サポート：true／サポートしない：false
  */
 bool
-HostListItem::IsEncryptSupport()
+HostListItem::IsEncryptSupport() const
 {
 	return CommandNo() & IPMSG_ENCRYPTOPT;
 }
@@ -342,7 +364,7 @@ HostListItem::IsEncryptSupport()
  * @retval 不在：true／不在でない：false
  */
 bool
-HostListItem::IsAbsence()
+HostListItem::IsAbsence() const
 {
 	return CommandNo() & IPMSG_ABSENCEOPT;
 }
@@ -353,12 +375,12 @@ HostListItem::IsAbsence()
  * @retval 一致：true／一致しない：false
  */
 bool
-HostListItem::Equals( const HostListItem& item )
+HostListItem::Equals( const HostListItem& item ) const
 {
 	return	Compare( item ) == 0;
 }
 int
-HostListItem::Compare( const HostListItem& item )
+HostListItem::Compare( const HostListItem& item ) const
 {
 //	if ( item.UserName()  == UserName() &&
 //		 item.HostName()  == HostName() &&
