@@ -20,9 +20,7 @@ static int file_id = 0;
  */
 AttachFileList::AttachFileList()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexInit( "AttachFileList::AttachFileList()", &filesMutex, NULL );
-#endif
 }
 
 /**
@@ -31,9 +29,7 @@ AttachFileList::AttachFileList()
  */
 AttachFileList::~AttachFileList()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexDestroy( "AttachFileList::~AttachFileList()", &filesMutex );
-#endif
 }
 
 /**
@@ -44,9 +40,7 @@ AttachFileList::~AttachFileList()
 vector<AttachFile>::iterator
 AttachFileList::FindByFullPath( string fullPath )
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "AttachFileList::FindByFullPath()", &filesMutex );
-#endif
 	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
 		if ( i->FullPath() == fullPath ) {
@@ -54,9 +48,7 @@ AttachFileList::FindByFullPath( string fullPath )
 			break;
 		}
 	}
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "AttachFileList::FindByFullPath()", &filesMutex );
-#endif
 	return ret;
 }
 
@@ -68,9 +60,7 @@ AttachFileList::FindByFullPath( string fullPath )
 vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "AttachFileList::FindByFileId()", &filesMutex );
-#endif
 	vector<AttachFile>::iterator ret = end();
 	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
@@ -83,9 +73,7 @@ AttachFileList::FindByFileId( int file_id )
 			break;
 		}
 	}
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "AttachFileList::FindByFileId()", &filesMutex );
-#endif
 	return ret;
 }
 

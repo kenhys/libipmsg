@@ -15,10 +15,8 @@
 
 static IpMessengerAgent *myInstance = NULL;
 
-#ifdef HAVE_PTHREAD
 static pthread_mutex_t instanceMutex;
 static int mutex_init_result = IpMsgMutexInit( "IpMessenger::Global", &instanceMutex, NULL );
-#endif
 
 IpMessengerEvent::~IpMessengerEvent(){};
 /**
@@ -29,15 +27,11 @@ IpMessengerEvent::~IpMessengerEvent(){};
 IpMessengerAgent *
 IpMessengerAgent::GetInstance()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "IpMessengerAgent::GetInstance()", &instanceMutex );
-#endif
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgent();
 	}
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "IpMessengerAgent::GetInstance()", &instanceMutex );
-#endif
 	return myInstance;
 }
 
@@ -50,20 +44,14 @@ IpMessengerAgent::GetInstance()
 void
 IpMessengerAgent::Release()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "IpMessengerAgent::Release()", &instanceMutex );
-#endif
 	if ( myInstance == NULL ) {
-#ifdef HAVE_PTHREAD
 		IpMsgMutexUnlock( "IpMessengerAgent::Release()", &instanceMutex );
-#endif
 		return;
 	}
 	delete myInstance;
 	myInstance = NULL;
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "IpMessengerAgent::Release()", &instanceMutex );
-#endif
 }
 
 /**

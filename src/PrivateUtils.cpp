@@ -211,6 +211,7 @@ inet_ntoa_r( in_addr_t s_addr, char *ret, int size )
 int
 IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr )
 {
+#ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
 	printf( "MutexInit before:%s\n", pos );fflush(stdout);
 #endif
@@ -219,6 +220,9 @@ IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr
 	printf( "MutexInit after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
+#else
+	return 0;
+#endif
 }
 
 /**
@@ -230,6 +234,7 @@ IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr
 int
 IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 {
+#ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
 	printf( "MutexLock before:%s\n", pos );fflush(stdout);
 #endif
@@ -238,6 +243,9 @@ IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 	printf( "MutexLock after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
+#else
+	return 0;
+#endif
 }
 
 /**
@@ -249,6 +257,7 @@ IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 int
 IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 {
+#ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
 	printf( "MutexUnlock before:%s\n", pos );fflush(stdout);
 #endif
@@ -257,6 +266,9 @@ IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 	printf( "MutexUnlock after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
+#else
+	return 0;
+#endif
 }
 
 /**
@@ -268,6 +280,7 @@ IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 int
 IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 {
+#ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
 	printf( "MutexDestroy before:%s\n", pos );fflush(stdout);
 #endif
@@ -276,4 +289,7 @@ IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 	printf( "MutexDestroy after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
+#else
+	return 0;
+#endif
 }

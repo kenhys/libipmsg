@@ -18,9 +18,7 @@ using namespace std;
  */
 RecievedMessageList::RecievedMessageList()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexInit( "RecievedMessageList::RecievedMessageList()", &messagesMutex, NULL );
-#endif
 }
 
 /**
@@ -29,9 +27,7 @@ RecievedMessageList::RecievedMessageList()
  */
 RecievedMessageList::~RecievedMessageList()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexDestroy( "RecievedMessageList::~RecievedMessageList()", &messagesMutex );
-#endif
 }
 
 /**
@@ -62,13 +58,9 @@ RecievedMessageList::end()
 vector<RecievedMessage>::iterator
 RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "RecievedMessageList::erase()", &messagesMutex );
-#endif
 	vector<RecievedMessage>::iterator ret = messages.erase( item );
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "RecievedMessageList::erase()", &messagesMutex );
-#endif
 	return ret;
 }
 
@@ -79,13 +71,9 @@ RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
 void
 RecievedMessageList::append( const RecievedMessage &item )
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "RecievedMessageList::append()", &messagesMutex );
-#endif
 	messages.push_back( item );
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "RecievedMessageList::append()", &messagesMutex );
-#endif
 }
 
 /**
@@ -95,13 +83,9 @@ RecievedMessageList::append( const RecievedMessage &item )
 int
 RecievedMessageList::size()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "RecievedMessageList::size()", &messagesMutex );
-#endif
 	int ret = messages.size();
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "RecievedMessageList::size()", &messagesMutex );
-#endif
 	return ret;
 }
 
@@ -111,13 +95,9 @@ RecievedMessageList::size()
 void
 RecievedMessageList::clear()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "RecievedMessageList::clear()", &messagesMutex );
-#endif
 	messages.clear();
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "RecievedMessageList::clear()", &messagesMutex );
-#endif
 }
 
 /**

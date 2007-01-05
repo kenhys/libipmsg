@@ -21,9 +21,7 @@ using namespace std;
  */
 SentMessageList::SentMessageList()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexInit( "SentMessageList::SentMessageList()", &messagesMutex, NULL );
-#endif
 }
 
 /**
@@ -32,9 +30,7 @@ SentMessageList::SentMessageList()
  */
 SentMessageList::~SentMessageList()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexDestroy( "SentMessageList::~SentMessageList()", &messagesMutex );
-#endif
 }
 
 /**
@@ -64,13 +60,9 @@ SentMessageList::end(){
 vector<SentMessage>::iterator
 SentMessageList::erase( vector<SentMessage>::iterator item )
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "SentMessageList::erase()", &messagesMutex );
-#endif
 	vector<SentMessage>::iterator ret = messages.erase( item );
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "SentMessageList::erase()", &messagesMutex );
-#endif
 	return ret;
 }
 
@@ -81,13 +73,9 @@ SentMessageList::erase( vector<SentMessage>::iterator item )
 void
 SentMessageList::append( const SentMessage &item )
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "SentMessageList::append()", &messagesMutex );
-#endif
 	messages.push_back( item );
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "SentMessageList::append()", &messagesMutex );
-#endif
 }
 
 /**
@@ -97,13 +85,9 @@ SentMessageList::append( const SentMessage &item )
 int
 SentMessageList::size()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "SentMessageList::size()", &messagesMutex );
-#endif
 	int ret = messages.size();
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "SentMessageList::size()", &messagesMutex );
-#endif
 	return ret;
 }
 
@@ -113,13 +97,9 @@ SentMessageList::size()
 void
 SentMessageList::clear()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "SentMessageList::clear()", &messagesMutex );
-#endif
 	messages.clear();
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "SentMessageList::clear()", &messagesMutex );
-#endif
 }
 
 /**

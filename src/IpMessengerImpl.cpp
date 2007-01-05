@@ -10,9 +10,7 @@
 #include "IpMessenger.h"
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
-#ifdef HAVE_PTHREAD
 #include <pthread.h>
-#endif	// HAVE_PTHREAD
 using namespace std;
 
 static IpMessengerAgentImpl *myInstance = NULL;
@@ -20,10 +18,8 @@ static IpMessengerAgentImpl *myInstance = NULL;
 void *GetFileDataThread( void *param );
 void *GetDirFilesThread( void *param );
 
-#ifdef HAVE_PTHREAD
 static pthread_mutex_t instanceMutex;
 static int mutex_init_result = IpMsgMutexInit( "IpMessengerImpl::Global", &instanceMutex, NULL );
-#endif
 
 class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
@@ -52,15 +48,11 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 IpMessengerAgentImpl *
 IpMessengerAgentImpl::GetInstance()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "IpMessengerAgentImpl::GetInstance()", &instanceMutex );
-#endif	// HAVE_PTHREAD
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgentImpl();
 	}
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "IpMessengerAgentImpl::GetInstance()", &instanceMutex );
-#endif	// HAVE_PTHREAD
 	return myInstance;
 }
 
@@ -73,20 +65,14 @@ IpMessengerAgentImpl::GetInstance()
 void
 IpMessengerAgentImpl::Release()
 {
-#ifdef HAVE_PTHREAD
 	IpMsgMutexLock( "IpMessengerAgentImpl::Release()", &instanceMutex );
-#endif	// HAVE_PTHREAD
 	if ( myInstance == NULL ) {
-#ifdef HAVE_PTHREAD
 		IpMsgMutexUnlock( "IpMessengerAgentImpl::Release()", &instanceMutex );
-#endif	// HAVE_PTHREAD
 		return;
 	}
 	delete myInstance;
 	myInstance = NULL;
-#ifdef HAVE_PTHREAD
 	IpMsgMutexUnlock( "IpMessengerAgentImpl::Release()", &instanceMutex );
-#endif	// HAVE_PTHREAD
 }
 
 /**
@@ -2305,7 +2291,6 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 	printf( "TcpRecvEventGetFileData\n" );fflush( stdout );
 #endif
 
-#ifdef HAVE_PTHREAD
 	pthread_t t_id;
 
 	Packet *packetClone = new Packet( packet );
@@ -2319,10 +2304,6 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 		return -1;
 	}
 	return 0;
-#else	// HAVE_PTHREAD
-	Packet *packetClone = new Packet( packet );
-	GetFileDataThread( packetClone );
-#endif	// HAVE_PTHREAD
 }
 
 /**
@@ -2489,7 +2470,6 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 int
 IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 {
-#ifdef HAVE_PTHREAD
 	pthread_t t_id;
 	Packet *packetClone = new Packet( packet );
 
@@ -2502,10 +2482,6 @@ IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 		return -1;
 	}
 
-#else	// HAVE_PTHREAD
-	Packet *packetClone = new Packet( packet );
-	GetDirFilesThread( (void *) packetClone );
-#endif	// HAVE_PTHREAD
 	return 0;
 }
 
