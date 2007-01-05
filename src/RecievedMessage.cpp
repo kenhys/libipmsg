@@ -19,7 +19,7 @@ using namespace std;
 RecievedMessageList::RecievedMessageList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_init( &messagesMutex, NULL );
+	IpMsgMutexInit( "RecievedMessageList::RecievedMessageList()", &messagesMutex, NULL );
 #endif
 }
 
@@ -30,7 +30,7 @@ RecievedMessageList::RecievedMessageList()
 RecievedMessageList::~RecievedMessageList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy( &messagesMutex );
+	IpMsgMutexDestroy( "RecievedMessageList::~RecievedMessageList()", &messagesMutex );
 #endif
 }
 
@@ -63,11 +63,11 @@ vector<RecievedMessage>::iterator
 RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "RecievedMessageList::erase()", &messagesMutex );
 #endif
 	vector<RecievedMessage>::iterator ret = messages.erase( item );
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "RecievedMessageList::erase()", &messagesMutex );
 #endif
 	return ret;
 }
@@ -80,11 +80,11 @@ void
 RecievedMessageList::append( const RecievedMessage &item )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "RecievedMessageList::append()", &messagesMutex );
 #endif
 	messages.push_back( item );
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "RecievedMessageList::append()", &messagesMutex );
 #endif
 }
 
@@ -96,11 +96,11 @@ int
 RecievedMessageList::size()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "RecievedMessageList::size()", &messagesMutex );
 #endif
 	int ret = messages.size();
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "RecievedMessageList::size()", &messagesMutex );
 #endif
 	return ret;
 }
@@ -112,11 +112,11 @@ void
 RecievedMessageList::clear()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "RecievedMessageList::clear()", &messagesMutex );
 #endif
 	messages.clear();
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "RecievedMessageList::clear()", &messagesMutex );
 #endif
 }
 

@@ -8,6 +8,7 @@
 #endif
 
 #include "IpMessenger.h"
+#include "IpMessengerImpl.h"
 #include "ipmsg.h"
 using namespace std;
 
@@ -21,7 +22,7 @@ using namespace std;
 SentMessageList::SentMessageList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_init( &messagesMutex, NULL );
+	IpMsgMutexInit( "SentMessageList::SentMessageList()", &messagesMutex, NULL );
 #endif
 }
 
@@ -32,7 +33,7 @@ SentMessageList::SentMessageList()
 SentMessageList::~SentMessageList()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy( &messagesMutex );
+	IpMsgMutexDestroy( "SentMessageList::~SentMessageList()", &messagesMutex );
 #endif
 }
 
@@ -64,11 +65,11 @@ vector<SentMessage>::iterator
 SentMessageList::erase( vector<SentMessage>::iterator item )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "SentMessageList::erase()", &messagesMutex );
 #endif
 	vector<SentMessage>::iterator ret = messages.erase( item );
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "SentMessageList::erase()", &messagesMutex );
 #endif
 	return ret;
 }
@@ -81,11 +82,11 @@ void
 SentMessageList::append( const SentMessage &item )
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "SentMessageList::append()", &messagesMutex );
 #endif
 	messages.push_back( item );
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "SentMessageList::append()", &messagesMutex );
 #endif
 }
 
@@ -97,11 +98,11 @@ int
 SentMessageList::size()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "SentMessageList::size()", &messagesMutex );
 #endif
 	int ret = messages.size();
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "SentMessageList::size()", &messagesMutex );
 #endif
 	return ret;
 }
@@ -113,11 +114,11 @@ void
 SentMessageList::clear()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock( &messagesMutex );
+	IpMsgMutexLock( "SentMessageList::clear()", &messagesMutex );
 #endif
 	messages.clear();
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock( &messagesMutex );
+	IpMsgMutexUnlock( "SentMessageList::clear()", &messagesMutex );
 #endif
 }
 
