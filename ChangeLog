@@ -1,3 +1,11 @@
+2007-01-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Delete #ifdef HAVE_PTHREAD.
+- Update:Add StartNetwork, StopNetwork API.
+- Update:Change NIC info get method.
+- Update:Add IpMsgMutex*.
+- Update:Change pthread_mutex_* to IpMsgMutex*.
+- Fix:Comments.
+
 2007-01-02 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add parameter nics.
 - Fix:Broadcast address don't use FQDN.
