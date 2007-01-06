@@ -117,6 +117,7 @@ class IpMessengerAgentImpl {
 		string GroupName;
 		string HostAddress;
 
+		map<int, NetworkInterface> sd_addr;
 		vector<int> tcp_sd;
 		vector<int> udp_sd;
 		int max_sd;
@@ -135,7 +136,7 @@ class IpMessengerAgentImpl {
 		void CryptoEnd();
 		void NetworkInit( const vector<NetworkInterface>& nics );
 		void NetworkEnd();
-		void InitSend();
+		void InitSend( const vector<NetworkInterface>& nics );
 		void InitRecv( const vector<NetworkInterface>& nics );
 		int InitUdpRecv( struct sockaddr_in addr );
 		int InitTcpRecv( struct sockaddr_in addr );
