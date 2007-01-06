@@ -88,6 +88,11 @@ class NetworkInterface {
 	public:
 		IPMSG_PROPERTY( string, DeviceName );
 		IPMSG_PROPERTY( string, IpAddress );
+		IPMSG_PROPERTY( string, NetMask );
+		IPMSG_PROPERTY( string, NetworkAddress );
+		IPMSG_PROPERTY( in_addr_t, NativeIpAddress );
+		IPMSG_PROPERTY( in_addr_t, NativeNetMask );
+		IPMSG_PROPERTY( in_addr_t, NativeNetworkAddress );
 		IPMSG_PROPERTY( int, PortNo );
 };
 
@@ -154,11 +159,14 @@ class HostList{
 		string ToString( int start );
 		void sort( HostListComparator *comparator );
 		HostList();
+		HostList( const HostList& other );
 		~HostList();
+		HostList& operator=( const HostList& other );
 	private:
 		void qsort( HostListComparator *comparator, int left, int right );
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
+		void CopyFrom( const HostList& other );
 		vector<HostListItem>items;
 		pthread_mutex_t hostListMutex;
 };
@@ -232,9 +240,11 @@ class AttachFileList{
 		AttachFileList();
 		AttachFileList( const AttachFileList& other );
 		~AttachFileList();
+		AttachFileList& operator=( const AttachFileList& other );
 	private:
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
+		void CopyFrom( const AttachFileList& other );
 		vector<AttachFile> files;
 		pthread_mutex_t filesMutex;
 };
@@ -258,9 +268,11 @@ class RecievedMessage{
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
 		RecievedMessage();
 		RecievedMessage( const RecievedMessage& other );
+		RecievedMessage& operator=( const RecievedMessage& other );
 		bool DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 	private:
+		void CopyFrom( const RecievedMessage& other );
 		bool DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 		bool DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 		string GetFormalDir( string dirName );
@@ -276,10 +288,13 @@ class RecievedMessageList {
 		int size() const;
 		void clear();
 		RecievedMessageList();
+		RecievedMessageList( const RecievedMessageList& other );
 		~RecievedMessageList();
+		RecievedMessageList& operator=( const RecievedMessageList& other );
 	private:
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
+		void CopyFrom( const RecievedMessageList& other );
 		vector<RecievedMessage> messages;
 		pthread_mutex_t messagesMutex;
 };
@@ -306,9 +321,12 @@ class SentMessage{
 		IPMSG_PROPERTY_REF( AttachFileList, Files );
 		SentMessage();
 		SentMessage( const SentMessage& other );
+		SentMessage& operator=( const SentMessage& other );
 		bool isRetryMaxOver() const;
 		bool needSendRetry( time_t tryNow ) const;
 		vector<AttachFile>::iterator FindAttachFileByPacket( const Packet &packet );
+	private:
+		void CopyFrom( const SentMessage& other );
 };
 
 class SentMessageList {
@@ -323,11 +341,14 @@ class SentMessageList {
 		void clear();
 		vector<SentMessage> *GetMessageList();
 		SentMessageList();
+		SentMessageList( const SentMessageList& other );
 		~SentMessageList();
+		SentMessageList& operator=( const SentMessageList& other );
 
 	private:
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
+		void CopyFrom( const SentMessageList& other );
 		vector<SentMessage> messages;
 		pthread_mutex_t messagesMutex;
 };
