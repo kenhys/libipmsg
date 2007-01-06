@@ -19,8 +19,31 @@ RecievedMessage::RecievedMessage(){}
 
 /**
  * コピーコンストラクタ。
+ * @param other コピー元のオブジェクト
  */
 RecievedMessage::RecievedMessage( const RecievedMessage& other )
+{
+	CopyFrom( other );
+}
+
+/**
+ * 代入演算子。
+ * @param other コピー元のオブジェクト
+ * @retval 自インスタンス
+ */
+RecievedMessage&
+RecievedMessage::operator=( const RecievedMessage& other )
+{
+	CopyFrom( other );
+	return *this;
+}
+
+/**
+ * コピーメソッド。
+ * @param other コピー元のオブジェクト
+ */
+void
+RecievedMessage::CopyFrom( const RecievedMessage& other )
 {
 	_MessagePacket = other. _MessagePacket;
 	_Message = other. _Message;
@@ -47,12 +70,49 @@ RecievedMessageList::RecievedMessageList()
 }
 
 /**
+ * コピーコンストラクタ。
+ * @param other コピー元のオブジェクト
+ */
+RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )
+{
+	IpMsgMutexInit( "RecievedMessageList::RecievedMessageList(RecievedMessageList&)", &messagesMutex, NULL );
+	Lock( "RecievedMessageList::RecievedMessageList(RecievedMessageList&)" );
+	CopyFrom( other );
+	Unlock( "RecievedMessageList::RecievedMessageList(RecievedMessageList&)" );
+}
+
+/**
  * デストラクタ。
  * ・受信済メッセージリストをロックするためのミューテックスを破棄。
  */
 RecievedMessageList::~RecievedMessageList()
 {
 	IpMsgMutexDestroy( "RecievedMessageList::~RecievedMessageList()", &messagesMutex );
+}
+
+/**
+ * 代入演算子。
+ * @param other コピー元のオブジェクト
+ * @retval 自インスタンス
+ */
+RecievedMessageList&
+RecievedMessageList::operator=( const RecievedMessageList& other )
+{
+	IpMsgMutexInit( "RecievedMessageList::operator=(RecievedMessageList&)", &messagesMutex, NULL );
+	Lock( "RecievedMessageList::operator=(RecievedMessageList&)" );
+	CopyFrom( other );
+	Unlock( "RecievedMessageList::operator=(RecievedMessageList&)" );
+	return *this;
+}
+
+/**
+ * コピーメソッド。
+ * @param other コピー元のオブジェクト
+ */
+void
+RecievedMessageList::CopyFrom( const RecievedMessageList& other )
+{
+	messages = other.messages;
 }
 
 /**

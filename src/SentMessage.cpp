@@ -22,8 +22,31 @@ SentMessage::SentMessage(){}
 
 /**
  * コピーコンストラクタ。
+ * @param other コピー元のオブジェクト
  */
 SentMessage::SentMessage( const SentMessage& other )
+{
+	CopyFrom( other );
+}
+
+/**
+ * 代入演算子。
+ * @param other コピー元のオブジェクト
+ * @retval 自インスタンス
+ */
+SentMessage&
+SentMessage::operator=( const SentMessage& other )
+{
+	CopyFrom( other );
+	return *this;
+}
+
+/**
+ * コピーメソッド。
+ * @param other コピー元のオブジェクト
+ */
+void
+SentMessage::CopyFrom( const SentMessage& other )
 {
 	_To = other. _To;
 	_Host = other. _Host;
@@ -55,12 +78,49 @@ SentMessageList::SentMessageList()
 }
 
 /**
+ * コピーコンストラクタ。
+ * @param other コピー元のオブジェクト
+ */
+SentMessageList::SentMessageList( const SentMessageList& other )
+{
+	IpMsgMutexInit( "SentMessageList::SentMessageList(SentMessageList&)", &messagesMutex, NULL );
+	Lock( "SentMessageList::SentMessageList(SentMessageList&)" );
+	CopyFrom( other );
+	Unlock( "SentMessageList::SentMessageList(SentMessageList&)" );
+}
+
+/**
  * デストラクタ。
  * ・送信済メッセージリストをロックするためのミューテックスを破棄。
  */
 SentMessageList::~SentMessageList()
 {
 	IpMsgMutexDestroy( "SentMessageList::~SentMessageList()", &messagesMutex );
+}
+
+/**
+ * 代入演算子。
+ * @param other コピー元のオブジェクト
+ * @retval 自インスタンス
+ */
+SentMessageList&
+SentMessageList::operator=( const SentMessageList& other )
+{
+	IpMsgMutexInit( "SentMessageList::operator=(SentMessageList&)", &messagesMutex, NULL );
+	Lock( "SentMessageList::operator=(SentMessageList&)" );
+	CopyFrom( other );
+	Unlock( "SentMessageList::operator=(SentMessageList&)" );
+	return *this;
+}
+
+/**
+ * コピーメソッド。
+ * @param other コピー元のオブジェクト
+ */
+void
+SentMessageList::CopyFrom( const SentMessageList& other )
+{
+	messages = other.messages;
 }
 
 /**

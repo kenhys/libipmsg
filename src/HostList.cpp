@@ -26,12 +26,51 @@ HostList::HostList()
 }
 
 /**
+ * コピーコンストラクタ。
+ * ・ホストリストをロックするためのミューテックスを生成。
+ * @param other コピー元のオブジェクト
+ */
+HostList::HostList( const HostList& other )
+{
+	IpMsgMutexInit( "HostList::HostList(HostList&)", &hostListMutex, NULL );
+	Lock( "HostList::HostList(HostList&)" );
+	CopyFrom( other );
+	Unlock( "HostList::HostList(HostList&)" );
+}
+
+/**
  * デストラクタ。
  * ・ホストリストをロックするためのミューテックスを破棄。
  */
 HostList::~HostList()
 {
 	IpMsgMutexDestroy( "HostList::~HostList()", &hostListMutex );
+}
+
+/**
+ * 代入演算子。
+ * ・ホストリストをロックするためのミューテックスを生成。
+ * @param other コピー元のオブジェクト
+ * @retval 自オブジェクトのインスタンス
+ */
+HostList&
+HostList::operator=( const HostList& other )
+{
+	IpMsgMutexInit( "HostList::operator=(HostList&)", &hostListMutex, NULL );
+	Lock( "HostList::operator=(HostList&)" );
+	CopyFrom( other );
+	Unlock( "HostList::operator=(HostList&)" );
+	return *this;
+}
+
+/**
+ * コピーメソッド。
+ * @param other コピー元のオブジェクト
+ */
+void
+HostList::CopyFrom( const HostList& other )
+{
+	items = other.items;
 }
 
 /**

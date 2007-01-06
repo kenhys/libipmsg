@@ -26,13 +26,40 @@ AttachFileList::AttachFileList()
 /**
  * コピーコンストラクタ。
  * ・ファイルリストをロックするためのミューテックスを生成。
+ * @param コピー元のオブジェクト
  */
 AttachFileList::AttachFileList( const AttachFileList& other )
 {
 	IpMsgMutexInit( "AttachFileList::AttachFileList(AttachFileList&)", &filesMutex, NULL );
 	other.Lock( "AttachFileList::AttachFileList(AttachFileList&)" );
-	files = other.files;
+	CopyFrom( other );
 	other.Unlock( "AttachFileList::AttachFileList(AttachFileList&)" );
+}
+
+/**
+ * 代入演算子。
+ * ・ファイルリストをロックするためのミューテックスを生成。
+ * @param コピー元のオブジェクト
+ * @retval 自オブジェクトのインスタンス
+ */
+AttachFileList&
+AttachFileList::operator=( const AttachFileList& other )
+{
+	IpMsgMutexInit( "AttachFileList::operator=(AttachFileList&)", &filesMutex, NULL );
+	other.Lock( "AttachFileList::operator=(AttachFileList&)" );
+	CopyFrom( other );
+	other.Unlock( "AttachFileList::operator=(AttachFileList&)" );
+	return *this;
+}
+
+/**
+ * コピーメソッド。
+ * @param コピー元のオブジェクト
+ */
+void
+AttachFileList::CopyFrom( const AttachFileList& other )
+{
+	files = other.files;
 }
 
 /**
