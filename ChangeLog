@@ -1,3 +1,18 @@
+2007-01-07 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:AddHost without broadcast and network address.
+- Update:Append debug print.
+- Update:Add Broadcast address to NetworkInterface.
+- Fix:Unicast packet unreachable on NAT environment.
+
+2007-01-06 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Commented printf.
+- Update:Add copy constructor.
+- Update:Add operator=.
+- Update:Change thread safe normal readonly methods to const.
+- Update:Lock/Unlock change function to method.
+- Update:Change Parameter,copy to reference.
+- Update:Some functions move header to source.
+
 2007-01-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Delete #ifdef HAVE_PTHREAD.
 - Update:Add StartNetwork, StopNetwork API.
