@@ -90,9 +90,11 @@ class NetworkInterface {
 		IPMSG_PROPERTY( string, IpAddress );
 		IPMSG_PROPERTY( string, NetMask );
 		IPMSG_PROPERTY( string, NetworkAddress );
+		IPMSG_PROPERTY( string, BroadcastAddress );
 		IPMSG_PROPERTY( in_addr_t, NativeIpAddress );
 		IPMSG_PROPERTY( in_addr_t, NativeNetMask );
 		IPMSG_PROPERTY( in_addr_t, NativeNetworkAddress );
+		IPMSG_PROPERTY( in_addr_t, NativeBroadcastAddress );
 		IPMSG_PROPERTY( int, PortNo );
 };
 
