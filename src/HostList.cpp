@@ -199,7 +199,17 @@ HostList::AddHost( const HostListItem& host )
 #if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
-		if ( host.IpAddress() == nics[i].IpAddress() ){
+		if ( host.IpAddress() == nics[i].IpAddress() ) {
+			Unlock( "HostList::AddHost()" );
+			return;
+		}
+	}
+	for( unsigned int i = 0; i < nics.size(); i++ ){
+#if defined(INFO) || !defined(NDEBUG)
+		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
+#endif
+		if ( host.IpAddress() == nics[i].NetworkAddress() ||
+			 host.IpAddress() == nics[i].BroadcastAddress() ){
 			Unlock( "HostList::AddHost()" );
 			return;
 		}
@@ -227,6 +237,10 @@ HostList::AddHost( const HostListItem& host )
 		}
 	}
 	if ( !is_found ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("AddHost Nickname=%s\n", host.Nickname().c_str() );fflush(stdout);
+		printf("AddHost GroupName=%s\n", host.GroupName().c_str() );fflush(stdout);
+#endif
 		items.push_back( host );
 	}
 	if ( agent->GetSortHostListComparator() != NULL ){
