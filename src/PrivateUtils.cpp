@@ -213,11 +213,11 @@ IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr
 {
 #ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexInit before:%s\n", pos );fflush(stdout);
+//	printf( "MutexInit before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_init(mutex, mutexattr);
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexInit after :%s\n", pos );fflush(stdout);
+//	printf( "MutexInit after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
 #else
@@ -236,11 +236,11 @@ IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexLock before:%s\n", pos );fflush(stdout);
+//	printf( "MutexLock before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_lock( mutex );
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexLock after :%s\n", pos );fflush(stdout);
+//	printf( "MutexLock after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
 #else
@@ -259,11 +259,11 @@ IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexUnlock before:%s\n", pos );fflush(stdout);
+//	printf( "MutexUnlock before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_unlock( mutex );
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexUnlock after :%s\n", pos );fflush(stdout);
+//	printf( "MutexUnlock after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
 #else
@@ -282,11 +282,11 @@ IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexDestroy before:%s\n", pos );fflush(stdout);
+//	printf( "MutexDestroy before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_destroy( mutex );
 #if defined(DEBUG) || defined(INFO)
-	printf( "MutexDestroy after :%s\n", pos );fflush(stdout);
+//	printf( "MutexDestroy after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
 #else
