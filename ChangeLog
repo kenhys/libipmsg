@@ -1,3 +1,10 @@
+2007-01-08 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Replace 100 to IPV4_ADDRESS_MAX_SIZE.
+- Update:Add IPV4_ADDRESS_MAX_SIZE.
+- Update:Check size on sort.
+- Update:Change PROPERTY MACRO.
+- Update:Chenge Ip address checking by string to by in_addr_t.
+
 2007-01-07 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:AddHost without broadcast and network address.
 - Update:Append debug print.
