@@ -260,7 +260,7 @@ RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file,
 
 	svr_addr = MessagePacket().Addr();
 #if defined(DEBUG)
-char ipaddrbuf[100];
+char ipaddrbuf[IPV4_ADDR_MAX_SIZE];
 printf("IP[%s]\n", inet_ntoa_r( svr_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
 printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdout);
 #endif

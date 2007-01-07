@@ -95,7 +95,7 @@ GetCommandString( unsigned long cmd )
 void
 IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
-	char ipaddrbuf[100];
+	char ipaddrbuf[IPV4_ADDR_MAX_SIZE];
 	printf( "send from %s(%d)\n", inet_ntoa_r( sender_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );fflush(stdout);
 	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
 	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
