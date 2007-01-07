@@ -28,7 +28,7 @@ Requires: 	openssl-devel
 %description devel
 The Ip Messenger Library Development kit
 
-%description -l ja
+%description devel -l ja
 Ip Messenger ライブラリの開発キット
 
 %prep
