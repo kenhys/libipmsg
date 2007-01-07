@@ -1125,20 +1125,31 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 	addr.sin_port = to_addr.sin_port;
 	addr.sin_addr.s_addr = to_addr.sin_addr.s_addr;
 	for( map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
-		if ( i->second.NativeNetworkAddress() == to_addr.sin_addr.s_addr & ( 0xffffffff ^ i->second.NativeNetMask() ) ) {
+#if defined(DEBUG)
+		printf( "Send Check Before %s(%d)\n",
+				i->second.IpAddress().c_str(),
+				i->second.PortNo() );fflush( stdout );
+		printf( "addr=%lx net=%lx\n", (long)i->second.NativeNetworkAddress(), (unsigned long)( to_addr.sin_addr.s_addr & i->second.NativeNetMask() ) );fflush( stdout );
+#endif
+		//同一ネットワーク上ではこのソケットを使う。
+		if ( i->second.NativeNetworkAddress() == to_addr.sin_addr.s_addr & i->second.NativeNetMask() ) {
 			sock = i->first;
 #if defined(DEBUG)
 			printf( "Send Check Found %s(%d)\n",
 					i->second.IpAddress().c_str(),
-					ntohs( i->second.PortNo() ) );fflush( stdout );
+					i->second.PortNo() );fflush( stdout );
 #endif
+#if 0
 			addr.sin_family = AF_INET;
-			addr.sin_port = ntohs( i->second.PortNo() );
+			addr.sin_port = htons( i->second.PortNo() );
 			addr.sin_addr.s_addr = i->second.NativeIpAddress();
+#endif
 			break;
 		}
 	}
-	ret = sendto( sock, buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( addr ) );
+	printf( "Send  %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
+//	ret = sendto( sock, buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( addr ) );
+	ret = sendto( sock, buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
 //	ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
 	if ( ret <= 0 ) {
 		perror("sendto unicast");
@@ -1523,6 +1534,8 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_in *sender_addr, int
 			}
 #if defined(DEBUG)
 			printf( "Recieved UDP_SD[%d] == %d\n", i, udp_sd[i] );fflush( stdout );
+			printf( "  IpAddr == 0x%08lx\n", (unsigned long)sender_addr->sin_addr.s_addr );fflush( stdout );
+			printf( "  PortNo == %d\n", sender_addr->sin_port );fflush( stdout );
 #endif
 			IpMsgPrintBuf( "recvfrom buf", buf, size );
 			recieved = true;
