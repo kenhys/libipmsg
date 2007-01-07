@@ -244,7 +244,9 @@ HostList::AddHost( const HostListItem& host )
 		items.push_back( host );
 	}
 	if ( agent->GetSortHostListComparator() != NULL ){
-		qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
+		if ( items.size() > 0 ) {
+			qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
+		}
 	}
 	Unlock( "HostList::AddHost()" );
 }
@@ -507,6 +509,8 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 void
 HostList::sort( HostListComparator *comparator )
 {
-	qsort( comparator, 0, items.size() - 1 );
+	if ( items.size() > 0 ) {
+		qsort( comparator, 0, items.size() - 1 );
+	}
 }
 //end of source
