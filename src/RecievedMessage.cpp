@@ -468,9 +468,6 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	struct sockaddr_in svr_addr;
 	int sock = socket( AF_INET, SOCK_STREAM, 0 );
 
-	svr_addr.sin_family = AF_INET;
-	svr_addr.sin_port = IPMSG_DEFAULT_PORT;
-	svr_addr.sin_addr = MessagePacket().Addr().sin_addr;
 	svr_addr = MessagePacket().Addr();
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 		perror("connect");
