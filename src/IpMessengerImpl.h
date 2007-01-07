@@ -230,6 +230,8 @@ class IpMessengerAgentImpl {
 //バージョン文字列
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
 
+#define	IPV4_ADDR_MAX_SIZE	100	// 3*4(3桁数字が4個) + 3(ドットが3個) + 1(終端の"\0"が1個)
+
 char *inet_ntoa_r( in_addr_t in, char *ret, int size );
 
 #if defined(DEBUG) || defined(INFO)
