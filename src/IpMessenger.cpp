@@ -171,7 +171,7 @@ IpMessengerAgent::GetEventObject()
 
 /**
  * イベントオブジェクトのセッター。
- * @param conv イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
+ * @param evt イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
 IpMessengerAgent::SetEventObject( IpMessengerEvent *evt )
@@ -263,6 +263,7 @@ IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes 
  * @param isSecret 封書かどうかを示すフラグ
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
+ * @param IsNoLogging ログに残さない（ことを推奨）
  * @param opt 送信オプション
  */
 SentMessage
@@ -279,6 +280,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool is
  * @param file 添付ファイル
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
+ * @param IsNoLogging ログに残さない（ことを推奨）
  * @param opt 送信オプション
  */
 SentMessage
@@ -295,6 +297,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
  * @param files 添付ファイル群
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
+ * @param IsNoLogging ログに残さない（ことを推奨）
  * @param opt 送信オプション
  */
 SentMessage
@@ -304,8 +307,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
 }
 
 /**
- * 登録済のブロードキャストアドレスを削除
- * @param addr 登録済のブロードキャストアドレス
+ * 登録済のブロードキャストアドレスを全てクリア
  */
 void
 IpMessengerAgent::ClearBroadcastAddress()
@@ -479,7 +481,7 @@ IpMessengerAgent::IsDialup()
 
 /**
  * ダイヤルアップのセッター
- * @param ダイヤルアップ
+ * @param isDialup ダイヤルアップ
  */
 void
 IpMessengerAgent::setIsDialup( bool isDialup )
@@ -499,7 +501,7 @@ IpMessengerAgent::AbortDownloadAtFileChanged()
 
 /**
  * ダウンロード時にファイルが変更された場合に禁止するかどうかのフラグのセッター
- * @param ダウンロード時にファイルが変更された場合に禁止するかどうかのフラグ
+ * @param isAbort ダウンロード時にファイルが変更された場合に禁止するかどうかのフラグ
  */
 void
 IpMessengerAgent::setAbortDownloadAtFileChanged( bool isAbort )
@@ -519,7 +521,7 @@ IpMessengerAgent::SaveSentMessage()
 
 /**
  * 送信メッセージを保存するかどうかのフラグのセッター
- * @param 送信メッセージを保存するかどうかのフラグ
+ * @param isSave 送信メッセージを保存するかどうかのフラグ
  */
 void
 IpMessengerAgent::setSaveSentMessage( bool isSave )
@@ -539,7 +541,7 @@ IpMessengerAgent::SaveRecievedMessage()
 
 /**
  * 受信メッセージを保存するかどうかのフラグのセッター
- * @param 受信メッセージを保存するかどうかのフラグ
+ * @param isSave 受信メッセージを保存するかどうかのフラグ
  */
 void
 IpMessengerAgent::setSaveRecievedMessage( bool isSave )
@@ -559,7 +561,7 @@ DownloadInfo::getSpeed()
 
 /**
  * ダウンロード速度文字列を生成する。
- * @retval ダウンロード速度文字列（単位／秒）。
+ * @retval ダウンロード速度文字列（単位／秒）。例:1 B/sec, 2.00KB/sec, 3.00 MB/sec, 4.00 GB/sec, 5.00 TB/sec
  */
 string
 DownloadInfo::getSpeedString()
@@ -569,7 +571,7 @@ DownloadInfo::getSpeedString()
 
 /**
  * 容量文字列を生成する。
- * @retval 容量文字列（単位）。
+ * @retval 容量文字列（単位）。例:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
  */
 string
 DownloadInfo::getSizeString()
@@ -585,7 +587,7 @@ DownloadInfo::getSizeString()
 
 /**
  * 容量文字列を生成する。
- * @retval 容量文字列（単位）。
+ * @retval 容量文字列（単位）。例:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
  */
 string
 DownloadInfo::getUnitSizeString( long long size )

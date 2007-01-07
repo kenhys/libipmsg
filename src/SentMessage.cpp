@@ -164,7 +164,7 @@ SentMessageList::end(){
 
 /**
  * 指定されたイテレータで送信済メッセージを送信済メッセージリストから削除する。
- * @param 削除対象の送信済メッセージを示すイテレータ。
+ * @param item 削除対象の送信済メッセージを示すイテレータ。
  * @retval 削除された送信済メッセージの次の要素を示すイテレータ。
  */
 vector<SentMessage>::iterator
@@ -178,7 +178,7 @@ SentMessageList::erase( vector<SentMessage>::iterator item )
 
 /**
  * 送信済メッセージリストにメッセージを追加する。
- * @param 送信済メッセージ。
+ * @param item 送信済メッセージ。
  */
 void
 SentMessageList::append( const SentMessage &item )

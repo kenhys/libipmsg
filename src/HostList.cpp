@@ -251,7 +251,7 @@ HostList::AddHost( const HostListItem& host )
 
 /**
  * ホスト情報をホストリストから削除する。
- * @param ホスト情報のイテレータ
+ * @param it ホスト情報のイテレータ
  */
 void
 HostList::Delete( vector<HostListItem>::iterator &it )
@@ -262,7 +262,7 @@ HostList::Delete( vector<HostListItem>::iterator &it )
 }
 /**
  * ホスト情報をホストリストから削除する。
- * @param ホスト名
+ * @param hostname ホスト名
  */
 void
 HostList::DeleteHost( string hostname )

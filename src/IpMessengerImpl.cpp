@@ -268,8 +268,8 @@ IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
 /**
  * NICの情報を取得する。
  * ・使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）
- * @param nics ネットワークインターフェースの一覧
  * 注：このメソッドはスレッドセーフでない。
+ * @param nics ネットワークインターフェースの一覧
  */
 void
 IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
@@ -564,8 +564,8 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 
 /**
  * 不在モードかどうかを判定。
- * @retval 設定済の不在モードを返す。
  * 注：このメソッドはスレッドセーフでない。
+ * @retval 設定済の不在モードを返す。
  */
 bool
 IpMessengerAgentImpl::IsAbsence()
@@ -588,9 +588,9 @@ IpMessengerAgentImpl::ResetAbsence()
 
 /**
  * 不在モードを設定する。
+ * 注：このメソッドはスレッドセーフでない。
  * @param encoding ローカルエンコーディング
  * @param absenceModes AbsenceModeオブジェクトのベクタ（自動応答時に複数エンコーディング対応するため）
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::SetAbsence( string encoding, vector<AbsenceMode> absenceModes )
@@ -604,13 +604,14 @@ IpMessengerAgentImpl::SetAbsence( string encoding, vector<AbsenceMode> absenceMo
 
 /**
  * メッセージ送信。
+ * 注：このメソッドはスレッドセーフでない。
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
+ * @param IsNoLogging ログに記録しない（ことを推奨）
  * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
 IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
@@ -621,14 +622,15 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, boo
 
 /**
  * メッセージ送信。
+ * 注：このメソッドはスレッドセーフでない。
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
  * @param file 添付ファイル
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
+ * @param IsNoLogging ログに記録しない（ことを推奨）
  * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
  */
 SentMessage
 IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
@@ -640,14 +642,17 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 
 /**
  * メッセージ送信。
+ * 注：このメソッドはスレッドセーフでない。
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
  * @param files 添付ファイル群
  * @param isLockPassword 錠つきかどうかを示すフラグ
  * @param hostCountAtSameTime 同時送信ホスト数
+ * @param IsNoLogging ログに記録しない（ことを推奨）
  * @param opt 送信オプション
- * 注：このメソッドはスレッドセーフでない。
+ * @param isRetry 暗黙のリトライによる送信要求かを示すフラグ
+ * @param PrevPacketNo リトライであれば前回のパケット番号
  */
 SentMessage
 IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
@@ -772,8 +777,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 }
 
 /**
- * 登録済のブロードキャストアドレスを削除
- * @param addr 登録済のブロードキャストアドレス
+ * 登録済のブロードキャストアドレスをクリア
  * 注：このメソッドはスレッドセーフでない。
  */
 void
@@ -784,8 +788,8 @@ IpMessengerAgentImpl::ClearBroadcastAddress()
 
 /**
  * 登録済のブロードキャストアドレスを削除
- * @param addr 登録済のブロードキャストアドレス
  * 注：このメソッドはスレッドセーフでない。
+ * @param addr 登録済のブロードキャストアドレス
  */
 void
 IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
@@ -803,8 +807,8 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
 
 /**
  * ブロードキャストアドレスを登録
- * @param addr 登録するブロードキャストアドレス
  * 注：このメソッドはスレッドセーフでない。
+ * @param addr 登録するブロードキャストアドレス
  */
 void
 IpMessengerAgentImpl::AddBroadcastAddress( string addr )
@@ -839,9 +843,9 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 
 /**
  * 登録済のブロードキャストアドレスを検索し、該当するsockaddr_in構造体を返却する。
+ * 注：このメソッドはスレッドセーフでない。
  * @param addr ブロードキャストアドレス文字列
  * @retval sockaddr_in構造体
- * 注：このメソッドはスレッドセーフでない。
  */
 vector<struct sockaddr_in>::iterator
 IpMessengerAgentImpl::FindBroadcastNetworkByAddress( string addr )
@@ -858,8 +862,8 @@ IpMessengerAgentImpl::FindBroadcastNetworkByAddress( string addr )
 /**
  * 対象ホストのバージョン情報を問い合わせる。
  * ・GETINFOパケットを送信。
- * @param host 対象のホスト
  * 注：このメソッドはスレッドセーフでない。
+ * @param host 対象のホスト
  */
 void
 IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
@@ -883,9 +887,9 @@ IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
  * ・バージョン情報を問い合わせる。
  * ・他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）
  * ・IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を返す。
+ * 注：このメソッドはスレッドセーフでない。
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
- * 注：このメソッドはスレッドセーフでない。
  */
 string
 IpMessengerAgentImpl::GetInfo( HostListItem& host )
@@ -904,8 +908,8 @@ IpMessengerAgentImpl::GetInfo( HostListItem& host )
 /**
  * 対象ホストの不在説明文字列情報を問い合わせる。
  * ・GETABSENCEINFOパケットを送信。
- * @param host 対象のホスト
  * 注：このメソッドはスレッドセーフでない。
+ * @param host 対象のホスト
  */
 void
 IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
@@ -929,9 +933,9 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
  * ・不在説明文字列情報を問い合わせる。
  * ・他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）
  * ・IPアドレスでマッチングしてANSABSENCEINFOで更新された不在説明文字列情報を返す。
+ * 注：このメソッドはスレッドセーフでない。
  * @param host 対象のホスト
  * @retval 対象ホストの不在説明文字列情報
- * 注：このメソッドはスレッドセーフでない。
  */
 string
 IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
@@ -950,8 +954,8 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 
 /**
  * 保持中のホストリストからグループリストを取得する。
- * @retval グループリスト
  * 注：このメソッドはスレッドセーフでない。
+ * @retval グループリスト
  */
 vector<GroupItem>
 IpMessengerAgentImpl::GetGroupList()
@@ -977,8 +981,8 @@ IpMessengerAgentImpl::GetGroupList()
 
 /**
  * 送信元にメッセージを削除したことを通知する。
- * @param msg 受信メッセージオブジェクト。
  * 注：このメソッドはスレッドセーフでない。
+ * @param msg 受信メッセージオブジェクト。
  */
 void
 IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
@@ -1002,8 +1006,8 @@ IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 
 /**
  * 送信元にメッセージを開封したことを通知する。
- * @param msg 受信メッセージオブジェクト。
  * 注：このメソッドはスレッドセーフでない。
+ * @param msg 受信メッセージオブジェクト。
  */
 void
 IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
@@ -1027,8 +1031,8 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 
 /**
  * 送信済メッセージリストに開封されたことをマークする。
- * @param msg 送信メッセージオブジェクト。
  * 注：このメソッドはスレッドセーフでない。
+ * @param msg 送信メッセージオブジェクト。
  */
 void
 IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
@@ -1076,10 +1080,10 @@ IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
 
 /**
  * TCPパケットの送信を行う。
+ * 注：このメソッドはスレッドセーフでない。
  * @param sd ソケットディスクリプタ
  * @param buf バッファ
  * @param size バッファサイズ
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
@@ -1103,10 +1107,10 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 
 /**
  * UDPパケットの送信を行う。
+ * 注：このメソッドはスレッドセーフでない。
  * @param buf バッファ
  * @param size バッファサイズ
  * @param to_addr 送信先のIPアドレス
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_in to_addr )
@@ -1165,9 +1169,9 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 /**
  * UDPパケットのブロードキャストを行う。
  * ・ブロードキャストアドレスリストに登録済のアドレスに全て送信する。
+ * 注：このメソッドはスレッドセーフでない。
  * @param buf バッファ
  * @param size バッファサイズ
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int size )
@@ -1239,10 +1243,10 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 
 /**
  * 受信初期化。
+ * 注：このメソッドはスレッドセーフでない。
  * ・ブロードキャストアドレスに関するUDP受信初期化。
  * ・指定のNICに対してUDPに関する受信初期化。
  * ・指定のNICに対してTCPに関する受信初期化。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
@@ -1322,9 +1326,9 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 
 /**
  * UDPに関する受信初期化。
+ * 注：このメソッドはスレッドセーフでない。
  * ・2425待ち受けのUDPソケットを準備する
  * ・UDPはbroadcast許可
- * 注：このメソッドはスレッドセーフでない。
  */
 int
 IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_in addr )
@@ -1382,10 +1386,10 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_in addr )
 
 /**
  * TCPに関する受信初期化。
+ * 注：このメソッドはスレッドセーフでない。
  * ・2425待ち受けのTCPソケットを準備する
  * ・TCPはREUSEADDR
  * ・litsenは5ポート
- * 注：このメソッドはスレッドセーフでない。
  */
 int
 IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_in addr )

@@ -756,6 +756,10 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
 #endif	//HAVE_OPENSSL
 }
 
+/**
+ * 最適なRSAオブジェクトを選択して返却する。
+ * @param cap 自分の暗号化能力を示すフラグ。
+ */
 RSA *
 IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap ){
 	RSA *rsa = NULL;

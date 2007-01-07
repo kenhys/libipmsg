@@ -157,7 +157,7 @@ RecievedMessageList::end()
 
 /**
  * 指定されたイテレータで受信済メッセージを受信済メッセージリストから削除する。
- * @param 削除対象の受信済メッセージを示すイテレータ。
+ * @param item 削除対象の受信済メッセージを示すイテレータ。
  * @retval 削除された受信済メッセージの次の要素を示すイテレータ。
  */
 vector<RecievedMessage>::iterator
@@ -171,7 +171,7 @@ RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
 
 /**
  * 受信済メッセージリストにメッセージを追加する。
- * @param 受信済メッセージ。
+ * @param item 受信済メッセージ。
  */
 void
 RecievedMessageList::append( const RecievedMessage &item )

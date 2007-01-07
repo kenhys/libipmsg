@@ -26,7 +26,7 @@ AttachFileList::AttachFileList()
 /**
  * コピーコンストラクタ。
  * ・ファイルリストをロックするためのミューテックスを生成。
- * @param コピー元のオブジェクト
+ * @param other コピー元のオブジェクト
  */
 AttachFileList::AttachFileList( const AttachFileList& other )
 {
@@ -39,7 +39,7 @@ AttachFileList::AttachFileList( const AttachFileList& other )
 /**
  * 代入演算子。
  * ・ファイルリストをロックするためのミューテックスを生成。
- * @param コピー元のオブジェクト
+ * @param other コピー元のオブジェクト
  * @retval 自オブジェクトのインスタンス
  */
 AttachFileList&
@@ -54,7 +54,7 @@ AttachFileList::operator=( const AttachFileList& other )
 
 /**
  * コピーメソッド。
- * @param コピー元のオブジェクト
+ * @param other コピー元のオブジェクト
  */
 void
 AttachFileList::CopyFrom( const AttachFileList& other )
@@ -173,7 +173,7 @@ AttachFileList::erase( const AttachFile& item )
 
 /**
  * 添付ファイル一覧からフルパスで検索
- * @param fullParh 検索対象のフルパス
+ * @param fullPath 検索対象のフルパス
  * @retval 見付かったAttachFileのイテレータ。見付からない場合end();
  */
 vector<AttachFile>::iterator
@@ -192,9 +192,9 @@ AttachFileList::FindByFullPath( const string& fullPath )
 }
 
 /**
- * 添付ファイルオブジェクトが自分と一致するかを返す。
- * @param item 添付ファイル
- * @retval 添付ファイルオブジェクトへのイテレータ
+ * 添付ファイル一覧からファイルIDを基に検索し一致するオブジェクトのイテレータを返す。
+ * @param file_id 添付ファイルのファイルID
+ * @retval 添付ファイルオブジェクトへのイテレータ。存在しない場合、end()。
  */
 vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
