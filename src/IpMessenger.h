@@ -40,8 +40,11 @@ using namespace std;
  * -------------------------------------------------------------------
  * に展開されます。
  **/
-#define IPMSG_READONLY_PROPERTY(t, name ) private: t _##name; \
-								public: t name() const { return _##name; };
+#define IPMSG_READONLY_PROPERTY(t, name ) \
+									private: \
+										t _##name; \
+									public: \
+										inline t name() const { return _##name; };
 
 /**
  * 読み書き両用プロパティ
@@ -53,9 +56,11 @@ using namespace std;
  * -------------------------------------------------------------------
  * に展開されます。
  **/
-#define IPMSG_PROPERTY(t, name ) private: t _##name; \
-								public: t name() const { return _##name; };\
-								void set##name( const t val ){ _##name = val; };
+#define IPMSG_PROPERTY(t, name )	private: \
+										t _##name; \
+									public: \
+										inline t name() const { return _##name; }; \
+										inline void set##name( const t val ){ _##name = val; };
 
 /**
  * 読み書き両用プロパティ(参照用)
@@ -67,9 +72,12 @@ using namespace std;
  * -------------------------------------------------------------------
  * に展開されます。
  **/
-#define IPMSG_PROPERTY_REF(t, name ) private: t _##name; \
-									public: t& name() { return _##name; };\
-									void set##name( const t& val ){ _##name = val; };
+#define IPMSG_PROPERTY_REF(t, name )	\
+									private: \
+										t _##name; \
+									public: \
+										inline t& name() { return _##name; }; \
+										inline void set##name( const t& val ){ _##name = val; };
 class Packet{
 	public:
 		IPMSG_PROPERTY( unsigned long, VersionNo );
