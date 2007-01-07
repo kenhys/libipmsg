@@ -329,9 +329,9 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 	char tmp[100];
 	ret.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, tmp, sizeof( tmp ) ) );
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "CreateHostListItemFromPacket port %d\n", packet.Addr().sin_port );fflush(stdout);
+	printf( "CreateHostListItemFromPacket port %d\n", ntohs( packet.Addr().sin_port ) );fflush(stdout);
 #endif
-	ret.setPortNo( packet.Addr().sin_port );
+	ret.setPortNo( ntohs( packet.Addr().sin_port ) );
 	unsigned int loc = packet.Option().find_first_of( '\0' );
 	if ( loc == string::npos ) {
 		ret.setNickname( packet.Option() );
