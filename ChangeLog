@@ -1,3 +1,8 @@
+2007-01-09 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Append debug print.
+- Update:Add common method(UdpSendto).
+- Fix:IP address is strange on host list,when looking from other network.
+
 2007-01-08 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Replace 100 to IPV4_ADDRESS_MAX_SIZE.
 - Update:Add IPV4_ADDRESS_MAX_SIZE.
