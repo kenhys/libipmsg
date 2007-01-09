@@ -147,6 +147,7 @@ class IpMessengerAgentImpl {
 		void PurgePacket( time_t nowTime );
 		void CheckSendMsgRetry( time_t nowTime );
 		void CheckGetHostListRetry( time_t nowTime );
+		void UdpSendto( const struct sockaddr_in *addr, char *buf, int size );
 		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_in toAddr );
 		void SendBroadcast( const unsigned long cmd, char *buf, int size );
 		void DoRecvCommand( const Packet& packet );
