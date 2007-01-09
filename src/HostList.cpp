@@ -282,10 +282,11 @@ HostList::DeleteHost( string hostname )
 /**
  * ホストリスト送信用文字列を作成する。
  * @param start 開始位置
+ * @param addr 送信先のアドレス
  * @retval ホストリスト送信用文字列。
  */
 string
-HostList::ToString( int start )
+HostList::ToString( int start, const struct sockaddr_in *addr )
 {
 	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
@@ -296,14 +297,36 @@ HostList::ToString( int start )
 	int hostCount = 0;
 	for( unsigned int i = start ; i < items.size(); i++ ){
 		HostListItem item = items.at( i );
-		sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
-						item.UserName() == "" ? "\b" : item.UserName().c_str(),
-						item.HostName() == "" ? "\b" : item.HostName().c_str(),
-						item.CommandNo(),
-						item.IpAddress() == "" ? "\b" : item.IpAddress().c_str(),
-						htons( item.PortNo() ),
-						item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
-						item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
+		//自分のIPアドレスを返す場合で他のネットワーク向けのアドレスを持っている場合に、
+		//そちらのインターフェースのアドレスを返す。
+		if ( item.IsLocalHost() ) {
+			IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+			vector<NetworkInterface> nics = agent->NICs;
+			string localaddr = nics[0].IpAddress();
+			for( unsigned int i = 0; i < nics.size(); i++ ){
+				if ( nics[i].NativeNetworkAddress() == (in_addr_t)( addr->sin_addr.s_addr & nics[i].NativeNetMask() ) ){
+					localaddr = nics[i].IpAddress();
+					break;
+				}
+			}
+			sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
+							item.UserName() == "" ? "\b" : item.UserName().c_str(),
+							item.HostName() == "" ? "\b" : item.HostName().c_str(),
+							item.CommandNo(),
+							localaddr == "" ? "\b" : localaddr.c_str(),
+							htons( item.PortNo() ),
+							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
+							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
+		} else {
+			sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
+							item.UserName() == "" ? "\b" : item.UserName().c_str(),
+							item.HostName() == "" ? "\b" : item.HostName().c_str(),
+							item.CommandNo(),
+							item.IpAddress() == "" ? "\b" : item.IpAddress().c_str(),
+							htons( item.PortNo() ),
+							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
+							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
+		}
 		if ( ret.length() >= maxLength ){
 			break;
 		}

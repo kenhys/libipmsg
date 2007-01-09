@@ -166,7 +166,7 @@ class HostList{
 		vector<HostListItem>::iterator end();
 		int size() const;
 		void clear();
-		string ToString( int start );
+		string ToString( int start, const struct sockaddr_in *addr );
 		void sort( HostListComparator *comparator );
 		HostList();
 		HostList( const HostList& other );
