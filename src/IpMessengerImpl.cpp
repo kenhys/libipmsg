@@ -1125,45 +1125,9 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 	printf( "Send  %s(%d)\n", inet_ntoa_r( to_addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( to_addr.sin_port ) );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
-	int ret = 0;
-	int sock = udp_sd[0];
-	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = to_addr.sin_port;
-	addr.sin_addr.s_addr = to_addr.sin_addr.s_addr;
-	for( map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
-#if defined(DEBUG)
-		printf( "Send Check Before %s(%d)\n",
-				i->second.IpAddress().c_str(),
-				i->second.PortNo() );fflush( stdout );
-		printf( "addr=%lx net=%lx\n", (long)i->second.NativeNetworkAddress(), (unsigned long)( to_addr.sin_addr.s_addr & i->second.NativeNetMask() ) );fflush( stdout );
-#endif
-		//同一ネットワーク上ではこのソケットを使う。
-		if ( i->second.NativeNetworkAddress() == to_addr.sin_addr.s_addr & i->second.NativeNetMask() ) {
-			sock = i->first;
-#if defined(DEBUG)
-			printf( "Send Check Found %s(%d)\n",
-					i->second.IpAddress().c_str(),
-					i->second.PortNo() );fflush( stdout );
-#endif
-#if 0
-			addr.sin_family = AF_INET;
-			addr.sin_port = htons( i->second.PortNo() );
-			addr.sin_addr.s_addr = i->second.NativeIpAddress();
-#endif
-			break;
-		}
-	}
-	printf( "Send  %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
-//	ret = sendto( sock, buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( addr ) );
-	ret = sendto( sock, buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
-//	ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&to_addr, sizeof( to_addr ) );
-	if ( ret <= 0 ) {
-		perror("sendto unicast");
-#if defined(DEBUG)
-		printf("S E N D   F A I L E D ( ret = %d)\n", ret );fflush( stdout );
-#endif
-	}
+
+	UdpSendto( &to_addr, buf, size );
+
 #if defined(DEBUG)
 	printf("<= S E N D =============================================\n");fflush( stdout );
 #endif
@@ -1185,20 +1149,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 #endif
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
-#if defined(DEBUG)
-		char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-		printf( "Send To %s(%d)\n", inet_ntoa_r( ixaddr->sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( ixaddr->sin_port ) );fflush( stdout );
-#endif
-		int ret = 0;
-		for( unsigned int i = 0; i < udp_sd.size(); i++ ){
-			ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&(*ixaddr), sizeof( struct sockaddr ) );
-			if ( ret <= 0 ) {
-				perror("sendto broadcast.");
-#if defined(DEBUG)
-				printf("S E N D   F A I L E D\n");fflush( stdout );
-#endif
-			}
-		}
+		UdpSendto( &(*ixaddr), buf, size );
 	}
 	for( vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ){
 		if ( ixhost->CommandNo() | IPMSG_DIALUPOPT ) {
@@ -1206,20 +1157,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 			addr.sin_family = AF_INET;
 			addr.sin_port = htons( ixhost->PortNo() );
 			addr.sin_addr.s_addr = inet_addr( ixhost->IpAddress().c_str() );
-#if defined(DEBUG)
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			printf( "Send To %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
-#endif
-			int ret = 0;
-			for( unsigned int i = 0; i < udp_sd.size(); i++ ){
-				ret = sendto( udp_sd[i], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
-				if ( ret <= 0 ) {
-					perror("sendto dialup host.");
-#if defined(DEBUG)
-					printf("S E N D   F A I L E D ( D I A L U P )\n");fflush( stdout );
-#endif
-				}
-			}
+			UdpSendto( &addr, buf, size );
 		}
 	}
 	//念のため自分にも
@@ -1235,13 +1173,57 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	if ( ret <= 0 ) {
 		perror("sendto myself.");
 #if defined(DEBUG)
-		printf("S E N D   F A I L E D ( D I A L U P )\n");fflush( stdout );
+		printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
 	}
 
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
 #endif
+}
+
+/**
+ * ソケットにバインドされたネットワークに対して同一ネットワークに属していれば、そのNICから電文送信を行うことを保証するsendto。
+ * @param addr 送信先のアドレス。
+ * @param buf バッファ
+ * @param size バッファサイズ
+ */
+void
+IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int size )
+{
+	int sock = udp_sd[0];
+#if defined(DEBUG)
+	string from_addr = sd_addr.begin()->second.IpAddress();
+#endif
+	for( map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
+#if defined(DEBUG)
+		printf( "Send Check Before %s(%d)\n",
+				i->second.IpAddress().c_str(),
+				i->second.PortNo() );fflush( stdout );
+		printf( "addr=%lx net=%lx\n", (long)i->second.NativeNetworkAddress(), (unsigned long)( addr->sin_addr.s_addr & i->second.NativeNetMask() ) );fflush( stdout );
+#endif
+		if ( i->second.NativeNetworkAddress() == (in_addr_t)(addr->sin_addr.s_addr & i->second.NativeNetMask() ) ) {
+			sock = i->first;
+#if defined(DEBUG)
+			from_addr = i->second.IpAddress();
+			printf( "Send Check Found %s(%d)\n",
+					i->second.IpAddress().c_str(),
+					i->second.PortNo() );fflush( stdout );
+#endif
+			break;
+		}
+	}
+#if defined(DEBUG)
+	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), inet_ntoa_r( addr->sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr->sin_port ) );fflush( stdout );
+#endif
+	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sizeof( struct sockaddr ) );
+	if ( ret <= 0 ) {
+		perror("sendto broadcast.");
+#if defined(DEBUG)
+		printf("S E N D   F A I L E D\n");fflush( stdout );
+#endif
+	}
 }
 
 /**
@@ -1486,7 +1468,9 @@ IpMessengerAgentImpl::RecvPacket()
 			}
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr, nowTime );
 #if defined(INFO) || !defined(NDEBUG)
-			printf("recv from[%s]\n", packet.HostName().c_str() );fflush( stdout );
+			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+			inet_ntoa_r( sender_addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+			printf("recv from[%s][%s]\n", packet.HostName().c_str(), ipAddrBuf );fflush( stdout );
 #endif
 			packet.setTcpSocket( tcp_socket );
 			//同一セッション内だけパケットの一意性をチェック。重複パケットは無視
@@ -2166,7 +2150,8 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 	printf("UdpRecvGetList[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
 	start = strtoul( packet.Option().c_str(), &dmy, 10 );
-	hosts = hostList.ToString( start );
+	struct sockaddr_in addr = packet.Addr();
+	hosts = hostList.ToString( start, &addr );
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSLIST ),
 										_LoginName, _HostName,
 										hosts.c_str(), hosts.length(),
@@ -2941,7 +2926,8 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 	char *hostListTmpBuf = (char *)calloc( alloc_size, 1 );
 
 #if defined(DEBUG) || !defined(NDEBUG)
-IpMsgPrintBuf( "hostListBuf", hostListBuf, buf_len );
+	printf("IpMessengerAgentImpl::CreateHostList packetIpAddress=[%s] packetHostName[%s]\n", packetIpAddress, packetHostName );
+	IpMsgPrintBuf( "hostListBuf", hostListBuf, buf_len );
 #endif
 	AddDefaultHost();
 	if ( hostListTmpBuf == NULL ) {
