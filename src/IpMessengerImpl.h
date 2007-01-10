@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
