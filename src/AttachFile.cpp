@@ -165,8 +165,9 @@ AttachFileList::erase( vector<AttachFile>::iterator item )
 vector<AttachFile>::iterator
 AttachFileList::erase( const AttachFile& item )
 {
+	vector<AttachFile>::iterator it = FindByFileId( item.FileId() );
 	Lock( "AttachFileList::erase(AttachFile&)" );
-	vector<AttachFile>::iterator ret = erase( FindByFileId( item.FileId() ) );
+	vector<AttachFile>::iterator ret = files.erase( it );
 	Unlock( "AttachFileList::erase(AttachFile&)" );
 	return ret;
 }
