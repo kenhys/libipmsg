@@ -104,11 +104,9 @@ if test "x$enable_debug" = xno; then
 	CXXFLAGS="-DNDEBUG"
 	echo Debug support disabled.
 else
-	CXXFLAGS="-g -DDEBUG -DINFO -Werror -Wall"
-	CXXFLAGS="-g -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum"
-#	CXXFLAGS="-g -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum -Weffc++"
+	CXXFLAGS="-g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum"
+#	CXXFLAGS="-g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum -Weffc++"
 #	CXXFLAGS="$CXXFLAGS -Wextra -Wstrict-aliasing=2 -Woverload-virtual"
-#	CXXFLAGS="$CXXFLAGS -W"
 	echo Debug support enabled.
 fi
 
