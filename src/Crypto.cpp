@@ -53,7 +53,7 @@ IpMessengerAgentImpl::CryptoInit()
 	RsaMax = RSA_generate_key( RSA_KEY_LENGTH_MAXIMUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMax == NULL ) {
 		char errbuf[ERR_BUF_SIZE];
-		printf("in encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
+		printf("in Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_2048;
 		printf("encryption extention enabled.(RSA2048)\n");fflush(stdout);
@@ -64,7 +64,7 @@ IpMessengerAgentImpl::CryptoInit()
 	RsaMid = RSA_generate_key( RSA_KEY_LENGTH_MIDIUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMid == NULL ) {
 		char errbuf[ERR_BUF_SIZE];
-		printf("in encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
+		printf("in Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_1024;
 		printf("encryption extention enabled.(RSA1024)\n");fflush(stdout);
@@ -75,7 +75,7 @@ IpMessengerAgentImpl::CryptoInit()
 	RsaMin = RSA_generate_key( RSA_KEY_LENGTH_MINIMUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMin == NULL ) {
 		char errbuf[ERR_BUF_SIZE];
-		printf("in encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
+		printf("in Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_512;
 		printf("encryption extention enabled.(RSA512)\n");fflush(stdout);
