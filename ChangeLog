@@ -1,3 +1,15 @@
+2007-01-11 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Replace thread unsafe function to thread safe function.(readdir,getenv,ctime...)
+- Update:Change ifdef on debug for locking.
+- Update:Arrangement configure.ac(compile options).
+- Update:Add libtool revision control.
+
+2007-01-10 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Replace thread unsafe function to thread safe function.(readdir,getenv,ctime...)
+- Fix:Change lock sequence.
+- Update:Change debug print.
+- Update:Add include <limits.h>.
+
 2007-01-09 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Append debug print.
 - Update:Add common method(UdpSendto).
