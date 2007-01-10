@@ -11,6 +11,7 @@
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
 #include <pthread.h>
+#include <pwd.h>
 using namespace std;
 
 static IpMessengerAgentImpl *myInstance = NULL;
@@ -355,35 +356,29 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
 void
 IpMessengerAgentImpl::NetworkInit( const vector<NetworkInterface>& nics )
 {
-	char buf[100];
-	char *env;
+	char hostbuf[sysconf( _SC_HOST_NAME_MAX )  + 1];
 
 	_HostName = "";
-	env = getenv( "HOSTNAME" );
-	if ( env != NULL ) {
-		_HostName = env;
-	}
-	if ( _HostName == "" ) {
-		env = getenv( "HOST" );
-		if ( env != NULL ) {
-			_HostName = env;
-		}
+	//なるべくAPIで取得する。出来なければ、localhostを設定。
+	memset( hostbuf, 0, sizeof( hostbuf ) );
+	if ( gethostname( hostbuf, sizeof( hostbuf ) ) == 0 ){
+		_HostName = hostbuf;
 	}
 	if ( _HostName == "" ) {
 		_HostName = "localhost";
 	}
-	env = getenv( "USERNAME" );
-	if ( env != NULL ){
-		_LoginName = env;
+
+	struct passwd login;
+	char buf[sysconf(_SC_GETPW_R_SIZE_MAX)];
+	struct passwd *pw;
+	uid_t uid = getuid();
+	_LoginName = "";
+	//なるべくAPIで取得する。出来なければ、uidを設定。
+	if ( getpwuid_r( uid, &login, buf, sizeof( buf ), &pw ) == 0 ) {
+		_LoginName = login.pw_name;
 	}
 	if ( _LoginName == "" ){
-		env = getenv( "USER" );
-		if ( env != NULL ) {
-			_LoginName = env;
-		}
-	}
-	if ( _LoginName == "" ){
-		_LoginName = snprintf( buf, sizeof( buf ), "%d", getuid() );
+		_LoginName = snprintf( buf, sizeof( buf ), "%d", uid );
 	}
 
 #ifdef HAVE_OPENSSL
@@ -2624,7 +2619,6 @@ bool
 IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<string> &files )
 {
 	DIR *d= opendir( dir.c_str() );
-	struct dirent *dent;
 	struct stat st;
 	char headBuf[8192];
 
@@ -2642,8 +2636,10 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 	headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
 	send( sock, headBuf, headBufLen, 0 );
 
-	dent = readdir( d );
-	while( dent != NULL ) {
+	char buf[ offsetof( struct dirent, d_name ) + pathconf( dir.c_str(), _PC_NAME_MAX ) + 1 ];
+	struct dirent *bufdent = ( struct dirent * )buf;
+	struct dirent *dent = NULL;
+	while( readdir_r( d, bufdent, &dent ) == 0 && dent != NULL ) {
 		if ( strcmp(dent->d_name, "." ) != 0 && strcmp(dent->d_name, ".." ) != 0 ) {
 			string dir_name = dir + "/" + dent->d_name;
 #if defined(INFO) || !defined(NDEBUG)
@@ -2678,7 +2674,6 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 				}
 			}
 		}
-		dent = readdir( d );
 	}
 	headBufLen = snprintf( headBuf, sizeof( headBuf ), "0000:.:0:%lx:", IPMSG_FILE_RETPARENT );
 	headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
@@ -2873,7 +2868,8 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 			printf("FILE NAME[%s]\n", file.FileName().c_str());fflush( stdout );
 			printf("FILE SIZE[%lld]\n", file.FileSize());fflush( stdout );
 			time_t tt = file.MTime();
-			printf("MTIME[%s]\n", ctime( &tt ) );fflush( stdout );
+			char dmybuf[100];
+			printf("MTIME[%s]\n", ctime_r( &tt, dmybuf ) );fflush( stdout );
 			printf("ATTR[%lu]\n", file.Attr() );fflush( stdout );
 			for( map<string, vector<unsigned long> >::iterator ixextattr = file.beginExtAttrs(); ixextattr != file.endExtAttrs(); ixextattr++){
 				printf("EXT ATTR[%s]==", ixextattr->first.c_str() );fflush( stdout );
