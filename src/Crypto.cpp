@@ -759,6 +759,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
 /**
  * 最適なRSAオブジェクトを選択して返却する。
  * @param cap 自分の暗号化能力を示すフラグ。
+ * @retval 暗号化に使用するRSAオブジェクト。
  */
 RSA *
 IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap ){
