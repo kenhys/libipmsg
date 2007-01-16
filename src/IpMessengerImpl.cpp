@@ -1,5 +1,5 @@
 /**
- * IP メッセンジャライブラリ(Unix用)
+ * IP メッセンジャライブラリ(Unix用)<br/>
  * IPメッセンジャエージェントクラス。
  */
 
@@ -43,8 +43,9 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
- * Singletonパターンを採用しているので、ホスト唯一のインスタンスでなければならない。
- * 注：このインスタンスはスレッドセーフでない。
+ * <ul>
+ * <li>Singletonパターンを採用しているので、ホスト唯一のインスタンスでなければならない。</li>
+ * </ul>
  */
 IpMessengerAgentImpl *
 IpMessengerAgentImpl::GetInstance()
@@ -59,9 +60,10 @@ IpMessengerAgentImpl::GetInstance()
 
 /**
  * IP メッセンジャエージェントクラスのインスタンスを解放する。
- * このメソッドを使ってオブジェクトを解放しなければならない。
- * ライブラリを通じないで直接deleteされた場合はその後の動作について感知しない。
- * 注：このインスタンスはスレッドセーフでない。
+ * <ul>
+ * <li>このメソッドを使ってオブジェクトを解放しなければならない。</li>
+ * <li>ライブラリを通じないで直接deleteされた場合はその後の動作について感知しない。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::Release()
@@ -77,12 +79,13 @@ IpMessengerAgentImpl::Release()
 }
 
 /**
- * IP メッセンジャエージェントクラスのコンストラクタ。
- * ・暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の生成を行う。
- * ・パケットNoに使用する乱数シードを時刻で初期化する。
- * ・ファイル名コンバータを初期セットアップする。（変換を行わないNullConverterがデフォルト）
- * ・ネットワークの初期化。
- * 注：このインスタンスはスレッドセーフでない。
+ * IP メッセンジャエージェントクラスのコンストラクタ。<br/>
+ * <ul>
+ * <li>暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の生成を行う。</li>
+ * <li>パケットNoに使用する乱数シードを時刻で初期化する。</li>
+ * <li>ファイル名コンバータを初期セットアップする。（変換を行わないNullConverterがデフォルト）</li>
+ * <li>ネットワークの初期化。
+ * </ul>
  */
 IpMessengerAgentImpl::IpMessengerAgentImpl()
 {
@@ -99,11 +102,12 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 
 /**
  * IP メッセンジャエージェントクラスのデストラクタ。
- * ・まず、ログアウト。
- * ・暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の破棄を行う。
- * ・割り当て済のファイル名コンバータを削除する。
- * ・ソケットのクローズ。
- * 注：このインスタンスはスレッドセーフでない。
+ * <ul>
+ * <li>まず、ログアウト。</li>
+ * <li>暗号化サポートが有効な場合、ローカルホストのRSA公開鍵の破棄を行う。</li>
+ * <li>割り当て済のファイル名コンバータを削除する。</li>
+ * <li>ソケットのクローズ。
+ * </ul>
  */
 IpMessengerAgentImpl::~IpMessengerAgentImpl()
 {
@@ -119,7 +123,9 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
 
 /**
  * IP メッセンジャエージェントクラスのネットワークを起動する。
- * ・NICを指定しないでネットワーク開始(全てのNIC、デフォルトポートで起動)。
+ * <ul>
+ * <li>NICを指定しないでネットワーク開始(全てのNIC、デフォルトポートで起動)。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::StartNetwork()
@@ -130,9 +136,11 @@ IpMessengerAgentImpl::StartNetwork()
 
 /**
  * IP メッセンジャエージェントクラスのネットワークを起動する。
- * ・ネットワーク初期化。
- * ・不在を解除。
- * ・開始後ログインする必要があります。
+ * <ul>
+ * <li>ネットワーク初期化。</li>
+ * <li>不在を解除。</li>
+ * <li>開始後ログインする必要があります。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::StartNetwork( const vector<NetworkInterface>& nics )
@@ -145,7 +153,9 @@ IpMessengerAgentImpl::StartNetwork( const vector<NetworkInterface>& nics )
 
 /**
  * IP メッセンジャエージェントクラスのネットワークを終了する。
- * ・ネットワーク終期化。
+ * <ul>
+ * <li>ネットワーク終期化。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::StopNetwork()
@@ -157,7 +167,9 @@ IpMessengerAgentImpl::StopNetwork()
 
 /**
  * IP メッセンジャエージェントクラスのネットワークを再起動する。
- * ・NICを指定しないでネットワーク再起動(全てのNIC、デフォルトポート再起動)。
+ * <ul>
+ * <li>NICを指定しないでネットワーク再起動(全てのNIC、デフォルトポート再起動)。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::RestartNetwork()
@@ -168,10 +180,12 @@ IpMessengerAgentImpl::RestartNetwork()
 
 /**
  * IP メッセンジャエージェントクラスのネットワークを再起動する。
- * ・まず、ログアウト。
- * ・ネットワーク終期化。
- * ・ネットワーク初期化。
- * ・再度ログイン。
+ * <ul>
+ * <li>まず、ログアウト。</li>
+ * <li>ネットワーク終期化。</li>
+ * <li>ネットワーク初期化。</li>
+ * <li>再度ログイン。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::RestartNetwork( const vector<NetworkInterface>& nics )
@@ -183,8 +197,7 @@ IpMessengerAgentImpl::RestartNetwork( const vector<NetworkInterface>& nics )
 }
 
 /**
- * ファイル名コンバータのゲッター。
- * 注：このメソッドはスレッドセーフでない。
+ * ファイル名コンバータのゲッター。<br>
  * @retval コンバータのアドレス。
  */
 FileNameConverter *
@@ -194,10 +207,11 @@ IpMessengerAgentImpl::GetFileNameConverter()
 }
 
 /**
- * ファイル名コンバータのセッター。
- * ・割り当て済のファイル名コンバータを削除する。
- * ・新しいコンバータの割り当て。
- * 注：このメソッドはスレッドセーフでない。
+ * ファイル名コンバータのセッター。<br>
+ * <ul>
+ * <li>割り当て済のファイル名コンバータを削除する。</li>
+ * <li>新しいコンバータの割り当て。</li>
+ * </ul>
  * @param conv コンバータのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
@@ -212,7 +226,6 @@ IpMessengerAgentImpl::SetFileNameConverter( FileNameConverter *conv )
 
 /**
  * ホストリスト比較オブジェクトのゲッター。
- * 注：このメソッドはスレッドセーフでない。
  * @retval ホストリスト比較オブジェクトのアドレス。
  */
 HostListComparator *
@@ -223,9 +236,10 @@ IpMessengerAgentImpl::GetSortHostListComparator()
 
 /**
  * ホストリスト比較オブジェクトのセッター。
- * ・割り当て済のホストリスト比較オブジェクトを削除する。
- * ・新しいホストリスト比較オブジェクトの割り当て。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>割り当て済のホストリスト比較オブジェクトを削除する。</li>
+ * <li>新しいホストリスト比較オブジェクトの割り当て。</li>
+ * </ul>
  * @param comparator ホストリスト比較オブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
@@ -240,7 +254,6 @@ IpMessengerAgentImpl::SetSortHostListComparator( HostListComparator *comparator 
 
 /**
  * イベントオブジェクトのゲッター。
- * 注：このメソッドはスレッドセーフでない。
  * @retval イベントオブジェクトのアドレス。
  */
 IpMessengerEvent *
@@ -251,9 +264,10 @@ IpMessengerAgentImpl::GetEventObject()
 
 /**
  * イベントオブジェクトのセッター。
- * ・割り当て済のイベントオブジェクトを削除する。
- * ・新しいイベントオブジェクトの割り当て。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>割り当て済のイベントオブジェクトを削除する。</li>
+ * <li>新しいイベントオブジェクトの割り当て。</li>
+ * </ul>
  * @param evt イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
@@ -268,8 +282,9 @@ IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
 
 /**
  * NICの情報を取得する。
- * ・使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>使用するネットワークインターフェイスのIPアドレスを求める。（ローカルループバックをのぞく全てのNIC）</li>
+ * </ul>
  * @param nics ネットワークインターフェースの一覧
  */
 void
@@ -349,9 +364,10 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
 
 /**
  * ネットワーク関連の初期化。
- * ・環境変数からホスト名を取得。（出来なければlocalhost固定）
- * ・環境変数からユーザ名を取得。（出来なければuid）
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>環境変数からホスト名を取得。（出来なければlocalhost固定）</li>
+ * <li>環境変数からユーザ名を取得。（出来なければuid）</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::NetworkInit( const vector<NetworkInterface>& nics )
@@ -400,8 +416,9 @@ IpMessengerAgentImpl::NetworkInit( const vector<NetworkInterface>& nics )
 
 /**
  * ネットワーク関連の初期化。
- * ・全てのソケットを閉じる。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>全てのソケットを閉じる。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::NetworkEnd()
@@ -419,10 +436,11 @@ IpMessengerAgentImpl::NetworkEnd()
 
 /**
  * ログイン（サービス参加通知）。
- * ・NOOPERATIONパケットを送信しネットワークが使用可能かどうかを確認した上でホストリストを取得。
- * ・BR_ENTRYをブロードキャスト。
- * ・パケットを受信した上で、ホストリストを再度取得。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>NOOPERATIONパケットを送信しネットワークが使用可能かどうかを確認した上でホストリストを取得。</li>
+ * <li>BR_ENTRYをブロードキャスト。</li>
+ * <li>パケットを受信した上で、ホストリストを再度取得。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::Login( string nickname, string groupName )
@@ -465,8 +483,9 @@ IpMessengerAgentImpl::Login( string nickname, string groupName )
 
 /**
  * ログアウト（サービス脱退通知）。
- * ・BR_EXITをブロードキャスト。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>BR_EXITをブロードキャスト。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::Logout()
@@ -485,7 +504,6 @@ IpMessengerAgentImpl::Logout()
 /**
  * ホストリスト取得。
  * @retval エージェントが保持しているHostListオブジェクト
- * @retval ホストリスト
  */
 HostList&
 IpMessengerAgentImpl::GetHostList()
@@ -494,12 +512,15 @@ IpMessengerAgentImpl::GetHostList()
 }
 
 /**
- * ホストリスト更新取得。
- * ・BR_ISGETLIST2をブロードキャスト。
- * ・他のメソッド（ANSLIST受信）にて取得するまで待機。（五回まで）
- * 注：ホストリストの構築はANSLIST受信時に行われるので、このメソッドではひたすら待機。
- * 注：ホストリストはANSLIST受信時に追加／更新されることがあるので常に同じホストリストを返すとは限らない。
- * 注：このメソッドはスレッドセーフでない。
+ * ホストリスト更新取得。<br>
+ * <ul>
+ * <li>BR_ISGETLIST2をブロードキャスト。</li>
+ * <li>他のメソッド（ANSLIST受信）にて取得するまで待機。（五回まで）</li>
+ * </ul>
+ * <ul>
+ * <li>ホストリストの構築はANSLIST受信時に行われるので、このメソッドではひたすら待機。</li>
+ * <li>ホストリストはANSLIST受信時に追加／更新されることがあるので常に同じホストリストを返すとは限らない。</li>
+ * </ul>
  * @retval 取得したHostListオブジェクト
  */
 HostList&
@@ -562,7 +583,6 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 
 /**
  * 不在モードかどうかを判定。
- * 注：このメソッドはスレッドセーフでない。
  * @retval 設定済の不在モードを返す。
  */
 bool
@@ -572,7 +592,6 @@ IpMessengerAgentImpl::IsAbsence()
 }
 /**
  * 不在モードをクリアする。
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::ResetAbsence()
@@ -586,7 +605,6 @@ IpMessengerAgentImpl::ResetAbsence()
 
 /**
  * 不在モードを設定する。
- * 注：このメソッドはスレッドセーフでない。
  * @param encoding ローカルエンコーディング
  * @param absenceModes AbsenceModeオブジェクトのベクタ（自動応答時に複数エンコーディング対応するため）
  */
@@ -602,7 +620,6 @@ IpMessengerAgentImpl::SetAbsence( string encoding, vector<AbsenceMode> absenceMo
 
 /**
  * メッセージ送信。
- * 注：このメソッドはスレッドセーフでない。
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
@@ -620,7 +637,6 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, boo
 
 /**
  * メッセージ送信。
- * 注：このメソッドはスレッドセーフでない。
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
@@ -640,7 +656,6 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 
 /**
  * メッセージ送信。
- * 注：このメソッドはスレッドセーフでない。
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
@@ -776,7 +791,6 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 
 /**
  * 登録済のブロードキャストアドレスをクリア
- * 注：このメソッドはスレッドセーフでない。
  */
 void
 IpMessengerAgentImpl::ClearBroadcastAddress()
@@ -786,7 +800,6 @@ IpMessengerAgentImpl::ClearBroadcastAddress()
 
 /**
  * 登録済のブロードキャストアドレスを削除
- * 注：このメソッドはスレッドセーフでない。
  * @param addr 登録済のブロードキャストアドレス
  */
 void
@@ -805,7 +818,6 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
 
 /**
  * ブロードキャストアドレスを登録
- * 注：このメソッドはスレッドセーフでない。
  * @param addr 登録するブロードキャストアドレス
  */
 void
@@ -841,7 +853,6 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 
 /**
  * 登録済のブロードキャストアドレスを検索し、該当するsockaddr_in構造体を返却する。
- * 注：このメソッドはスレッドセーフでない。
  * @param addr ブロードキャストアドレス文字列
  * @retval sockaddr_in構造体
  */
@@ -859,8 +870,9 @@ IpMessengerAgentImpl::FindBroadcastNetworkByAddress( string addr )
 
 /**
  * 対象ホストのバージョン情報を問い合わせる。
- * ・GETINFOパケットを送信。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>GETINFOパケットを送信。</li>
+ * </ul>
  * @param host 対象のホスト
  */
 void
@@ -882,10 +894,11 @@ IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
 
 /**
  * 対象ホストのバージョン情報を取得。
- * ・バージョン情報を問い合わせる。
- * ・他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）
- * ・IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を返す。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>バージョン情報を問い合わせる。</li>
+ * <li>他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）</li>
+ * <li>IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を返す。</li>
+ * </ul>
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
  */
@@ -905,8 +918,9 @@ IpMessengerAgentImpl::GetInfo( HostListItem& host )
 
 /**
  * 対象ホストの不在説明文字列情報を問い合わせる。
- * ・GETABSENCEINFOパケットを送信。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>GETABSENCEINFOパケットを送信。</li>
+ * </ul>
  * @param host 対象のホスト
  */
 void
@@ -928,10 +942,11 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
 
 /**
  * 対象ホストの不在説明文字列情報を取得。
- * ・不在説明文字列情報を問い合わせる。
- * ・他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）
- * ・IPアドレスでマッチングしてANSABSENCEINFOで更新された不在説明文字列情報を返す。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>不在説明文字列情報を問い合わせる。</li>
+ * <li>他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）</li>
+ * <li>IPアドレスでマッチングしてANSABSENCEINFOで更新された不在説明文字列情報を返す。</li>
+ * </ul>
  * @param host 対象のホスト
  * @retval 対象ホストの不在説明文字列情報
  */
@@ -952,7 +967,6 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 
 /**
  * 保持中のホストリストからグループリストを取得する。
- * 注：このメソッドはスレッドセーフでない。
  * @retval グループリスト
  */
 vector<GroupItem>
@@ -979,7 +993,6 @@ IpMessengerAgentImpl::GetGroupList()
 
 /**
  * 送信元にメッセージを削除したことを通知する。
- * 注：このメソッドはスレッドセーフでない。
  * @param msg 受信メッセージオブジェクト。
  */
 void
@@ -1004,7 +1017,6 @@ IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 
 /**
  * 送信元にメッセージを開封したことを通知する。
- * 注：このメソッドはスレッドセーフでない。
  * @param msg 受信メッセージオブジェクト。
  */
 void
@@ -1029,7 +1041,6 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 
 /**
  * 送信済メッセージリストに開封されたことをマークする。
- * 注：このメソッドはスレッドセーフでない。
  * @param msg 送信メッセージオブジェクト。
  */
 void
@@ -1045,8 +1056,9 @@ IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
 
 /**
  * 送信初期化
- * ・ブロードキャストアドレス構造体の初期化＋リストに押し込む。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>ブロードキャストアドレス構造体の初期化＋リストに押し込む。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
@@ -1078,7 +1090,6 @@ IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
 
 /**
  * TCPパケットの送信を行う。
- * 注：このメソッドはスレッドセーフでない。
  * @param sd ソケットディスクリプタ
  * @param buf バッファ
  * @param size バッファサイズ
@@ -1105,7 +1116,6 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 
 /**
  * UDPパケットの送信を行う。
- * 注：このメソッドはスレッドセーフでない。
  * @param buf バッファ
  * @param size バッファサイズ
  * @param to_addr 送信先のIPアドレス
@@ -1130,8 +1140,9 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 
 /**
  * UDPパケットのブロードキャストを行う。
- * ・ブロードキャストアドレスリストに登録済のアドレスに全て送信する。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>ブロードキャストアドレスリストに登録済のアドレスに全て送信する。</li>
+ * </ul>
  * @param buf バッファ
  * @param size バッファサイズ
  */
@@ -1223,10 +1234,11 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
 
 /**
  * 受信初期化。
- * 注：このメソッドはスレッドセーフでない。
- * ・ブロードキャストアドレスに関するUDP受信初期化。
- * ・指定のNICに対してUDPに関する受信初期化。
- * ・指定のNICに対してTCPに関する受信初期化。
+ * <ul>
+ * <li>ブロードキャストアドレスに関するUDP受信初期化。</li>
+ * <li>指定のNICに対してUDPに関する受信初期化。</li>
+ * <li>指定のNICに対してTCPに関する受信初期化。</li>
+ * </ul>
  */
 void
 IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
@@ -1306,9 +1318,10 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 
 /**
  * UDPに関する受信初期化。
- * 注：このメソッドはスレッドセーフでない。
- * ・2425待ち受けのUDPソケットを準備する
- * ・UDPはbroadcast許可
+ * <ul>
+ * <li>2425待ち受けのUDPソケットを準備する</li>
+ * <li>UDPはbroadcast許可</li>
+ * </ul>
  */
 int
 IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_in addr )
@@ -1366,10 +1379,11 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_in addr )
 
 /**
  * TCPに関する受信初期化。
- * 注：このメソッドはスレッドセーフでない。
- * ・2425待ち受けのTCPソケットを準備する
- * ・TCPはREUSEADDR
- * ・litsenは5ポート
+ * <ul>
+ * <li>2425待ち受けのTCPソケットを準備する</li>
+ * <li>TCPはREUSEADDR</li>
+ * <li>litsenは5ポート</li>
+ * </ul>
  */
 int
 IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_in addr )
@@ -1396,7 +1410,6 @@ IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_in addr )
 
 /**
  * 受信処理（ユーザ向け）。
- * 注：このメソッドはスレッドセーフでない。
  * @retval 受信パケット数
  */
 int
@@ -1407,10 +1420,11 @@ IpMessengerAgentImpl::Process()
 
 /**
  * 受信処理（内部）。
- * ・select(タイムアウト付き)にて受信待ち。
- * ・受信処理を行い、パケットをキューにため込む。
- * ・受信が終了したら、キューの中身を処理する。（各イベントを呼び出す。）
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>select(タイムアウト付き)にて受信待ち。</li>
+ * <li>受信処理を行い、パケットをキューにため込む。</li>
+ * <li>受信が終了したら、キューの中身を処理する。（各イベントを呼び出す。）</li>
+ * </ul>
  * @retval 受信パケット数
  */
 int
@@ -1714,7 +1728,9 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 
 /**
  * 電文受信イベント：NOOPERATION
- * ・何もしない
+ * <ul>
+ * <li>何もしない</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1728,7 +1744,9 @@ IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )
 
 /**
  * 電文送信(NOOPERATION)
- * ・NOOPERATIONを送信。
+ * <ul>
+ * <li>NOOPERATIONを送信。</li>
+ * </ul>
  */
 int
 IpMessengerAgentImpl::SendNoOperation()
@@ -1746,8 +1764,10 @@ IpMessengerAgentImpl::SendNoOperation()
 
 /**
  * 電文受信イベント：BR_ENTRY
- * ・送信元にANSENTRYを送信する。
- * ・不在モードの場合、不在として送信。
+ * <ul>
+ * <li>送信元にANSENTRYを送信する。</li>
+ * <li>不在モードの場合、不在として送信。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1793,7 +1813,9 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 
 /**
  * 電文送信（BR_ABSENCE）
- * ・不在通知／不在解除電文を送信する。
+ * <ul>
+ * <li>不在通知／不在解除電文を送信する。</li>
+ * </ul>
  */
 int
 IpMessengerAgentImpl::SendAbsence()
@@ -1834,7 +1856,9 @@ IpMessengerAgentImpl::SendAbsence()
 
 /**
  * 電文受信イベント：BR_ABSENCE
- * ・自分のホストリストを更新する。
+ * <ul>
+ * <li>自分のホストリストを更新する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1853,7 +1877,9 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_EXIT
- * ・自分のホストリストからホストを削除する。
+ * <ul>
+ * <li>自分のホストリストからホストを削除する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1871,7 +1897,9 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_RECVMSG
- * ・自分の送信済メッセージリストの該当メッセージに送信済フラグを立てる。
+ * <ul>
+ * <li>自分の送信済メッセージリストの該当メッセージに送信済フラグを立てる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1897,8 +1925,10 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_READMSG
- * ・READCHECKOPTが付いている場合、ANSREADMSGを投げる。
- * ・自分の送信済メッセージリストの該当メッセージに既読フラグを立てる。
+ * <ul>
+ * <li>READCHECKOPTが付いている場合、ANSREADMSGを投げる。</li>
+ * <li>自分の送信済メッセージリストの該当メッセージに既読フラグを立てる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1935,7 +1965,9 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_DELMSG
- * ・自分の送信済メッセージリストの該当メッセージを削除。
+ * <ul>
+ * <li>自分の送信済メッセージリストの該当メッセージを削除。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1955,7 +1987,9 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_ANSREADMSG
- * ・何もしない。
+ * <ul>
+ * <li>何もしない。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -1969,11 +2003,13 @@ IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_SENDMSG
- * ・BROADCASTOPT or AUTORETOPTなら自動応答しない。
- * ・SENDCHECKOPT付きならRECVMSGを投げる。
- * ・自分が不在なら不在応答をする。
- * ・暗号化メッセージなら復号。
- * ・受信済メッセージに追加。
+ * <ul>
+ * <li>BROADCASTOPT or AUTORETOPTなら自動応答しない。</li>
+ * <li>SENDCHECKOPT付きならRECVMSGを投げる。</li>
+ * <li>自分が不在なら不在応答をする。</li>
+ * <li>暗号化メッセージなら復号。</li>
+ * <li>受信済メッセージに追加。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2085,7 +2121,9 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_ISGETLIST
- * ・OKGETLISTを投げる。
+ * <ul>
+ * <li>OKGETLISTを投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2107,7 +2145,9 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_ISGETLIST2
- * ・OKGETLISTを投げる。
+ * <ul>
+ * <li>OKGETLISTを投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2129,7 +2169,9 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_GETLIST
- * ・ANSLISTを投げる。
+ * <ul>
+ * <li>ANSLISTを投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2157,7 +2199,9 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_OKGETLIST
- * ・GETLISTを投げる。
+ * <ul>
+ * <li>GETLISTを投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2180,7 +2224,9 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_ANSENTRY
- * ・何もしない。
+ * <ul>
+ * <li>パケットからホストリストにホストの情報を追加する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2199,7 +2245,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_ANSLIST
- * ・要求に応じたホストリストの部分をGETLISTに詰めて投げる。
+ * <ul>
+ * <li>要求に応じたホストリストの部分をGETLISTに詰めて投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2245,7 +2293,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_GETINFO
- * ・バージョン情報をSENDINFOに詰めて投げる。
+ * <ul>
+ * <li>バージョン情報をSENDINFOに詰めて投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2268,7 +2318,9 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_SENDINFO
- * ・取得したバージョン情報をホストリストに更新する。
+ * <ul>
+ * <li>取得したバージョン情報をホストリストに更新する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2288,7 +2340,9 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_GETABSENCEINFO
- * ・不在詳細情報をSENDINFOに詰めて投げる。
+ * <ul>
+ * <li>不在詳細情報をSENDINFOに詰めて投げる。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2328,7 +2382,9 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_SENDABSENCEINFO
- * ・取得した不在詳細情報をホストリストに更新する。
+ * <ul>
+ * <li>取得した不在詳細情報をホストリストに更新する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2348,7 +2404,9 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 
 /**
  * パケットからオフセットを取得します。
- * ・パケットからオフセットを抽出し返します。
+ * <ul>
+ * <li>パケットからオフセットを抽出し返します。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  * @retval ファイルオフセット。
  */
@@ -2368,7 +2426,9 @@ GetSendFileOffsetInPacket( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_GETFILEDATA
- * ・ファイル情報をTCPソケットにのせて送信し、その後ファイルをダウンロードさせる。
+ * <ul>
+ * <li>ファイル情報をTCPソケットにのせて送信し、その後ファイルをダウンロードさせる。
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2395,7 +2455,9 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 
 /**
  * ファイルダウンロードスレッド
- * ・ファイルをダウンロードさせる。
+ * <ul>
+ * <li>ファイルをダウンロードさせる。</li>
+ * </ul>
  * @param param パケットオブジェクト(void*)
  */
 void *
@@ -2437,7 +2499,9 @@ GetFileDataThread( void *param )
 /**
  * TODO 何するの？
  * 電文受信イベント：BR_RELEASEFILES
- * ・ TODO 何するの？
+ * <ul>
+ * <li> TODO 何するの？</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2457,7 +2521,9 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_GETPUBKEY
- * ・RSA公開鍵をANSPUBKEYにのせて送信する。
+ * <ul>
+ * <li>RSA公開鍵をANSPUBKEYにのせて送信する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2489,7 +2555,9 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 
 /**
  * 電文受信イベント：BR_ANSPUBKEY
- * ・取得したRSA公開鍵をホストリストに更新する。
+ * <ul>
+ * <li>取得したRSA公開鍵をホストリストに更新する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2551,7 +2619,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 
 /**
  * 電文受信イベント：GETDIRFILES
- * ・パケットで指定されたディレクトリを送信する。
+ * <ul>
+ * <li>パケットで指定されたディレクトリを送信する。</li>
+ * </ul>
  * @param packet パケットオブジェクト
  */
 int
@@ -2574,7 +2644,9 @@ IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 
 /**
  * ディレクトリダウンロードスレッド
- * ・ディレクトリをダウンロードさせる。
+ * <ul>
+ * <li>ディレクトリをダウンロードさせる。</li>
+ * </ul>
  * @param param パケットオブジェクト(void*)
  */
 void *
