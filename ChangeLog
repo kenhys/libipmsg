@@ -1,3 +1,7 @@
+2007-01-16 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Comment.
+- Fix:Doxygen comment style.
+
 2007-01-11 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Replace thread unsafe function to thread safe function.(readdir,getenv,ctime...)
 - Update:Change ifdef on debug for locking.
