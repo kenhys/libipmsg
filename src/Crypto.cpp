@@ -134,8 +134,8 @@ IpMessengerAgentImpl::CryptoEnd()
  * @param optBufLen パケットオプション部のバッファの現在の有効データ長
  * @param enc_optBufLen 暗号化済のパケットオプション部のバッファの有効データ長のアドレス
  * @param opt_size パケットオプション部のバッファのサイズ
- * @retval true:暗号化OK、false:暗号化NG
- * 注：このメソッドはスレッドセーフでない。
+ * @retval true:復号化成功
+ * @retval false:復号化失敗
  */
 bool
 IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBuf, int optBufLen, int *enc_optBufLen, int opt_size )
@@ -414,8 +414,8 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 /**
  * メッセージ復号化。
  * @param packet パケットオブジェクト（参照）
- * @retval true:復号化OK、false:復号化NG
- * 注：このメソッドはスレッドセーフでない。
+ * @retval true:復号化成功
+ * @retval false:復号化失敗
  */
 bool
 IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )

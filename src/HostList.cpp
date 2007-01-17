@@ -18,7 +18,9 @@ using namespace std;
 
 /**
  * コンストラクタ。
- * ・ホストリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>ホストリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  */
 HostList::HostList()
 {
@@ -27,7 +29,9 @@ HostList::HostList()
 
 /**
  * コピーコンストラクタ。
- * ・ホストリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>ホストリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  * @param other コピー元のオブジェクト
  */
 HostList::HostList( const HostList& other )
@@ -40,7 +44,9 @@ HostList::HostList( const HostList& other )
 
 /**
  * デストラクタ。
- * ・ホストリストをロックするためのミューテックスを破棄。
+ * <ul>
+ * <li>ホストリストをロックするためのミューテックスを破棄。</li>
+ * </ul>
  */
 HostList::~HostList()
 {
@@ -49,7 +55,9 @@ HostList::~HostList()
 
 /**
  * 代入演算子。
- * ・ホストリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>ホストリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  * @param other コピー元のオブジェクト
  * @retval 自オブジェクトのインスタンス
  */
@@ -161,7 +169,8 @@ HostListItem::QueryAbsenceInfo()
 
 /**
  * IPアドレスを元にローカルホストかどうかを求める。
- * @retval true:ローカルホスト、false:ローカルホストではない。
+ * @retval true:ローカルホスト
+ * @retval false:ローカルホストではない
  */
 bool
 HostListItem::IsLocalHost() const
@@ -419,7 +428,8 @@ HostList::FindHostByAddress( string addr )
 
 /**
  * ホストがファイル添付をサポートしているか？
- * @retval サポート：true／サポートしない：false
+ * @retval true:サポート
+ * @retval false:サポートしない
  */
 bool
 HostListItem::IsFileAttachSupport() const
@@ -429,7 +439,8 @@ HostListItem::IsFileAttachSupport() const
 
 /**
  * ホストが暗号をサポートしているか？
- * @retval サポート：true／サポートしない：false
+ * @retval true:サポート
+ * @retval false:サポートしない
  */
 bool
 HostListItem::IsEncryptSupport() const
@@ -439,7 +450,8 @@ HostListItem::IsEncryptSupport() const
 
 /**
  * ホストが今、不在か？
- * @retval 不在：true／不在でない：false
+ * @retval true:不在
+ * @retval false:不在でない
  */
 bool
 HostListItem::IsAbsence() const
@@ -450,13 +462,21 @@ HostListItem::IsAbsence() const
 /**
  * ホストリストアイテムオブジェクトが自分と一致するかを返す。
  * @param item ホストリストアイテム
- * @retval 一致：true／一致しない：false
+ * @retval true:一致
+ * @retval false:一致しない
  */
 bool
 HostListItem::Equals( const HostListItem& item ) const
 {
 	return	Compare( item ) == 0;
 }
+/**
+ * 比較。
+ * @param item ホスト情報1
+ * @retval -n:*thisが大きい
+ * @retval 0:itemと*thisが等しい
+ * @retval +n:itemが大きい
+ */
 int
 HostListItem::Compare( const HostListItem& item ) const
 {

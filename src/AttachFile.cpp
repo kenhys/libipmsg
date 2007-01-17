@@ -16,7 +16,9 @@ static int file_id = 0;
 
 /**
  * コンストラクタ。
- * ・ファイルリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>ファイルリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  */
 AttachFileList::AttachFileList()
 {
@@ -25,7 +27,9 @@ AttachFileList::AttachFileList()
 
 /**
  * コピーコンストラクタ。
- * ・ファイルリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>ファイルリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  * @param other コピー元のオブジェクト
  */
 AttachFileList::AttachFileList( const AttachFileList& other )
@@ -38,7 +42,9 @@ AttachFileList::AttachFileList( const AttachFileList& other )
 
 /**
  * 代入演算子。
- * ・ファイルリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>ファイルリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  * @param other コピー元のオブジェクト
  * @retval 自オブジェクトのインスタンス
  */
@@ -64,7 +70,9 @@ AttachFileList::CopyFrom( const AttachFileList& other )
 
 /**
  * デストラクタ。
- * ・ファイルリストをロックするためのミューテックスを破棄。
+ * <ul>
+ * <li>ファイルリストをロックするためのミューテックスを破棄。</li>
+ * </ul>
  */
 AttachFileList::~AttachFileList()
 {
@@ -175,7 +183,8 @@ AttachFileList::erase( const AttachFile& item )
 /**
  * 添付ファイル一覧からフルパスで検索
  * @param fullPath 検索対象のフルパス
- * @retval 見付かったAttachFileのイテレータ。見付からない場合end();
+ * @retval 見付かったAttachFileのイテレータ
+ * @retval 見付からない場合end()
  */
 vector<AttachFile>::iterator
 AttachFileList::FindByFullPath( const string& fullPath )
@@ -195,7 +204,8 @@ AttachFileList::FindByFullPath( const string& fullPath )
 /**
  * 添付ファイル一覧からファイルIDを基に検索し一致するオブジェクトのイテレータを返す。
  * @param file_id 添付ファイルのファイルID
- * @retval 添付ファイルオブジェクトへのイテレータ。存在しない場合、end()。
+ * @retval 添付ファイルオブジェクトへのイテレータ
+ * @retval 存在しない場合、end()
  */
 vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
@@ -219,7 +229,9 @@ AttachFileList::FindByFileId( int file_id )
 
 /**
  * 添付ファイルコンストラクタ
- * ・file_id+1でファイルidを初期化。
+ * <ul>
+ * <li>file_id+1でファイルidを初期化。</li>
+ * </ul>
  */
 AttachFile::AttachFile()
 {
@@ -266,7 +278,8 @@ AttachFile::GetLocalFileInfo()
 
 /**
  * 添付ファイルが一般ファイルかどうかを判定。
- * @retval 一般ファイル:true／一般ファイルでない:false
+ * @retval true:一般ファイル
+ * @retval false:一般ファイルでない
  */
 bool
 AttachFile::IsRegularFile() const
@@ -276,7 +289,8 @@ AttachFile::IsRegularFile() const
 
 /**
  * 添付ファイルがディレクトリかどうかを判定。
- * @retval ディレクトリ:true／ディレクトリでない:false
+ * @retval true:ディレクトリ
+ * @retval false:ディレクトリでない
  */
 bool
 AttachFile::IsDirectory() const
@@ -293,11 +307,6 @@ string
 AttachFile::CreateDirFullPath( const vector<string>& dirstack )
 {
 	string retdir = "";
-#if 0
-//	for( vector<string>::iterator d = dirstack.begin(); d != dirstack.end(); d++ ){
-//		if ( *d != "" ) {
-//			retdir += *d + ( d->at(d->size() - 1) == '/' ? "" : "/" );
-#endif
 	for( int i = 0; i < (int)dirstack.size(); i++ ){
 		if ( dirstack[i] != "" ) {
 			retdir += dirstack[i] + ( dirstack[i].at(dirstack[i].size() - 1) == '/' ? "" : "/" );

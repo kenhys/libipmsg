@@ -39,6 +39,9 @@ using namespace std;
 
 const int IPMSG_DEFAULT_PORT=0x0979;
 
+/**
+ * IP Messenger エージェント実装クラス。(ライブラリ内部使用)
+ */
 class IpMessengerAgentImpl {
 	public:
 		friend class IpMessengerAgent;

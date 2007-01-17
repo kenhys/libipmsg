@@ -22,22 +22,106 @@ void *GetDirFilesThread( void *param );
 static pthread_mutex_t instanceMutex;
 static int mutex_init_result = IpMsgMutexInit( "IpMessengerImpl::Global", &instanceMutex, NULL );
 
+/**
+ * IP メッセンジャイベントクラスのデフォルト実装。
+ */
 class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
+		/**
+		 * ホストリスト更新後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param hostList ホストリスト
+		 */
 		virtual void UpdateHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
+		/**
+		 * ホストリスト取得リトライエラーイベント。イベントが発生したことを示すためprintを行う。
+		 * @retval true:リトライする
+		 * @retval false:リトライしない
+		 */
 		virtual bool GetHostListRetryError(){ printf("GetHostListRetryError\n");return false; };
+		/**
+		 * メッセージ受信後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 受信メッセージ
+		 * @retval true:処理してメッセージの保存が不要
+		 * @retval false:メッセージを保存
+		 */
 		virtual bool RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n");return false; };
+		/**
+		 * メッセージ送信後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 送信メッセージ
+		 */
 		virtual void SendAfter( SentMessage& msg ){ printf("SendAfter\n"); };
+		/**
+		 * メッセージ送信リトライエラーイベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 送信メッセージ
+		 * @retval true:リトライする
+		 * @retval false:リトライしない
+		 */
 		virtual bool SendRetryError( SentMessage& msg ){ printf("SendRetryError\n");return false; };
+		/**
+		 * 開封通知後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 送信メッセージ
+		 */
 		virtual void OpenAfter( SentMessage& msg ){ printf("OpenAfter\n"); };
+		/**
+		 * ダウンロード開始イベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 */
 		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadStart\n"); };
+		/**
+		 * ダウンロード処理中イベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 */
 		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadProcessing\n"); };
+		/**
+		 * ダウンロード終了イベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 */
 		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadEnd\n"); };
+		/**
+		 * ダウンロードエラーイベント。イベントが発生したことを示すためprintを行う。
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 * @retval true:リトライする
+		 * @retval false:リトライしない
+		 */
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadError\n"); return false; };
+		/**
+		 * ホストの参加通知後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param hostList ホストリスト
+		 */
 		virtual void EntryAfter( HostList& hostList ){ printf("EntryAfter\n"); };
+		/**
+		 * ホストの脱退通知後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param hostList ホストリスト
+		 */
 		virtual void ExitAfter( HostList& hostList ){ printf("ExitAfter\n"); };
+		/**
+		 * 不在モード更新後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param hostList ホストリスト
+		 */
 		virtual void AbsenceModeChangeAfter( HostList& hostList ){ printf("AbsenceModeChangeAfter\n"); };
+		/**
+		 * バージョン情報受信後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param host ホスト
+		 * @param version バージョン
+		 */
 		virtual void VersionInfoRecieveAfter( HostListItem &host, string version ){ printf("VersionInfoRecieveAfter\n"); };
+		/**
+		 * 不在詳細情報受信後イベント。イベントが発生したことを示すためprintを行う。
+		 * @param host ホスト
+		 * @param absenceDetail 不在詳細情報
+		 */
 		virtual void AbsenceDetailRecieveAfter( HostListItem &host, string absenceDetail ){ printf("AbsenceDetailRecieveAfter\n"); };
 };
 
@@ -1587,7 +1671,8 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_in *sender_addr, int
 /**
  * 過去のパケットから重複パケットを検索する。
  * @param packet パケット
- * @retval true:存在、false:存在しない。
+ * @retval true:存在
+ * @retval false:存在しない
  */
 bool
 IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
@@ -2759,7 +2844,8 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
  * @param sock TCPソケット
  * @param FileName ファイルのフルパス
  * @param offset オフセット
- * @retval true:成功、false:失敗
+ * @retval true:成功
+ * @retval false:失敗
  */
 bool
 IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
@@ -2823,7 +2909,8 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
  * @param size ファイルサイズ
  * @param statInit ファイル属性初期状態
  * @param statProgress ファイル属性現在状態
- * @retval true:更新された、false:更新されていない。
+ * @retval true:更新された
+ * @retval false:更新されていない
  */
 bool
 IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress )

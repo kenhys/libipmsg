@@ -70,7 +70,9 @@ SentMessage::CopyFrom( const SentMessage& other )
 
 /**
  * コンストラクタ。
- * ・送信済メッセージリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>送信済メッセージリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  */
 SentMessageList::SentMessageList()
 {
@@ -91,7 +93,9 @@ SentMessageList::SentMessageList( const SentMessageList& other )
 
 /**
  * デストラクタ。
- * ・送信済メッセージリストをロックするためのミューテックスを破棄。
+ * <ul>
+ * <li>送信済メッセージリストをロックするためのミューテックスを破棄。</li>
+ * </ul>
  */
 SentMessageList::~SentMessageList()
 {
@@ -224,9 +228,12 @@ SentMessageList::GetMessageList()
 
 /**
  * パケットから添付ファイルを検索します。
- * ・パケットからファイルIDを抽出しファイルIDを基に添付ファイルを検索し、AttachFileのイテレータを返します。
+ * <ul>
+ * <li>パケットからファイルIDを抽出しファイルIDを基に添付ファイルを検索し、AttachFileのイテレータを返します。</li>
+ * </ul>
  * @param packet パケットオブジェクト
- * @retval AttachFileのイテレータ。見付からない場合、end()を返す。
+ * @retval AttachFileのイテレータ
+ * @retval 見付からない場合、end()
  */
 vector<AttachFile>::iterator
 SentMessage::FindAttachFileByPacket( const Packet& packet )
@@ -245,7 +252,8 @@ SentMessage::FindAttachFileByPacket( const Packet& packet )
 
 /**
  * リトライマックスオーバーかを調べる
- * @retval true:リトライマックスオーバー、false:オーバーしていない。
+ * @retval true:リトライマックスオーバー
+ * @retval false:オーバーしていない
  */
 bool
 SentMessage::isRetryMaxOver() const
@@ -259,7 +267,8 @@ SentMessage::isRetryMaxOver() const
 /**
  * リトライが必要かを調べる
  * @param tryNow 現在時刻
- * @retval true:リトライが必要、false:リトライ不要。
+ * @retval true:リトライが必要
+ * @retval false:リトライ不要
  */
 bool
 SentMessage::needSendRetry( time_t tryNow ) const
@@ -273,8 +282,8 @@ SentMessage::needSendRetry( time_t tryNow ) const
 /**
  * パケットNoで送信済メッセージリストから送信済メッセージのイテレータを取得する。
  * @param PacketNo パケットNo
- * @retval 送信済メッセージのイテレータ。（見付からない場合end()）
- * 注：このメソッドはスレッドセーフでない。
+ * @retval 送信済メッセージのイテレータ
+ * @retval 見付からない場合end()
  */
 vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
@@ -293,9 +302,12 @@ SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 
 /**
  * パケットから送信済メッセージを検索します。
- * ・パケットからパケットNoを抽出しパケットNoを基に送信済メッセージを検索し、SentMessageのイテレータを返します。
+ * <ul>
+ * <li>パケットからパケットNoを抽出しパケットNoを基に送信済メッセージを検索し、SentMessageのイテレータを返します。</li>
+ * </ul>
  * @param packet パケットオブジェクト
- * @retval SentMessageのイテレータ。見付からない場合、end()を返す。
+ * @retval SentMessageのイテレータ
+ * @retval 見付からない場合、end()
  */
 vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacket( Packet packet )

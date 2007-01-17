@@ -62,7 +62,9 @@ RecievedMessage::CopyFrom( const RecievedMessage& other )
 
 /**
  * コンストラクタ。
- * ・受信済メッセージリストをロックするためのミューテックスを生成。
+ * <ul>
+ * <li>受信済メッセージリストをロックするためのミューテックスを生成。</li>
+ * </ul>
  */
 RecievedMessageList::RecievedMessageList()
 {
@@ -83,7 +85,9 @@ RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )
 
 /**
  * デストラクタ。
- * ・受信済メッセージリストをロックするためのミューテックスを破棄。
+ * <ul>
+ * <li>受信済メッセージリストをロックするためのミューテックスを破棄。</li>
+ * </ul>
  */
 RecievedMessageList::~RecievedMessageList()
 {
@@ -207,8 +211,9 @@ RecievedMessageList::clear()
 
 /**
  * ファイル受信処理。
- * ・サーバにファイル受信要求パケットを送信し、ファイルを受信する。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>サーバにファイル受信要求パケットを送信し、ファイルを受信する。</li>
+ * </ul>
  */
 bool
 RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
@@ -249,8 +254,9 @@ RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, Do
 
 /**
  * ファイル受信処理。（非公開）
- * ・サーバにファイル受信要求パケットを送信し、ファイルを受信する。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>サーバにファイル受信要求パケットを送信し、ファイルを受信する。</li>
+ * </ul>
  */
 bool
 RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
@@ -358,8 +364,9 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 
 /**
  * ディレクトリ受信処理（ファイル名コンバータオプション付き）。
- * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。</li>
+ * </ul>
  */
 bool
 RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
@@ -414,8 +421,10 @@ RecievedMessage::GetFormalDir( string dirName )
 
 /**
  * 保存するファイル名（またはディレクトリ名）を取得する。
- * ・保存先のディレクトリ、ファイル（またはディレクトリ）名
- * 　（これはプロトコル上、ファイル名のみで飛んでくる為）を組み合わせてフルパスを得る。
+ * <ul>
+ * <li>保存先のディレクトリ、ファイル（またはディレクトリ）名
+ * 　（これはプロトコル上、ファイル名のみで飛んでくる為）を組み合わせてフルパスを得る。</li>
+ * </ul>
  * @param saveName 保存ファイル（またはディレクトリ名）名
  * @param saveBaseDir 保存先ディレクトリ名
  * @retval 保存するファイル（またはディレクトリ名）
@@ -428,8 +437,9 @@ RecievedMessage::GetSaveDir( string saveName, string saveBaseDir )
 
 /**
  * ディレクトリ受信処理（ファイル名コンバータオプション付き）。（非公開）
- * ・サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。
- * 注：このメソッドはスレッドセーフでない。
+ * <ul>
+ * <li>サーバにディレクトリ受信要求パケットを送信し、ディレクトリを受信する。</li>
+ * </ul>
  */
 bool
 RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )

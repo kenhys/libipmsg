@@ -78,6 +78,9 @@ using namespace std;
 									public: \
 										inline t& name() { return _##name; }; \
 										inline void set##name( const t& val ){ _##name = val; };
+/**
+ * パケットクラス
+ **/
 class Packet{
 	public:
 		IPMSG_PROPERTY( unsigned long, VersionNo );
@@ -92,6 +95,9 @@ class Packet{
 		IPMSG_PROPERTY( int, TcpSocket );
 };
 
+/**
+ * ネットワークインターフェースクラス
+ **/
 class NetworkInterface {
 	public:
 		IPMSG_PROPERTY( string, DeviceName );
@@ -106,12 +112,18 @@ class NetworkInterface {
 		IPMSG_PROPERTY( int, PortNo );
 };
 
+/**
+ * グループクラス
+ **/
 class GroupItem{
 	public:
 		IPMSG_PROPERTY( string, GroupName );
 		IPMSG_PROPERTY( string, EncodingName );
 };
 
+/**
+ * ホストクラス
+ **/
 class HostListItem{
 	public:
 		IPMSG_PROPERTY( string, Version );
@@ -138,18 +150,44 @@ class HostListItem{
 		void QueryAbsenceInfo();
 };
 
+/**
+ * ホスト一覧ソート用比較クラス
+ *（各Applicationは必要に応じてこのクラスを継承して処理を実装してください。）
+ **/
 class HostListComparator{
 	public:
+		/**
+		 * 比較。
+		 * @param host1 ホスト情報1
+		 * @param host2 ホスト情報2
+		 * @retval -n:host1が大きい
+		 * @retval 0:host1とhost2が等しい
+		 * @retval +n:host2が大きい
+		 */
 		virtual int compare( vector<HostListItem>::iterator host1, vector<HostListItem>::iterator host2 )=0;
 };
 
+/**
+ * ホスト一覧デフォルトソート用比較クラス
+ **/
 class HostListDefaultComparator: public HostListComparator{
 	public:
+		/**
+		 * 比較。
+		 * @param host1 ホスト情報1
+		 * @param host2 ホスト情報2
+		 * @retval -n:host1が大きい
+		 * @retval 0:host1とhost2が等しい
+		 * @retval +n:host2が大きい
+		 */
 		virtual int compare( vector<HostListItem>::iterator host1, vector<HostListItem>::iterator host2 ){
 			return host1->Compare( *host2 );
 		};
 };
 
+/**
+ * ホスト一覧クラス
+ **/
 class HostList{
 	public:
 		IPMSG_PROPERTY( bool, IsAsking );
@@ -181,18 +219,28 @@ class HostList{
 		pthread_mutex_t hostListMutex;
 };
 
+/**
+ * ファイル名コンバータクラス
+ * （各Applicationは必要に応じてこのクラスを継承して処理を実装してください。）
+ **/
 class FileNameConverter {
 	public:
 		virtual string ConvertNetworkToLocal( string original_file_name ) = 0;
 		virtual string ConvertLocalToNetwork( string original_file_name ) = 0;
 };
 
+/**
+ * ファイル名無変換コンバータクラス
+ **/
 class NullFileNameConverter:public FileNameConverter {
 	public:
 		virtual string ConvertNetworkToLocal( string original_file_name ){ return original_file_name; };
 		virtual string ConvertLocalToNetwork( string original_file_name ){ return original_file_name; };
 };
 
+/**
+ * 添付ファイルクラス
+ **/
 class AttachFile{
 	public:
 		map<string, vector<unsigned long> >::iterator beginExtAttrs() { return _ExtAttrs.begin(); };
@@ -220,6 +268,9 @@ class AttachFile{
 		static string CreateDirFullPath( const vector<string>& dirstack );
 };
 
+/**
+ * ダウンロード情報クラス
+ **/
 class DownloadInfo{
 	public:
 		IPMSG_PROPERTY( unsigned long long, Size );
@@ -236,6 +287,9 @@ class DownloadInfo{
 		static string getUnitSizeString( long long size );
 };
 
+/**
+ * 添付ファイル一覧クラス
+ **/
 class AttachFileList{
 	public:
 		void AddFile( const AttachFile& file );
@@ -261,6 +315,9 @@ class AttachFileList{
 
 class IpMessengerEvent;
 
+/**
+ * 受信メッセージクラス
+ **/
 class RecievedMessage{
 	public:
 		IPMSG_PROPERTY( Packet, MessagePacket );
@@ -289,6 +346,9 @@ class RecievedMessage{
 		string GetSaveDir( string saveName, string saveBaseDir );
 };
 
+/**
+ * 受信メッセージ一覧クラス
+ **/
 class RecievedMessageList {
 	public:
 		vector<RecievedMessage>::iterator begin();
@@ -309,6 +369,9 @@ class RecievedMessageList {
 		pthread_mutex_t messagesMutex;
 };
 
+/**
+ * 送信メッセージクラス
+ **/
 class SentMessage{
 	public:
 		IPMSG_PROPERTY( struct sockaddr_in, To );
@@ -339,6 +402,9 @@ class SentMessage{
 		void CopyFrom( const SentMessage& other );
 };
 
+/**
+ * 送信メッセージ一覧クラス
+ **/
 class SentMessageList {
 	public:
 		vector<SentMessage>::iterator begin();
@@ -363,6 +429,9 @@ class SentMessageList {
 		pthread_mutex_t messagesMutex;
 };
 
+/**
+ * 不在モードクラス
+ **/
 class AbsenceMode {
 	public:
 		IPMSG_PROPERTY( string, EncodingName );
@@ -372,48 +441,117 @@ class AbsenceMode {
 
 
 /**
- * IP Messenger イベントオブジェクト
- * （各Applicationはこのオブジェクトを継承して処理を実装してください。）
+ * IP Messenger イベントクラス
+ * （各Applicationはこのクラスを継承して処理を実装してください。）
  **/
 class IpMessengerEvent {
 	public:
-		//ホストリスト更新後
+		/**
+		 * ホストリスト更新後イベント
+		 * @param hostList ホストリスト
+		 */
 		virtual void UpdateHostListAfter( HostList& hostList )=0;
-		//ホストリスト取得リトライエラー
+		/**
+		 * ホストリスト取得リトライエラーイベント
+		 * @retval true:リトライする
+		 * @retval false:リトライしない
+		 */
 		virtual bool GetHostListRetryError()=0;
-		//メッセージ受信後(処理してメッセージの保存が不要ならTRUEを返す)
+		/**
+		 * メッセージ受信後イベント。
+		 * @param msg 受信メッセージ
+		 * @retval true:処理してメッセージの保存が不要
+		 * @retval false:メッセージを保存
+		 */
 		virtual bool RecieveAfter( RecievedMessage& msg )=0;
-		//メッセージ送信後
+		/**
+		 * メッセージ送信後イベント
+		 * @param msg 送信メッセージ
+		 */
 		virtual void SendAfter( SentMessage& msg )=0;
-		//メッセージ送信リトライエラー
+		/**
+		 * メッセージ送信リトライエラーイベント
+		 * @param msg 送信メッセージ
+		 * @retval true:リトライする
+		 * @retval false:リトライしない
+		 */
 		virtual bool SendRetryError( SentMessage& msg )=0;
-		//開封通知後
+		/**
+		 * 開封通知後イベント
+		 * @param msg 送信メッセージ
+		 */
 		virtual void OpenAfter( SentMessage& msg )=0;
-		//ダウンロード開始
+		/**
+		 * ダウンロード開始イベント
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 */
 		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
-		//ダウンロード処理中
+		/**
+		 * ダウンロード処理中イベント
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 */
 		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
-		//ダウンロード終了
+		/**
+		 * ダウンロード終了イベント
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 */
 		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
-		//ダウンロードエラー(リトライする場合はTRUEを返す。)
+		/**
+		 * ダウンロードエラーイベント(リトライする場合はTRUEを返す。)
+		 * @param msg 受信メッセージ
+		 * @param file 添付ファイル
+		 * @param info ダウンロード情報
+		 * @param data DownloadFile、DownloadDirで指定した任意データへのポインタ
+		 * @retval true:リトライする
+		 * @retval false:リトライしない
+		 */
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
-		//ホストの参加通知後
+		/**
+		 * ホストの参加通知後イベント
+		 * @param hostList ホストリスト
+		 */
 		virtual void EntryAfter( HostList& hostList )=0;
-		//ホストの脱退通知後
+		/**
+		 * ホストの脱退通知後イベント
+		 * @param hostList ホストリスト
+		 */
 		virtual void ExitAfter( HostList& hostList )=0;
-		//不在モード更新後
+		/**
+		 * 不在モード更新後イベント
+		 * @param hostList ホストリスト
+		 */
 		virtual void AbsenceModeChangeAfter( HostList& hostList )=0;
-		//バージョン情報受信後
+		/**
+		 * バージョン情報受信後イベント
+		 * @param host ホスト
+		 * @param version バージョン
+		 */
 		virtual void VersionInfoRecieveAfter( HostListItem &host, string version )=0;
-		//不在詳細情報受信後
+		/**
+		 * 不在詳細情報受信後イベント
+		 * @param host ホスト
+		 * @param absenceDetail 不在詳細情報
+		 */
 		virtual void AbsenceDetailRecieveAfter( HostListItem& host, string absenceDetail )=0;
+		/**
+		 * デストラクタ
+		 */
 		virtual ~IpMessengerEvent()=0;
 };
 
 class IpMessengerAgentImpl;
 
 /**
- * IP Messenger エージェント
+ * IP Messenger エージェントクラス
  **/
 class IpMessengerAgent {
 	public:
