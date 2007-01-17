@@ -21,8 +21,9 @@ static int mutex_init_result = IpMsgMutexInit( "IpMessenger::Global", &instanceM
 IpMessengerEvent::~IpMessengerEvent(){};
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
- * Singletonパターンを採用しているので、ホスト唯一のインスタンスでなければならない。
- * 注：このインスタンスはスレッドセーフでない。
+ * <ul>
+ * <li>Singletonパターンを採用しているので、ホスト唯一のインスタンスでなければならない。</li>
+ * </ul>
  */
 IpMessengerAgent *
 IpMessengerAgent::GetInstance()
@@ -37,9 +38,10 @@ IpMessengerAgent::GetInstance()
 
 /**
  * IP メッセンジャエージェントクラスのインスタンスを解放する。
- * このメソッドを使ってオブジェクトを解放しなければならない。
- * ライブラリを通じないで直接deleteされた場合はその後の動作について感知しない。
- * 注：このインスタンスはスレッドセーフでない。
+ * <ul>
+ * <li>このメソッドを使ってオブジェクトを解放しなければならない。</li>
+ * <li>ライブラリを通じないで直接deleteされた場合はその後の動作について関知しない。</li>
+ * </ul>
  */
 void
 IpMessengerAgent::Release()
@@ -72,7 +74,9 @@ IpMessengerAgent::~IpMessengerAgent()
 
 /**
  * NICを指定せずにIP メッセンジャエージェントクラスのネットワークを起動する。
- * ・全てのNICに対してデフォルトポートでネットワークを起動する。
+ * <ul>
+ * <li>全てのNICに対してデフォルトポートでネットワークを起動する。</li>
+ * </ul>
  */
 void
 IpMessengerAgent::StartNetwork()
@@ -101,7 +105,9 @@ IpMessengerAgent::StopNetwork()
 
 /**
  * NICを指定せずにIP メッセンジャエージェントクラスのネットワークを再起動する。
- * ・全てのNICに対してデフォルトポートでネットワークを起動する。
+ * <ul>
+ * <li>全てのNICに対してデフォルトポートでネットワークを起動する。</li>
+ * </ul>
  */
 void
 IpMessengerAgent::RestartNetwork()
