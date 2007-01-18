@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <pwd.h>
 using namespace std;
+using namespace ipmsg;
 
 static IpMessengerAgentImpl *myInstance = NULL;
 
@@ -2546,7 +2547,7 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
  * @param param パケットオブジェクト(void*)
  */
 void *
-GetFileDataThread( void *param )
+ipmsg::GetFileDataThread( void *param )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "GetFileDataThread\n" );fflush( stdout );
@@ -2735,7 +2736,7 @@ IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
  * @param param パケットオブジェクト(void*)
  */
 void *
-GetDirFilesThread( void *param )
+ipmsg::GetDirFilesThread( void *param )
 {
 	Packet *packet = (Packet *)param;
 #if defined(INFO) || !defined(NDEBUG)

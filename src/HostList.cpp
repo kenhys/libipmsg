@@ -13,6 +13,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace ipmsg;
 
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
 

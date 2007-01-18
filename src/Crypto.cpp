@@ -11,6 +11,8 @@
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
 
+using namespace ipmsg;
+
 #define WINCOMPAT
 
 #ifdef HAVE_OPENSSL

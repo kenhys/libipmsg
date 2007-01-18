@@ -32,12 +32,14 @@
 #endif
 
 #include <string>
-#include <queue>
+#include <deque>
 #include <map>
 #include <vector>
 using namespace std;
 
 const int IPMSG_DEFAULT_PORT=0x0979;
+
+namespace ipmsg {
 
 /**
  * IP Messenger エージェント実装クラス。(ライブラリ内部使用)
@@ -49,11 +51,11 @@ class IpMessengerAgentImpl {
 		friend class SentMessage;
 		friend class HostList;
 		friend class HostListItem;
-		friend void *GetFileDataThread( void *param );
-		friend void *GetDirFilesThread( void *param );
+		friend void *ipmsg::GetFileDataThread( void *param );
+		friend void *ipmsg::GetDirFilesThread( void *param );
 
-		IPMSG_READONLY_PROPERTY( string, LoginName );
-		IPMSG_READONLY_PROPERTY( string, HostName );
+		IPMSG_READONLY_PROPERTY( std::string, LoginName );
+		IPMSG_READONLY_PROPERTY( std::string, HostName );
 		IPMSG_PROPERTY( bool, IsDialup );
 		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
 		IPMSG_PROPERTY( bool, SaveSentMessage );
@@ -61,22 +63,22 @@ class IpMessengerAgentImpl {
 
 		static IpMessengerAgentImpl *GetInstance();
 		static void Release();
-		static void GetNetworkInterfaceInfo( vector<NetworkInterface>& nics );
+		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics );
 		void ClearBroadcastAddress();
-		void DeleteBroadcastAddress( string addr );
-		void AddBroadcastAddress( string addr );
-		void Login( string nickname, string groupName );
+		void DeleteBroadcastAddress( std::string addr );
+		void AddBroadcastAddress( std::string addr );
+		void Login( std::string nickname, std::string groupName );
 		void Logout();
 		HostList& GetHostList();
 		HostList& UpdateHostList( bool isRetry=false );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
+		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
 		void ResetAbsence();
-		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
-		vector<GroupItem> GetGroupList();
-		string GetInfo( HostListItem& host );
-		string GetAbsenceInfo( HostListItem& host );
+		void SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes );
+		std::vector<GroupItem> GetGroupList();
+		std::string GetInfo( HostListItem& host );
+		std::string GetAbsenceInfo( HostListItem& host );
 		int Process();
 		int GetRecievedMessageCount();
 		RecievedMessage PopRecievedMessage();
@@ -92,10 +94,10 @@ class IpMessengerAgentImpl {
 		void SetFileNameConverter( FileNameConverter *conv );
 		FileNameConverter *GetFileNameConverter();
 		bool IsAbsence();
-		void StartNetwork( const vector<NetworkInterface>& nics );
+		void StartNetwork( const std::vector<NetworkInterface>& nics );
 		void StartNetwork();
 		void StopNetwork();
-		void RestartNetwork( const vector<NetworkInterface>& nics );
+		void RestartNetwork( const std::vector<NetworkInterface>& nics );
 		void RestartNetwork();
 		void QueryVersionInfo( HostListItem& host );
 		void QueryAbsenceInfo( HostListItem& host );
@@ -115,33 +117,33 @@ class IpMessengerAgentImpl {
 		bool _IsAbsence;
 		bool networkStarted;
 		FileNameConverter *converter;
-		vector<AbsenceMode> absenceModeList;
-		string DecryptErrorMessage;
-		string Nickname;
-		string GroupName;
-		string HostAddress;
+		std::vector<AbsenceMode> absenceModeList;
+		std::string DecryptErrorMessage;
+		std::string Nickname;
+		std::string GroupName;
+		std::string HostAddress;
 
-		map<int, NetworkInterface> sd_addr;
-		vector<int> tcp_sd;
-		vector<int> udp_sd;
+		std::map<int, NetworkInterface> sd_addr;
+		std::vector<int> tcp_sd;
+		std::vector<int> udp_sd;
 		int max_sd;
-		vector<struct sockaddr_in> addr_recv;
+		std::vector<struct sockaddr_in> addr_recv;
 		struct timeval tv;
 		fd_set rfds;
-		vector<struct sockaddr_in> broadcastAddr;
-		vector<Packet> PacketsForChecking;
+		std::vector<struct sockaddr_in> broadcastAddr;
+		std::vector<Packet> PacketsForChecking;
 		HostList hostList;
-		vector<NetworkInterface> NICs;
-		string localEncoding;
+		std::vector<NetworkInterface> NICs;
+		std::string localEncoding;
 
 		IpMessengerAgentImpl();
 		~IpMessengerAgentImpl();
 		void CryptoInit();
 		void CryptoEnd();
-		void NetworkInit( const vector<NetworkInterface>& nics );
+		void NetworkInit( const std::vector<NetworkInterface>& nics );
 		void NetworkEnd();
-		void InitSend( const vector<NetworkInterface>& nics );
-		void InitRecv( const vector<NetworkInterface>& nics );
+		void InitSend( const std::vector<NetworkInterface>& nics );
+		void InitRecv( const std::vector<NetworkInterface>& nics );
 		int InitUdpRecv( struct sockaddr_in addr );
 		int InitTcpRecv( struct sockaddr_in addr );
 		int RecvPacket();
@@ -186,18 +188,18 @@ class IpMessengerAgentImpl {
 		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender, time_t nowTime );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
 		bool EncryptMsg( const HostListItem &host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
-		bool DecryptMsg( const Packet &packet, string& msg );
-		vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( string addr );
+		bool DecryptMsg( const Packet &packet, std::string& msg );
+		std::vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( std::string addr );
 		unsigned long AddCommonCommandOption( const unsigned long cmd );
 		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 
 		//Library Use Only
 		void AddHostListFromPacket( const Packet& packet );
-		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, string user, string host, const char *opt, int optLen, char *buf, int size );
-		int CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size );
+		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, std::string user, std::string host, const char *opt, int optLen, char *buf, int size );
+		int CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size );
 		void SendTcpPacket( int sd, char *buf, int size );
-		bool SendFile( int sock, string FileName, time_t mtime, unsigned long long size, AttachFile *trans, off_t offset=0 );
-		bool SendDirData( int sock, string cd, string dir, vector<string> &files );
+		bool SendFile( int sock, std::string FileName, time_t mtime, unsigned long long size, AttachFile *trans, off_t offset=0 );
+		bool SendDirData( int sock, std::string cd, std::string dir, std::vector<std::string> &files );
 		int GetMaxOptionBufferSize();
 };
 
@@ -237,12 +239,14 @@ class IpMessengerAgentImpl {
 
 #define	IPV4_ADDR_MAX_SIZE	100	// 3*4(3桁数字が4個) + 3(ドットが3個) + 1(終端の"\0"が1個)
 
+}; //namespace ipmsg
+
 char *inet_ntoa_r( in_addr_t in, char *ret, int size );
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
 void IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr );
-string GetCommandString( unsigned  long cmd );
+std::string GetCommandString( unsigned  long cmd );
 void IpMsgDumpHostList( const char *s, HostList& hostList );
 #else
 #define IpMsgPrintBuf( bufname, buf,size )

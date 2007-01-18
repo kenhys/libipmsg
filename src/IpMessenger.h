@@ -26,10 +26,10 @@
 #endif
 
 #include <string>
-#include <queue>
 #include <map>
 #include <vector>
-using namespace std;
+
+namespace ipmsg {
 
 /**
  * 読み込み専用プロパティ
@@ -88,9 +88,9 @@ class Packet{
 		IPMSG_PROPERTY( unsigned long, CommandMode );
 		IPMSG_PROPERTY( unsigned long, CommandOption );
 		IPMSG_PROPERTY( time_t, Recieved );
-		IPMSG_PROPERTY( string, HostName );
-		IPMSG_PROPERTY( string, UserName );
-		IPMSG_PROPERTY( string, Option );
+		IPMSG_PROPERTY( std::string, HostName );
+		IPMSG_PROPERTY( std::string, UserName );
+		IPMSG_PROPERTY( std::string, Option );
 		IPMSG_PROPERTY( struct sockaddr_in, Addr );
 		IPMSG_PROPERTY( int, TcpSocket );
 };
@@ -100,11 +100,11 @@ class Packet{
  **/
 class NetworkInterface {
 	public:
-		IPMSG_PROPERTY( string, DeviceName );
-		IPMSG_PROPERTY( string, IpAddress );
-		IPMSG_PROPERTY( string, NetMask );
-		IPMSG_PROPERTY( string, NetworkAddress );
-		IPMSG_PROPERTY( string, BroadcastAddress );
+		IPMSG_PROPERTY( std::string, DeviceName );
+		IPMSG_PROPERTY( std::string, IpAddress );
+		IPMSG_PROPERTY( std::string, NetMask );
+		IPMSG_PROPERTY( std::string, NetworkAddress );
+		IPMSG_PROPERTY( std::string, BroadcastAddress );
 		IPMSG_PROPERTY( in_addr_t, NativeIpAddress );
 		IPMSG_PROPERTY( in_addr_t, NativeNetMask );
 		IPMSG_PROPERTY( in_addr_t, NativeNetworkAddress );
@@ -117,8 +117,8 @@ class NetworkInterface {
  **/
 class GroupItem{
 	public:
-		IPMSG_PROPERTY( string, GroupName );
-		IPMSG_PROPERTY( string, EncodingName );
+		IPMSG_PROPERTY( std::string, GroupName );
+		IPMSG_PROPERTY( std::string, EncodingName );
 };
 
 /**
@@ -126,20 +126,20 @@ class GroupItem{
  **/
 class HostListItem{
 	public:
-		IPMSG_PROPERTY( string, Version );
-		IPMSG_PROPERTY( string, AbsenceDescription );
-		IPMSG_PROPERTY( string, UserName );
-		IPMSG_PROPERTY( string, HostName );
+		IPMSG_PROPERTY( std::string, Version );
+		IPMSG_PROPERTY( std::string, AbsenceDescription );
+		IPMSG_PROPERTY( std::string, UserName );
+		IPMSG_PROPERTY( std::string, HostName );
 		IPMSG_PROPERTY( unsigned long, CommandNo );
-		IPMSG_PROPERTY( string, IpAddress );
-		IPMSG_PROPERTY( string, Nickname );
-		IPMSG_PROPERTY( string, GroupName );
-		IPMSG_PROPERTY( string, EncodingName );
-		IPMSG_PROPERTY( string, Priority );
+		IPMSG_PROPERTY( std::string, IpAddress );
+		IPMSG_PROPERTY( std::string, Nickname );
+		IPMSG_PROPERTY( std::string, GroupName );
+		IPMSG_PROPERTY( std::string, EncodingName );
+		IPMSG_PROPERTY( std::string, Priority );
 		IPMSG_PROPERTY( unsigned long, PortNo );
 		IPMSG_PROPERTY( unsigned long, EncryptionCapacity );
-		IPMSG_PROPERTY( string, PubKeyHex );
-		IPMSG_PROPERTY( string, EncryptMethodHex );
+		IPMSG_PROPERTY( std::string, PubKeyHex );
+		IPMSG_PROPERTY( std::string, EncryptMethodHex );
 		bool IsLocalHost() const;
 		bool IsFileAttachSupport() const;
 		bool IsEncryptSupport() const;
@@ -164,7 +164,7 @@ class HostListComparator{
 		 * @retval 0:host1とhost2が等しい
 		 * @retval +n:host2が大きい
 		 */
-		virtual int compare( vector<HostListItem>::iterator host1, vector<HostListItem>::iterator host2 )=0;
+		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 )=0;
 };
 
 /**
@@ -180,7 +180,7 @@ class HostListDefaultComparator: public HostListComparator{
 		 * @retval 0:host1とhost2が等しい
 		 * @retval +n:host2が大きい
 		 */
-		virtual int compare( vector<HostListItem>::iterator host1, vector<HostListItem>::iterator host2 ){
+		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 ){
 			return host1->Compare( *host2 );
 		};
 };
@@ -195,16 +195,16 @@ class HostList{
 		IPMSG_PROPERTY( time_t, PrevTry );
 		IPMSG_PROPERTY( int, RetryCount );
 		void AddHost( const HostListItem& host );
-		void Delete( vector<HostListItem>::iterator &it );
-		void DeleteHost( string hostname );
-		vector<HostListItem>::iterator FindHostByAddress( string addr );
-		vector<HostListItem>::iterator FindHostByHostName( string hostName );
+		void Delete( std::vector<HostListItem>::iterator &it );
+		void DeleteHost( std::string hostname );
+		std::vector<HostListItem>::iterator FindHostByAddress( std::string addr );
+		std::vector<HostListItem>::iterator FindHostByHostName( std::string hostName );
 		static HostListItem CreateHostListItemFromPacket( const Packet& packet );
-		vector<HostListItem>::iterator begin();
-		vector<HostListItem>::iterator end();
+		std::vector<HostListItem>::iterator begin();
+		std::vector<HostListItem>::iterator end();
 		int size() const;
 		void clear();
-		string ToString( int start, const struct sockaddr_in *addr );
+		std::string ToString( int start, const struct sockaddr_in *addr );
 		void sort( HostListComparator *comparator );
 		HostList();
 		HostList( const HostList& other );
@@ -215,7 +215,7 @@ class HostList{
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
 		void CopyFrom( const HostList& other );
-		vector<HostListItem>items;
+		std::vector<HostListItem>items;
 		pthread_mutex_t hostListMutex;
 };
 
@@ -225,8 +225,8 @@ class HostList{
  **/
 class FileNameConverter {
 	public:
-		virtual string ConvertNetworkToLocal( string original_file_name ) = 0;
-		virtual string ConvertLocalToNetwork( string original_file_name ) = 0;
+		virtual std::string ConvertNetworkToLocal( std::string original_file_name ) = 0;
+		virtual std::string ConvertLocalToNetwork( std::string original_file_name ) = 0;
 };
 
 /**
@@ -234,8 +234,8 @@ class FileNameConverter {
  **/
 class NullFileNameConverter:public FileNameConverter {
 	public:
-		virtual string ConvertNetworkToLocal( string original_file_name ){ return original_file_name; };
-		virtual string ConvertLocalToNetwork( string original_file_name ){ return original_file_name; };
+		virtual std::string ConvertNetworkToLocal( std::string original_file_name ){ return original_file_name; };
+		virtual std::string ConvertLocalToNetwork( std::string original_file_name ){ return original_file_name; };
 };
 
 /**
@@ -243,13 +243,13 @@ class NullFileNameConverter:public FileNameConverter {
  **/
 class AttachFile{
 	public:
-		map<string, vector<unsigned long> >::iterator beginExtAttrs() { return _ExtAttrs.begin(); };
-		map<string, vector<unsigned long> >::iterator endExtAttrs() { return _ExtAttrs.end(); };
-		void addExtAttrs( string key, unsigned long val ){ _ExtAttrs[key].push_back( val ); };
+		std::map<std::string, std::vector<unsigned long> >::iterator beginExtAttrs() { return _ExtAttrs.begin(); };
+		std::map<std::string, std::vector<unsigned long> >::iterator endExtAttrs() { return _ExtAttrs.end(); };
+		void addExtAttrs( std::string key, unsigned long val ){ _ExtAttrs[key].push_back( val ); };
 		IPMSG_PROPERTY( int, FileId );
-		IPMSG_PROPERTY( string, FullPath );
-		IPMSG_PROPERTY( string, FileName );
-		IPMSG_PROPERTY( string, Location );
+		IPMSG_PROPERTY( std::string, FullPath );
+		IPMSG_PROPERTY( std::string, FileName );
+		IPMSG_PROPERTY( std::string, Location );
 		IPMSG_PROPERTY( long long, FileSize );
 		IPMSG_PROPERTY( long long, TransSize );
 		IPMSG_PROPERTY( bool, IsDownloaded );
@@ -262,10 +262,10 @@ class AttachFile{
 		bool IsDirectory() const;
 		void GetLocalFileInfo();
 	private:
-		map<string, vector<unsigned long> > _ExtAttrs;
+		std::map<std::string, std::vector<unsigned long> > _ExtAttrs;
 	public:
 		static AttachFile AnalyzeHeader( char *buf, FileNameConverter *conv );
-		static string CreateDirFullPath( const vector<string>& dirstack );
+		static std::string CreateDirFullPath( const std::vector<std::string>& dirstack );
 };
 
 /**
@@ -277,14 +277,14 @@ class DownloadInfo{
 		IPMSG_PROPERTY( time_t, Time );
 		IPMSG_PROPERTY( long, FileCount );
 		IPMSG_PROPERTY( bool, Processing );
-		IPMSG_PROPERTY( string, LocalFileName );
+		IPMSG_PROPERTY( std::string, LocalFileName );
 		IPMSG_PROPERTY_REF( AttachFile, File );
 
 		DownloadInfo():_Size( 0ULL ), _Time( 0 ), _FileCount( 0L ), _LocalFileName(""){};
 		long double getSpeed();
-		string getSpeedString();
-		string getSizeString();
-		static string getUnitSizeString( long long size );
+		std::string getSpeedString();
+		std::string getSizeString();
+		static std::string getUnitSizeString( long long size );
 };
 
 /**
@@ -293,14 +293,14 @@ class DownloadInfo{
 class AttachFileList{
 	public:
 		void AddFile( const AttachFile& file );
-		vector<AttachFile>::iterator begin();
-		vector<AttachFile>::iterator end();
+		std::vector<AttachFile>::iterator begin();
+		std::vector<AttachFile>::iterator end();
 		int size() const;
 		void clear();
-		vector<AttachFile>::iterator erase( vector<AttachFile>::iterator item );
-		vector<AttachFile>::iterator erase( const AttachFile& item );
-		vector<AttachFile>::iterator FindByFullPath( const string& fullPath );
-		vector<AttachFile>::iterator FindByFileId( int file_id );
+		std::vector<AttachFile>::iterator erase( std::vector<AttachFile>::iterator item );
+		std::vector<AttachFile>::iterator erase( const AttachFile& item );
+		std::vector<AttachFile>::iterator FindByFullPath( const std::string& fullPath );
+		std::vector<AttachFile>::iterator FindByFileId( int file_id );
 		AttachFileList();
 		AttachFileList( const AttachFileList& other );
 		~AttachFileList();
@@ -309,7 +309,7 @@ class AttachFileList{
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
 		void CopyFrom( const AttachFileList& other );
-		vector<AttachFile> files;
+		std::vector<AttachFile> files;
 		pthread_mutex_t filesMutex;
 };
 
@@ -321,7 +321,7 @@ class IpMessengerEvent;
 class RecievedMessage{
 	public:
 		IPMSG_PROPERTY( Packet, MessagePacket );
-		IPMSG_PROPERTY( string, Message );
+		IPMSG_PROPERTY( std::string, Message );
 		IPMSG_PROPERTY( time_t, Recieved );
 		IPMSG_PROPERTY( bool, IsConfirmed );
 		IPMSG_PROPERTY( bool, IsSecret );
@@ -336,14 +336,14 @@ class RecievedMessage{
 		RecievedMessage();
 		RecievedMessage( const RecievedMessage& other );
 		RecievedMessage& operator=( const RecievedMessage& other );
-		bool DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
-		bool DownloadDir( AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		bool DownloadFile( AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		bool DownloadDir( AttachFile &file, std::string saveDirName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
 	private:
 		void CopyFrom( const RecievedMessage& other );
-		bool DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
-		bool DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveDirName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
-		string GetFormalDir( string dirName );
-		string GetSaveDir( string saveName, string saveBaseDir );
+		bool DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		bool DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, std::string saveDirName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv=NULL, void *data=NULL );
+		std::string GetFormalDir( std::string dirName );
+		std::string GetSaveDir( std::string saveName, std::string saveBaseDir );
 };
 
 /**
@@ -351,9 +351,9 @@ class RecievedMessage{
  **/
 class RecievedMessageList {
 	public:
-		vector<RecievedMessage>::iterator begin();
-		vector<RecievedMessage>::iterator end();
-		vector<RecievedMessage>::iterator erase( vector<RecievedMessage>::iterator item );
+		std::vector<RecievedMessage>::iterator begin();
+		std::vector<RecievedMessage>::iterator end();
+		std::vector<RecievedMessage>::iterator erase( std::vector<RecievedMessage>::iterator item );
 		void append( const RecievedMessage &item );
 		int size() const;
 		void clear();
@@ -365,7 +365,7 @@ class RecievedMessageList {
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
 		void CopyFrom( const RecievedMessageList& other );
-		vector<RecievedMessage> messages;
+		std::vector<RecievedMessage> messages;
 		pthread_mutex_t messagesMutex;
 };
 
@@ -377,7 +377,7 @@ class SentMessage{
 		IPMSG_PROPERTY( struct sockaddr_in, To );
 		IPMSG_PROPERTY( HostListItem, Host );
 		IPMSG_PROPERTY( unsigned long, PacketNo );
-		IPMSG_PROPERTY( string, Message );
+		IPMSG_PROPERTY( std::string, Message );
 		IPMSG_PROPERTY( time_t, Sent );
 		IPMSG_PROPERTY( time_t, PrevTry );
 		IPMSG_PROPERTY( bool, IsRetryMaxOver );
@@ -397,7 +397,7 @@ class SentMessage{
 		SentMessage& operator=( const SentMessage& other );
 		bool isRetryMaxOver() const;
 		bool needSendRetry( time_t tryNow ) const;
-		vector<AttachFile>::iterator FindAttachFileByPacket( const Packet &packet );
+		std::vector<AttachFile>::iterator FindAttachFileByPacket( const Packet &packet );
 	private:
 		void CopyFrom( const SentMessage& other );
 };
@@ -407,15 +407,15 @@ class SentMessage{
  **/
 class SentMessageList {
 	public:
-		vector<SentMessage>::iterator begin();
-		vector<SentMessage>::iterator end();
-		vector<SentMessage>::iterator erase( vector<SentMessage>::iterator item );
-		vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
-		vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
+		std::vector<SentMessage>::iterator begin();
+		std::vector<SentMessage>::iterator end();
+		std::vector<SentMessage>::iterator erase( std::vector<SentMessage>::iterator item );
+		std::vector<SentMessage>::iterator FindSentMessageByPacketNo( unsigned long PacketNo );
+		std::vector<SentMessage>::iterator FindSentMessageByPacket( Packet packet );
 		void append( const SentMessage &item );
 		int size() const;
 		void clear();
-		vector<SentMessage> *GetMessageList();
+		std::vector<SentMessage> *GetMessageList();
 		SentMessageList();
 		SentMessageList( const SentMessageList& other );
 		~SentMessageList();
@@ -425,7 +425,7 @@ class SentMessageList {
 		void Lock( const char *pos ) const;
 		void Unlock( const char *pos ) const;
 		void CopyFrom( const SentMessageList& other );
-		vector<SentMessage> messages;
+		std::vector<SentMessage> messages;
 		pthread_mutex_t messagesMutex;
 };
 
@@ -434,9 +434,9 @@ class SentMessageList {
  **/
 class AbsenceMode {
 	public:
-		IPMSG_PROPERTY( string, EncodingName );
-		IPMSG_PROPERTY( string, AbsenceName );
-		IPMSG_PROPERTY( string, AbsenceDescription );
+		IPMSG_PROPERTY( std::string, EncodingName );
+		IPMSG_PROPERTY( std::string, AbsenceName );
+		IPMSG_PROPERTY( std::string, AbsenceDescription );
 };
 
 
@@ -535,13 +535,13 @@ class IpMessengerEvent {
 		 * @param host ホスト
 		 * @param version バージョン
 		 */
-		virtual void VersionInfoRecieveAfter( HostListItem &host, string version )=0;
+		virtual void VersionInfoRecieveAfter( HostListItem &host, std::string version )=0;
 		/**
 		 * 不在詳細情報受信後イベント
 		 * @param host ホスト
 		 * @param absenceDetail 不在詳細情報
 		 */
-		virtual void AbsenceDetailRecieveAfter( HostListItem& host, string absenceDetail )=0;
+		virtual void AbsenceDetailRecieveAfter( HostListItem& host, std::string absenceDetail )=0;
 		/**
 		 * デストラクタ
 		 */
@@ -568,7 +568,7 @@ class IpMessengerAgent {
 		/**
 		 * NICの情報を取得
 		 **/
-		static void GetNetworkInterfaceInfo( vector<NetworkInterface>& nics );
+		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics );
 
 		/**
 		 * ブロードキャストアドレスのリストをクリア
@@ -578,17 +578,17 @@ class IpMessengerAgent {
 		/**
 		 * ブロードキャストアドレスのリストからアドレスを削除
 		 **/
-		void DeleteBroadcastAddress( string addr );
+		void DeleteBroadcastAddress( std::string addr );
 
 		/**
 		 * ブロードキャストアドレスのリストにアドレスを追加
 		 **/
-		void AddBroadcastAddress( string addr );
+		void AddBroadcastAddress( std::string addr );
 
 		/**
 		 * ログイン通知（参加通知）
 		 **/
-		void Login( string nickname, string groupName );
+		void Login( std::string nickname, std::string groupName );
 
 		/**
 		 * ログアウト通知（脱退通知）
@@ -608,17 +608,17 @@ class IpMessengerAgent {
 		/**
 		 * メッセージ送信（添付無し）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（一つ添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（複数添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * 不在解除
@@ -628,22 +628,22 @@ class IpMessengerAgent {
 		/**
 		 * 不在設定
 		 **/
-		void SetAbsence( string encoding, vector<AbsenceMode> absenceModes );
+		void SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes );
 
 		/**
 		 * グループ一覧取得
 		 **/
-		vector<GroupItem> GetGroupList();
+		std::vector<GroupItem> GetGroupList();
 
 		/**
 		 * バージョン情報取得
 		 **/
-		string GetInfo( HostListItem& host );
+		std::string GetInfo( HostListItem& host );
 
 		/**
 		 * 不在情報取得
 		 **/
-		string GetAbsenceInfo( HostListItem& host );
+		std::string GetAbsenceInfo( HostListItem& host );
 
 		/**
 		 * パケットの処理（ポーリング用）
@@ -723,7 +723,7 @@ class IpMessengerAgent {
 		/**
 		 * ネットワークの起動（NIC指定）
 		 **/
-		void StartNetwork( const vector<NetworkInterface>& nics );
+		void StartNetwork( const std::vector<NetworkInterface>& nics );
 
 		/**
 		 * ネットワークの起動(デフォルト)
@@ -738,7 +738,7 @@ class IpMessengerAgent {
 		/**
 		 * ネットワークの再起動（NIC指定）
 		 **/
-		void RestartNetwork( const vector<NetworkInterface>& nics );
+		void RestartNetwork( const std::vector<NetworkInterface>& nics );
 
 		/**
 		 * ネットワークの再起動(デフォルト)
@@ -748,12 +748,12 @@ class IpMessengerAgent {
 		/**
 		 * ログイン名
 		 **/
-		string LoginName();
+		std::string LoginName();
 
 		/**
 		 * ホスト名
 		 **/
-		string HostName();
+		std::string HostName();
 
 		/**
 		 * ダイヤルアップ
@@ -788,4 +788,5 @@ class IpMessengerAgent {
 		IpMessengerAgentImpl *ipmsgImpl;
 };
 
+}; // namespace ipmsg
 #endif

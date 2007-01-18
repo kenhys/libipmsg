@@ -10,7 +10,9 @@
 #include "IpMessenger.h"
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
+
 using namespace std;
+using namespace ipmsg;
 
 static int file_id = 0;
 

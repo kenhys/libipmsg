@@ -10,7 +10,9 @@
 #include "IpMessenger.h"
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
+
 using namespace std;
+using namespace ipmsg;
 
 //メッセージ送信リトライ最大数
 #define SENDMSG_RETRY_MAX	5

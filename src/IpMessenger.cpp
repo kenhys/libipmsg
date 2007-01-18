@@ -10,6 +10,9 @@
 #include "IpMessenger.h"
 #include "IpMessengerImpl.h"
 
+using namespace std;
+using namespace ipmsg;
+
 //NICの最大数
 #define IFR_MAX 20
 
