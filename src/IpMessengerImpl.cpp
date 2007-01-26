@@ -29,6 +29,11 @@ static int mutex_init_result = IpMsgMutexInit( "IpMessengerImpl::Global", &insta
 class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
 		/**
+		 * ホストリストリフレッシュ後イベント
+		 * @param hostList ホストリスト
+		 */
+		virtual void RefreashHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
+		/**
 		 * ホストリスト更新後イベント。イベントが発生したことを示すためprintを行う。
 		 * @param hostList ホストリスト
 		 */
@@ -99,19 +104,19 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadError\n"); return false; };
 		/**
 		 * ホストの参加通知後イベント。イベントが発生したことを示すためprintを行う。
-		 * @param hostList ホストリスト
+		 * @param hostList ホスト
 		 */
-		virtual void EntryAfter( HostList& hostList ){ printf("EntryAfter\n"); };
+		virtual void EntryAfter( HostListItem& host ){ printf("EntryAfter\n"); };
 		/**
 		 * ホストの脱退通知後イベント。イベントが発生したことを示すためprintを行う。
-		 * @param hostList ホストリスト
+		 * @param hostList ホスト
 		 */
-		virtual void ExitAfter( HostList& hostList ){ printf("ExitAfter\n"); };
+		virtual void ExitAfter( HostListItem& host ){ printf("ExitAfter\n"); };
 		/**
 		 * 不在モード更新後イベント。イベントが発生したことを示すためprintを行う。
-		 * @param hostList ホストリスト
+		 * @param hostList ホスト
 		 */
-		virtual void AbsenceModeChangeAfter( HostList& hostList ){ printf("AbsenceModeChangeAfter\n"); };
+		virtual void AbsenceModeChangeAfter( HostListItem& host ){ printf("AbsenceModeChangeAfter\n"); };
 		/**
 		 * バージョン情報受信後イベント。イベントが発生したことを示すためprintを行う。
 		 * @param host ホスト
@@ -563,7 +568,6 @@ IpMessengerAgentImpl::Login( string nickname, string groupName )
 	//0.05秒まつ。
 	usleep( 50000L );
 	RecvPacket();
-
 }
 
 /**
@@ -662,6 +666,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 #endif
 	if ( event != NULL ) {
 		event->UpdateHostListAfter( hostList );
+		event->RefreashHostListAfter( hostList );
 	}
 	return hostList;
 }
@@ -1890,9 +1895,14 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 	// ホストリストに追加
-	AddHostListFromPacket( packet ); 
+	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+	AddHostListFromPacket( packet );
+	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	if ( event != NULL ) {
-		event->EntryAfter( hostList );
+		if ( it != hostList.end() && !it->IsLocalHost() ) {
+			event->EntryAfter( *it );
+		}
+		event->RefreashHostListAfter( hostList );
 	}
 	return 0;
 }
@@ -1953,10 +1963,16 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrAbsence\n");fflush( stdout );
 #endif
-	hostList.DeleteHost( packet.HostName() );
+	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	hostList.DeleteHostByAddress( ipAddrBuf );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
 	if ( event != NULL ){
-		event->AbsenceModeChangeAfter( hostList );
+		it = hostList.FindHostByAddress( ipAddrBuf );
+		if ( it != hostList.end() ) {
+			event->AbsenceModeChangeAfter( *it );
+		}
+		event->RefreashHostListAfter( hostList );
 	}
 	return 0;
 }
@@ -1974,9 +1990,22 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrExit\n");fflush( stdout );
 #endif
-	hostList.DeleteHost( packet.HostName() );
+	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	bool isFound = false;
+	HostListItem host;
+	if ( it != hostList.end() ) {
+		isFound = true;
+		host = *it;
+	}
+	hostList.DeleteHostByAddress( ipAddrBuf );
 	if ( event != NULL ) {
-		event->ExitAfter( hostList );
+#if 0
+		if ( isFound ) {
+			event->ExitAfter( host );
+		}
+#endif
+		event->RefreashHostListAfter( hostList );
 	}
 	return 0;
 }
@@ -2324,7 +2353,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
 	if ( event != NULL ) {
-		event->EntryAfter( hostList );
+		event->RefreashHostListAfter( hostList );
 	}
 	return 0;
 }
@@ -3082,7 +3111,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 	char *hostListTmpBuf = (char *)calloc( alloc_size, 1 );
 
 #if defined(DEBUG) || !defined(NDEBUG)
-	printf("IpMessengerAgentImpl::CreateHostList packetIpAddress=[%s] packetHostName[%s]\n", packetIpAddress, packetHostName );
+	printf("IpMessengerAgentImpl::CreateHostList packetIpAddress=[%s] packetHostName[%s]\n", packetIpAddress, packetHostName );fflush(stdout);
 	IpMsgPrintBuf( "hostListBuf", hostListBuf, buf_len );
 #endif
 	AddDefaultHost();
@@ -3228,7 +3257,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 		//最後のトークンは最後に判定する。(A)部分。
 		// ADD HOSTLIST
-		hostList.DeleteHost( item.HostName() );
+		hostList.DeleteHostByAddress( item.IpAddress() );
 		hostList.AddHost( item );
 
 #ifdef HAVE_OPENSSL
@@ -3351,6 +3380,9 @@ int
 IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
 #if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::CreateNewPacketBuffer()\n" );fflush(stdout);
+#endif
+#if defined(INFO) || !defined(NDEBUG)
 	printf( "CMD[%s]\n", GetCommandString( GET_MODE( cmd ) ).c_str() );fflush( stdout );
 #endif
 	memset( buf, 0, size );
@@ -3383,6 +3415,9 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long pa
 int
 IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size )
 {
+#if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::CreateNewPacketBuffer()\n" );fflush(stdout);
+#endif
 	unsigned long packetNo = random();
 	return CreateNewPacketBuffer(cmd, packetNo, user, host, opt, optLen, buf, size );
 }
@@ -3397,6 +3432,9 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, string user, str
 Packet
 IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct sockaddr_in sender, time_t nowTime )
 {
+#if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::DismantlePacketBuffer()\n" );fflush(stdout);
+#endif
 	Packet ret;
 	int alloc_size = size + 1;
 	char *packet_tmp_buf;
@@ -3487,6 +3525,9 @@ void
 IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 {
 #if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::AddHostListFromPacket()\n" );fflush(stdout);
+#endif
+#if defined(INFO) || !defined(NDEBUG)
 	printf("===================================\n");fflush( stdout );
 	printf("AddHostListFromPacket\n");fflush( stdout );
 	printf("===================================\n");fflush( stdout );
@@ -3528,6 +3569,9 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 int
 IpMessengerAgentImpl::AddDefaultHost()
 {
+#if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::AddDefaultHost()\n" );fflush(stdout);
+#endif
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( HostAddress );
 	if ( hostIt == hostList.end() ) {
 		HostListItem myHost;
