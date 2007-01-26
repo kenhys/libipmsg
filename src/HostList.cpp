@@ -277,16 +277,16 @@ HostList::Delete( vector<HostListItem>::iterator &it )
  * @param hostname ホスト名
  */
 void
-HostList::DeleteHost( string hostname )
+HostList::DeleteHostByAddress( string addr )
 {
-	Lock( "HostList::DeleteHost()" );
+	Lock( "HostList::DeleteHostIpAddress()" );
 	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
-		if ( ix->HostName() == hostname ) {
+		if ( ix->IpAddress() == addr ) {
 			items.erase( ix );
 			break;
 		}
 	}
-	Unlock( "HostList::DeleteHost()" );
+	Unlock( "HostList::DeleteHostByAddress()" );
 }
 
 /**
