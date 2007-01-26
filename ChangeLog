@@ -1,3 +1,13 @@
+2007-01-26 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Delete API(DeleteHost).
+- Update:Add API(DeleteHostByAddress).
+- Update:Add Event(RefreashHostListAfter).
+- Update:Change parameter hostList to host at Event EntryAfter.
+- Update:Change parameter hostList to host at Event ExitAfter.
+- Update:Change parameter hostList to host at Event AbsenceModeChangeAfter.
+- Update:Change raise event timings.
+- Update:Change debug print.
+
 2007-01-20 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - New upstream release.(0.1.2)
 
