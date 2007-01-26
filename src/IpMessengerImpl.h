@@ -245,9 +245,9 @@ char *inet_ntoa_r( in_addr_t in, char *ret, int size );
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
-void IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr );
+void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in sender_addr );
 std::string GetCommandString( unsigned  long cmd );
-void IpMsgDumpHostList( const char *s, HostList& hostList );
+void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
 #else
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )

@@ -93,7 +93,7 @@ GetCommandString( unsigned long cmd )
  * @param sender_addr 送信元IPアドレス
  */
 void
-IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
+IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
 	char ipaddrbuf[IPV4_ADDR_MAX_SIZE];
 	printf( "send from %s(%d)\n", inet_ntoa_r( sender_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );fflush(stdout);
@@ -113,7 +113,7 @@ IpMsgDumpPacket( Packet packet, struct sockaddr_in sender_addr ){
  * @param hostList ホストリストオブジェクト
  */
 void
-IpMsgDumpHostList( const char *s, HostList& hostList )
+IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 {
 	char head[]="=======================================================>\n";
 	char foot[]="<=======================================================\n";
@@ -122,7 +122,7 @@ IpMsgDumpHostList( const char *s, HostList& hostList )
 	memcpy( foot+2, s, strlen( s ) );
 	printf("\n\n");fflush(stdout);
 	printf("%s", head );fflush(stdout);
-	for( vector<HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
+	for( vector<ipmsg::HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
 		printf( "Version[%s]\n" \
 				"AbsenceDescription[%s]\n" \
 				"User[%s]\n" \
