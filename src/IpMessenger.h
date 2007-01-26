@@ -196,7 +196,7 @@ class HostList{
 		IPMSG_PROPERTY( int, RetryCount );
 		void AddHost( const HostListItem& host );
 		void Delete( std::vector<HostListItem>::iterator &it );
-		void DeleteHost( std::string hostname );
+		void DeleteHostByAddress( std::string addr );
 		std::vector<HostListItem>::iterator FindHostByAddress( std::string addr );
 		std::vector<HostListItem>::iterator FindHostByHostName( std::string hostName );
 		static HostListItem CreateHostListItemFromPacket( const Packet& packet );
@@ -447,6 +447,11 @@ class AbsenceMode {
 class IpMessengerEvent {
 	public:
 		/**
+		 * ホストリストリフレッシュ後イベント
+		 * @param hostList ホストリスト
+		 */
+		virtual void RefreashHostListAfter( HostList& hostList )=0;
+		/**
 		 * ホストリスト更新後イベント
 		 * @param hostList ホストリスト
 		 */
@@ -517,19 +522,19 @@ class IpMessengerEvent {
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
 		/**
 		 * ホストの参加通知後イベント
-		 * @param hostList ホストリスト
+		 * @param host ホスト
 		 */
-		virtual void EntryAfter( HostList& hostList )=0;
+		virtual void EntryAfter( HostListItem& host )=0;
 		/**
 		 * ホストの脱退通知後イベント
-		 * @param hostList ホストリスト
+		 * @param host ホスト
 		 */
-		virtual void ExitAfter( HostList& hostList )=0;
+		virtual void ExitAfter( HostListItem& host )=0;
 		/**
 		 * 不在モード更新後イベント
-		 * @param hostList ホストリスト
+		 * @param hostList ホスト
 		 */
-		virtual void AbsenceModeChangeAfter( HostList& hostList )=0;
+		virtual void AbsenceModeChangeAfter( HostListItem& host )=0;
 		/**
 		 * バージョン情報受信後イベント
 		 * @param host ホスト
