@@ -2000,11 +2000,9 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 	}
 	hostList.DeleteHostByAddress( ipAddrBuf );
 	if ( event != NULL ) {
-#if 0
 		if ( isFound ) {
 			event->ExitAfter( host );
 		}
-#endif
 		event->RefreashHostListAfter( hostList );
 	}
 	return 0;
