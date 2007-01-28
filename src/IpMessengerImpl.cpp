@@ -228,7 +228,7 @@ IpMessengerAgentImpl::StartNetwork()
  * IP メッセンジャエージェントクラスのネットワークを起動する。
  * <ul>
  * <li>ネットワーク初期化。</li>
- * <li>不在を解除。</li>
+ * <li>ネットワークにごみとしてホスト情報が残っていることを考慮して一旦ログアウト。</li>
  * <li>開始後ログインする必要があります。</li>
  * </ul>
  */
@@ -280,8 +280,10 @@ IpMessengerAgentImpl::RestartNetwork()
 void
 IpMessengerAgentImpl::RestartNetwork( const vector<NetworkInterface>& nics )
 {
-	Logout();
-	StopNetwork();
+	if ( networkStarted ) {
+		Logout();
+		StopNetwork();
+	}
 	StartNetwork( nics );
 	Login( Nickname, GroupName );
 }
@@ -308,6 +310,10 @@ void
 IpMessengerAgentImpl::SetFileNameConverter( FileNameConverter *conv )
 {
 	if ( conv == NULL ){
+		return;
+	}
+	//自己代入を考慮
+	if ( conv == converter ){
 		return;
 	}
 	delete converter;
@@ -338,6 +344,10 @@ IpMessengerAgentImpl::SetSortHostListComparator( HostListComparator *comparator 
 	if ( comparator == NULL ){
 		return;
 	}
+	//自己代入を考慮
+	if ( comparator == compare ){
+		return;
+	}
 	delete compare;
 	compare = comparator;
 }
@@ -364,6 +374,10 @@ void
 IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
 {
 	if ( evt == NULL ){
+		return;
+	}
+	//自己代入を考慮
+	if ( evt == event ){
 		return;
 	}
 	delete event;
@@ -618,6 +632,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
+	//リトライ中かどうか？
 	if ( !isRetry && !hostList.IsAsking() ) {
 #if defined(DEBUG)
 		for(int i=0;i < 6;i++)
@@ -631,6 +646,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 		printf("\n");fflush(stdout);
 #endif
 	}
+	//問合せ中に状態を設定
 	hostList.setIsAsking( true );
 	if ( !isRetry ) {
 		hostList.setAskStartTime( time( NULL ) );
@@ -658,12 +674,14 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 #if defined(DEBUG)
 	IpMsgDumpHostList( " M Y   H O S T L I S T ( BEFORE SORT ) ", hostList );
 #endif
+	//ソート
 	if ( compare != NULL ) {
 		hostList.sort( compare );
 	}
 #if defined(DEBUG)
 	IpMsgDumpHostList( " M Y   H O S T L I S T ( AFTER SORT ) ", hostList );
 #endif
+	//イベントを挙げる
 	if ( event != NULL ) {
 		event->UpdateHostListAfter( hostList );
 		event->RefreashHostListAfter( hostList );
@@ -774,6 +792,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 
 	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", msg.c_str() );
 #ifdef HAVE_OPENSSL
+	//OpenSSLサポートが有効なら、暗号化
 	if ( isSecret && EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, sizeof( optBuf ) ) ) {
 		isEncrypted = true;
 	} else {
@@ -791,6 +810,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	int fileBufLen = 0;
 	char fileBuf[MAX_UDPBUF];
 
+	//ファイルを添付
 	for( vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
 		ixfile->GetLocalFileInfo();
 		string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
@@ -822,6 +842,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 
 	IpMsgPrintBuf( "optBuf2:", optBuf, optBufLen );
 
+	//リトライ時は以前のバケットNoを使用する。
 	unsigned long packetNo = (isRetry && PrevPacketNo != 0UL ? PrevPacketNo : random() );
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_SENDMSG | IPMSG_SENDCHECKOPT |
@@ -845,6 +866,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	message.setPacketNo( packetNo );
 	message.setMessage( msg );
 	message.setSent( time( NULL ) );
+	//初回はリトライ用のプロパティを初期化する。
 	if ( !isRetry ) {
 		message.setPrevTry( message.Sent() );
 		message.setIsRetryMaxOver( false );
@@ -861,16 +883,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	message.setFiles( files );
 	message.setIsSent( false );
 
-#if defined(DEBUG)
-	printf( "UserName[%s]\n", message.Host().UserName().c_str() );fflush( stdout );
-	printf( "HostName[%s]\n", message.Host().HostName().c_str() );fflush( stdout );
-	printf( "Nickname[%s]\n", message.Host().Nickname().c_str() );fflush( stdout );
-#endif
 	if ( SaveSentMessage() && !isRetry ){
 		sentMsgList.append( message );
 	}
-
-//	RecvPacket();
 
 #if defined(DEBUG)
 	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );fflush( stdout );
@@ -988,6 +1003,7 @@ IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
  * <li>バージョン情報を問い合わせる。</li>
  * <li>他のメソッド（ANSINFO受信）にて取得するまで待機。（五回まで）</li>
  * <li>IPアドレスでマッチングしてANSINFOで更新されたバージョン情報を返す。</li>
+ * <li>待ち合わせを行います。時間がかかる場合があります。Query系のAPIでイベントを拾うことを推奨。このメソッドからも同じイベントを発行します。</li>
  * </ul>
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
@@ -1036,6 +1052,7 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
  * <li>不在説明文字列情報を問い合わせる。</li>
  * <li>他のメソッド（ANSABSENCEINFO受信）にて取得するまで待機。（五回まで）</li>
  * <li>IPアドレスでマッチングしてANSABSENCEINFOで更新された不在説明文字列情報を返す。</li>
+ * <li>待ち合わせを行います。時間がかかる場合があります。Query系のAPIでイベントを拾うことを推奨。このメソッドからも同じイベントを発行します。</li>
  * </ul>
  * @param host 対象のホスト
  * @retval 対象ホストの不在説明文字列情報
@@ -1329,6 +1346,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
  * <li>指定のNICに対してUDPに関する受信初期化。</li>
  * <li>指定のNICに対してTCPに関する受信初期化。</li>
  * </ul>
+ * @param nics ネットワークインターフェースのリスト。先頭がデフォルトカードになります。 
  */
 void
 IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
@@ -1412,6 +1430,8 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
  * <li>2425待ち受けのUDPソケットを準備する</li>
  * <li>UDPはbroadcast許可</li>
  * </ul>
+ * @param addr 初期化するアドレス情報。
+ * @retval 初期化済みのソケット
  */
 int
 IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_in addr )
@@ -1474,6 +1494,8 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_in addr )
  * <li>TCPはREUSEADDR</li>
  * <li>litsenは5ポート</li>
  * </ul>
+ * @param addr 初期化するアドレス情報。
+ * @retval 初期化済みのソケット
  */
 int
 IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_in addr )
@@ -1514,6 +1536,7 @@ IpMessengerAgentImpl::Process()
  * <li>select(タイムアウト付き)にて受信待ち。</li>
  * <li>受信処理を行い、パケットをキューにため込む。</li>
  * <li>受信が終了したら、キューの中身を処理する。（各イベントを呼び出す。）</li>
+ * <li>一定時間以前のパケットと重複判定を行い、重複している場合はパケットを破棄します。</li>
  * </ul>
  * @retval 受信パケット数
  */
@@ -1530,12 +1553,14 @@ IpMessengerAgentImpl::RecvPacket()
 	while( selret > 0 ) {
 		fd_set fds;
 		memcpy( &fds, &rfds, sizeof( fd_set ) );
-
 		memset( buf, 0, sizeof( buf ) );
+
 		tv.tv_sec = SELECT_TIMEOUT_SEC;
 		tv.tv_usec = SELECT_TIMEOUT_USEC;
+		// TODO スレッド化する場合はブロッキングします。
 		selret = select( max_sd + 1, &fds, NULL, NULL, &tv );
 		if ( selret == -1 ) {
+			//selectが割り込み発生で戻った場合は、無視します。
 			if ( errno == EINTR ){
 				continue;
 			}
@@ -1581,6 +1606,7 @@ IpMessengerAgentImpl::RecvPacket()
 			}
 		}
 	}
+	// TODO pack_que,PacketsForCheckingはdequeのほうが。。。？
 	//パケットを処理する。
 	while( !pack_que.empty() ) {
 		DoRecvCommand( pack_que.front() );
@@ -1683,6 +1709,7 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_in *sender_addr, int
 bool
 IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
 {
+	//直近のパケットから探す。
 	for( int i = (int)PacketsForChecking.size() - 1; i >= 0; i-- ){
 		if ( PacketsForChecking[i].PacketNo()             == packet.PacketNo() &&
 			 PacketsForChecking[i].Addr().sin_addr.s_addr == packet.Addr().sin_addr.s_addr &&
@@ -1779,6 +1806,7 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 	}
 }
 
+// Protocol event processor start here.
 /**
  * パケットのコマンドモードで受信イベントを振り分ける。
  * @param packet パケットオブジェクト
@@ -2567,49 +2595,6 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 }
 
 /**
- * ファイルダウンロードスレッド
- * <ul>
- * <li>ファイルをダウンロードさせる。</li>
- * </ul>
- * @param param パケットオブジェクト(void*)
- */
-void *
-ipmsg::GetFileDataThread( void *param )
-{
-#if defined(INFO) || !defined(NDEBUG)
-	printf( "GetFileDataThread\n" );fflush( stdout );
-#endif
-
-	Packet *packet = (Packet *)param;
-
-	vector<SentMessage>::iterator msg = IpMessengerAgentImpl::GetInstance()->GetSentMessages()->FindSentMessageByPacket( *packet );
-	if ( msg == IpMessengerAgentImpl::GetInstance()->GetSentMessages()->end() ){
-		close( packet->TcpSocket() );
-		delete packet;
-		return 0;
-	}
-	vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
-	if ( FoundFile == msg->Files().end() ){
-		close( packet->TcpSocket() );
-		delete packet;
-		return 0;
-	}
-
-	FoundFile->setIsDownloading( true );
-	IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(),
-												   FoundFile->FullPath(),
-												   FoundFile->MTime(),
-												   FoundFile->FileSize(),
-												   &(*FoundFile),
-												   GetSendFileOffsetInPacket( *packet ) );
-	FoundFile->setIsDownloading( false );
-	FoundFile->setIsDownloaded( true );
-	close( packet->TcpSocket() );
-	delete packet;
-	return NULL;
-}
-
-/**
  * TODO 何するの？
  * 電文受信イベント：BR_RELEASEFILES
  * <ul>
@@ -2753,6 +2738,49 @@ IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 	}
 
 	return 0;
+}
+
+/**
+ * ファイルダウンロードスレッド
+ * <ul>
+ * <li>ファイルをダウンロードさせる。</li>
+ * </ul>
+ * @param param パケットオブジェクト(void*)
+ */
+void *
+ipmsg::GetFileDataThread( void *param )
+{
+#if defined(INFO) || !defined(NDEBUG)
+	printf( "GetFileDataThread\n" );fflush( stdout );
+#endif
+
+	Packet *packet = (Packet *)param;
+
+	vector<SentMessage>::iterator msg = IpMessengerAgentImpl::GetInstance()->GetSentMessages()->FindSentMessageByPacket( *packet );
+	if ( msg == IpMessengerAgentImpl::GetInstance()->GetSentMessages()->end() ){
+		close( packet->TcpSocket() );
+		delete packet;
+		return 0;
+	}
+	vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
+	if ( FoundFile == msg->Files().end() ){
+		close( packet->TcpSocket() );
+		delete packet;
+		return 0;
+	}
+
+	FoundFile->setIsDownloading( true );
+	IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(),
+												   FoundFile->FullPath(),
+												   FoundFile->MTime(),
+												   FoundFile->FileSize(),
+												   &(*FoundFile),
+												   GetSendFileOffsetInPacket( *packet ) );
+	FoundFile->setIsDownloading( false );
+	FoundFile->setIsDownloaded( true );
+	close( packet->TcpSocket() );
+	delete packet;
+	return NULL;
 }
 
 /**
