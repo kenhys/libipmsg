@@ -1,5 +1,8 @@
+2007-01-28 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Support sendfile system call in SendFile method.
+
 2007-01-27 Niki, Kuninobu <nikikuni@yahoo.co.jp>
-Update:Enabled ExitAfter event.
+- Update:Enabled ExitAfter event.
 
 2007-01-26 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Delete API(DeleteHost).

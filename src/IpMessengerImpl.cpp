@@ -2878,12 +2878,15 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 bool
 IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
 {
-	string localFileName = converter->ConvertNetworkToLocal( FileName.c_str() );
-	char readbuf[8192];
 	struct stat statInit;
-	int readSize;
 	unsigned long long transSize = 0LL;
-	int fd = open( localFileName.c_str(), O_RDONLY );
+	char realPathName[PATH_MAX];
+
+	memset( realPathName, 0, sizeof( realPathName ) );
+	if ( realpath( FileName.c_str(), realPathName ) == NULL ) {
+		return false;
+	}
+	int fd = open( realPathName, O_RDONLY );
 
 	if ( file != NULL ) file->setTransSize( offset );
 
@@ -2900,11 +2903,11 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 		return false;
 	}
 	lseek( fd, offset, SEEK_SET );
-	readSize = read( fd, readbuf, sizeof( readbuf ) );
-	while( readSize > 0 ){
+	int readSize;
+	while( ( readSize = AttachFile::SendFileBuffer( fd, sock, 8192 ) ) > 0 ){
 		if ( AbortDownloadAtFileChanged() ){
 			struct stat statProgress;
-			if ( stat( localFileName.c_str(), &statProgress ) != 0 ){
+			if ( stat( realPathName, &statProgress ) != 0 ){
 #ifdef DEBUG
 				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
@@ -2922,10 +2925,8 @@ IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigne
 			printf("FileName.c_str() [%s]\nFile Unchanged.\n", FileName.c_str() );fflush(stdout);
 #endif
 		}
-		send( sock, readbuf, readSize, 0 );
 		transSize += readSize;
 		if ( file != NULL ) file->setTransSize( transSize );
-		readSize = read( fd, readbuf, sizeof( readbuf ) );
 	}
 	close( fd );
 	return true;
