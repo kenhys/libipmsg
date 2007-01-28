@@ -301,7 +301,7 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
 	string ret;
-	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize();
+	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize() - 12 /* 12 は "12345\a12345\a"*/;
 
 	ret = "";
 	int hostCount = 0;
@@ -309,6 +309,7 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 		HostListItem item = items.at( i );
 		//自分のIPアドレスを返す場合で他のネットワーク向けのアドレスを持っている場合に、
 		//そちらのインターフェースのアドレスを返す。
+		int len = 0;
 		if ( item.IsLocalHost() ) {
 			IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 			vector<NetworkInterface> nics = agent->NICs;
@@ -319,7 +320,7 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 					break;
 				}
 			}
-			sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
+			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
 							item.UserName() == "" ? "\b" : item.UserName().c_str(),
 							item.HostName() == "" ? "\b" : item.HostName().c_str(),
 							item.CommandNo(),
@@ -328,7 +329,7 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
 		} else {
-			sprintf( buf, "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
+			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
 							item.UserName() == "" ? "\b" : item.UserName().c_str(),
 							item.HostName() == "" ? "\b" : item.HostName().c_str(),
 							item.CommandNo(),
@@ -336,6 +337,9 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 							htons( item.PortNo() ),
 							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
+		}
+		if ( len >= sizeof( buf ) ) {
+			continue;
 		}
 		if ( ret.length() >= maxLength ){
 			break;

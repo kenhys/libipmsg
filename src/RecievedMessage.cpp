@@ -284,6 +284,9 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
 	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
+	if ( optBufLen <= sizeof( optBuf ) ) {
+		return false;
+	}
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETFILEDATA,
 												 agent->LoginName(), agent->HostName(),
 												 optBuf, optBufLen,
@@ -493,6 +496,9 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
 	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x", MessagePacket().PacketNo(), file.FileId() );
+	if ( optBufLen <= sizeof( optBuf ) ) {
+		return false;
+	}
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETDIRFILES,
 												 agent->LoginName(), agent->HostName(),
 												 optBuf, optBufLen,

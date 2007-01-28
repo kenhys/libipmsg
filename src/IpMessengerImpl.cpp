@@ -498,7 +498,8 @@ IpMessengerAgentImpl::NetworkInit( const vector<NetworkInterface>& nics )
 		_LoginName = login.pw_name;
 	}
 	if ( _LoginName == "" ){
-		_LoginName = snprintf( buf, sizeof( buf ), "%d", uid );
+		IpMsgIntToString( buf, sizeof( buf ), uid );
+		_LoginName = buf;
 	}
 
 #ifdef HAVE_OPENSSL
@@ -551,8 +552,10 @@ IpMessengerAgentImpl::Login( string nickname, string groupName )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
+#if 0
 	char optBuf[MAX_UDPBUF];
 	int optBufLen = 0;
+#endif
 
 	SendNoOperation();
 
@@ -565,16 +568,10 @@ IpMessengerAgentImpl::Login( string nickname, string groupName )
 		Nickname = _LoginName;
 	}
 	GroupName = groupName;
-	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", Nickname.c_str() );
-	optBuf[ optBufLen ] = '\0';
-	optBufLen++;
-	snprintf( &optBuf[ optBufLen ], sizeof( optBuf ) - optBufLen - 1, "%s", GroupName.c_str() );
-	optBufLen += GroupName.size();
-	optBuf[ optBufLen ] = '\0';
-	
+	string optBuf = Nickname + '\0' + GroupName +'\0';
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ENTRY ),
 										_LoginName, _HostName,
-										optBuf, optBufLen,
+										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ENTRY, sendBuf, sendBufLen );
 	ResetAbsence();
@@ -790,19 +787,17 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 
 	RecvPacket();
 
-	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", msg.c_str() );
+	optBufLen = sizeof( optBuf ) < msg.size() ? sizeof( optBuf ) : msg.size();
+	memcpy( optBuf, msg.c_str(), optBufLen );
 #ifdef HAVE_OPENSSL
 	//OpenSSLサポートが有効なら、暗号化
 	if ( isSecret && EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, sizeof( optBuf ) ) ) {
 		isEncrypted = true;
 	} else {
-		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", msg.c_str() );
+		optBufLen = sizeof( optBuf ) < msg.size() ? sizeof( optBuf ) : msg.size();
+		memcpy( optBuf, msg.c_str(), optBufLen );
 	}
 #endif	//HAVE_OPENSSL
-	//切り捨てられた。
-	if ( optBufLen >= (int)sizeof( optBuf ) - 1 ) {
-		optBufLen = sizeof( optBuf ) - 1;
-	}
 
 	optBuf[optBufLen++] = '\0';
 	IpMsgPrintBuf( "optBuf:", optBuf, optBufLen );
@@ -817,7 +812,8 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 		int wsize = snprintf( &fileBuf[ fileBufLen ], sizeof( fileBuf ) - fileBufLen - 1,
 							"%d:%s:%llx:%lx:%lx:\a",
 							ixfile->FileId(), filename.c_str(), ixfile->FileSize(), (unsigned long)ixfile->MTime(), ixfile->Attr() );
-		if ( optBufLen + fileBufLen + wsize - 1 > MAX_UDPBUF ) {
+		//添付ファイルの総数が送信バッファを超えたまたはsprintfが書ききらなかった。
+		if ( optBufLen + fileBufLen + wsize - 1 > MAX_UDPBUF || wsize >= sizeof( fileBuf ) - fileBufLen - 1 ) {
 #if defined(DEBUG)
 			printf( "break;\n" );fflush(stdout);
 #endif
@@ -1112,8 +1108,7 @@ IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 	char *dmyptr;
 	unsigned long packetNo = strtoul( msg.MessagePacket().Option().c_str(), &dmyptr, 10 );
 
-	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lu", packetNo );
-	optBuf[optBufLen++] = '\0';
+	optBufLen = IpMsgULongToString( optBuf, sizeof( optBuf ), packetNo );
 	sendBufLen = CreateNewPacketBuffer( IPMSG_DELMSG,
 										  _LoginName, _HostName,
 										  optBuf, optBufLen,
@@ -1135,7 +1130,7 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 	int packetNoBufLen;
 
 	if ( ( IPMSG_SECRETOPT & msg.MessagePacket().CommandOption() ) && !msg.IsConfirmed() ) {
-		packetNoBufLen = snprintf( packetNoBuf, sizeof( packetNoBuf ), "%ld", msg.MessagePacket().PacketNo() );
+		packetNoBufLen = IpMsgULongToString( packetNoBuf, sizeof( packetNoBuf ), msg.MessagePacket().PacketNo() );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_READMSG,
 											  _LoginName, _HostName,
 											  packetNoBuf, packetNoBufLen,
@@ -1894,8 +1889,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	char optBuf[MAX_UDPBUF];
-	int optBufLen = 0;
+	string optBuf;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrEntry\n");fflush( stdout );
@@ -1908,18 +1902,14 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 				break;
 			}
 		}
-		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s[%s]", Nickname.c_str(), AbsenceName.c_str() );
+		optBuf = Nickname + "[" + AbsenceName + "]";
 	} else {
-		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", Nickname.c_str() );
+		optBuf = Nickname;
 	}
-	optBuf[optBufLen] = '\0';
-	optBufLen++;
-	snprintf( &optBuf[ optBufLen ], sizeof( optBuf ) - optBufLen - 1, "%s", GroupName.c_str() );
-	optBufLen += GroupName.size();
-	optBuf[optBufLen ] = '\0';
+	optBuf += '\0' + GroupName;
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSENTRY ),
 										_LoginName, _HostName,
-										optBuf, optBufLen,
+										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 	// ホストリストに追加
@@ -1946,8 +1936,7 @@ IpMessengerAgentImpl::SendAbsence()
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	char optBuf[MAX_UDPBUF];
-	int optBufLen = 0;
+	string optBuf;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("SendBrAbsence\n");fflush( stdout );
@@ -1960,19 +1949,14 @@ IpMessengerAgentImpl::SendAbsence()
 				break;
 			}
 		}
-		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s[%s]", Nickname.c_str(), AbsenceName.c_str() );
+		optBuf = Nickname + "[" + AbsenceName + "]";
 	} else {
-		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%s", Nickname.c_str() );
+		optBuf = Nickname;
 	}
-	optBuf[optBufLen] = '\0';
-	optBufLen++;
-	snprintf( &optBuf[ optBufLen ], sizeof( optBuf ) - optBufLen - 1, "%s", GroupName.c_str() );
-	optBufLen += GroupName.size();
-	optBuf[optBufLen ] = '\0';
-
+	optBuf += '\0' + GroupName;
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ABSENCE ),
 										_LoginName, _HostName,
-										optBuf, optBufLen,
+										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ABSENCE, sendBuf, sendBufLen );
 	return 0;
@@ -2081,7 +2065,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 	int packetNoBufLen;
 	
 	if ( packet.CommandOption() & IPMSG_READCHECKOPT ) {
-		packetNoBufLen = snprintf( packetNoBuf, sizeof( packetNoBuf ), "%ld", packet.PacketNo() );
+		packetNoBufLen = IpMsgULongToString( packetNoBuf, sizeof( packetNoBuf ), packet.PacketNo() );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_ANSREADMSG,
 											  _LoginName, _HostName,
 											  packetNoBuf, packetNoBufLen,
@@ -2184,7 +2168,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 		;
 	} else {
 		if ( packet.CommandOption() & IPMSG_SENDCHECKOPT ) {
-			packetNoBufLen = snprintf( packetNoBuf, sizeof( packetNoBuf ), "%ld", packet.PacketNo() );
+			packetNoBufLen = IpMsgULongToString( packetNoBuf, sizeof( packetNoBuf ), packet.PacketNo() );
 			sendBufLen = CreateNewPacketBuffer( IPMSG_RECVMSG,
 												  _LoginName, _HostName,
 												  packetNoBuf, packetNoBufLen,
@@ -2408,7 +2392,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 									packet.Option().c_str(),
 									packet.Option().length() );
 	if ( nextstart > 0 ) {
-		int nextBufLen = snprintf( nextBuf, sizeof( nextBuf ), "%d", hostList.size() + 1 );
+		int nextBufLen = IpMsgIntToString( nextBuf, sizeof( nextBuf ), hostList.size() + 1 );
 #if defined(INFO) || !defined(NDEBUG)
 		printf("nextBufLen = %d\n", nextBufLen );fflush( stdout );
 #endif
@@ -2846,7 +2830,8 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 														IPMSG_FILE_DIR,
 														IPMSG_FILE_MTIME, (long)st.st_mtime,
 														IPMSG_FILE_CREATETIME, (long)st.st_ctime );
-	headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
+	snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen );
+	headBuf[4] = ':';
 	send( sock, headBuf, headBufLen, 0 );
 
 	char buf[ offsetof( struct dirent, d_name ) + pathconf( dir.c_str(), _PC_NAME_MAX ) + 1 ];
@@ -2878,7 +2863,8 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 																	IPMSG_FILE_REGULAR,
 																	IPMSG_FILE_MTIME, (long)st.st_mtime,
 																	IPMSG_FILE_CREATETIME, (long)st.st_ctime );
-				headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
+				snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen);
+				headBuf[4] = ':';
 				send( sock, headBuf, headBufLen, 0 );
 
 				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size, NULL , 0 ) ){
@@ -2889,7 +2875,8 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 		}
 	}
 	headBufLen = snprintf( headBuf, sizeof( headBuf ), "0000:.:0:%lx:", IPMSG_FILE_RETPARENT );
-	headBuf[ snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen) ] = ':';
+	snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen);
+	headBuf[4] = ':';
 	send( sock, headBuf, headBufLen, 0 );
 	closedir( d );
 	return true;
@@ -3293,6 +3280,9 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		char optBuf[MAX_UDPBUF];
 		int optBufLen;
 		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx", encryptionCapacity );
+		if ( optBufLen >= sizeof(optBuf) ){
+			optBufLen = sizeof(optBuf);
+		}
 		sendBufLen = CreateNewPacketBuffer( IPMSG_GETPUBKEY,
 											  _LoginName, _HostName,
 											  optBuf, optBufLen,
@@ -3420,7 +3410,10 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long pa
 										user == "" ? "\b" : user.c_str(),
 										host == "" ? "\b" : host.c_str(),
 										cmd );
-	if ( optLen > 0 && opt != NULL) {
+	if ( send_size > size ) {
+		return 0;
+	}
+	if ( send_size + optLen < size && optLen > 0 && opt != NULL ) {
 		memcpy(&buf[send_size], opt, optLen );
 	} else {
 		optLen = 0;

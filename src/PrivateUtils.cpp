@@ -293,3 +293,34 @@ IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 	return 0;
 #endif
 }
+
+int
+IpMsgIntToString( char *buf, ssize_t bufsize, int val )
+{
+	int ret = snprintf( buf, bufsize, "%d", val );
+	if ( ret >= bufsize ){
+		buf[ bufsize - 1 ] = '\0';
+		ret = bufsize - 1;
+	}
+	return ret;
+}
+int
+IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
+{
+	int ret = snprintf( buf, bufsize, "%lu", val );
+	if ( ret >= bufsize ){
+		buf[ bufsize - 1 ] = '\0';
+		ret = bufsize - 1;
+	}
+	return ret;
+}
+int
+IpMsgUChrToHexString( char buf[3], const unsigned char val )
+{
+	int ret = snprintf( buf, sizeof( buf ), "%02x", val );
+	if ( ret >= sizeof( buf ) ){
+		buf[ sizeof( buf ) - 1 ] = '\0';
+		ret = sizeof( buf ) - 1;
+	}
+	return ret;
+}

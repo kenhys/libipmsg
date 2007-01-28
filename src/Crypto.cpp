@@ -379,13 +379,13 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	snprintf( (char *)out_buf, ob_len, "%lx:", pubKeyMethod | shareKeyMethod );
 	for( int i = 0; i < enc_key_len; i++ ) {
 		char pout_hex[3];
-		snprintf( pout_hex, 3, "%02x", (unsigned char)enc_key[i] );
+		IpMsgUChrToHexString( pout_hex, (unsigned char)enc_key[i] );
 		strcat( (char *)out_buf, pout_hex );
 	}
 	strcat( (char *)out_buf, PACKET_DELIMITER_STRING );
 	for( int i = 0; i < o_len; i++ ) {
 		char pout_hex[3];
-		snprintf( pout_hex, 3, "%02x", (unsigned char)enc_buf[i] );
+		IpMsgUChrToHexString( pout_hex, (unsigned char)enc_buf[i] );
 		strcat( (char *)out_buf, pout_hex );
 	}
 	*enc_optBufLen = strlen( (char *)out_buf );

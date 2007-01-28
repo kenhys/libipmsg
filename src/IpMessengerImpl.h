@@ -258,5 +258,8 @@ int IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutex
 int IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex );
 int IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex );
 int IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex );
+int IpMsgIntToString( char *buf, ssize_t bufsize, int val );
+int IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val );
+int IpMsgUChrToHexString( char buf[3], const unsigned char val );
 
 #endif
