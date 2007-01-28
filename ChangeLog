@@ -1,3 +1,7 @@
+2007-01-29 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Arrangement codes.
+- Update:Minimize use snprintf.
+
 2007-01-28 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Support sendfile system call in SendFile method.
 
