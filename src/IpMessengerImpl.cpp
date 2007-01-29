@@ -178,6 +178,7 @@ IpMessengerAgentImpl::Release()
  * </ul>
  */
 IpMessengerAgentImpl::IpMessengerAgentImpl()
+		:_DefaultPortNo( IPMSG_DEFAULT_PORT )
 {
 	CryptoInit();
 	srandom( time( NULL ) );
@@ -186,7 +187,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	setAbortDownloadAtFileChanged( false );
 	setSaveSentMessage( true );
 	setSaveRecievedMessage( true );
-	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs );
+	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, DefaultPortNo() );
 	event = new IpMessengerNullEvent();
 }
 
@@ -293,7 +294,7 @@ IpMessengerAgentImpl::RestartNetwork( const vector<NetworkInterface>& nics )
  * @retval コンバータのアドレス。
  */
 FileNameConverter *
-IpMessengerAgentImpl::GetFileNameConverter()
+IpMessengerAgentImpl::GetFileNameConverter() const
 {
 	return converter;
 }
@@ -307,7 +308,7 @@ IpMessengerAgentImpl::GetFileNameConverter()
  * @param conv コンバータのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
-IpMessengerAgentImpl::SetFileNameConverter( FileNameConverter *conv )
+IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )
 {
 	if ( conv == NULL ){
 		return;
@@ -317,7 +318,7 @@ IpMessengerAgentImpl::SetFileNameConverter( FileNameConverter *conv )
 		return;
 	}
 	delete converter;
-	converter = conv;
+	converter = const_cast<FileNameConverter *>( conv );
 }
 
 /**
@@ -325,7 +326,7 @@ IpMessengerAgentImpl::SetFileNameConverter( FileNameConverter *conv )
  * @retval ホストリスト比較オブジェクトのアドレス。
  */
 HostListComparator *
-IpMessengerAgentImpl::GetSortHostListComparator()
+IpMessengerAgentImpl::GetSortHostListComparator() const
 {
 	return compare;
 }; 
@@ -339,7 +340,7 @@ IpMessengerAgentImpl::GetSortHostListComparator()
  * @param comparator ホストリスト比較オブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
-IpMessengerAgentImpl::SetSortHostListComparator( HostListComparator *comparator )
+IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *comparator )
 {
 	if ( comparator == NULL ){
 		return;
@@ -349,7 +350,7 @@ IpMessengerAgentImpl::SetSortHostListComparator( HostListComparator *comparator 
 		return;
 	}
 	delete compare;
-	compare = comparator;
+	compare = const_cast<HostListComparator *>( comparator );
 }
 
 /**
@@ -357,7 +358,7 @@ IpMessengerAgentImpl::SetSortHostListComparator( HostListComparator *comparator 
  * @retval イベントオブジェクトのアドレス。
  */
 IpMessengerEvent *
-IpMessengerAgentImpl::GetEventObject()
+IpMessengerAgentImpl::GetEventObject() const
 {
 	return event;
 }; 
@@ -371,7 +372,7 @@ IpMessengerAgentImpl::GetEventObject()
  * @param evt イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
-IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
+IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
 {
 	if ( evt == NULL ){
 		return;
@@ -381,7 +382,7 @@ IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
 		return;
 	}
 	delete event;
-	event = evt;
+	event = const_cast<IpMessengerEvent *>( evt );
 }
 
 /**
@@ -392,7 +393,7 @@ IpMessengerAgentImpl::SetEventObject( IpMessengerEvent *evt )
  * @param nics ネットワークインターフェースの一覧
  */
 void
-IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
+IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, int defaultPortNo )
 {
 	//情報取得のためのソケットを作成
 	int fd;
@@ -442,7 +443,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
 
 		NetworkInterface ni;
 		ni.setDeviceName( ifr.ifr_name );
-		ni.setPortNo( IPMSG_DEFAULT_PORT );
+		ni.setPortNo( defaultPortNo );
 		ni.setIpAddress( ipAddrBuf );
 		ni.setNetMask( netMaskBuf );
 		ni.setNetworkAddress( networkAddrBuf );
@@ -691,7 +692,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
  * @retval 設定済の不在モードを返す。
  */
 bool
-IpMessengerAgentImpl::IsAbsence()
+IpMessengerAgentImpl::IsAbsence() const
 {
 	return _IsAbsence;
 }
@@ -936,7 +937,7 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 	}
 	struct sockaddr_in addAddr;
 	addAddr.sin_family = AF_INET;
-	addAddr.sin_port = htons(IPMSG_DEFAULT_PORT);
+	addAddr.sin_port = htons( DefaultPortNo() );
 	addAddr.sin_addr.s_addr = ((struct sockaddr_in *)(res->ai_addr) )->sin_addr.s_addr;
 	freeaddrinfo( res );
 
@@ -1075,23 +1076,7 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 vector<GroupItem>
 IpMessengerAgentImpl::GetGroupList()
 {
-	vector<GroupItem> ret;
-	for( vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ) {
-		bool is_found = false;
-		for( vector<GroupItem>::iterator ixret = ret.begin(); ixret != ret.end(); ixret++){
-			if ( ixhost->GroupName() == ixret->GroupName() && ixhost->EncodingName() == ixret->EncodingName() ) {
-				is_found = true;
-				break;
-			}
-		}
-		if ( !is_found ){
-			GroupItem item;
-			item.setGroupName( ixhost->GroupName() );
-			item.setEncodingName( ixhost->EncodingName() );
-			ret.push_back( item );
-		}
-	}
-	return ret;
+	return hostList.GetGroupList();
 }
 
 /**
@@ -1168,7 +1153,7 @@ IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
 	struct sockaddr_in addr;
 
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(IPMSG_DEFAULT_PORT);
+	addr.sin_port = htons( DefaultPortNo() );
 	addr.sin_addr.s_addr = inet_addr("255.255.255.255");
 	broadcastAddr.push_back( addr );
 
@@ -1271,7 +1256,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	//念のため自分にも
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons( IPMSG_DEFAULT_PORT );
+	addr.sin_port = htons( DefaultPortNo() );
 	addr.sin_addr.s_addr = inet_addr( "127.0.0.1" );
 #if defined(DEBUG)
 	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
@@ -2754,14 +2739,14 @@ ipmsg::GetFileDataThread( void *param )
 	}
 
 	FoundFile->setIsDownloading( true );
-	IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(),
-												   FoundFile->FullPath(),
-												   FoundFile->MTime(),
-												   FoundFile->FileSize(),
-												   &(*FoundFile),
-												   GetSendFileOffsetInPacket( *packet ) );
+	bool ret = IpMessengerAgentImpl::GetInstance()->SendFile( packet->TcpSocket(),
+															  FoundFile->FullPath(),
+															  FoundFile->MTime(),
+															  FoundFile->FileSize(),
+															  &(*FoundFile),
+															  GetSendFileOffsetInPacket( *packet ) );
 	FoundFile->setIsDownloading( false );
-	FoundFile->setIsDownloaded( true );
+	FoundFile->setIsDownloaded( ret );
 	close( packet->TcpSocket() );
 	delete packet;
 	return NULL;
@@ -2796,9 +2781,9 @@ ipmsg::GetDirFilesThread( void *param )
 
 	vector<string> DownloadFileList;
 	FoundFile->setIsDownloading( true );
-	myInstance->SendDirData( packet->TcpSocket(), FoundFile->FileName(), FoundFile->FullPath(), DownloadFileList );
+	bool ret = myInstance->SendDirData( packet->TcpSocket(), FoundFile->FileName(), FoundFile->FullPath(), DownloadFileList );
 	FoundFile->setIsDownloading( false );
-	FoundFile->setIsDownloaded( true );
+	FoundFile->setIsDownloaded( ret );
 	close( packet->TcpSocket() );
 	delete packet;
 
@@ -3342,7 +3327,7 @@ IpMessengerAgentImpl::GetSentMessages()
  * @retval 送信済メッセージリストのコピー。
  */
 SentMessageList
-IpMessengerAgentImpl::CloneSentMessages()
+IpMessengerAgentImpl::CloneSentMessages() const
 {
 	return sentMsgList;
 }
@@ -3530,7 +3515,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 		hostaddr.sin_port = htons( hostIt->PortNo() );
 		ret.setAddr( hostaddr );
 	} else {
-		sender.sin_port = htons( IPMSG_DEFAULT_PORT );
+		sender.sin_port = htons( DefaultPortNo() );
 		ret.setAddr( sender );
 	}
 
@@ -3601,7 +3586,7 @@ IpMessengerAgentImpl::AddDefaultHost()
 		myHost.setIpAddress( HostAddress );
 		myHost.setNickname( Nickname );
 		myHost.setGroupName( GroupName );
-		myHost.setPortNo( IPMSG_DEFAULT_PORT );
+		myHost.setPortNo( DefaultPortNo() );
 		hostList.AddHost( myHost );
 #if defined(INFO) || !defined(NDEBUG)
 		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );

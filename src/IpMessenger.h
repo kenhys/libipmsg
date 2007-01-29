@@ -210,6 +210,7 @@ class HostList{
 		HostList( const HostList& other );
 		~HostList();
 		HostList& operator=( const HostList& other );
+		std::vector<GroupItem> GetGroupList();
 	private:
 		void qsort( HostListComparator *comparator, int left, int right );
 		void Lock( const char *pos ) const;
@@ -689,42 +690,42 @@ class IpMessengerAgent {
 		/**
 		 * 送信メッセージリストのコピーの取得
 		 **/
-		SentMessageList CloneSentMessages();
+		SentMessageList CloneSentMessages() const;
 
 		/**
 		 * ホストリスト比較オブジェクトの設定
 		 **/
-		void SetSortHostListComparator( HostListComparator *comparator );
+		void SetSortHostListComparator( const HostListComparator *comparator );
 
 		/**
 		 * ホストリスト比較オブジェクトの取得
 		 **/
-		HostListComparator *GetSortHostListComparator();
+		HostListComparator *GetSortHostListComparator() const;
 
 		/**
 		 * イベントオブジェクトの設定
 		 **/
-		void SetEventObject( IpMessengerEvent *evt );
+		void SetEventObject( const IpMessengerEvent *evt );
 
 		/**
 		 * イベントオブジェクトの取得
 		 **/
-		IpMessengerEvent *GetEventObject();
+		IpMessengerEvent *GetEventObject() const;
 
 		/**
 		 * ファイルコンバーターの設定
 		 **/
-		void SetFileNameConverter( FileNameConverter *conv );
+		void SetFileNameConverter( const FileNameConverter *conv );
 
 		/**
 		 * ファイルコンバーターの取得
 		 **/
-		FileNameConverter *GetFileNameConverter();
+		FileNameConverter *GetFileNameConverter() const;
 
 		/**
 		 * 不在？
 		 **/
-		bool IsAbsence();
+		bool IsAbsence() const;
 
 		/**
 		 * ネットワークの起動（NIC指定）
@@ -754,39 +755,42 @@ class IpMessengerAgent {
 		/**
 		 * ログイン名
 		 **/
-		std::string LoginName();
+		std::string LoginName() const;
 
 		/**
 		 * ホスト名
 		 **/
-		std::string HostName();
+		std::string HostName() const;
+
+		/**
+		 * デフォルトポート
+		 **/
+		int DefaultPortNo() const;
+		void setDefaultPortNo( const int defaultPortNo );
 
 		/**
 		 * ダイヤルアップ
 		 **/
-		bool IsDialup();
-		void setIsDialup( bool isDialup );
+		bool IsDialup() const;
+		void setIsDialup( const bool isDialup );
 
 		/**
 		 * ファイルが変更されたらダウンロードを中断する
 		 **/
-		bool AbortDownloadAtFileChanged();
-		void setAbortDownloadAtFileChanged( bool isAbort );
-		/* 後方互換性の為(0.1.0) */
-		bool GetAbortDownloadAtFileChanged(){ return AbortDownloadAtFileChanged(); };
-		void SetAbortDownloadAtFileChanged( bool isAbort ){ setAbortDownloadAtFileChanged( isAbort ); };
+		bool AbortDownloadAtFileChanged() const;
+		void setAbortDownloadAtFileChanged( const bool isAbort );
 
 		/**
 		 * 送信メッセージを記憶する
 		 **/
-		bool SaveSentMessage();
-		void setSaveSentMessage( bool isSave );
+		bool SaveSentMessage() const;
+		void setSaveSentMessage( const bool isSave );
 
 		/**
 		 * 受信メッセージを記憶する
 		 **/
-		bool SaveRecievedMessage();
-		void setSaveRecievedMessage( bool isSave );
+		bool SaveRecievedMessage() const;
+		void setSaveRecievedMessage( const bool isSave );
 
 	private:
 		IpMessengerAgent();

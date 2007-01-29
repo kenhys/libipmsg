@@ -60,10 +60,11 @@ class IpMessengerAgentImpl {
 		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
 		IPMSG_PROPERTY( bool, SaveSentMessage );
 		IPMSG_PROPERTY( bool, SaveRecievedMessage );
+		IPMSG_PROPERTY( int, DefaultPortNo );
 
 		static IpMessengerAgentImpl *GetInstance();
 		static void Release();
-		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics );
+		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo=IPMSG_DEFAULT_PORT );
 		void ClearBroadcastAddress();
 		void DeleteBroadcastAddress( std::string addr );
 		void AddBroadcastAddress( std::string addr );
@@ -86,14 +87,14 @@ class IpMessengerAgentImpl {
 		void DeleteNotify( RecievedMessage msg );
 		void AcceptConfirmNotify( SentMessage msg );
 		SentMessageList *GetSentMessages();
-		SentMessageList CloneSentMessages();
-		void SetSortHostListComparator( HostListComparator *comparator );
-		HostListComparator *GetSortHostListComparator();
-		void SetEventObject( IpMessengerEvent *evt );
-		IpMessengerEvent *GetEventObject();
-		void SetFileNameConverter( FileNameConverter *conv );
-		FileNameConverter *GetFileNameConverter();
-		bool IsAbsence();
+		SentMessageList CloneSentMessages() const;
+		void SetSortHostListComparator( const HostListComparator *comparator );
+		HostListComparator *GetSortHostListComparator() const;
+		void SetEventObject( const IpMessengerEvent *evt );
+		IpMessengerEvent *GetEventObject() const;
+		void SetFileNameConverter( const FileNameConverter *conv );
+		FileNameConverter *GetFileNameConverter() const;
+		bool IsAbsence() const;
 		void StartNetwork( const std::vector<NetworkInterface>& nics );
 		void StartNetwork();
 		void StopNetwork();

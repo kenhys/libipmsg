@@ -561,4 +561,55 @@ HostList::sort( HostListComparator *comparator )
 		qsort( comparator, 0, items.size() - 1 );
 	}
 }
+
+class IpMsgGetGroupListComparator: public HostListComparator{
+	public:
+		/**
+		 * グループ名とエンコーディング名で比較。
+		 * @param host1 ホスト情報1
+		 * @param host2 ホスト情報2
+		 * @retval -n:host1が大きい
+		 * @retval 0:host1とhost2が等しい
+		 * @retval +n:host2が大きい
+		 */
+		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 ){
+			if ( host1->GroupName() < host2->GroupName() ) {
+				return -1;
+			} else if ( host1->GroupName() > host2->GroupName() ) {
+				return 1;
+			} else {
+				if ( host1->EncodingName() < host2->EncodingName() ) {
+					return -1;
+				} else if ( host1->EncodingName() > host2->EncodingName() ) {
+					return 1;
+				}
+			}
+			return 0;
+		};
+};
+
+/**
+ * 保持中のホストリストからグループリストを取得する。
+ * @retval グループリスト
+ */
+vector<GroupItem>
+HostList::GetGroupList()
+{
+	vector<GroupItem> ret;
+	HostList tmp = *this;
+	tmp.sort( new IpMsgGetGroupListComparator() );
+	string hostName = "", encodingName = "";
+	for( vector<HostListItem>::iterator ixhost = tmp.begin(); ixhost != tmp.end(); ixhost++ ) {
+		if ( hostName != ixhost->HostName() || encodingName != ixhost->EncodingName() ){
+			GroupItem item;
+			item.setGroupName( ixhost->GroupName() );
+			item.setEncodingName( ixhost->EncodingName() );
+			ret.push_back( item );
+		}
+		hostName = ixhost->HostName();
+		encodingName = ixhost->EncodingName();
+	}
+	return ret;
+}
+
 //end of source

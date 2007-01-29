@@ -133,7 +133,7 @@ IpMessengerAgent::RestartNetwork( const vector<NetworkInterface>& nics )
  * @retval コンバータのアドレス。
  */
 FileNameConverter *
-IpMessengerAgent::GetFileNameConverter()
+IpMessengerAgent::GetFileNameConverter() const
 {
 	return ipmsgImpl->GetFileNameConverter();
 }
@@ -143,7 +143,7 @@ IpMessengerAgent::GetFileNameConverter()
  * @param conv コンバータのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
-IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
+IpMessengerAgent::SetFileNameConverter( const FileNameConverter *conv )
 {
 	ipmsgImpl->SetFileNameConverter( conv );
 }
@@ -153,7 +153,7 @@ IpMessengerAgent::SetFileNameConverter( FileNameConverter *conv )
  * @retval イベントオブジェクトのアドレス。
  */
 HostListComparator *
-IpMessengerAgent::GetSortHostListComparator()
+IpMessengerAgent::GetSortHostListComparator() const
 {
 	return ipmsgImpl->GetSortHostListComparator();
 }; 
@@ -163,7 +163,7 @@ IpMessengerAgent::GetSortHostListComparator()
  * @param comparator ホストリスト比較オブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
-IpMessengerAgent::SetSortHostListComparator( HostListComparator *comparator )
+IpMessengerAgent::SetSortHostListComparator( const HostListComparator *comparator )
 {
 	ipmsgImpl->SetSortHostListComparator( comparator );
 }
@@ -173,7 +173,7 @@ IpMessengerAgent::SetSortHostListComparator( HostListComparator *comparator )
  * @retval イベントオブジェクトのアドレス。
  */
 IpMessengerEvent *
-IpMessengerAgent::GetEventObject()
+IpMessengerAgent::GetEventObject() const
 {
 	return ipmsgImpl->GetEventObject();
 }; 
@@ -183,7 +183,7 @@ IpMessengerAgent::GetEventObject()
  * @param evt イベントオブジェクトのアドレス。自動的に削除されるので、スタック上に作成してはならない。ヒープ上に作成すること。
  */
 void
-IpMessengerAgent::SetEventObject( IpMessengerEvent *evt )
+IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
 {
 	ipmsgImpl->SetEventObject( evt );
 }
@@ -241,7 +241,7 @@ IpMessengerAgent::UpdateHostList()
  * @retval 設定済の不在モードを返す。
  */
 bool
-IpMessengerAgent::IsAbsence()
+IpMessengerAgent::IsAbsence() const
 {
 	return ipmsgImpl->IsAbsence();
 }
@@ -453,7 +453,7 @@ IpMessengerAgent::GetSentMessages()
  * @retval 送信済メッセージリストのコピー。
  */
 SentMessageList
-IpMessengerAgent::CloneSentMessages()
+IpMessengerAgent::CloneSentMessages() const
 {
 	return ipmsgImpl->CloneSentMessages();
 }
@@ -463,7 +463,7 @@ IpMessengerAgent::CloneSentMessages()
  * @retval ログイン名
  */
 string
-IpMessengerAgent::LoginName()
+IpMessengerAgent::LoginName() const
 {
 	return ipmsgImpl->LoginName();
 }
@@ -473,9 +473,29 @@ IpMessengerAgent::LoginName()
  * @retval ホスト名
  */
 string
-IpMessengerAgent::HostName()
+IpMessengerAgent::HostName() const
 {
 	return ipmsgImpl->HostName();
+}
+
+/**
+ * デフォルトポートのゲッター
+ * @retval デフォルトポート
+ */
+int
+IpMessengerAgent::DefaultPortNo() const
+{
+	return ipmsgImpl->DefaultPortNo();
+}
+
+/**
+ * デフォルトポートのセッター
+ * @param defaultPortNo デフォルトポート
+ */
+void
+IpMessengerAgent::setDefaultPortNo( const int defaultPortNo )
+{
+	ipmsgImpl->setDefaultPortNo( defaultPortNo );
 }
 
 /**
@@ -483,7 +503,7 @@ IpMessengerAgent::HostName()
  * @retval ダイヤルアップ
  */
 bool
-IpMessengerAgent::IsDialup()
+IpMessengerAgent::IsDialup() const
 {
 	return ipmsgImpl->IsDialup();
 }
@@ -493,7 +513,7 @@ IpMessengerAgent::IsDialup()
  * @param isDialup ダイヤルアップ
  */
 void
-IpMessengerAgent::setIsDialup( bool isDialup )
+IpMessengerAgent::setIsDialup( const bool isDialup )
 {
 	ipmsgImpl->setIsDialup( isDialup );
 }
@@ -503,7 +523,7 @@ IpMessengerAgent::setIsDialup( bool isDialup )
  * @retval ダウンロード時にファイルが変更された場合に禁止するかどうかのフラグ
  */
 bool
-IpMessengerAgent::AbortDownloadAtFileChanged()
+IpMessengerAgent::AbortDownloadAtFileChanged() const
 {
 	return ipmsgImpl->AbortDownloadAtFileChanged();
 }
@@ -513,7 +533,7 @@ IpMessengerAgent::AbortDownloadAtFileChanged()
  * @param isAbort ダウンロード時にファイルが変更された場合に禁止するかどうかのフラグ
  */
 void
-IpMessengerAgent::setAbortDownloadAtFileChanged( bool isAbort )
+IpMessengerAgent::setAbortDownloadAtFileChanged( const bool isAbort )
 {
 	ipmsgImpl->setAbortDownloadAtFileChanged( isAbort );
 }
@@ -523,7 +543,7 @@ IpMessengerAgent::setAbortDownloadAtFileChanged( bool isAbort )
  * @retval 送信メッセージを保存するかどうかのフラグ
  */
 bool
-IpMessengerAgent::SaveSentMessage()
+IpMessengerAgent::SaveSentMessage() const
 {
 	return ipmsgImpl->SaveSentMessage();
 }
@@ -533,7 +553,7 @@ IpMessengerAgent::SaveSentMessage()
  * @param isSave 送信メッセージを保存するかどうかのフラグ
  */
 void
-IpMessengerAgent::setSaveSentMessage( bool isSave )
+IpMessengerAgent::setSaveSentMessage( const bool isSave )
 {
 	ipmsgImpl->setSaveSentMessage( isSave );
 }
@@ -543,7 +563,7 @@ IpMessengerAgent::setSaveSentMessage( bool isSave )
  * @retval 受信メッセージを保存するかどうかのフラグ
  */
 bool
-IpMessengerAgent::SaveRecievedMessage()
+IpMessengerAgent::SaveRecievedMessage() const
 {
 	return ipmsgImpl->SaveRecievedMessage();
 }
