@@ -101,15 +101,24 @@ class Packet{
 class NetworkInterface {
 	public:
 		IPMSG_PROPERTY( std::string, DeviceName );
-		IPMSG_PROPERTY( std::string, IpAddress );
-		IPMSG_PROPERTY( std::string, NetMask );
-		IPMSG_PROPERTY( std::string, NetworkAddress );
-		IPMSG_PROPERTY( std::string, BroadcastAddress );
-		IPMSG_PROPERTY( in_addr_t, NativeIpAddress );
-		IPMSG_PROPERTY( in_addr_t, NativeNetMask );
-		IPMSG_PROPERTY( in_addr_t, NativeNetworkAddress );
-		IPMSG_PROPERTY( in_addr_t, NativeBroadcastAddress );
+		IPMSG_READONLY_PROPERTY( std::string, IpAddress );
+		IPMSG_READONLY_PROPERTY( std::string, NetMask );
+		IPMSG_READONLY_PROPERTY( std::string, NetworkAddress );
+		IPMSG_READONLY_PROPERTY( std::string, BroadcastAddress );
+		IPMSG_READONLY_PROPERTY( in_addr_t, NativeIpAddress );
+		IPMSG_READONLY_PROPERTY( in_addr_t, NativeNetMask );
+		IPMSG_READONLY_PROPERTY( in_addr_t, NativeNetworkAddress );
+		IPMSG_READONLY_PROPERTY( in_addr_t, NativeBroadcastAddress );
 		IPMSG_PROPERTY( int, PortNo );
+		NetworkInterface( std::string deviceName ):_DeviceName( deviceName ){};
+		NetworkInterface(){};
+	public:
+		void setIpAddress( const std::string val );
+		void setNetMask( const std::string val );
+		void setNativeIpAddress( const in_addr_t val );
+		void setNativeNetMask( const in_addr_t val );
+	private:
+		void recalc();
 };
 
 /**

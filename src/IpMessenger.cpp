@@ -639,4 +639,68 @@ DownloadInfo::getUnitSizeString( long long size )
 	snprintf( buf, sizeof( buf ), "%lld B", size );
 	return buf;
 }
+
+/**
+ * IPアドレスを設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
+ * @param val IPアドレス文字列。
+ */
+void
+NetworkInterface::setIpAddress( const std::string val )
+{
+	_IpAddress = val;
+	_NativeIpAddress = inet_addr( val.c_str() );
+	recalc();
+}
+/**
+ * ネットマスクを設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
+ * @param val ネットマスク文字列。
+ */
+void
+NetworkInterface::setNetMask( const std::string val )
+{
+	_NetMask = val;
+	_NativeNetMask = inet_addr( val.c_str() );
+	recalc();
+}
+/**
+ * IPアドレス(ネイティブ)を設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
+ * @param val IPアドレス。
+ */
+void
+NetworkInterface::setNativeIpAddress( const in_addr_t val )
+{
+	_NativeIpAddress = val;
+	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+	inet_ntoa_r( val, ipAddrBuf, sizeof( ipAddrBuf ) );
+	_IpAddress = ipAddrBuf;
+	recalc();
+}
+/**
+ * ネットマスク(ネイティブ)を設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
+ * @param val ネットマスク。
+ */
+void
+NetworkInterface::setNativeNetMask( const in_addr_t val )
+{
+	_NativeNetMask = val;
+	char netMaskBuf[IPV4_ADDR_MAX_SIZE];
+	inet_ntoa_r( val, netMaskBuf, sizeof( netMaskBuf ) );
+	_NetMask = netMaskBuf;
+	recalc();
+}
+/**
+ * ネットワークアドレス、ブロードキャストアドレスを計算する。
+ */
+void
+NetworkInterface::recalc()
+{
+	char buf[IPV4_ADDR_MAX_SIZE];
+	_NativeNetworkAddress = _NativeIpAddress & _NativeNetMask;
+	inet_ntoa_r( _NativeNetworkAddress, buf, sizeof( buf ) );
+	_NetworkAddress = buf;
+
+	_NativeBroadcastAddress = _NativeNetworkAddress | ( 0xffffffff ^ _NativeNetMask );
+	inet_ntoa_r( _NativeBroadcastAddress, buf, sizeof( buf ) );
+	_BroadcastAddress = buf;
+}
 //end of source

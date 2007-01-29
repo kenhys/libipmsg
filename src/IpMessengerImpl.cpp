@@ -412,46 +412,19 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, i
 		ifr.ifr_addr.sa_family = AF_INET;
 		strncpy(ifr.ifr_name, p->if_name, IFNAMSIZ-1);
 		ioctl(fd, SIOCGIFADDR, &ifr);
-
-		char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
 		in_addr_t ipAddr = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr.s_addr;
-		inet_ntoa_r( ipAddr, ipAddrBuf, sizeof( ipAddrBuf ) );
 		if ( localLoopbackAddress == ipAddr ||
 			 nullAddress == ipAddr ||
 			 broadcastAddress == ipAddr ){
 			continue;
 		}
-
 		ioctl(fd, SIOCGIFNETMASK, &ifr);
-
 		in_addr_t netMask = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr.s_addr;
-		char netMaskBuf[IPV4_ADDR_MAX_SIZE];
-		inet_ntoa_r( ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr.s_addr, netMaskBuf, sizeof( netMaskBuf ) );
 
-		char networkAddrBuf[IPV4_ADDR_MAX_SIZE];
-		in_addr_t networkAddr = ipAddr & netMask;
-		inet_ntoa_r( networkAddr, networkAddrBuf, sizeof( networkAddrBuf ) );
-
-		char broadcastAddrBuf[IPV4_ADDR_MAX_SIZE];
-		in_addr_t broadcastAddr = networkAddr | ( 0xffffffff ^ netMask );
-		inet_ntoa_r( broadcastAddr, broadcastAddrBuf, sizeof( broadcastAddrBuf ) );
-
-#if defined(DEBUG) || !defined(NDEBUG)
-		printf( "dev=%s,ipaddress=%s,netmask=%s,network=%s,broadcast=%s\n",
-				ifr.ifr_name, ipAddrBuf, netMaskBuf, networkAddrBuf, broadcastAddrBuf );fflush( stdout );
-#endif
-
-		NetworkInterface ni;
-		ni.setDeviceName( ifr.ifr_name );
+		NetworkInterface ni( string( ifr.ifr_name ) );
 		ni.setPortNo( defaultPortNo );
-		ni.setIpAddress( ipAddrBuf );
-		ni.setNetMask( netMaskBuf );
-		ni.setNetworkAddress( networkAddrBuf );
-		ni.setBroadcastAddress( broadcastAddrBuf );
 		ni.setNativeIpAddress( ipAddr );
 		ni.setNativeNetMask( netMask );
-		ni.setNativeNetworkAddress( networkAddr );
-		ni.setNativeBroadcastAddress( broadcastAddr );
 		nics.push_back( ni );
 #if defined(DEBUG) || !defined(NDEBUG)
 		printf( "NIC device=%s[IpAddress=%s][Port=%d][NetMask=%s][NetworkAddress=%s]\n",
