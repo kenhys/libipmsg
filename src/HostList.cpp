@@ -320,21 +320,21 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 					break;
 				}
 			}
-			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
+			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%s\a%s\a%s\a",
 							item.UserName() == "" ? "\b" : item.UserName().c_str(),
 							item.HostName() == "" ? "\b" : item.HostName().c_str(),
 							item.CommandNo(),
 							localaddr == "" ? "\b" : localaddr.c_str(),
-							htons( item.PortNo() ),
+							IpMsgPortToStr( item.PortNo() ).c_str(),
 							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
 		} else {
-			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%d\a%s\a%s\a",
+			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%s\a%s\a%s\a",
 							item.UserName() == "" ? "\b" : item.UserName().c_str(),
 							item.HostName() == "" ? "\b" : item.HostName().c_str(),
 							item.CommandNo(),
 							item.IpAddress() == "" ? "\b" : item.IpAddress().c_str(),
-							htons( item.PortNo() ),
+							IpMsgPortToStr( item.PortNo() ).c_str(),
 							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
 		}

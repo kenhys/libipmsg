@@ -262,5 +262,6 @@ int IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex );
 int IpMsgIntToString( char *buf, ssize_t bufsize, int val );
 int IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val );
 int IpMsgUChrToHexString( char buf[3], const unsigned char val );
+std::string IpMsgPortToStr( int portNo );
 
 #endif
