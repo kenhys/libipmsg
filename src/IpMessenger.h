@@ -105,18 +105,18 @@ class NetworkInterface {
 		IPMSG_READONLY_PROPERTY( std::string, NetMask );
 		IPMSG_READONLY_PROPERTY( std::string, NetworkAddress );
 		IPMSG_READONLY_PROPERTY( std::string, BroadcastAddress );
-		IPMSG_READONLY_PROPERTY( in_addr_t, NativeIpAddress );
-		IPMSG_READONLY_PROPERTY( in_addr_t, NativeNetMask );
-		IPMSG_READONLY_PROPERTY( in_addr_t, NativeNetworkAddress );
-		IPMSG_READONLY_PROPERTY( in_addr_t, NativeBroadcastAddress );
+		IPMSG_READONLY_PROPERTY( struct in_addr, NativeIpAddress );
+		IPMSG_READONLY_PROPERTY( struct in_addr, NativeNetMask );
+		IPMSG_READONLY_PROPERTY( struct in_addr, NativeNetworkAddress );
+		IPMSG_READONLY_PROPERTY( struct in_addr, NativeBroadcastAddress );
 		IPMSG_PROPERTY( int, PortNo );
 		NetworkInterface( std::string deviceName ):_DeviceName( deviceName ){};
 		NetworkInterface(){};
 	public:
 		void setIpAddress( const std::string val );
 		void setNetMask( const std::string val );
-		void setNativeIpAddress( const in_addr_t val );
-		void setNativeNetMask( const in_addr_t val );
+		void setNativeIpAddress( const struct in_addr val );
+		void setNativeNetMask( const struct in_addr val );
 	private:
 		void recalc();
 };
