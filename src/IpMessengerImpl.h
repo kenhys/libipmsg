@@ -15,6 +15,9 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#ifdef __sun
+#include <sys/sockio.h>
+#endif
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <net/if.h>
@@ -238,11 +241,9 @@ class IpMessengerAgentImpl {
 //バージョン文字列
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
 
-#define	IPV4_ADDR_MAX_SIZE	100	// 3*4(3桁数字が4個) + 3(ドットが3個) + 1(終端の"\0"が1個)
+#define	IP_ADDR_MAX_SIZE	INET6_ADDRSTRLEN + 1
 
 }; //namespace ipmsg
-
-char *inet_ntoa_r( in_addr_t in, char *ret, int size );
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
