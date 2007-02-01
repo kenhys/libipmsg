@@ -1,3 +1,11 @@
+2007-02-02 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Change check library for EVP API,-lssl to -lcrypt
+- Update:Add __sun ifdef MACRO.
+- Update:Delete inet_ntoa_init.
+- Update:Obsolate in_addr_t,now using struct in_addr.
+- Update:Obsolate inet_ntoa_r,now using inet_ntop.
+- Update:Obsolate inet_addr,now using inet_pton.
+
 2007-01-31 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Support PDP Endian,Big Endian(Experimental).
 

@@ -21800,13 +21800,13 @@ if test "x$with_openssl" = xyes; then
 	have_evp_cipher_ctx_set_key_length=yes
 	have_evp_pkey_set1_rsa=yes
 	echo "checking for OpenSSL EVP api..."
-	echo "$as_me:$LINENO: checking for EVP_OpenInit in -lssl" >&5
-echo $ECHO_N "checking for EVP_OpenInit in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_OpenInit+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_OpenInit in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_OpenInit in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_OpenInit+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -21851,33 +21851,33 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_OpenInit=yes
+  ac_cv_lib_crypto_EVP_OpenInit=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_OpenInit=no
+ac_cv_lib_crypto_EVP_OpenInit=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_OpenInit" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_OpenInit" >&6
-if test $ac_cv_lib_ssl_EVP_OpenInit = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_OpenInit" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_OpenInit" >&6
+if test $ac_cv_lib_crypto_EVP_OpenInit = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_open_init=no
 fi
 
 	#EVP_DecryptUpdate = EVP_OpenUpdate
-	echo "$as_me:$LINENO: checking for EVP_DecryptUpdate in -lssl" >&5
-echo $ECHO_N "checking for EVP_DecryptUpdate in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_DecryptUpdate+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_DecryptUpdate in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_DecryptUpdate in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_DecryptUpdate+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -21922,32 +21922,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_DecryptUpdate=yes
+  ac_cv_lib_crypto_EVP_DecryptUpdate=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_DecryptUpdate=no
+ac_cv_lib_crypto_EVP_DecryptUpdate=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_DecryptUpdate" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_DecryptUpdate" >&6
-if test $ac_cv_lib_ssl_EVP_DecryptUpdate = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_DecryptUpdate" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_DecryptUpdate" >&6
+if test $ac_cv_lib_crypto_EVP_DecryptUpdate = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_open_update=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_OpenFinal in -lssl" >&5
-echo $ECHO_N "checking for EVP_OpenFinal in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_OpenFinal+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_OpenFinal in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_OpenFinal in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_OpenFinal+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -21992,32 +21992,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_OpenFinal=yes
+  ac_cv_lib_crypto_EVP_OpenFinal=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_OpenFinal=no
+ac_cv_lib_crypto_EVP_OpenFinal=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_OpenFinal" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_OpenFinal" >&6
-if test $ac_cv_lib_ssl_EVP_OpenFinal = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_OpenFinal" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_OpenFinal" >&6
+if test $ac_cv_lib_crypto_EVP_OpenFinal = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_open_final=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_EncryptInit in -lssl" >&5
-echo $ECHO_N "checking for EVP_EncryptInit in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_EncryptInit+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_EncryptInit in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_EncryptInit in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_EncryptInit+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22062,32 +22062,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_EncryptInit=yes
+  ac_cv_lib_crypto_EVP_EncryptInit=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_EncryptInit=no
+ac_cv_lib_crypto_EVP_EncryptInit=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_EncryptInit" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_EncryptInit" >&6
-if test $ac_cv_lib_ssl_EVP_EncryptInit = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_EncryptInit" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_EncryptInit" >&6
+if test $ac_cv_lib_crypto_EVP_EncryptInit = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_encrypt_init=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_EncryptUpdate in -lssl" >&5
-echo $ECHO_N "checking for EVP_EncryptUpdate in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_EncryptUpdate+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_EncryptUpdate in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_EncryptUpdate in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_EncryptUpdate+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22132,32 +22132,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_EncryptUpdate=yes
+  ac_cv_lib_crypto_EVP_EncryptUpdate=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_EncryptUpdate=no
+ac_cv_lib_crypto_EVP_EncryptUpdate=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_EncryptUpdate" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_EncryptUpdate" >&6
-if test $ac_cv_lib_ssl_EVP_EncryptUpdate = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_EncryptUpdate" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_EncryptUpdate" >&6
+if test $ac_cv_lib_crypto_EVP_EncryptUpdate = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_encrypt_update=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_EncryptFinal in -lssl" >&5
-echo $ECHO_N "checking for EVP_EncryptFinal in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_EncryptFinal+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_EncryptFinal in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_EncryptFinal in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_EncryptFinal+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22202,32 +22202,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_EncryptFinal=yes
+  ac_cv_lib_crypto_EVP_EncryptFinal=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_EncryptFinal=no
+ac_cv_lib_crypto_EVP_EncryptFinal=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_EncryptFinal" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_EncryptFinal" >&6
-if test $ac_cv_lib_ssl_EVP_EncryptFinal = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_EncryptFinal" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_EncryptFinal" >&6
+if test $ac_cv_lib_crypto_EVP_EncryptFinal = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_encrypt_final=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_CIPHER_CTX_init in -lssl" >&5
-echo $ECHO_N "checking for EVP_CIPHER_CTX_init in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_CIPHER_CTX_init+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_CIPHER_CTX_init in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_CIPHER_CTX_init in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_CIPHER_CTX_init+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22272,32 +22272,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_CIPHER_CTX_init=yes
+  ac_cv_lib_crypto_EVP_CIPHER_CTX_init=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_CIPHER_CTX_init=no
+ac_cv_lib_crypto_EVP_CIPHER_CTX_init=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_CIPHER_CTX_init" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_CIPHER_CTX_init" >&6
-if test $ac_cv_lib_ssl_EVP_CIPHER_CTX_init = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_CIPHER_CTX_init" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_CIPHER_CTX_init" >&6
+if test $ac_cv_lib_crypto_EVP_CIPHER_CTX_init = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_cipher_ctx_init=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_CIPHER_CTX_set_key_length in -lssl" >&5
-echo $ECHO_N "checking for EVP_CIPHER_CTX_set_key_length in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_CIPHER_CTX_set_key_length+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_CIPHER_CTX_set_key_length in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_CIPHER_CTX_set_key_length in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_CIPHER_CTX_set_key_length+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22342,32 +22342,32 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_CIPHER_CTX_set_key_length=yes
+  ac_cv_lib_crypto_EVP_CIPHER_CTX_set_key_length=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_CIPHER_CTX_set_key_length=no
+ac_cv_lib_crypto_EVP_CIPHER_CTX_set_key_length=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_CIPHER_CTX_set_key_length" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_CIPHER_CTX_set_key_length" >&6
-if test $ac_cv_lib_ssl_EVP_CIPHER_CTX_set_key_length = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_CIPHER_CTX_set_key_length" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_CIPHER_CTX_set_key_length" >&6
+if test $ac_cv_lib_crypto_EVP_CIPHER_CTX_set_key_length = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_cipher_ctx_set_key_length=no
 fi
 
-	echo "$as_me:$LINENO: checking for EVP_PKEY_set1_RSA in -lssl" >&5
-echo $ECHO_N "checking for EVP_PKEY_set1_RSA in -lssl... $ECHO_C" >&6
-if test "${ac_cv_lib_ssl_EVP_PKEY_set1_RSA+set}" = set; then
+	echo "$as_me:$LINENO: checking for EVP_PKEY_set1_RSA in -lcrypto" >&5
+echo $ECHO_N "checking for EVP_PKEY_set1_RSA in -lcrypto... $ECHO_C" >&6
+if test "${ac_cv_lib_crypto_EVP_PKEY_set1_RSA+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lcrypto  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22412,21 +22412,21 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_ssl_EVP_PKEY_set1_RSA=yes
+  ac_cv_lib_crypto_EVP_PKEY_set1_RSA=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_ssl_EVP_PKEY_set1_RSA=no
+ac_cv_lib_crypto_EVP_PKEY_set1_RSA=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_ssl_EVP_PKEY_set1_RSA" >&5
-echo "${ECHO_T}$ac_cv_lib_ssl_EVP_PKEY_set1_RSA" >&6
-if test $ac_cv_lib_ssl_EVP_PKEY_set1_RSA = yes; then
-  LIBSSL="-lssl -lcrypto"
+echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_EVP_PKEY_set1_RSA" >&5
+echo "${ECHO_T}$ac_cv_lib_crypto_EVP_PKEY_set1_RSA" >&6
+if test $ac_cv_lib_crypto_EVP_PKEY_set1_RSA = yes; then
+  LIBSSL="$LDFLAGS -lssl -lcrypto"
 else
   have_evp_pkey_set1_rsa=no
 fi
