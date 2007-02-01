@@ -95,8 +95,8 @@ GetCommandString( unsigned long cmd )
 void
 IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
-	char ipaddrbuf[IPV4_ADDR_MAX_SIZE];
-	printf( "send from %s(%d)\n", inet_ntoa_r( sender_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );fflush(stdout);
+	char ipaddrbuf[IP_ADDR_MAX_SIZE];
+	printf( "send from %s(%d)\n", inet_ntop( AF_INET, &sender_addr.sin_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );fflush(stdout);
 	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
 	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
 	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
@@ -154,52 +154,6 @@ IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 	printf("%s", foot );fflush(stdout);
 }
 #endif
-
-static bool inet_ntoa_init();
-static bool inet_init = inet_ntoa_init();
-static int inet_index_1 = 0;
-static int inet_index_2 = 1;
-static int inet_index_3 = 2;
-static int inet_index_4 = 3;
-
-/**
- * 私家版スレッドセーフinet_ntoaの初期化
- * @retval 常にtrue
- */
-static bool
-inet_ntoa_init()
-{
-	in_addr_t netaddr = inet_addr( "0.1.2.3" );
-	unsigned char addr[4];
-	memcpy( addr, &netaddr, sizeof( addr ) );
-	inet_index_1 = addr[0];
-	inet_index_2 = addr[1];
-	inet_index_3 = addr[2];
-	inet_index_4 = addr[3];
-#if defined(DEBUG) || defined(INFO)
-	printf( "index:%d.%d.%d.%d", inet_index_1, inet_index_2, inet_index_3, inet_index_4);fflush(stdout);
-#endif
-	return true;
-}
-
-/**
- * 私家版スレッドセーフinet_ntoa
- * @param s_addr 送信元IPアドレス
- * @param *ret 書込対象のバッファアドレス
- * @param size 書込対象のバッファのバイト数
- * @retval 書込対象のバッファアドレス(retが戻る)
- */
-char *
-inet_ntoa_r( in_addr_t s_addr, char *ret, int size )
-{
-	unsigned char addr[4];
-	memcpy( addr, &s_addr, sizeof( addr ) );
-#if defined(DEBUG) || defined(INFO)
-	printf( "ip:%d.%d.%d.%d\n", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);fflush(stdout);
-#endif
-	snprintf( ret, size, "%d.%d.%d.%d", addr[inet_index_1], addr[inet_index_2], addr[inet_index_3], addr[inet_index_4]);
-	return ret;
-}
 
 /**
  * 私家版ミューテックス初期化
