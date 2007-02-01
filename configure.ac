@@ -48,16 +48,16 @@ if test "x$with_openssl" = xyes; then
 	have_evp_cipher_ctx_set_key_length=yes
 	have_evp_pkey_set1_rsa=yes
 	echo "checking for OpenSSL EVP api..."
-	AC_CHECK_LIB(ssl,EVP_OpenInit,LIBSSL="-lssl -lcrypto", have_evp_open_init=no)
+	AC_CHECK_LIB(crypto,EVP_OpenInit,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_open_init=no)
 	#EVP_DecryptUpdate = EVP_OpenUpdate
-	AC_CHECK_LIB(ssl,EVP_DecryptUpdate,LIBSSL="-lssl -lcrypto", have_evp_open_update=no)
-	AC_CHECK_LIB(ssl,EVP_OpenFinal,LIBSSL="-lssl -lcrypto", have_evp_open_final=no)
-	AC_CHECK_LIB(ssl,EVP_EncryptInit,LIBSSL="-lssl -lcrypto", have_evp_encrypt_init=no)
-	AC_CHECK_LIB(ssl,EVP_EncryptUpdate,LIBSSL="-lssl -lcrypto", have_evp_encrypt_update=no)
-	AC_CHECK_LIB(ssl,EVP_EncryptFinal,LIBSSL="-lssl -lcrypto", have_evp_encrypt_final=no)
-	AC_CHECK_LIB(ssl,EVP_CIPHER_CTX_init,LIBSSL="-lssl -lcrypto", have_evp_cipher_ctx_init=no)
-	AC_CHECK_LIB(ssl,EVP_CIPHER_CTX_set_key_length,LIBSSL="-lssl -lcrypto", have_evp_cipher_ctx_set_key_length=no)
-	AC_CHECK_LIB(ssl,EVP_PKEY_set1_RSA,LIBSSL="-lssl -lcrypto", have_evp_pkey_set1_rsa=no)
+	AC_CHECK_LIB(crypto,EVP_DecryptUpdate,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_open_update=no)
+	AC_CHECK_LIB(crypto,EVP_OpenFinal,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_open_final=no)
+	AC_CHECK_LIB(crypto,EVP_EncryptInit,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_encrypt_init=no)
+	AC_CHECK_LIB(crypto,EVP_EncryptUpdate,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_encrypt_update=no)
+	AC_CHECK_LIB(crypto,EVP_EncryptFinal,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_encrypt_final=no)
+	AC_CHECK_LIB(crypto,EVP_CIPHER_CTX_init,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_cipher_ctx_init=no)
+	AC_CHECK_LIB(crypto,EVP_CIPHER_CTX_set_key_length,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_cipher_ctx_set_key_length=no)
+	AC_CHECK_LIB(crypto,EVP_PKEY_set1_RSA,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_pkey_set1_rsa=no)
 	if test "x$have_evp_open_init" = xyes &&
 	   test "x$have_evp_open_update" = xyes &&
 	   test "x$have_evp_open_final" = xyes &&
