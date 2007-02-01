@@ -11,7 +11,6 @@
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
 
-using namespace std;
 using namespace ipmsg;
 
 //メッセージ送信リトライ最大数
@@ -153,7 +152,7 @@ SentMessageList::Unlock( const char *pos ) const
  * 送信済メッセージリストの先頭を示すイテレータを返す。
  * @retval 送信済メッセージリストの先頭を示すイテレータ。
  */
-vector<SentMessage>::iterator
+std::vector<SentMessage>::iterator
 SentMessageList::begin()
 {
 	return messages.begin();
@@ -163,7 +162,7 @@ SentMessageList::begin()
  * 送信済メッセージリストの末尾＋１を示すイテレータを返す。
  * @retval 送信済メッセージリストの末尾＋１を示すイテレータ。
  */
-vector<SentMessage>::iterator
+std::vector<SentMessage>::iterator
 SentMessageList::end(){
 	return messages.end();
 }
@@ -173,11 +172,11 @@ SentMessageList::end(){
  * @param item 削除対象の送信済メッセージを示すイテレータ。
  * @retval 削除された送信済メッセージの次の要素を示すイテレータ。
  */
-vector<SentMessage>::iterator
-SentMessageList::erase( vector<SentMessage>::iterator item )
+std::vector<SentMessage>::iterator
+SentMessageList::erase( std::vector<SentMessage>::iterator item )
 {
 	Lock( "SentMessageList::erase()" );
-	vector<SentMessage>::iterator ret = messages.erase( item );
+	std::vector<SentMessage>::iterator ret = messages.erase( item );
 	Unlock( "SentMessageList::erase()" );
 	return ret;
 }
@@ -222,7 +221,7 @@ SentMessageList::clear()
  * 送信済メッセージリストのポインタを返す。
  * @retval 送信済メッセージリストのポインタ。
  */
-vector<SentMessage> *
+std::vector<SentMessage> *
 SentMessageList::GetMessageList()
 {
 	return &messages;
@@ -237,7 +236,7 @@ SentMessageList::GetMessageList()
  * @retval AttachFileのイテレータ
  * @retval 見付からない場合、end()
  */
-vector<AttachFile>::iterator
+std::vector<AttachFile>::iterator
 SentMessage::FindAttachFileByPacket( const Packet& packet )
 {
 	char *dmyptr;
@@ -247,7 +246,7 @@ SentMessage::FindAttachFileByPacket( const Packet& packet )
 	int packet_file_id = strtoul( startptr, &dmyptr, 16 );
 	startptr = ++dmyptr;
 
-	vector<AttachFile>::iterator FoundFile;
+	std::vector<AttachFile>::iterator FoundFile;
 	FoundFile = Files().FindByFileId( packet_file_id );
 	return FoundFile;
 }
@@ -287,12 +286,12 @@ SentMessage::needSendRetry( time_t tryNow ) const
  * @retval 送信済メッセージのイテレータ
  * @retval 見付からない場合end()
  */
-vector<SentMessage>::iterator
+std::vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 {
 	Lock( "SentMessageList::FindSentMessageByPacketNo()" );
-	vector<SentMessage>::iterator ret = end();
-	for( vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
+	std::vector<SentMessage>::iterator ret = end();
+	for( std::vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
 		if ( PacketNo == ixmsg->PacketNo() ) {
 			ret = ixmsg;
 			break;
@@ -311,7 +310,7 @@ SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
  * @retval SentMessageのイテレータ
  * @retval 見付からない場合、end()
  */
-vector<SentMessage>::iterator
+std::vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacket( Packet packet )
 {
 	char *dmyptr;
@@ -320,8 +319,8 @@ SentMessageList::FindSentMessageByPacket( Packet packet )
 	startptr = ++dmyptr;
 
 	Lock( "SentMessageList::FindSentMessageByPacket()" );
-	vector<SentMessage>::iterator ret = end();
-	for( vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
+	std::vector<SentMessage>::iterator ret = end();
+	for( std::vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
 		if ( packetNo == ixmsg->PacketNo() ) {
 			ret = ixmsg;
 			break;

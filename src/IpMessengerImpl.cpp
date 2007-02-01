@@ -12,7 +12,7 @@
 #include "ipmsg.h"
 #include <pthread.h>
 #include <pwd.h>
-using namespace std;
+//using namespace std;
 using namespace ipmsg;
 
 static IpMessengerAgentImpl *myInstance = NULL;
@@ -122,13 +122,13 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		 * @param host ホスト
 		 * @param version バージョン
 		 */
-		virtual void VersionInfoRecieveAfter( HostListItem &host, string version ){ printf("VersionInfoRecieveAfter\n"); };
+		virtual void VersionInfoRecieveAfter( HostListItem &host, std::string version ){ printf("VersionInfoRecieveAfter\n"); };
 		/**
 		 * 不在詳細情報受信後イベント。イベントが発生したことを示すためprintを行う。
 		 * @param host ホスト
 		 * @param absenceDetail 不在詳細情報
 		 */
-		virtual void AbsenceDetailRecieveAfter( HostListItem &host, string absenceDetail ){ printf("AbsenceDetailRecieveAfter\n"); };
+		virtual void AbsenceDetailRecieveAfter( HostListItem &host, std::string absenceDetail ){ printf("AbsenceDetailRecieveAfter\n"); };
 };
 
 /**
@@ -221,7 +221,7 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
 void
 IpMessengerAgentImpl::StartNetwork()
 {
-	vector<NetworkInterface> nics;
+	std::vector<NetworkInterface> nics;
 	StartNetwork( nics );
 }
 
@@ -234,7 +234,7 @@ IpMessengerAgentImpl::StartNetwork()
  * </ul>
  */
 void
-IpMessengerAgentImpl::StartNetwork( const vector<NetworkInterface>& nics )
+IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 {
 	NetworkInit( nics );
 	Logout();
@@ -265,7 +265,7 @@ IpMessengerAgentImpl::StopNetwork()
 void
 IpMessengerAgentImpl::RestartNetwork()
 {
-	vector<NetworkInterface> nics;
+	std::vector<NetworkInterface> nics;
 	RestartNetwork( nics );
 }
 
@@ -279,7 +279,7 @@ IpMessengerAgentImpl::RestartNetwork()
  * </ul>
  */
 void
-IpMessengerAgentImpl::RestartNetwork( const vector<NetworkInterface>& nics )
+IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics )
 {
 	if ( networkStarted ) {
 		Logout();
@@ -393,7 +393,7 @@ IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
  * @param nics ネットワークインターフェースの一覧
  */
 void
-IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, int defaultPortNo )
+IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
 	//情報取得のためのソケットを作成
 	int fd;
@@ -424,7 +424,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, i
 		ioctl(fd, SIOCGIFNETMASK, &ifr);
 		struct in_addr netMask = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr;
 
-		NetworkInterface ni( string( ifr.ifr_name ) );
+		NetworkInterface ni( std::string( ifr.ifr_name ) );
 		ni.setPortNo( defaultPortNo );
 		ni.setNativeIpAddress( ipAddr );
 		ni.setNativeNetMask( netMask );
@@ -451,7 +451,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, i
  * </ul>
  */
 void
-IpMessengerAgentImpl::NetworkInit( const vector<NetworkInterface>& nics )
+IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 {
 	char hostbuf[sysconf( _SC_HOST_NAME_MAX )  + 1];
 
@@ -525,7 +525,7 @@ IpMessengerAgentImpl::NetworkEnd()
  * </ul>
  */
 void
-IpMessengerAgentImpl::Login( string nickname, string groupName )
+IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -545,7 +545,7 @@ IpMessengerAgentImpl::Login( string nickname, string groupName )
 		Nickname = _LoginName;
 	}
 	GroupName = groupName;
-	string optBuf = Nickname + '\0' + GroupName +'\0';
+	std::string optBuf = Nickname + '\0' + GroupName +'\0';
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ENTRY ),
 										_LoginName, _HostName,
 										optBuf.c_str(), optBuf.size(),
@@ -680,7 +680,7 @@ IpMessengerAgentImpl::ResetAbsence()
 {
 	_IsAbsence = false;
 	localEncoding = "";
-	vector<AbsenceMode> d;
+	std::vector<AbsenceMode> d;
 	absenceModeList = d;
 	SendAbsence();
 }
@@ -691,7 +691,7 @@ IpMessengerAgentImpl::ResetAbsence()
  * @param absenceModes AbsenceModeオブジェクトのベクタ（自動応答時に複数エンコーディング対応するため）
  */
 void
-IpMessengerAgentImpl::SetAbsence( string encoding, vector<AbsenceMode> absenceModes )
+IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )
 {
 	_IsAbsence = true;
 
@@ -711,7 +711,7 @@ IpMessengerAgentImpl::SetAbsence( string encoding, vector<AbsenceMode> absenceMo
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
 	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL );
@@ -729,7 +729,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, boo
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
 	files.AddFile( file );
@@ -750,7 +750,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
  * @param PrevPacketNo リトライであれば前回のパケット番号
  */
 SentMessage
-IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
+IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -783,9 +783,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, string msg, bool isSecret, Att
 	char fileBuf[MAX_UDPBUF];
 
 	//ファイルを添付
-	for( vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
+	for( std::vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
 		ixfile->GetLocalFileInfo();
-		string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
+		std::string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
 		int wsize = snprintf( &fileBuf[ fileBufLen ], sizeof( fileBuf ) - fileBufLen - 1,
 							"%d:%s:%llx:%lx:%lx:\a",
 							ixfile->FileId(), filename.c_str(), ixfile->FileSize(), (unsigned long)ixfile->MTime(), ixfile->Attr() );
@@ -881,9 +881,9 @@ IpMessengerAgentImpl::ClearBroadcastAddress()
  * @param addr 登録済のブロードキャストアドレス
  */
 void
-IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
+IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )
 {
-	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( addr );
+	std::vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( addr );
 	if ( net != broadcastAddr.end() ) {
 #if defined(DEBUG)
 		char ipAddrBuf[IP_ADDR_MAX_SIZE];
@@ -899,7 +899,7 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
  * @param addr 登録するブロードキャストアドレス
  */
 void
-IpMessengerAgentImpl::AddBroadcastAddress( string addr )
+IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )
 {
 	struct addrinfo hints, *res;
 	memset( &hints, 0, sizeof( hints ) );
@@ -918,8 +918,8 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 	freeaddrinfo( res );
 
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	string broadIp = inet_ntop( AF_INET, &addAddr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
-	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( broadIp );
+	std::string broadIp = inet_ntop( AF_INET, &addAddr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	std::vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( broadIp );
 	if ( net != broadcastAddr.end() ) {
 		return;
 	}
@@ -934,12 +934,12 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
  * @param addr ブロードキャストアドレス文字列
  * @retval sockaddr_in構造体
  */
-vector<struct sockaddr_in>::iterator
-IpMessengerAgentImpl::FindBroadcastNetworkByAddress( string addr )
+std::vector<struct sockaddr_in>::iterator
+IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 {
 	struct in_addr saddr;
 	inet_pton( AF_INET, addr.c_str(), &saddr );
-	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
+	for( std::vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 		if ( memcmp( &ixaddr->sin_addr, &saddr, sizeof( struct in_addr ) == 0 ) ) {
 			return ixaddr;
 		}
@@ -982,14 +982,14 @@ IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
  */
-string
+std::string
 IpMessengerAgentImpl::GetInfo( HostListItem& host )
 {
 	RecvPacket();
 	for( int i = 0; i < 5; i++ ) {
 		RecvPacket();
 	}
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
 		return hostIt->Version();
 	}
@@ -1031,7 +1031,7 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
  * @param host 対象のホスト
  * @retval 対象ホストの不在説明文字列情報
  */
-string
+std::string
 IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 {
 	QueryAbsenceInfo( host );
@@ -1039,7 +1039,7 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 	for( int i = 0; i < 5; i++ ) {
 		RecvPacket();
 	}
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
 		return hostIt->AbsenceDescription();
 	}
@@ -1050,7 +1050,7 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
  * 保持中のホストリストからグループリストを取得する。
  * @retval グループリスト
  */
-vector<GroupItem>
+std::vector<GroupItem>
 IpMessengerAgentImpl::GetGroupList()
 {
 	return hostList.GetGroupList();
@@ -1110,7 +1110,7 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 void
 IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
 {
-	vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( msg.PacketNo() );
+	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( msg.PacketNo() );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsConfirmAnswered( true );
 	}
@@ -1125,7 +1125,7 @@ IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
  * </ul>
  */
 void
-IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
+IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 {
 	struct sockaddr_in addr;
 
@@ -1140,7 +1140,7 @@ IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
 		addr.sin_port = htons( nics[i].PortNo() );
 		addr.sin_addr.s_addr = nics[i].NativeNetworkAddress().s_addr | ( 0xffffffff ^ nics[i].NativeNetMask().s_addr );
 		bool IsFound = false;
-		for( vector<struct sockaddr_in>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
+		for( std::vector<struct sockaddr_in>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
 			if ( addr.sin_port == i->sin_port && addr.sin_addr.s_addr == i->sin_addr.s_addr ) {
 				IsFound = true;
 				break;
@@ -1218,10 +1218,10 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
-	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
+	for( std::vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 		UdpSendto( &(*ixaddr), buf, size );
 	}
-	for( vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ){
+	for( std::vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ){
 		if ( ixhost->CommandNo() | IPMSG_DIALUPOPT ) {
 			struct sockaddr_in addr;
 			addr.sin_family = AF_INET;
@@ -1263,9 +1263,9 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
 {
 	int sock = udp_sd[0];
 #if defined(DEBUG)
-	string from_addr = sd_addr.begin()->second.IpAddress();
+	std::string from_addr = sd_addr.begin()->second.IpAddress();
 #endif
-	for( map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
+	for( std::map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
 #if defined(DEBUG)
 		printf( "Send Check Before %s(%d)\n",
 				i->second.IpAddress().c_str(),
@@ -1306,7 +1306,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
  * @param nics ネットワークインターフェースのリスト。先頭がデフォルトカードになります。 
  */
 void
-IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
+IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 {
 	if ( nics.size() > 0 ) {
 		HostAddress = nics[0].IpAddress();
@@ -1347,7 +1347,7 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 		}
 	}
 
-	for( vector<struct sockaddr_in>::iterator addr = broadcastAddr.begin(); addr != broadcastAddr.end(); addr++ ){
+	for( std::vector<struct sockaddr_in>::iterator addr = broadcastAddr.begin(); addr != broadcastAddr.end(); addr++ ){
 		int sock = -1;
 
 		sock = InitUdpRecv( *addr );
@@ -1505,7 +1505,7 @@ IpMessengerAgentImpl::RecvPacket()
 	int ret = 0;
 	time_t nowTime = time( NULL );
 
-	vector<Packet> pack_que;
+	std::vector<Packet> pack_que;
 
 	while( selret > 0 ) {
 		fd_set fds;
@@ -1684,7 +1684,7 @@ IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
 void
 IpMessengerAgentImpl::PurgePacket( time_t nowTime )
 {
-	for( vector<Packet>::iterator pack = PacketsForChecking.begin(); pack != PacketsForChecking.end(); pack++ ){
+	for( std::vector<Packet>::iterator pack = PacketsForChecking.begin(); pack != PacketsForChecking.end(); pack++ ){
 		if ( nowTime > pack->Recieved() + PACKET_CHECK_FOR_SAVING_INTERVAL ) {
 			pack = PacketsForChecking.erase( pack ) - 1;
 		} else {
@@ -1700,7 +1700,7 @@ IpMessengerAgentImpl::PurgePacket( time_t nowTime )
 void
 IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 {
-	for( vector<SentMessage>::iterator ixmsg = sentMsgList.begin(); ixmsg != sentMsgList.end(); ixmsg++ ) {
+	for( std::vector<SentMessage>::iterator ixmsg = sentMsgList.begin(); ixmsg != sentMsgList.end(); ixmsg++ ) {
 		if ( ixmsg->needSendRetry( nowTime ) ) {
 			//再送信
 			ixmsg->setRetryCount( ixmsg->RetryCount() + 1 );
@@ -1851,14 +1851,14 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	string optBuf;
+	std::string optBuf;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrEntry\n");fflush( stdout );
 #endif
 	if ( _IsAbsence ) {
-		string AbsenceName = "";
-		for( vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
+		std::string AbsenceName = "";
+		for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
 			if ( i->EncodingName() == localEncoding ) {
 				AbsenceName = i->AbsenceName();
 				break;
@@ -1877,7 +1877,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 	// ホストリストに追加
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
 	AddHostListFromPacket( packet );
-	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	if ( event != NULL ) {
 		if ( it != hostList.end() && !it->IsLocalHost() ) {
 			event->EntryAfter( *it );
@@ -1898,14 +1898,14 @@ IpMessengerAgentImpl::SendAbsence()
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	string optBuf;
+	std::string optBuf;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("SendBrAbsence\n");fflush( stdout );
 #endif
 	if ( _IsAbsence ) {
-		string AbsenceName = "";
-		for( vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
+		std::string AbsenceName = "";
+		for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
 			if ( i->EncodingName() == localEncoding ) {
 				AbsenceName = i->AbsenceName();
 				break;
@@ -1938,7 +1938,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 	printf("UdpRecvBrAbsence\n");fflush( stdout );
 #endif
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	hostList.DeleteHostByAddress( ipAddrBuf );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
 	if ( event != NULL ){
@@ -1965,7 +1965,7 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 	printf("UdpRecvBrExit\n");fflush( stdout );
 #endif
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	bool isFound = false;
 	HostListItem host;
 	if ( it != hostList.end() ) {
@@ -1994,7 +1994,7 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 {
 	char *dmyptr;
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 10 );
-	vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packetNo );
+	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packetNo );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsSent( true );
 		sentMsg->setRetryCount( 0 );
@@ -2037,7 +2037,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 
 	char *dmyptr;
 	unsigned long packet_no = strtoul( packet.Option().c_str(), &dmyptr, 10 );
-	vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packet_no );
+	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packet_no );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsConfirmed( true );
 		if ( event != NULL ) {
@@ -2062,7 +2062,7 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 {
 	char *dmyptr;
 	unsigned long packet_no = strtoul( packet.Option().c_str(), &dmyptr, 10 );
-	vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packet_no );
+	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packet_no );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsgList.erase(sentMsg);
 	}
@@ -2110,7 +2110,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 #if defined(DEBUG) || !defined(NDEBUG)
 	printf("受信済メッセージ件数(%d)\n", recvMsgList.size() );fflush( stdout );
 #endif
-	for( vector<RecievedMessage>::iterator ixmsg = recvMsgList.begin(); ixmsg != recvMsgList.end(); ixmsg++ ) {
+	for( std::vector<RecievedMessage>::iterator ixmsg = recvMsgList.begin(); ixmsg != recvMsgList.end(); ixmsg++ ) {
 #if defined(DEBUG) || !defined(NDEBUG)
 			printf("受信メッセージ検索中...現在処理中のパケット(%ld) 検索中のメッセージのパケット(%ld)\n",
 					packet.PacketNo(), ixmsg->MessagePacket().PacketNo() );fflush( stdout );
@@ -2143,13 +2143,13 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 			host.setIpAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 			host.setPortNo( ntohs( packet.Addr().sin_port ) );
 			host.setEncodingName( localEncoding );
-			vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
+			std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 			if ( hostIt != hostList.end() ) {
 				host = *hostIt;
 //				host.setEncodingName( hostIt->EncodingName() );
 			}
-			string AbsenceDescription = "";
-			for( vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
+			std::string AbsenceDescription = "";
+			for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
 				if ( i->EncodingName() == localEncoding ) {
 					AbsenceDescription = i->AbsenceDescription();
 					break;
@@ -2159,7 +2159,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 		}
 	}
 
-	string optionMessage = packet.Option();
+	std::string optionMessage = packet.Option();
 	if ( packet.CommandOption() & IPMSG_ENCRYPTOPT ){
 		if ( !DecryptMsg( packet, optionMessage ) ) {
 			HostListItem host;
@@ -2183,7 +2183,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	message.setIsMulticast( IPMSG_MULTICASTOPT & packet.CommandOption() );
 	message.setIsBroadcast( IPMSG_BROADCASTOPT & packet.CommandOption() );
 	message.setIsConfirmed( false );
-	for( vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ) {
+	for( std::vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ) {
 		if ( ixhost->UserName() == packet.UserName() && ixhost->HostName() == packet.HostName() ) {
 			message.setHost( *ixhost );
 			break;
@@ -2268,7 +2268,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 	int sendBufLen;
 	int start = 0;
 	char *dmy;
-	string hosts;
+	std::string hosts;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvGetList[%s]\n", packet.Option().c_str());fflush( stdout );
@@ -2296,7 +2296,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	string hosts;
+	std::string hosts;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvOkGetList[%s]\n", packet.Option().c_str());fflush( stdout );
@@ -2364,7 +2364,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 											sendBuf, sizeof( sendBuf ) );
 		SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	}
-	string packetIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	std::string packetIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	for( unsigned int i = 0; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			return 0;
@@ -2390,7 +2390,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	string version = IPMSG_AGENT_VERSION;
+	std::string version = IPMSG_AGENT_VERSION;
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvGetInfo[%s]\n", packet.Option().c_str());fflush( stdout );
@@ -2414,8 +2414,8 @@ int
 IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 {
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
+	std::string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setVersion( packet.Option() );
 		if ( event != NULL ){
@@ -2441,16 +2441,16 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvGetAbsenceInfo[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
-	string AbsenceDescription = "";
+	std::string AbsenceDescription = "";
 	if ( _IsAbsence  ){
 		char ipAddrBuf[IP_ADDR_MAX_SIZE];
-		string IpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
-		string EncodingName = localEncoding;
-		vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( IpAddress );
+		std::string IpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+		std::string EncodingName = localEncoding;
+		std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( IpAddress );
 		if ( hostIt != hostList.end() ) {
 			EncodingName = hostIt->EncodingName();
 		}
-		for( vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
+		for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
 			if ( i->EncodingName() == localEncoding ) {
 				AbsenceDescription = i->AbsenceDescription();
 				break;
@@ -2478,8 +2478,8 @@ int
 IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 {
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
+	std::string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setAbsenceDescription( packet.Option() );
 		if ( event != NULL ){
@@ -2556,7 +2556,7 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 #endif
 	char *dmyptr;
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 10 );
-	vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packetNo );
+	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packetNo );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsgList.erase(sentMsg);
 	}
@@ -2634,14 +2634,14 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 	}
 	token = nextpos;
 	token = strtok_r( token, "-", &nextpos );
-	string meth;
+	std::string meth;
 	if ( nextpos != NULL ) {
 		meth = token;
 	} else {
 		free( opt );
 		return 0;
 	}
-	string pkey;
+	std::string pkey;
 	if ( token != NULL ) {
 		pkey = nextpos;
 	} else {
@@ -2650,8 +2650,8 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 	}
 	free( opt );
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
+	std::string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setEncryptionCapacity( cap );
 		hostIt->setPubKeyHex( pkey );
@@ -2702,13 +2702,13 @@ ipmsg::GetFileDataThread( void *param )
 
 	Packet *packet = (Packet *)param;
 
-	vector<SentMessage>::iterator msg = IpMessengerAgentImpl::GetInstance()->GetSentMessages()->FindSentMessageByPacket( *packet );
+	std::vector<SentMessage>::iterator msg = IpMessengerAgentImpl::GetInstance()->GetSentMessages()->FindSentMessageByPacket( *packet );
 	if ( msg == IpMessengerAgentImpl::GetInstance()->GetSentMessages()->end() ){
 		close( packet->TcpSocket() );
 		delete packet;
 		return 0;
 	}
-	vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
+	std::vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
 	if ( FoundFile == msg->Files().end() ){
 		close( packet->TcpSocket() );
 		delete packet;
@@ -2743,20 +2743,20 @@ ipmsg::GetDirFilesThread( void *param )
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "TcpRecvEventGetDirFiles\n" );fflush( stdout );
 #endif
-	vector<SentMessage>::iterator msg = myInstance->GetSentMessages()->FindSentMessageByPacket( *packet );
+	std::vector<SentMessage>::iterator msg = myInstance->GetSentMessages()->FindSentMessageByPacket( *packet );
 	if ( msg == myInstance->GetSentMessages()->end() ){
 		close( packet->TcpSocket() );
 		delete packet;
 		return 0;
 	}
-	vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
+	std::vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
 	if ( FoundFile == msg->Files().end() ){
 		close( packet->TcpSocket() );
 		delete packet;
 		return 0;
 	}
 
-	vector<string> DownloadFileList;
+	std::vector<std::string> DownloadFileList;
 	FoundFile->setIsDownloading( true );
 	bool ret = myInstance->SendDirData( packet->TcpSocket(), FoundFile->FileName(), FoundFile->FullPath(), DownloadFileList );
 	FoundFile->setIsDownloading( false );
@@ -2775,7 +2775,7 @@ ipmsg::GetDirFilesThread( void *param )
  * @param files ファイル一覧
  */
 bool
-IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<string> &files )
+IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, std::vector<std::string> &files )
 {
 	DIR *d= opendir( dir.c_str() );
 	struct stat st;
@@ -2801,7 +2801,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
 	struct dirent *dent = NULL;
 	while( readdir_r( d, bufdent, &dent ) == 0 && dent != NULL ) {
 		if ( strcmp(dent->d_name, "." ) != 0 && strcmp(dent->d_name, ".." ) != 0 ) {
-			string dir_name = dir + "/" + dent->d_name;
+			std::string dir_name = dir + "/" + dent->d_name;
 #if defined(INFO) || !defined(NDEBUG)
 			printf( "dir[%s]", dir_name.c_str() );fflush( stdout );
 #endif
@@ -2853,7 +2853,7 @@ IpMessengerAgentImpl::SendDirData( int sock, string cd, string dir, vector<strin
  * @retval false:失敗
  */
 bool
-IpMessengerAgentImpl::SendFile( int sock, string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
+IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
 {
 	struct stat statInit;
 	unsigned long long transSize = 0LL;
@@ -3036,9 +3036,9 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 			char dmybuf[100];
 			printf("MTIME[%s]\n", ctime_r( &tt, dmybuf ) );fflush( stdout );
 			printf("ATTR[%lu]\n", file.Attr() );fflush( stdout );
-			for( map<string, vector<unsigned long> >::iterator ixextattr = file.beginExtAttrs(); ixextattr != file.endExtAttrs(); ixextattr++){
+			for( std::map<std::string, std::vector<unsigned long> >::iterator ixextattr = file.beginExtAttrs(); ixextattr != file.endExtAttrs(); ixextattr++){
 				printf("EXT ATTR[%s]==", ixextattr->first.c_str() );fflush( stdout );
-				for( vector<unsigned long>::iterator ixextattrv = ixextattr->second.begin(); ixextattrv != ixextattr->second.end(); ixextattrv++){
+				for( std::vector<unsigned long>::iterator ixextattrv = ixextattr->second.begin(); ixextattrv != ixextattr->second.end(); ixextattrv++){
 					printf("[%lu]", *ixextattrv );fflush( stdout );
 				}
 				printf("\n" );fflush( stdout );
@@ -3281,7 +3281,7 @@ RecievedMessage
 IpMessengerAgentImpl::PopRecievedMessage()
 {
 	RecievedMessage ret;
-	for( vector<RecievedMessage>::iterator ix = recvMsgList.begin(); ix != recvMsgList.end(); ix++ ){
+	for( std::vector<RecievedMessage>::iterator ix = recvMsgList.begin(); ix != recvMsgList.end(); ix++ ){
 		ret = *ix;
 		recvMsgList.erase( ix );
 		break;
@@ -3356,7 +3356,7 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
  * @retval 送信バッファの長さ
  */
 int
-IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, string user, string host, const char *opt, int optLen, char *buf, int size )
+IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::CreateNewPacketBuffer()\n" );fflush(stdout);
@@ -3395,7 +3395,7 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long pa
  * @retval 送信バッファの長さ
  */
 int
-IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, string user, string host, const char *opt, int optLen, char *buf, int size )
+IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )
 {
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::CreateNewPacketBuffer()\n" );fflush(stdout);
@@ -3481,10 +3481,10 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 
 	//OPTION
 	int optLen = size - ( nextpos - packet_tmp_buf );
-	ret.setOption( string( nextpos, optLen ) );
+	ret.setOption( std::string( nextpos, optLen ) );
 	free( packet_tmp_buf );
 
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByHostName( ret.HostName() );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByHostName( ret.HostName() );
 	if ( hostIt != hostList.end() ) {
 		struct sockaddr_in hostaddr;
 		hostaddr.sin_family = AF_INET;
@@ -3519,7 +3519,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	AddDefaultHost();
 	// デフォルトのNIC(０番目)以外の自分自身のIPアドレスが登録依頼されたら無視。
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	string packetIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	std::string packetIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	for( unsigned int i = 1; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			AddDefaultHost();
@@ -3554,7 +3554,7 @@ IpMessengerAgentImpl::AddDefaultHost()
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::AddDefaultHost()\n" );fflush(stdout);
 #endif
-	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( HostAddress );
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( HostAddress );
 	if ( hostIt == hostList.end() ) {
 		HostListItem myHost;
 		myHost.setUserName( _LoginName );

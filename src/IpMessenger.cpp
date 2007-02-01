@@ -10,7 +10,6 @@
 #include "IpMessenger.h"
 #include "IpMessengerImpl.h"
 
-using namespace std;
 using namespace ipmsg;
 
 //NICの最大数
@@ -92,7 +91,7 @@ IpMessengerAgent::StartNetwork()
  * @parem nics 起動時に対象とするNICのベクタ。
  */
 void
-IpMessengerAgent::StartNetwork( const vector<NetworkInterface>& nics )
+IpMessengerAgent::StartNetwork( const std::vector<NetworkInterface>& nics )
 {
 	ipmsgImpl->StartNetwork( nics );
 }
@@ -123,7 +122,7 @@ IpMessengerAgent::RestartNetwork()
  * @parem nics 起動時に対象とするNICのベクタ。
  */
 void
-IpMessengerAgent::RestartNetwork( const vector<NetworkInterface>& nics )
+IpMessengerAgent::RestartNetwork( const std::vector<NetworkInterface>& nics )
 {
 	ipmsgImpl->RestartNetwork( nics );
 }
@@ -193,7 +192,7 @@ IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
  * @param nics ネットワークインターフェースの一覧
  */
 void
-IpMessengerAgent::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
+IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics )
 {
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( nics );
 }
@@ -202,7 +201,7 @@ IpMessengerAgent::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics )
  * ログイン（サービス参加通知）。
  */
 void
-IpMessengerAgent::Login( string nickname, string groupName )
+IpMessengerAgent::Login( std::string nickname, std::string groupName )
 {
 	ipmsgImpl->Login( nickname, groupName );
 }
@@ -260,7 +259,7 @@ IpMessengerAgent::ResetAbsence()
  * @param absenceModes AbsenceModeオブジェクトのベクタ（自動応答時に複数エンコーディング対応するため）
  */
 void
-IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes )
+IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )
 {
 	ipmsgImpl->SetAbsence( encoding, absenceModes );
 }
@@ -276,7 +275,7 @@ IpMessengerAgent::SetAbsence( string encoding, vector<AbsenceMode> absenceModes 
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
@@ -293,7 +292,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, bool is
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
@@ -310,7 +309,7 @@ IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachF
  * @param opt 送信オプション
  */
 SentMessage
-IpMessengerAgent::SendMsg( HostListItem host, string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
 }
@@ -329,7 +328,7 @@ IpMessengerAgent::ClearBroadcastAddress()
  * @param addr 登録済のブロードキャストアドレス
  */
 void
-IpMessengerAgent::DeleteBroadcastAddress( string addr )
+IpMessengerAgent::DeleteBroadcastAddress( std::string addr )
 {
 	ipmsgImpl->DeleteBroadcastAddress( addr );
 }
@@ -339,7 +338,7 @@ IpMessengerAgent::DeleteBroadcastAddress( string addr )
  * @param addr 登録するブロードキャストアドレス
  */
 void
-IpMessengerAgent::AddBroadcastAddress( string addr )
+IpMessengerAgent::AddBroadcastAddress( std::string addr )
 {
 	ipmsgImpl->AddBroadcastAddress( addr );
 }
@@ -349,7 +348,7 @@ IpMessengerAgent::AddBroadcastAddress( string addr )
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
  */
-string
+std::string
 IpMessengerAgent::GetInfo( HostListItem& host )
 {
 	return ipmsgImpl->GetInfo( host );
@@ -360,7 +359,7 @@ IpMessengerAgent::GetInfo( HostListItem& host )
  * @param host 対象のホスト
  * @retval 対象ホストの不在説明文字列情報
  */
-string
+std::string
 IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
 {
 	return ipmsgImpl->GetAbsenceInfo( host );
@@ -370,7 +369,7 @@ IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
  * 保持中のホストリストからグループリストを取得する。
  * @retval グループリスト
  */
-vector<GroupItem>
+std::vector<GroupItem>
 IpMessengerAgent::GetGroupList()
 {
 	return ipmsgImpl->GetGroupList();
@@ -462,7 +461,7 @@ IpMessengerAgent::CloneSentMessages() const
  * ログイン名のゲッター
  * @retval ログイン名
  */
-string
+std::string
 IpMessengerAgent::LoginName() const
 {
 	return ipmsgImpl->LoginName();
@@ -472,7 +471,7 @@ IpMessengerAgent::LoginName() const
  * ホスト名のゲッター
  * @retval ホスト名
  */
-string
+std::string
 IpMessengerAgent::HostName() const
 {
 	return ipmsgImpl->HostName();
@@ -592,7 +591,7 @@ DownloadInfo::getSpeed()
  * ダウンロード速度文字列を生成する。
  * @retval ダウンロード速度文字列（単位／秒）。例:1 B/sec, 2.00KB/sec, 3.00 MB/sec, 4.00 GB/sec, 5.00 TB/sec
  */
-string
+std::string
 DownloadInfo::getSpeedString()
 {
 	return DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec";
@@ -602,7 +601,7 @@ DownloadInfo::getSpeedString()
  * 容量文字列を生成する。
  * @retval 容量文字列（単位）。例:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
  */
-string
+std::string
 DownloadInfo::getSizeString()
 {
 	return DownloadInfo::getUnitSizeString( Size() );
@@ -618,7 +617,7 @@ DownloadInfo::getSizeString()
  * 容量文字列を生成する。
  * @retval 容量文字列（単位）。例:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
  */
-string
+std::string
 DownloadInfo::getUnitSizeString( long long size )
 {
 	long double dsize = (long double)size;

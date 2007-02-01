@@ -31,7 +31,6 @@
     #define SUPPORT_SENDFILE_HPUX_STYLE
 #endif // __HPUX__
 
-using namespace std;
 using namespace ipmsg;
 
 static int file_id = 0;
@@ -136,7 +135,7 @@ AttachFileList::AddFile( const AttachFile& file )
 /**
  * ファイル一覧の先頭を指すイテレータを返します。
  */
-vector<AttachFile>::iterator
+std::vector<AttachFile>::iterator
 AttachFileList::begin()
 {
 	return files.begin();
@@ -145,7 +144,7 @@ AttachFileList::begin()
 /**
  * ファイル一覧の終端の一つ後方を指すイテレータを返します。
  */
-vector<AttachFile>::iterator
+std::vector<AttachFile>::iterator
 AttachFileList::end()
 {
 	return files.end();
@@ -179,12 +178,12 @@ AttachFileList::clear()
  * ファイルを一覧から添付ファイルを削除します。
  * @param item 削除する添付ファイルオブジェクト
  */
-vector<AttachFile>::iterator
-AttachFileList::erase( vector<AttachFile>::iterator item )
+std::vector<AttachFile>::iterator
+AttachFileList::erase( std::vector<AttachFile>::iterator item )
 {
-	Lock( "AttachFileList::erase(vector<AttachFile>::iterator)" );
-	vector<AttachFile>::iterator ret = files.erase( item );
-	Unlock( "AttachFileList::erase(vector<AttachFile>::iterator)" );
+	Lock( "AttachFileList::erase(std::vector<AttachFile>::iterator)" );
+	std::vector<AttachFile>::iterator ret = files.erase( item );
+	Unlock( "AttachFileList::erase(std::vector<AttachFile>::iterator)" );
 	return ret;
 }
 
@@ -192,12 +191,12 @@ AttachFileList::erase( vector<AttachFile>::iterator item )
  * ファイルを一覧から添付ファイルを削除します。
  * @param item 削除する添付ファイルオブジェクト
  */
-vector<AttachFile>::iterator
+std::vector<AttachFile>::iterator
 AttachFileList::erase( const AttachFile& item )
 {
-	vector<AttachFile>::iterator it = FindByFileId( item.FileId() );
+	std::vector<AttachFile>::iterator it = FindByFileId( item.FileId() );
 	Lock( "AttachFileList::erase(AttachFile&)" );
-	vector<AttachFile>::iterator ret = files.erase( it );
+	std::vector<AttachFile>::iterator ret = files.erase( it );
 	Unlock( "AttachFileList::erase(AttachFile&)" );
 	return ret;
 }
@@ -208,12 +207,12 @@ AttachFileList::erase( const AttachFile& item )
  * @retval 見付かったAttachFileのイテレータ
  * @retval 見付からない場合end()
  */
-vector<AttachFile>::iterator
-AttachFileList::FindByFullPath( const string& fullPath )
+std::vector<AttachFile>::iterator
+AttachFileList::FindByFullPath( const std::string& fullPath )
 {
 	Lock( "AttachFileList::FindByFullPath()" );
-	vector<AttachFile>::iterator ret = end();
-	for( vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
+	std::vector<AttachFile>::iterator ret = end();
+	for( std::vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
 		if ( i->FullPath() == fullPath ) {
 			ret = i;
 			break;
@@ -229,12 +228,12 @@ AttachFileList::FindByFullPath( const string& fullPath )
  * @retval 添付ファイルオブジェクトへのイテレータ
  * @retval 存在しない場合、end()
  */
-vector<AttachFile>::iterator
+std::vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
 {
 	Lock( "AttachFileList::FindByFileId()" );
-	vector<AttachFile>::iterator ret = end();
-	for( vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
+	std::vector<AttachFile>::iterator ret = end();
+	for( std::vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
 		printf( "file_id  %d\n", file_id );fflush(stdout);
 		printf( "ixfile->FileId %d\n", ixfile->FileId() );fflush(stdout);
@@ -275,8 +274,8 @@ AttachFile::GetLocalFileInfo()
 {
 	struct stat st;
 	unsigned int loc = FullPath().find_last_of( '/' );
-	string filename, location;
-	if ( loc == string::npos ) {
+	std::string filename, location;
+	if ( loc == std::string::npos ) {
 		filename = FullPath();
 	} else {
 		location = FullPath().substr( 0, loc );
@@ -325,10 +324,10 @@ AttachFile::IsDirectory() const
  * @param dirstack ディレクトリスタック
  * @retval フルパス
  */
-string
-AttachFile::CreateDirFullPath( const vector<string>& dirstack )
+std::string
+AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 {
-	string retdir = "";
+	std::string retdir = "";
 	for( int i = 0; i < (int)dirstack.size(); i++ ){
 		if ( dirstack[i] != "" ) {
 			retdir += dirstack[i] + ( dirstack[i].at(dirstack[i].size() - 1) == '/' ? "" : "/" );
@@ -369,7 +368,7 @@ AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
 		j++;
 	}
 	char *dmyptr;
-	string size = "";
+	std::string size = "";
 	j = 0;
 	for( int i=pos; i < len; i++ ){
 		if ( buf[i] == ':' ) {
@@ -383,7 +382,7 @@ AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
 	}
 	f.setFileSize( strtoull( size.c_str(), &dmyptr, 16 ) );
 
-	string fattr = "";
+	std::string fattr = "";
 	j = 0;
 	for( int i=pos; i < len; i++ ){
 		if ( buf[i] == ':' ) {
@@ -399,7 +398,7 @@ AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
 
 	while( buf[pos] != '\0' ) {
 		j = 0;
-		string fextattr = "";
+		std::string fextattr = "";
 		for( int i=pos; i < len; i++ ){
 			if ( buf[i] == ':' ) {
 				tmpbuf[j] = 0;

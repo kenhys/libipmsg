@@ -11,7 +11,6 @@
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
 
-using namespace std;
 using namespace ipmsg;
 
 /**
@@ -145,7 +144,7 @@ RecievedMessageList::Unlock( const char *pos ) const
  * 受信済メッセージリストの先頭を示すイテレータを返す。
  * @retval 受信済メッセージリストの先頭を示すイテレータ。
  */
-vector<RecievedMessage>::iterator
+std::vector<RecievedMessage>::iterator
 RecievedMessageList::begin()
 {
 	return messages.begin();
@@ -155,7 +154,7 @@ RecievedMessageList::begin()
  * 受信済メッセージリストの末尾＋１を示すイテレータを返す。
  * @retval 受信済メッセージリストの末尾＋１を示すイテレータ。
  */
-vector<RecievedMessage>::iterator
+std::vector<RecievedMessage>::iterator
 RecievedMessageList::end()
 {
 	return messages.end();
@@ -166,11 +165,11 @@ RecievedMessageList::end()
  * @param item 削除対象の受信済メッセージを示すイテレータ。
  * @retval 削除された受信済メッセージの次の要素を示すイテレータ。
  */
-vector<RecievedMessage>::iterator
-RecievedMessageList::erase( vector<RecievedMessage>::iterator item )
+std::vector<RecievedMessage>::iterator
+RecievedMessageList::erase( std::vector<RecievedMessage>::iterator item )
 {
 	Lock( "RecievedMessageList::erase()" );
-	vector<RecievedMessage>::iterator ret = messages.erase( item );
+	std::vector<RecievedMessage>::iterator ret = messages.erase( item );
 	Unlock( "RecievedMessageList::erase()" );
 	return ret;
 }
@@ -218,7 +217,7 @@ RecievedMessageList::clear()
  * </ul>
  */
 bool
-RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
+RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 #if defined(DEBUG)
 	printf("DownloadFile\n" );fflush(stdout);
@@ -261,7 +260,7 @@ RecievedMessage::DownloadFile( AttachFile &file, string saveFileNameFullPath, Do
  * </ul>
  */
 bool
-RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
+RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 	struct sockaddr_in svr_addr;
 	int sock = socket( AF_INET, SOCK_STREAM, 0 );
@@ -374,7 +373,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
  * </ul>
  */
 bool
-RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
+RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 #if defined(DEBUG)
 	printf("DownloadDir\n" );fflush(stdout);
@@ -415,8 +414,8 @@ RecievedMessage::DownloadDir( AttachFile &file, string saveName, string saveBase
  * @param dirName 正規化前のディレクトリ名
  * @retval 正規化後のディレクトリ名
  */
-string
-RecievedMessage::GetFormalDir( string dirName )
+std::string
+RecievedMessage::GetFormalDir( std::string dirName )
 {
 	if ( dirName.at( dirName.length() - 1 ) != '/' ) {
 		return dirName + "/";
@@ -434,8 +433,8 @@ RecievedMessage::GetFormalDir( string dirName )
  * @param saveBaseDir 保存先ディレクトリ名
  * @retval 保存するファイル（またはディレクトリ名）
  */
-string
-RecievedMessage::GetSaveDir( string saveName, string saveBaseDir )
+std::string
+RecievedMessage::GetSaveDir( std::string saveName, std::string saveBaseDir )
 {
 	return GetFormalDir( saveBaseDir ) + saveName + "/";
 }
@@ -447,15 +446,15 @@ RecievedMessage::GetSaveDir( string saveName, string saveBaseDir )
  * </ul>
  */
 bool
-RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, string saveName, string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
+RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, std::string saveName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
 	if ( conv == NULL ) {
 		info.setProcessing( false );
 		return false;
 	}
 	struct stat st;
-	string saveBaseDirFormal = GetFormalDir( saveBaseDir );
-	string saveDir = GetSaveDir( saveName, saveBaseDir );
+	std::string saveBaseDirFormal = GetFormalDir( saveBaseDir );
+	std::string saveDir = GetSaveDir( saveName, saveBaseDir );
 
 #if defined(DEBUG)
 printf("saveName[%s]\n", saveName.c_str() );fflush(stdout);
@@ -508,7 +507,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	char readbuf[MAX_UDPBUF];
 	bool isEob = false;
 	bool isTopDir = true;
-	vector<string> dir;
+	std::vector<std::string> dir;
 	dir.push_back( saveBaseDir );
 	dir.push_back( saveName );
 
@@ -567,7 +566,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf2", readbuf, read_len );
 		if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_REGULAR ) {
 			long long readSize = 0LL;
 			long long wroteSize = 0LL;
-			string FullPath = AttachFile::CreateDirFullPath( dir ) + f.FileName();
+			std::string FullPath = AttachFile::CreateDirFullPath( dir ) + f.FileName();
 			int fd = open( FullPath.c_str(), O_WRONLY | O_CREAT );
 			if ( fd < 0 ){
 				perror("open");
@@ -628,7 +627,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 				continue;
 			}
 			dir.push_back( f.FileName().c_str() );
-			string FullPath = f.CreateDirFullPath( dir );
+			std::string FullPath = f.CreateDirFullPath( dir );
 			if ( mkdir( FullPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
 				perror("mkdir(2)");
 				isEob = true;

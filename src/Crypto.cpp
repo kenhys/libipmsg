@@ -420,7 +420,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
  * @retval false:Éü¹æ²½¼ºÇÔ
  */
 bool
-IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
+IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 {
 #ifdef HAVE_OPENSSL
 	EVP_CIPHER_CTX ctx;
@@ -460,7 +460,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
 		free( file_info );
 		return false;
 	}
-	string ekey = token;
+	std::string ekey = token;
 
 	token = nextpos;
 	token = strtok_r( token, PACKET_DELIMITER_STRING, &nextpos );
@@ -469,9 +469,9 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
 		free( file_info );
 		return false;
 	}
-	string emsg = token;
+	std::string emsg = token;
 
-	string esign = "";
+	std::string esign = "";
 	token = nextpos;
 	token = strtok_r( token, PACKET_DELIMITER_STRING, &nextpos );
 	if ( token != NULL ) {
@@ -748,7 +748,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, string& msg )
 		memcpy( &optBuf[tmp_len+1], file_info, file_info_len );
 		tmp_len += ( file_info_len + 1 );
 	}
-	msg = string( (char *)optBuf, tmp_len );
+	msg = std::string( (char *)optBuf, tmp_len );
 	IpMsgPrintBuf( "optBuf(2):", (char *)optBuf, tmp_len );
 	free( optBuf );
 	free( file_info );

@@ -38,7 +38,6 @@
 #include <deque>
 #include <map>
 #include <vector>
-using namespace std;
 
 const int IPMSG_DEFAULT_PORT=0x0979;
 

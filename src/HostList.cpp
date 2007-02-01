@@ -12,7 +12,6 @@
 #include "ipmsg.h"
 #include <algorithm>
 
-using namespace std;
 using namespace ipmsg;
 
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
@@ -107,7 +106,7 @@ HostList::Unlock( const char *pos ) const
  * @retval ホストリストの先頭を示すイテレータ。
  */
 inline
-vector<HostListItem>::iterator
+std::vector<HostListItem>::iterator
 HostList::begin()
 {
 	return items.begin();
@@ -118,7 +117,7 @@ HostList::begin()
  * @retval ホストリストの末尾＋１を示すイテレータ。
  */
 inline
-vector<HostListItem>::iterator
+std::vector<HostListItem>::iterator
 HostList::end()
 {
 	return items.end();
@@ -177,7 +176,7 @@ bool
 HostListItem::IsLocalHost() const
 {
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
-	vector<NetworkInterface> nics = agent->NICs;
+	std::vector<NetworkInterface> nics = agent->NICs;
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		if ( IpAddress() == nics[i].IpAddress() ){
 #if defined(INFO) || !defined(NDEBUG)
@@ -203,8 +202,8 @@ HostList::AddHost( const HostListItem& host )
 	bool is_found = false;
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
-	string localhostName = agent->HostName();
-	vector<NetworkInterface> nics = agent->NICs;
+	std::string localhostName = agent->HostName();
+	std::vector<NetworkInterface> nics = agent->NICs;
 	for( unsigned int i = 1; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
@@ -266,7 +265,7 @@ HostList::AddHost( const HostListItem& host )
  * @param it ホスト情報のイテレータ
  */
 void
-HostList::Delete( vector<HostListItem>::iterator &it )
+HostList::Delete( std::vector<HostListItem>::iterator &it )
 {
 	Lock( "HostList::Delete()" );
 	items.erase( it );
@@ -277,10 +276,10 @@ HostList::Delete( vector<HostListItem>::iterator &it )
  * @param hostname ホスト名
  */
 void
-HostList::DeleteHostByAddress( string addr )
+HostList::DeleteHostByAddress( std::string addr )
 {
 	Lock( "HostList::DeleteHostIpAddress()" );
-	for( vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
+	for( std::vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		if ( ix->IpAddress() == addr ) {
 			items.erase( ix );
 			break;
@@ -295,12 +294,12 @@ HostList::DeleteHostByAddress( string addr )
  * @param addr 送信先のアドレス
  * @retval ホストリスト送信用文字列。
  */
-string
+std::string
 HostList::ToString( int start, const struct sockaddr_in *addr )
 {
 	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
-	string ret;
+	std::string ret;
 	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize() - 12 /* 12 は "12345\a12345\a"*/;
 
 	ret = "";
@@ -312,8 +311,8 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 		int len = 0;
 		if ( item.IsLocalHost() ) {
 			IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
-			vector<NetworkInterface> nics = agent->NICs;
-			string localaddr = nics[0].IpAddress();
+			std::vector<NetworkInterface> nics = agent->NICs;
+			std::string localaddr = nics[0].IpAddress();
 			for( unsigned int i = 0; i < nics.size(); i++ ){
 				if ( nics[i].NativeNetworkAddress().s_addr == addr->sin_addr.s_addr & nics[i].NativeNetMask().s_addr ){
 					localaddr = nics[i].IpAddress();
@@ -372,7 +371,7 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 #endif
 	ret.setPortNo( ntohs( packet.Addr().sin_port ) );
 	unsigned int loc = packet.Option().find_first_of( '\0' );
-	if ( loc == string::npos ) {
+	if ( loc == std::string::npos ) {
 		ret.setNickname( packet.Option() );
 		ret.setGroupName( "" );
 	} else {
@@ -387,12 +386,12 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
  * @param hostName ホスト名
  * @retval HostListItem
  */
-vector<HostListItem>::iterator
-HostList::FindHostByHostName( string hostName )
+std::vector<HostListItem>::iterator
+HostList::FindHostByHostName( std::string hostName )
 {
 	Lock( "HostList::FindHostByHostName()" );
-	vector<HostListItem>::iterator ret = end();
-	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
+	std::vector<HostListItem>::iterator ret = end();
+	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 		if ( ix->HostName() == hostName ) {
 			ret = ix;
 			break;
@@ -407,12 +406,12 @@ HostList::FindHostByHostName( string hostName )
  * @param addr IPアドレス文字列
  * @retval HostListItem
  */
-vector<HostListItem>::iterator
-HostList::FindHostByAddress( string addr )
+std::vector<HostListItem>::iterator
+HostList::FindHostByAddress( std::string addr )
 {
 	Lock( "HostList::FindHostByAddress()" );
-	vector<HostListItem>::iterator ret = end();
-	for( vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
+	std::vector<HostListItem>::iterator ret = end();
+	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(DEBUG)
 		printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );fflush(stdout);
 #endif
@@ -524,7 +523,7 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 	printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );fflush(stdout);
 #endif
 	//基準値
-	vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
+	std::vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
 	//クイックソート
 	while( true ){
 		while( comparator->compare( items.begin() + i, pivot ) < 0 ) i++;
@@ -592,14 +591,14 @@ class IpMsgGetGroupListComparator: public HostListComparator{
  * 保持中のホストリストからグループリストを取得する。
  * @retval グループリスト
  */
-vector<GroupItem>
+std::vector<GroupItem>
 HostList::GetGroupList()
 {
-	vector<GroupItem> ret;
+	std::vector<GroupItem> ret;
 	HostList tmp = *this;
 	tmp.sort( new IpMsgGetGroupListComparator() );
-	string hostName = "", encodingName = "";
-	for( vector<HostListItem>::iterator ixhost = tmp.begin(); ixhost != tmp.end(); ixhost++ ) {
+	std::string hostName = "", encodingName = "";
+	for( std::vector<HostListItem>::iterator ixhost = tmp.begin(); ixhost != tmp.end(); ixhost++ ) {
 		if ( hostName != ixhost->HostName() || encodingName != ixhost->EncodingName() ){
 			GroupItem item;
 			item.setGroupName( ixhost->GroupName() );
