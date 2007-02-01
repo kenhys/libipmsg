@@ -401,9 +401,12 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, i
 
 	/* ローカルループバックをのぞく全てのIPアドレスが対象 */
 	/* 全てのNICを取得する(より移植性が高い方法) */
-	const in_addr_t localLoopbackAddress = inet_addr( "127.0.0.1" );
-	const in_addr_t nullAddress = inet_addr( "0.0.0.0" );
-	const in_addr_t broadcastAddress = inet_addr( "255.255.255.255" );
+	struct in_addr localLoopbackAddress;
+	inet_pton( AF_INET, "127.0.0.1", &localLoopbackAddress );
+	struct in_addr nullAddress;
+	inet_pton( AF_INET, "0.0.0.0", &nullAddress );
+	struct in_addr broadcastAddress;
+	inet_pton( AF_INET, "255.255.255.255", &broadcastAddress );
 	struct if_nameindex *p0 = NULL, *p = NULL;
 	for( p0 = p = if_nameindex(); p->if_index > 0; p++ ){
 		struct ifreq ifr;
@@ -412,14 +415,14 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( vector<NetworkInterface>& nics, i
 		ifr.ifr_addr.sa_family = AF_INET;
 		strncpy(ifr.ifr_name, p->if_name, IFNAMSIZ-1);
 		ioctl(fd, SIOCGIFADDR, &ifr);
-		in_addr_t ipAddr = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr.s_addr;
-		if ( localLoopbackAddress == ipAddr ||
-			 nullAddress == ipAddr ||
-			 broadcastAddress == ipAddr ){
+		struct in_addr ipAddr = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr;
+		if ( memcmp( &localLoopbackAddress, &ipAddr, sizeof( struct in_addr ) ) == 0 ||
+			 memcmp( &nullAddress, &ipAddr, sizeof( struct in_addr ) ) == 0 ||
+			 memcmp( &broadcastAddress, &ipAddr, sizeof( struct in_addr ) ) == 0 ){
 			continue;
 		}
 		ioctl(fd, SIOCGIFNETMASK, &ifr);
-		in_addr_t netMask = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr.s_addr;
+		struct in_addr netMask = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr;
 
 		NetworkInterface ni( string( ifr.ifr_name ) );
 		ni.setPortNo( defaultPortNo );
@@ -883,8 +886,8 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( string addr )
 	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( addr );
 	if ( net != broadcastAddr.end() ) {
 #if defined(DEBUG)
-		char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-		printf( "Delete Broadcast Address from %s(%d)\n", inet_ntoa_r( net->sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( net->sin_port ) );fflush( stdout );
+		char ipAddrBuf[IP_ADDR_MAX_SIZE];
+		printf( "Delete Broadcast Address from %s(%d)\n", inet_ntop( AF_INET, &net->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( net->sin_port ) );fflush( stdout );
 #endif
 		broadcastAddr.erase( net );
 		return;
@@ -914,14 +917,14 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 	addAddr.sin_addr.s_addr = ((struct sockaddr_in *)(res->ai_addr) )->sin_addr.s_addr;
 	freeaddrinfo( res );
 
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	string broadIp = inet_ntoa_r( addAddr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	string broadIp = inet_ntop( AF_INET, &addAddr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	vector<struct sockaddr_in>::iterator net = FindBroadcastNetworkByAddress( broadIp );
 	if ( net != broadcastAddr.end() ) {
 		return;
 	}
 #if defined(DEBUG)
-	printf( "Add Broadcast Address To %s(%d)\n", inet_ntoa_r( addAddr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addAddr.sin_port ) );fflush( stdout );
+	printf( "Add Broadcast Address To %s(%d)\n", inet_ntop( AF_INET, &addAddr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addAddr.sin_port ) );fflush( stdout );
 #endif
 	broadcastAddr.push_back( addAddr );
 }
@@ -934,9 +937,10 @@ IpMessengerAgentImpl::AddBroadcastAddress( string addr )
 vector<struct sockaddr_in>::iterator
 IpMessengerAgentImpl::FindBroadcastNetworkByAddress( string addr )
 {
-	in_addr_t s_addr = inet_addr( addr.c_str() );
+	struct in_addr saddr;
+	inet_pton( AF_INET, addr.c_str(), &saddr );
 	for( vector<struct sockaddr_in>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
-		if ( ixaddr->sin_addr.s_addr == s_addr ) {
+		if ( memcmp( &ixaddr->sin_addr, &saddr, sizeof( struct in_addr ) == 0 ) ) {
 			return ixaddr;
 		}
 	}
@@ -1134,7 +1138,7 @@ IpMessengerAgentImpl::InitSend( const vector<NetworkInterface>& nics )
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons( nics[i].PortNo() );
-		addr.sin_addr.s_addr = nics[i].NativeNetworkAddress() | ( 0xffffffff ^ nics[i].NativeNetMask() );
+		addr.sin_addr.s_addr = nics[i].NativeNetworkAddress().s_addr | ( 0xffffffff ^ nics[i].NativeNetMask().s_addr );
 		bool IsFound = false;
 		for( vector<struct sockaddr_in>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
 			if ( addr.sin_port == i->sin_port && addr.sin_addr.s_addr == i->sin_addr.s_addr ) {
@@ -1186,8 +1190,8 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 #if defined(DEBUG)
 	printf("== S E N D ============================================>\n");fflush( stdout );
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	printf( "Send  %s(%d)\n", inet_ntoa_r( to_addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( to_addr.sin_port ) );fflush( stdout );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	printf( "Send  %s(%d)\n", inet_ntop( AF_INET, &to_addr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( to_addr.sin_port ) );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
 
@@ -1232,8 +1236,8 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	addr.sin_port = htons( DefaultPortNo() );
 	addr.sin_addr.s_addr = inet_addr( "127.0.0.1" );
 #if defined(DEBUG)
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	printf( "Send To %s(%d)\n", inet_ntoa_r( addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	printf( "Send To %s(%d)\n", inet_ntop( AF_INET, &addr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr.sin_port ) );fflush( stdout );
 #endif
 	int ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
 	if ( ret <= 0 ) {
@@ -1268,7 +1272,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
 				i->second.PortNo() );fflush( stdout );
 		printf( "addr=%lx net=%lx\n", (long)i->second.NativeNetworkAddress(), (unsigned long)( addr->sin_addr.s_addr & i->second.NativeNetMask() ) );fflush( stdout );
 #endif
-		if ( i->second.NativeNetworkAddress() == (in_addr_t)(addr->sin_addr.s_addr & i->second.NativeNetMask() ) ) {
+		if ( i->second.NativeNetworkAddress().s_addr == addr->sin_addr.s_addr & i->second.NativeNetMask().s_addr ) {
 			sock = i->first;
 #if defined(DEBUG)
 			from_addr = i->second.IpAddress();
@@ -1280,8 +1284,8 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
 		}
 	}
 #if defined(DEBUG)
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), inet_ntoa_r( addr->sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr->sin_port ) );fflush( stdout );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), inet_ntop( AF_INET, &addr->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr->sin_port ) );fflush( stdout );
 #endif
 	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sizeof( struct sockaddr ) );
 	if ( ret <= 0 ) {
@@ -1322,8 +1326,8 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 		sock = InitUdpRecv( addr );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			printf( "UDP_SD[%d][%s] = %d\n", udp_sd.size(), inet_ntoa_r( addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			printf( "UDP_SD[%d][%s] = %d\n", udp_sd.size(), inet_ntop( AF_INET, &addr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
@@ -1333,8 +1337,8 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 		sock = InitTcpRecv( addr );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			printf( "TCP_SD[%d][%s] = %d\n", tcp_sd.size(), inet_ntoa_r( addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			printf( "TCP_SD[%d][%s] = %d\n", tcp_sd.size(), inet_ntop( AF_INET, &addr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
 #endif
 			tcp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
@@ -1349,13 +1353,13 @@ IpMessengerAgentImpl::InitRecv( const vector<NetworkInterface>& nics )
 		sock = InitUdpRecv( *addr );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			printf( "BROADCAST UDP_SD[%d][%s] = %d\n", udp_sd.size(), inet_ntoa_r( addr->sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			printf( "BROADCAST UDP_SD[%d][%s] = %d\n", udp_sd.size(), inet_ntop( AF_INET, &addr->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
 #endif
 			udp_sd.push_back( sock );
 		} else {
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			printf( "UDP Error=%s\n", inet_ntoa_r( addr->sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );fflush( stdout );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			printf( "UDP Error=%s\n", inet_ntop( AF_INET, &addr->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );fflush( stdout );
 		}
 	}
 
@@ -1545,8 +1549,8 @@ IpMessengerAgentImpl::RecvPacket()
 			}
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr, nowTime );
 #if defined(INFO) || !defined(NDEBUG)
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			inet_ntoa_r( sender_addr.sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			inet_ntop( AF_INET, &sender_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 			printf("recv from[%s][%s]\n", packet.HostName().c_str(), ipAddrBuf );fflush( stdout );
 #endif
 			packet.setTcpSocket( tcp_socket );
@@ -1603,7 +1607,7 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_in *sender_addr, int
 			}
 #if defined(DEBUG)
 			printf( "Recieved UDP_SD[%d] == %d\n", i, udp_sd[i] );fflush( stdout );
-			printf( "  IpAddr == 0x%08lx\n", (unsigned long)sender_addr->sin_addr.s_addr );fflush( stdout );
+			printf( "  IpAddr == 0x%08lx\n", (unsigned long)sender_addr->sin_addr);fflush( stdout );
 			printf( "  PortNo == %d\n", sender_addr->sin_port );fflush( stdout );
 #endif
 			IpMsgPrintBuf( "recvfrom buf", buf, size );
@@ -1871,9 +1875,9 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 	// ホストリストに追加
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
 	AddHostListFromPacket( packet );
-	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	if ( event != NULL ) {
 		if ( it != hostList.end() && !it->IsLocalHost() ) {
 			event->EntryAfter( *it );
@@ -1933,8 +1937,8 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrAbsence\n");fflush( stdout );
 #endif
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	hostList.DeleteHostByAddress( ipAddrBuf );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
 	if ( event != NULL ){
@@ -1960,8 +1964,8 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrExit\n");fflush( stdout );
 #endif
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	bool isFound = false;
 	HostListItem host;
 	if ( it != hostList.end() ) {
@@ -2135,8 +2139,8 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 		}
 		if ( _IsAbsence ) {
 			HostListItem host;
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			host.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			host.setIpAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 			host.setPortNo( ntohs( packet.Addr().sin_port ) );
 			host.setEncodingName( localEncoding );
 			vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
@@ -2159,8 +2163,8 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	if ( packet.CommandOption() & IPMSG_ENCRYPTOPT ){
 		if ( !DecryptMsg( packet, optionMessage ) ) {
 			HostListItem host;
-			char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-			host.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			host.setIpAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 			host.setPortNo( ntohs( packet.Addr().sin_port ) );
 			SendMsg( host, DecryptErrorMessage.c_str(), false, 1, true, IPMSG_AUTORETOPT );
 			optionMessage = "";
@@ -2344,8 +2348,8 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 	printf("UdpRecvAnsList\n");fflush( stdout );
 #endif
 	AddDefaultHost();
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	int nextstart = CreateHostList( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ),
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	int nextstart = CreateHostList( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ),
 									packet.HostName().c_str(),
 									packet.Option().c_str(),
 									packet.Option().length() );
@@ -2360,7 +2364,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 											sendBuf, sizeof( sendBuf ) );
 		SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	}
-	string packetIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	string packetIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	for( unsigned int i = 0; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			return 0;
@@ -2409,8 +2413,8 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 {
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	string pIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setVersion( packet.Option() );
@@ -2439,8 +2443,8 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 #endif
 	string AbsenceDescription = "";
 	if ( _IsAbsence  ){
-		char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-		string IpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+		char ipAddrBuf[IP_ADDR_MAX_SIZE];
+		string IpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 		string EncodingName = localEncoding;
 		vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( IpAddress );
 		if ( hostIt != hostList.end() ) {
@@ -2473,8 +2477,8 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 {
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	string pIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setAbsenceDescription( packet.Option() );
@@ -2645,8 +2649,8 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		return 0;
 	}
 	free( opt );
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	string pIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	string pIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
 		hostIt->setEncryptionCapacity( cap );
@@ -3514,8 +3518,8 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 #endif
 	AddDefaultHost();
 	// デフォルトのNIC(０番目)以外の自分自身のIPアドレスが登録依頼されたら無視。
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	string packetIpAddress = inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	string packetIpAddress = inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	for( unsigned int i = 1; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			AddDefaultHost();
@@ -3527,7 +3531,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	item.setUserName( packet.UserName() );
 	item.setHostName( packet.HostName() );
 	item.setCommandNo( packet.CommandOption() );
-	item.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
+	item.setIpAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	int NicknameLen = strlen( packet.Option().c_str() );
 	item.setNickname( packet.Option().c_str() );
 	item.setGroupName( packet.Option().c_str() + NicknameLen + 1 );
