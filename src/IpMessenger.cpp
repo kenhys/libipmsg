@@ -648,7 +648,7 @@ void
 NetworkInterface::setIpAddress( const std::string val )
 {
 	_IpAddress = val;
-	_NativeIpAddress = inet_addr( val.c_str() );
+	inet_pton( AF_INET, val.c_str(), (void *)&_NativeIpAddress );
 	recalc();
 }
 /**
@@ -659,7 +659,7 @@ void
 NetworkInterface::setNetMask( const std::string val )
 {
 	_NetMask = val;
-	_NativeNetMask = inet_addr( val.c_str() );
+	inet_pton( AF_INET, val.c_str(), (void *)&_NativeNetMask );
 	recalc();
 }
 /**
@@ -667,12 +667,11 @@ NetworkInterface::setNetMask( const std::string val )
  * @param val IPアドレス。
  */
 void
-NetworkInterface::setNativeIpAddress( const in_addr_t val )
+NetworkInterface::setNativeIpAddress( const struct in_addr val )
 {
 	_NativeIpAddress = val;
-	char ipAddrBuf[IPV4_ADDR_MAX_SIZE];
-	inet_ntoa_r( val, ipAddrBuf, sizeof( ipAddrBuf ) );
-	_IpAddress = ipAddrBuf;
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	_IpAddress = inet_ntop( AF_INET, &val, ipAddrBuf, sizeof( ipAddrBuf ) );
 	recalc();
 }
 /**
@@ -680,12 +679,11 @@ NetworkInterface::setNativeIpAddress( const in_addr_t val )
  * @param val ネットマスク。
  */
 void
-NetworkInterface::setNativeNetMask( const in_addr_t val )
+NetworkInterface::setNativeNetMask( const struct in_addr val )
 {
 	_NativeNetMask = val;
-	char netMaskBuf[IPV4_ADDR_MAX_SIZE];
-	inet_ntoa_r( val, netMaskBuf, sizeof( netMaskBuf ) );
-	_NetMask = netMaskBuf;
+	char netMaskBuf[IP_ADDR_MAX_SIZE];
+	_NetMask = inet_ntop( AF_INET, &val, netMaskBuf, sizeof( netMaskBuf ) );
 	recalc();
 }
 /**
@@ -694,13 +692,11 @@ NetworkInterface::setNativeNetMask( const in_addr_t val )
 void
 NetworkInterface::recalc()
 {
-	char buf[IPV4_ADDR_MAX_SIZE];
-	_NativeNetworkAddress = _NativeIpAddress & _NativeNetMask;
-	inet_ntoa_r( _NativeNetworkAddress, buf, sizeof( buf ) );
-	_NetworkAddress = buf;
+	char buf[IP_ADDR_MAX_SIZE];
+	_NativeNetworkAddress.s_addr = _NativeIpAddress.s_addr & _NativeNetMask.s_addr;
+	_NetworkAddress = inet_ntop( AF_INET, &_NativeNetworkAddress, buf, sizeof( buf ) );
 
-	_NativeBroadcastAddress = _NativeNetworkAddress | ( 0xffffffff ^ _NativeNetMask );
-	inet_ntoa_r( _NativeBroadcastAddress, buf, sizeof( buf ) );
-	_BroadcastAddress = buf;
+	_NativeBroadcastAddress.s_addr = _NativeNetworkAddress.s_addr | ( 0xffffffff ^ _NativeNetMask.s_addr );
+	_BroadcastAddress = inet_ntop( AF_INET, &_NativeBroadcastAddress, buf, sizeof( buf ) );
 }
 //end of source

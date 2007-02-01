@@ -315,7 +315,7 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 			vector<NetworkInterface> nics = agent->NICs;
 			string localaddr = nics[0].IpAddress();
 			for( unsigned int i = 0; i < nics.size(); i++ ){
-				if ( nics[i].NativeNetworkAddress() == (in_addr_t)( addr->sin_addr.s_addr & nics[i].NativeNetMask() ) ){
+				if ( nics[i].NativeNetworkAddress().s_addr == addr->sin_addr.s_addr & nics[i].NativeNetMask().s_addr ){
 					localaddr = nics[i].IpAddress();
 					break;
 				}
@@ -366,7 +366,7 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 	ret.setUserName( packet.UserName() );
 	ret.setCommandNo( packet.CommandMode() | packet.CommandOption() );
 	char tmp[100];
-	ret.setIpAddress( inet_ntoa_r( packet.Addr().sin_addr.s_addr, tmp, sizeof( tmp ) ) );
+	ret.setIpAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, tmp, sizeof( tmp ) ) );
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "CreateHostListItemFromPacket port %d\n", ntohs( packet.Addr().sin_port ) );fflush(stdout);
 #endif
