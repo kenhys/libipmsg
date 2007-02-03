@@ -736,7 +736,11 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	char optBuf[GetMaxOptionBufferSize() + 1];
+	int optBufSize = GetMaxOptionBufferSize() + 1;
+	char *optBuf = (char *)calloc( optBufSize, 1 );
+	if ( optBuf == NULL ) {
+		exit(1);
+	}
 	int optBufLen = 0;
 	struct sockaddr_in addr;
 	bool isEncrypted = false;
@@ -746,14 +750,14 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 
 	RecvPacket();
 
-	optBufLen = sizeof( optBuf ) < msg.size() ? sizeof( optBuf ) : msg.size();
+	optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 	memcpy( optBuf, msg.c_str(), optBufLen );
 #ifdef HAVE_OPENSSL
 	//OpenSSLサポートが有効なら、暗号化
-	if ( isSecret && EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, sizeof( optBuf ) ) ) {
+	if ( isSecret && EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, optBufSize ) ) {
 		isEncrypted = true;
 	} else {
-		optBufLen = sizeof( optBuf ) < msg.size() ? sizeof( optBuf ) : msg.size();
+		optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 		memcpy( optBuf, msg.c_str(), optBufLen );
 	}
 #endif	//HAVE_OPENSSL
@@ -790,8 +794,8 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 	printf( "(2)optBufLen = %d, fileBufLen = %d", optBufLen, fileBufLen );fflush(stdout);
 #endif
 	IpMsgPrintBuf( "fileBuf2:", fileBuf, fileBufLen );
-	if ( optBufLen >= (int)sizeof( optBuf ) - 1 ) {
-		optBufLen = sizeof( optBuf ) - 1;
+	if ( optBufLen >= (int) optBufSize - 1 ) {
+		optBufLen =  optBufSize - 1;
 	}
 	optBuf[ optBufLen ] = '\0';
 
@@ -846,6 +850,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 	printf("sentMsgList.append() size=%d\n", sentMsgList.size() );fflush( stdout );
 #endif
 
+	free( optBuf );
 	return message;
 }
 
@@ -2774,11 +2779,11 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 														IPMSG_FILE_DIR,
 														IPMSG_FILE_MTIME, (long)st.st_mtime,
 														IPMSG_FILE_CREATETIME, (long)st.st_ctime );
-	snprintf( headBuf, sizeof(headBuf),"%04x", headBufLen );
+	snprintf( headBuf, sizeof( headBuf ),"%04x", headBufLen );
 	headBuf[4] = ':';
 	send( sock, headBuf, headBufLen, 0 );
 
-	char buf[ offsetof( struct dirent, d_name ) + pathconf( dir.c_str(), _PC_NAME_MAX ) + 1 ];
+	char *buf = (char *)calloc( offsetof( struct dirent, d_name ) + pathconf( dir.c_str(), _PC_NAME_MAX ) + 1 , 1 );
 	struct dirent *bufdent = ( struct dirent * )buf;
 	struct dirent *dent = NULL;
 	while( readdir_r( d, bufdent, &dent ) == 0 && dent != NULL ) {
@@ -2795,6 +2800,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 #endif
 				if ( !SendDirData( sock, dent->d_name, dir_name, files ) ){
 					closedir( d );
+					free( buf );
 					return false;
 				}
 			} else {
@@ -2813,6 +2819,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 
 				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size, NULL , 0 ) ){
 					closedir( d );
+					free( buf );
 					return false;
 				}
 			}
@@ -2823,6 +2830,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 	headBuf[4] = ':';
 	send( sock, headBuf, headBufLen, 0 );
 	closedir( d );
+	free( buf );
 	return true;
 }
 

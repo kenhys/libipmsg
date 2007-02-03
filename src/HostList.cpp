@@ -531,7 +531,7 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 			printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
 			printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
 #endif
-		iter_swap( items.begin() + i, items.begin() + j );
+			std::iter_swap( items.begin() + i, items.begin() + j );
 #if defined(INFO) || !defined(NDEBUG)
 		printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
 		printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
