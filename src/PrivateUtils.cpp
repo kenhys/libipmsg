@@ -3,6 +3,7 @@
 #endif
 
 #include <IpMessenger.h>
+#include <pwd.h>
 
 #if defined(DEBUG) || defined(INFO)
 #include <IpMessengerImpl.h>
@@ -388,4 +389,37 @@ IpMsgPortToStr( int portNo )
 		IpMsgIntToString( buf, sizeof( buf ), PdpEndianToLittleEndian( htons( portNo ) ) );
 	}
 	return std::string( buf );
+}
+
+#ifdef __sun
+#define IPMSG_HOST_NAME_MAX _POSIX_HOST_NAME_MAX + 1
+#define IPMSG_GETPW_R_SIZE_MAX NSS_BUFLEN_PASSWD
+#else
+#define IPMSG_HOST_NAME_MAX sysconf( _SC_HOST_NAME_MAX )  + 1
+#define IPMSG_GETPW_R_SIZE_MAX sysconf(_SC_GETPW_R_SIZE_MAX)
+#endif
+
+std::string
+IpMsgGetHostName()
+{
+	char hostbuf[IPMSG_HOST_NAME_MAX];
+
+	//なるべくAPIで取得する。出来なければ、localhostを設定。
+	memset( hostbuf, 0, sizeof( hostbuf ) );
+	if ( gethostname( hostbuf, sizeof( hostbuf ) ) == 0 ){
+		return std::string( hostbuf );
+	}
+	return "";
+}
+std::string
+IpMsgGetLoginName( uid_t uid )
+{
+	struct passwd login;
+	char buf[IPMSG_GETPW_R_SIZE_MAX];
+	struct passwd *pw;
+	//なるべくAPIで取得する。出来なければ、uidを設定。
+	if ( getpwuid_r( uid, &login, buf, sizeof( buf ), &pw ) == 0 ) {
+		return std::string(login.pw_name);
+	}
+	return "";
 }

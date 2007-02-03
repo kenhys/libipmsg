@@ -105,7 +105,6 @@ HostList::Unlock( const char *pos ) const
  * ホストリストの先頭を示すイテレータを返す。
  * @retval ホストリストの先頭を示すイテレータ。
  */
-inline
 std::vector<HostListItem>::iterator
 HostList::begin()
 {
@@ -116,7 +115,6 @@ HostList::begin()
  * ホストリストの末尾＋１を示すイテレータを返す。
  * @retval ホストリストの末尾＋１を示すイテレータ。
  */
-inline
 std::vector<HostListItem>::iterator
 HostList::end()
 {

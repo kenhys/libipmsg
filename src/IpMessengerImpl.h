@@ -43,6 +43,9 @@ const int IPMSG_DEFAULT_PORT=0x0979;
 
 namespace ipmsg {
 
+extern "C" void *GetFileDataThread( void *param );
+extern "C" void *GetDirFilesThread( void *param );
+
 /**
  * IP Messenger エージェント実装クラス。(ライブラリ内部使用)
  */
@@ -263,5 +266,7 @@ int IpMsgIntToString( char *buf, ssize_t bufsize, int val );
 int IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val );
 int IpMsgUChrToHexString( char buf[3], const unsigned char val );
 std::string IpMsgPortToStr( int portNo );
+std::string IpMsgGetLoginName( uid_t uid );
+std::string IpMsgGetHostName();
 
 #endif

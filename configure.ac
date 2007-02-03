@@ -101,10 +101,10 @@ fi
 AC_ARG_ENABLE(debug,
 		AC_HELP_STRING([--enable-debug],[Debug message support @<:@default=no@:>@]), ,[enable_debug=no])
 if test "x$enable_debug" = xno; then
-	CXXFLAGS="-DNDEBUG"
+	CXXFLAGS="$CXXFLAGS -DNDEBUG"
 	echo Debug support disabled.
 else
-	CXXFLAGS="-g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum"
+	CXXFLAGS="$CXXFLAGS -g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum"
 #	CXXFLAGS="-g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum -Weffc++"
 #	CXXFLAGS="$CXXFLAGS -Wextra -Wstrict-aliasing=2 -Woverload-virtual"
 	echo Debug support enabled.

@@ -11,14 +11,9 @@
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
 #include <pthread.h>
-#include <pwd.h>
-//using namespace std;
 using namespace ipmsg;
 
 static IpMessengerAgentImpl *myInstance = NULL;
-
-void *GetFileDataThread( void *param );
-void *GetDirFilesThread( void *param );
 
 static pthread_mutex_t instanceMutex;
 static int mutex_init_result = IpMsgMutexInit( "IpMessengerImpl::Global", &instanceMutex, NULL );
@@ -453,28 +448,15 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& ni
 void
 IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 {
-	char hostbuf[sysconf( _SC_HOST_NAME_MAX )  + 1];
-
-	_HostName = "";
-	//なるべくAPIで取得する。出来なければ、localhostを設定。
-	memset( hostbuf, 0, sizeof( hostbuf ) );
-	if ( gethostname( hostbuf, sizeof( hostbuf ) ) == 0 ){
-		_HostName = hostbuf;
-	}
+	_HostName = IpMsgGetHostName();
 	if ( _HostName == "" ) {
 		_HostName = "localhost";
 	}
 
-	struct passwd login;
-	char buf[sysconf(_SC_GETPW_R_SIZE_MAX)];
-	struct passwd *pw;
 	uid_t uid = getuid();
-	_LoginName = "";
-	//なるべくAPIで取得する。出来なければ、uidを設定。
-	if ( getpwuid_r( uid, &login, buf, sizeof( buf ), &pw ) == 0 ) {
-		_LoginName = login.pw_name;
-	}
+	_LoginName = IpMsgGetLoginName( uid );
 	if ( _LoginName == "" ){
+		char buf[100];
 		IpMsgIntToString( buf, sizeof( buf ), uid );
 		_LoginName = buf;
 	}
