@@ -1,5 +1,5 @@
 %define name libipmsg
-%define version 0.1.2
+%define version 0.1.3
 %define release 0vl0
 
 Summary: 	Ip Messenger Library
@@ -18,7 +18,7 @@ BuildRequires: 	openssl-devel
 Ip Messenger Library is comunicate with The IpMessenger(famous windows application)
 
 %description -l ja
-Ip Messenger ライブラリはIpMessengerと会話します(Windows上の有名なアプリケーション)
+Ip Messenger ライブラリはIpMessenger(Windows上の有名なアプリケーション)と会話します
 
 %package devel
 Summary: 	Ip Messenger Library Development kit
@@ -57,7 +57,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libipmsg.*a
 
 %changelog
-* Mon Jan 29 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.2-0vl0
+* Wed Feb 28 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.3-0vl0
+- New upstream release.
+
+* Mon Jan 20 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.2-0vl0
 - New upstream release.
 
 * Fri Dec 29 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.1-0vl0
