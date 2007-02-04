@@ -11,26 +11,6 @@
 #include "IpMessengerImpl.h"
 #include "ipmsg.h"
 
-#if defined(__linux__)
-    #include <linux/version.h>
-    #if LINUX_VERSION_CODE > KERNEL_VERSION(2,2,0)
-        #define SUPPORT_SENDFILE_LINUX_STYLE
-        #include <sys/sendfile.h>
-    #endif // LINUX_VERSION_CODE
-#endif // __linux__
-#if defined(__FreeBSD__) || defined(__DragonFly__)
-    #define SUPPORT_SENDFILE_BSD_STYLE
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <sys/uio.h>
-#endif // __FreeBSD__,__DragonFly__
-#if defined(__solaris__)
-    #define SUPPORT_SENDFILE_SOLARIS_STYLE
-#endif // __solaris__
-#if defined(__HPUX__)
-    #define SUPPORT_SENDFILE_HPUX_STYLE
-#endif // __HPUX__
-
 using namespace ipmsg;
 
 static int file_id = 0;
@@ -428,45 +408,4 @@ AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
 	}
 
 	return f;
-}
-/**
- * ファイルバッファ送信メソッド。
- * <ul>
- * <li>sendfileがサポートされているプラットフォームではsendfileシステムコールを使って高速化。ケースバイケースだが実装によってはゼロコピーになる。<br>
- * でも、テストが出来ませんねぇ。とりあえず、Solarisとhp-uxはデフォルトのread/write実装を使うので遅い。Linuxでは4-5MBのファイルだと2倍違うこともある</li>
- * </ul>
- */
-int
-AttachFile::SendFileBuffer( int ifd, int sock, int size )
-{
-#if defined(SUPPORT_SENDFILE_LINUX_STYLE)
-	//Linux用
-	//printf("sendfile as sendfile syscall by linux\n");
-	return sendfile( sock, ifd, NULL, size );
-#elif defined(SUPPORT_SENDFILE_BSD_STYLE)
-	//printf("sendfile as sendfile syscall by freebsd\n");
-	//FreeBSD用
-	return sendfile( sock, ifd, NULL, size, NULL, NULL, 0 );
-/*
-// TODO solaris support start from here.
-#elif defined( SUPPORT_SENDFILE_SOLARIS_STYLE )
-// TODO hp-ux support start from here.
-#if 0
-//#elif defined(SUPPORT_SENDFILE_HPUX_STYLE)
-	printf("sendfile as sendfile syscall by hp-ux\n");
-	//FreeBSD用
-	return sendfile( sock, ifd, NULL, size, NULL, 0 );
-#endif
-// TODO hp-ux support end.
-*/
-#else
-	//printf("sendfile as read write\n");
-	//デフォルト実装
-	char readbuf[8192];
-	int readSize = read( ifd, readbuf, sizeof( readbuf ) );
-	if ( readSize > 0 ){
-		return send( sock, readbuf, readSize, 0 );
-	}
-	return -1;
-#endif // SUPPORT_SENDFILE_LINUX, SUPPORT_SENDFILE_FREEBSD
 }

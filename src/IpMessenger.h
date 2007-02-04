@@ -271,7 +271,6 @@ class AttachFile{
 		bool IsRegularFile() const;
 		bool IsDirectory() const;
 		void GetLocalFileInfo();
-		static int SendFileBuffer( int ifd, int sock, int size );
 	private:
 		std::map<std::string, std::vector<unsigned long> > _ExtAttrs;
 	public:
