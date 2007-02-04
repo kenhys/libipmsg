@@ -306,13 +306,13 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 		HostListItem item = items.at( i );
 		//自分のIPアドレスを返す場合で他のネットワーク向けのアドレスを持っている場合に、
 		//そちらのインターフェースのアドレスを返す。
-		int len = 0;
+		size_t len = 0;
 		if ( item.IsLocalHost() ) {
 			IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 			std::vector<NetworkInterface> nics = agent->NICs;
 			std::string localaddr = nics[0].IpAddress();
 			for( unsigned int i = 0; i < nics.size(); i++ ){
-				if ( nics[i].NativeNetworkAddress().s_addr == addr->sin_addr.s_addr & nics[i].NativeNetMask().s_addr ){
+				if ( isSameNetwork( addr->sin_addr, nics[i].NativeNetworkAddress(), nics[i].NativeNetMask() ) ){
 					localaddr = nics[i].IpAddress();
 					break;
 				}
