@@ -244,12 +244,11 @@ class IpMessengerAgentImpl {
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
 
 #define	IP_ADDR_MAX_SIZE	INET6_ADDRSTRLEN + 1
-
-}; //namespace ipmsg
+int IpMsgSendFileBuffer( int ifd, int sock, int size );
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
-void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in sender_addr );
+void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in *sender_addr );
 std::string GetCommandString( unsigned  long cmd );
 void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
 #else
@@ -264,9 +263,13 @@ int IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex );
 int IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex );
 int IpMsgIntToString( char *buf, ssize_t bufsize, int val );
 int IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val );
-int IpMsgUChrToHexString( char buf[3], const unsigned char val );
+int IpMsgUCharToHexString( char buf[3], const unsigned char val );
 std::string IpMsgPortToStr( int portNo );
 std::string IpMsgGetLoginName( uid_t uid );
 std::string IpMsgGetHostName();
+bool isSameNetwork(  struct in_addr addr, struct in_addr ifnetaddr, struct in_addr netmask );
+struct in_addr GetBroadcastAddress( struct in_addr net_addr, struct in_addr netmask );
+
+}; //namespace ipmsg
 
 #endif
