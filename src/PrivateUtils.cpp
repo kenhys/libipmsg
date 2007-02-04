@@ -5,6 +5,27 @@
 #include <IpMessenger.h>
 #include <pwd.h>
 
+#if defined(__linux__)
+    #include <linux/version.h>
+    #if LINUX_VERSION_CODE > KERNEL_VERSION(2,2,0)
+        #define SUPPORT_SENDFILE_LINUX_STYLE
+        #include <sys/sendfile.h>
+    #endif // LINUX_VERSION_CODE
+#endif // __linux__
+#if defined(__FreeBSD__) || defined(__DragonFly__)
+    #define SUPPORT_SENDFILE_BSD_STYLE
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <sys/uio.h>
+#endif // __FreeBSD__,__DragonFly__
+#if defined(__sun)
+    #define SUPPORT_SENDFILE_SOLARIS_STYLE
+#endif // __solaris__
+#if defined(__HPUX__)
+    #define SUPPORT_SENDFILE_HPUX_STYLE
+#endif // __HPUX__
+
+
 #if defined(DEBUG) || defined(INFO)
 #include <IpMessengerImpl.h>
 #include <ctype.h>
@@ -18,7 +39,7 @@
  * @param size バッファサイズ
  */
 void
-IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
+ipmsg::IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 {
 	int continue_count = 0;
 	unsigned char pchar = *buf;
@@ -56,8 +77,8 @@ IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
  * @param cmd コマンド
  * @retval コマンド文字列
  */
-string
-GetCommandString( unsigned long cmd )
+std::string
+ipmsg::GetCommandString( unsigned long cmd )
 {
 	switch( cmd ){
 		case IPMSG_NOOPERATION:     return "IPMSG_NOOPERATION";
@@ -94,13 +115,13 @@ GetCommandString( unsigned long cmd )
  * @param sender_addr 送信元IPアドレス
  */
 void
-IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in sender_addr ){
+ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in *sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
 	char ipaddrbuf[IP_ADDR_MAX_SIZE];
-	printf( "send from %s(%d)\n", inet_ntop( AF_INET, &sender_addr.sin_addr, ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr.sin_port ) );fflush(stdout);
+	printf( "send from %s(%d)\n", inet_ntop( AF_INET, &( sender_addr->sin_addr ) , ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr->sin_port ) );fflush(stdout);
 	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
 	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
-	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
+	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), ipmsg::GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
 	printf( "CommandOption[%ld]\n", packet.CommandOption() );fflush(stdout);
 	printf( "HostName     [%s]\n", packet.HostName().c_str() );fflush(stdout);
 	printf( "UserName     [%s]\n", packet.UserName().c_str() );fflush(stdout);
@@ -114,7 +135,7 @@ IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in sender_addr ){
  * @param hostList ホストリストオブジェクト
  */
 void
-IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
+ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 {
 	char head[]="=======================================================>\n";
 	char foot[]="<=======================================================\n";
@@ -123,7 +144,7 @@ IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 	memcpy( foot+2, s, strlen( s ) );
 	printf("\n\n");fflush(stdout);
 	printf("%s", head );fflush(stdout);
-	for( vector<ipmsg::HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
+	for( std::vector<ipmsg::HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
 		printf( "Version[%s]\n" \
 				"AbsenceDescription[%s]\n" \
 				"User[%s]\n" \
@@ -164,7 +185,7 @@ IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
  * @retval pthread_mutex_initの戻り値
  */
 int
-IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr )
+ipmsg::IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
@@ -187,7 +208,7 @@ IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr
  * @retval pthread_mutex_lockの戻り値
  */
 int
-IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
+ipmsg::IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
@@ -210,7 +231,7 @@ IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
  * @retval pthread_mutex_unlockの戻り値
  */
 int
-IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
+ipmsg::IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
@@ -233,7 +254,7 @@ IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
  * @retval pthread_mutex_destroyの戻り値
  */
 int
-IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
+ipmsg::IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
@@ -257,7 +278,7 @@ IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
  * @retval 変換した長さ(書込でバッファ長を超えた場合はバッファ長)
  */
 int
-IpMsgIntToString( char *buf, ssize_t bufsize, int val )
+ipmsg::IpMsgIntToString( char *buf, ssize_t bufsize, int val )
 {
 	int ret = snprintf( buf, bufsize, "%d", val );
 	if ( ret >= bufsize ){
@@ -275,7 +296,7 @@ IpMsgIntToString( char *buf, ssize_t bufsize, int val )
  * @retval 変換した長さ(書込でバッファ長を超えた場合はバッファ長)
  */
 int
-IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
+ipmsg::IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
 {
 	int ret = snprintf( buf, bufsize, "%lu", val );
 	if ( ret >= bufsize ){
@@ -292,7 +313,7 @@ IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
  * @retval 変換した長さ(書込でバッファ長を超えた場合はバッファ長)
  */
 int
-IpMsgUChrToHexString( char buf[3], const unsigned char val )
+ipmsg::IpMsgUCharToHexString( char buf[3], const unsigned char val )
 {
 #if 0
 	int ret = snprintf( buf, sizeof( buf ), "%02x", val );
@@ -378,7 +399,7 @@ PdpEndianToLittleEndian( int val )
 }
 
 std::string
-IpMsgPortToStr( int portNo )
+ipmsg::IpMsgPortToStr( int portNo )
 {
 	char buf[100];
 	if ( endian == __IPMSG_LITTLE_ENDIAN__ ) {
@@ -400,7 +421,7 @@ IpMsgPortToStr( int portNo )
 #endif
 
 std::string
-IpMsgGetHostName()
+ipmsg::IpMsgGetHostName()
 {
 	char hostbuf[IPMSG_HOST_NAME_MAX];
 
@@ -412,7 +433,7 @@ IpMsgGetHostName()
 	return "";
 }
 std::string
-IpMsgGetLoginName( uid_t uid )
+ipmsg::IpMsgGetLoginName( uid_t uid )
 {
 	struct passwd login;
 	char buf[IPMSG_GETPW_R_SIZE_MAX];
@@ -422,4 +443,93 @@ IpMsgGetLoginName( uid_t uid )
 		return std::string(login.pw_name);
 	}
 	return "";
+}
+
+/**
+ * ファイルバッファ送信メソッド。
+ * <ul>
+ * <li>sendfileがサポートされているプラットフォームではsendfileシステムコールを使って高速化。ケースバイケースだが実装によってはゼロコピーになる。<br>
+ * でも、テストが出来ませんねぇ。とりあえず、hp-uxはデフォルトのread/write実装を使うので遅い。Linuxでは4-5MBのファイルだと2倍違うこともある</li>
+ * </ul>
+ */
+int
+ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
+{
+#if defined(SUPPORT_SENDFILE_LINUX_STYLE)
+	//Linux用
+	//printf("sendfile as sendfile syscall by linux\n");
+	return sendfile( sock, ifd, NULL, size );
+#elif defined(SUPPORT_SENDFILE_BSD_STYLE)
+	//printf("sendfile as sendfile syscall by freebsd\n");
+	//FreeBSD用
+	return sendfile( sock, ifd, NULL, size, NULL, NULL, 0 );
+/*
+// TODO solaris support start from here.
+#elif defined( SUPPORT_SENDFILE_SOLARIS_STYLE )
+// TODO hp-ux support start from here.
+#if 0
+//#elif defined(SUPPORT_SENDFILE_HPUX_STYLE)
+	printf("sendfile as sendfile syscall by hp-ux\n");
+	//FreeBSD用
+	return sendfile( sock, ifd, NULL, size, NULL, 0 );
+#endif
+// TODO hp-ux support end.
+*/
+#else
+	//printf("sendfile as read write\n");
+	//デフォルト実装
+	char readbuf[8192];
+	int readSize = read( ifd, readbuf, sizeof( readbuf ) );
+	if ( readSize > 0 ){
+		return send( sock, readbuf, readSize, 0 );
+	}
+	return -1;
+#endif // SUPPORT_SENDFILE_LINUX, SUPPORT_SENDFILE_FREEBSD
+}
+
+/**
+ * 同じネットワークに属しているかを判定するメソッド。
+ * <ul>
+ * <li>アドレスがNICと同じネットワークに属しているかを判定。
+ * </ul>
+ * @param addr 判定するIPアドレス。
+ * @param ifnetaddr NICのネットワークアドレス。
+ * @param netmask ネットマスク。
+ * @retval true:同じネットワーク。
+ * @retval false:違うネットワーク。
+ */
+bool
+ipmsg::isSameNetwork(  struct in_addr addr, struct in_addr ifnetaddr, struct in_addr netmask )
+{
+#if defined(DEBUG) || defined(INFO)
+	char ipaddrbuf[IP_ADDR_MAX_SIZE];
+	printf( "ADDR %s & ", inet_ntop( AF_INET, &addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+	printf( "NETMASK %s", inet_ntop( AF_INET, &netmask, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+	struct in_addr tmp;
+	tmp.s_addr = addr.s_addr & netmask.s_addr;
+	printf( "(%s) ", inet_ntop( AF_INET, &tmp, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+	printf( "%s", ifnetaddr.s_addr == tmp.s_addr ? "==" : "!=" );fflush(stdout);
+	printf( " IFNET %s\n", inet_ntop( AF_INET, &ifnetaddr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+#endif
+	return ifnetaddr.s_addr == ( addr.s_addr & netmask.s_addr );
+}
+
+/**
+ * ブロードキャストアドレスを取得する。
+ * @param net_addr ネットワークアドレス。
+ * @param netmask ネットマスク。
+ * @retval ブロードキャストアドレス。
+ */
+struct in_addr
+ipmsg::GetBroadcastAddress( struct in_addr net_addr, struct in_addr netmask )
+{
+	struct in_addr ret;
+	ret.s_addr = net_addr.s_addr | ( 0xffffffff ^ netmask.s_addr );
+#if defined(DEBUG) || defined(INFO)
+	char ipaddrbuf[IP_ADDR_MAX_SIZE];
+	printf( "BROADCAST %s = ", inet_ntop( AF_INET, &ret, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+	printf( "NERADDR %s | ", inet_ntop( AF_INET, &net_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+	printf( "0xffffffff ^ NETMASK %s\n", inet_ntop( AF_INET, &netmask, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
+#endif
+	return ret;
 }
