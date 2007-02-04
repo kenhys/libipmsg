@@ -315,14 +315,6 @@ ipmsg::IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
 int
 ipmsg::IpMsgUCharToHexString( char buf[3], const unsigned char val )
 {
-#if 0
-	int ret = snprintf( buf, sizeof( buf ), "%02x", val );
-	if ( ret >= sizeof( buf ) ){
-		buf[ sizeof( buf ) - 1 ] = '\0';
-		ret = sizeof( buf ) - 1;
-	}
-	return ret;
-#else
 	const char *hex[]={
 		"00","01","02","03","04","05","06","07",  "08","09","0a","0b","0c","0d","0e","0f",
 		"10","11","12","13","14","15","16","17",  "18","19","1a","1b","1c","1d","1e","1f",
@@ -343,7 +335,6 @@ ipmsg::IpMsgUCharToHexString( char buf[3], const unsigned char val )
 	};
 	strcpy( buf, hex[val]);
 	return 2;
-#endif
 }
 
 #define __IPMSG_LITTLE_ENDIAN__ 4321
