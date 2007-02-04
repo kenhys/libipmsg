@@ -267,8 +267,6 @@ RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file,
 
 	svr_addr = MessagePacket().Addr();
 #if defined(DEBUG)
-char ipaddrbuf[IP_ADDR_MAX_SIZE];
-printf("IP[%s]\n", inet_ntoa_r( svr_addr.sin_addr.s_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
 printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdout);
 #endif
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
@@ -282,7 +280,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
-	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
+	size_t optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
 	if ( optBufLen <= sizeof( optBuf ) ) {
 		return false;
 	}
@@ -494,7 +492,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
-	int optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x", MessagePacket().PacketNo(), file.FileId() );
+	size_t optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x", MessagePacket().PacketNo(), file.FileId() );
 	if ( optBufLen <= sizeof( optBuf ) ) {
 		return false;
 	}
