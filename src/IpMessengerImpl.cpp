@@ -511,10 +511,6 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-#if 0
-	char optBuf[MAX_UDPBUF];
-	int optBufLen = 0;
-#endif
 
 	SendNoOperation();
 
@@ -736,7 +732,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	int optBufSize = GetMaxOptionBufferSize() + 1;
+	size_t optBufSize = GetMaxOptionBufferSize() + 1;
 	char *optBuf = (char *)calloc( optBufSize, 1 );
 	if ( optBuf == NULL ) {
 		exit(1);
@@ -772,7 +768,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 	for( std::vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
 		ixfile->GetLocalFileInfo();
 		std::string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
-		int wsize = snprintf( &fileBuf[ fileBufLen ], sizeof( fileBuf ) - fileBufLen - 1,
+		size_t wsize = snprintf( &fileBuf[ fileBufLen ], sizeof( fileBuf ) - fileBufLen - 1,
 							"%d:%s:%llx:%lx:%lx:\a",
 							ixfile->FileId(), filename.c_str(), ixfile->FileSize(), (unsigned long)ixfile->MTime(), ixfile->Attr() );
 		//添付ファイルの総数が送信バッファを超えたまたはsprintfが書ききらなかった。
@@ -1125,7 +1121,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons( nics[i].PortNo() );
-		addr.sin_addr.s_addr = nics[i].NativeNetworkAddress().s_addr | ( 0xffffffff ^ nics[i].NativeNetMask().s_addr );
+		addr.sin_addr = GetBroadcastAddress( nics[i].NativeNetworkAddress(), nics[i].NativeNetMask() );
 		bool IsFound = false;
 		for( std::vector<struct sockaddr_in>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
 			if ( addr.sin_port == i->sin_port && addr.sin_addr.s_addr == i->sin_addr.s_addr ) {
@@ -1251,15 +1247,17 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
 	int sock = udp_sd[0];
 #if defined(DEBUG)
 	std::string from_addr = sd_addr.begin()->second.IpAddress();
+
+	char ipAddrBuf[IP_ADDR_MAX_SIZE];
+	printf( "Addr %s(%d)\n", inet_ntop( AF_INET, &addr->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr->sin_port ) );fflush( stdout );
 #endif
 	for( std::map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
 #if defined(DEBUG)
 		printf( "Send Check Before %s(%d)\n",
 				i->second.IpAddress().c_str(),
 				i->second.PortNo() );fflush( stdout );
-		printf( "addr=%lx net=%lx\n", (long)i->second.NativeNetworkAddress(), (unsigned long)( addr->sin_addr.s_addr & i->second.NativeNetMask() ) );fflush( stdout );
 #endif
-		if ( i->second.NativeNetworkAddress().s_addr == addr->sin_addr.s_addr & i->second.NativeNetMask().s_addr ) {
+		if ( isSameNetwork( addr->sin_addr, i->second.NativeNetworkAddress() ,i->second.NativeNetMask() ) ) {
 			sock = i->first;
 #if defined(DEBUG)
 			from_addr = i->second.IpAddress();
@@ -1271,7 +1269,6 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_in *addr, char *buf, int 
 		}
 	}
 #if defined(DEBUG)
-	char ipAddrBuf[IP_ADDR_MAX_SIZE];
 	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), inet_ntop( AF_INET, &addr->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), ntohs( addr->sin_port ) );fflush( stdout );
 #endif
 	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sizeof( struct sockaddr ) );
@@ -1537,13 +1534,16 @@ IpMessengerAgentImpl::RecvPacket()
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr, nowTime );
 #if defined(INFO) || !defined(NDEBUG)
 			char ipAddrBuf[IP_ADDR_MAX_SIZE];
-			inet_ntop( AF_INET, &sender_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+			inet_ntop( AF_INET, &( sender_addr.sin_addr ), ipAddrBuf, sizeof( ipAddrBuf ) );
 			printf("recv from[%s][%s]\n", packet.HostName().c_str(), ipAddrBuf );fflush( stdout );
 #endif
 			packet.setTcpSocket( tcp_socket );
 			//同一セッション内だけパケットの一意性をチェック。重複パケットは無視
 			if ( !FindDuplicatePacket( packet ) ) {
-				IpMsgDumpPacket( packet, packet.Addr() );
+#if defined(INFO) || !defined(NDEBUG)
+				struct sockaddr_in tempAddr = packet.Addr();	
+				IpMsgDumpPacket( packet, &tempAddr );
+#endif
 				pack_que.push_back( packet );
 				PacketsForChecking.push_back( packet );
 				ret++;
@@ -1593,9 +1593,9 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_in *sender_addr, int
 				perror("recvfrom");
 			}
 #if defined(DEBUG)
-			printf( "Recieved UDP_SD[%d] == %d\n", i, udp_sd[i] );fflush( stdout );
-			printf( "  IpAddr == 0x%08lx\n", (unsigned long)sender_addr->sin_addr);fflush( stdout );
-			printf( "  PortNo == %d\n", sender_addr->sin_port );fflush( stdout );
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			inet_ntop( AF_INET, &( sender_addr->sin_addr ), ipAddrBuf, sizeof( ipAddrBuf ) );
+			printf( "Recieved UDP_SD[%d] == %d[%s]\n", i, udp_sd[i], ipAddrBuf );fflush( stdout );
 #endif
 			IpMsgPrintBuf( "recvfrom buf", buf, size );
 			recieved = true;
@@ -2871,7 +2871,7 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 	}
 	lseek( fd, offset, SEEK_SET );
 	int readSize;
-	while( ( readSize = AttachFile::SendFileBuffer( fd, sock, 8192 ) ) > 0 ){
+	while( ( readSize = IpMsgSendFileBuffer( fd, sock, 8192 ) ) > 0 ){
 		if ( AbortDownloadAtFileChanged() ){
 			struct stat statProgress;
 			if ( stat( realPathName, &statProgress ) != 0 ){
@@ -3230,7 +3230,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		char sendBuf[MAX_UDPBUF];
 		int sendBufLen;
 		char optBuf[MAX_UDPBUF];
-		int optBufLen;
+		size_t optBufLen;
 		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx", encryptionCapacity );
 		if ( optBufLen >= sizeof(optBuf) ){
 			optBufLen = sizeof(optBuf);
@@ -3503,7 +3503,8 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	printf("===================================\n");fflush( stdout );
 	printf("AddHostListFromPacket\n");fflush( stdout );
 	printf("===================================\n");fflush( stdout );
-	IpMsgDumpPacket( packet, packet.Addr() );
+	struct sockaddr_in tempAddr = packet.Addr();
+	IpMsgDumpPacket( packet, &tempAddr );
 	printf("===================================\n");fflush( stdout );
 #endif
 	AddDefaultHost();
