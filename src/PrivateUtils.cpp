@@ -3,6 +3,9 @@
 #endif
 
 #include <IpMessenger.h>
+#include <IpMessengerImpl.h>
+#include <ctype.h>
+#include <ipmsg.h>
 #include <pwd.h>
 
 #if defined(__linux__)
@@ -27,9 +30,6 @@
 
 
 #if defined(DEBUG) || defined(INFO)
-#include <IpMessengerImpl.h>
-#include <ctype.h>
-#include <ipmsg.h>
 
 /**
  * バッファをプリントする。
