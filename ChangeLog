@@ -1,3 +1,10 @@
+2007-02-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:warnings.
+- Fix:Move OS depending code to PrivateUtils.cpp from AttachFile.cpp.
+- Fix:ipmsg namespace.
+- Fix:(bug)Broadcast to different network.
+- Update:Cleanup codes.
+
 2007-02-03 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Port for Sun Studio 11.
 - Update:Port for Solaris 10.
