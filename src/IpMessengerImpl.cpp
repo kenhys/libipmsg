@@ -1303,7 +1303,8 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 		struct sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons( nics[i].PortNo() );
-		addr.sin_addr.s_addr = inet_addr( nics[i].IpAddress().c_str() );
+//		addr.sin_addr.s_addr = inet_addr( nics[i].IpAddress().c_str() );
+		addr.sin_addr = nics[i].NativeIpAddress();
 
 		int sock = -1;
 
@@ -1329,8 +1330,21 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 		} else {
 			printf( "TCP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
 		}
-	}
 
+		addr.sin_addr = nics[i].NativeBroadcastAddress();
+		sock = InitUdpRecv( addr );
+		if ( sock > 0 ) {
+#if defined(INFO) || !defined(NDEBUG)
+			char ipAddrBuf[IP_ADDR_MAX_SIZE];
+			printf( "UDP_SD[%d][%s] = %d\n", udp_sd.size(), inet_ntop( AF_INET, &addr.sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ), sock );fflush( stdout );
+#endif
+			udp_sd.push_back( sock );
+			sd_addr[sock] = nics[i];
+		} else {
+			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
+		}
+	}
+#if 0
 	for( std::vector<struct sockaddr_in>::iterator addr = broadcastAddr.begin(); addr != broadcastAddr.end(); addr++ ){
 		int sock = -1;
 
@@ -1346,7 +1360,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			printf( "UDP Error=%s\n", inet_ntop( AF_INET, &addr->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );fflush( stdout );
 		}
 	}
-
+#endif
 	FD_ZERO( &rfds );
 
 	max_sd = -1;
