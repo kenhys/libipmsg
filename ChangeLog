@@ -1,4 +1,6 @@
+
 2007-02-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Broadcast only specified network and NIC belong networks.(without 255.255.255.255)
 - Fix:warnings.
 - Fix:Move OS depending code to PrivateUtils.cpp from AttachFile.cpp.
 - Fix:ipmsg namespace.
