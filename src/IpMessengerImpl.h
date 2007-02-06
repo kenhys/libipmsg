@@ -65,6 +65,7 @@ class IpMessengerAgentImpl {
 		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
 		IPMSG_PROPERTY( bool, SaveSentMessage );
 		IPMSG_PROPERTY( bool, SaveRecievedMessage );
+		IPMSG_PROPERTY( bool, NoSendMessageOnEncryptionFailed );
 		IPMSG_PROPERTY( int, DefaultPortNo );
 
 		static IpMessengerAgentImpl *GetInstance();
@@ -77,9 +78,9 @@ class IpMessengerAgentImpl {
 		void Logout();
 		HostList& GetHostList();
 		HostList& UpdateHostList( bool isRetry=false );
-		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
-		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
+		bool SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
 		void ResetAbsence();
 		void SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes );
 		std::vector<GroupItem> GetGroupList();

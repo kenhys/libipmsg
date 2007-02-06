@@ -274,7 +274,7 @@ IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> abs
  * @param IsNoLogging ログに残さない（ことを推奨）
  * @param opt 送信オプション
  */
-SentMessage
+bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
@@ -291,7 +291,7 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bo
  * @param IsNoLogging ログに残さない（ことを推奨）
  * @param opt 送信オプション
  */
-SentMessage
+bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
@@ -308,7 +308,7 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, At
  * @param IsNoLogging ログに残さない（ことを推奨）
  * @param opt 送信オプション
  */
-SentMessage
+bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	return ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
@@ -572,9 +572,27 @@ IpMessengerAgent::SaveRecievedMessage() const
  * @param isSave 受信メッセージを保存するかどうかのフラグ
  */
 void
-IpMessengerAgent::setSaveRecievedMessage( bool isSave )
+IpMessengerAgent::setSaveRecievedMessage( const bool isSave )
 {
 	ipmsgImpl->setSaveRecievedMessage( isSave );
+}
+
+/**
+ * 暗号化に失敗したらメッセージを送信しないかどうかのフラグのゲッター
+ * @retval 暗号化に失敗したらメッセージを送信しないかどうかのフラグ
+ */
+bool IpMessengerAgent::NoSendMessageOnEncryptionFailed() const
+{
+	return ipmsgImpl->NoSendMessageOnEncryptionFailed();
+}
+
+/**
+ * 暗号化に失敗したらメッセージを送信しないかどうかのフラグのセッター
+ * @param isSave 暗号化に失敗したらメッセージを送信しないかどうかのフラグ
+ */
+void IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )
+{
+	return ipmsgImpl->setNoSendMessageOnEncryptionFailed( isNoSend );
 }
 
 /**

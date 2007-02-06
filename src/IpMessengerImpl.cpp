@@ -680,6 +680,7 @@ IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode>
 
 /**
  * メッセージ送信。
+ * @param message 生成されたメッセージオブジェクト(Output)
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
@@ -688,7 +689,7 @@ IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode>
  * @param IsNoLogging ログに記録しない（ことを推奨）
  * @param opt 送信オプション
  */
-SentMessage
+bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
@@ -697,6 +698,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 
 /**
  * メッセージ送信。
+ * @param message 生成されたメッセージオブジェクト(Output)
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
@@ -706,7 +708,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
  * @param IsNoLogging ログに記録しない（ことを推奨）
  * @param opt 送信オプション
  */
-SentMessage
+bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
 	AttachFileList files;
@@ -716,6 +718,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 
 /**
  * メッセージ送信。
+ * @param message 生成されたメッセージオブジェクト(Output)
  * @param host 送信先ホスト
  * @param msg 送信メッセージ
  * @param isSecret 封書かどうかを示すフラグ
@@ -727,8 +730,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
  * @param isRetry 暗黙のリトライによる送信要求かを示すフラグ
  * @param PrevPacketNo リトライであれば前回のパケット番号
  */
-SentMessage
+bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
+		
 {
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -750,8 +754,16 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 	memcpy( optBuf, msg.c_str(), optBufLen );
 #ifdef HAVE_OPENSSL
 	//OpenSSLサポートが有効なら、暗号化
-	if ( isSecret && EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, optBufSize ) ) {
-		isEncrypted = true;
+	if ( isSecret ) {
+		if ( EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, optBufSize ) ) {
+			isEncrypted = true;
+		} else if ( NoSendMessageOnEncryptionFailed() ) {
+			free( optBuf );
+			return false;
+		} else {
+			optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
+			memcpy( optBuf, msg.c_str(), optBufLen );
+		}
 	} else {
 		optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 		memcpy( optBuf, msg.c_str(), optBufLen );
@@ -815,31 +827,29 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_SENDMSG, sendBuf, sendBufLen, addr );
 
-	SentMessage message;
-	message.setTo( addr );
-	message.setHost( host );
-	message.setPacketNo( packetNo );
-	message.setMessage( msg );
-	message.setSent( time( NULL ) );
-	//初回はリトライ用のプロパティを初期化する。
 	if ( !isRetry ) {
+		SentMessage message;
+		message.setTo( addr );
+		message.setHost( host );
+		message.setPacketNo( packetNo );
+		message.setMessage( msg );
+		message.setSent( time( NULL ) );
 		message.setPrevTry( message.Sent() );
 		message.setIsRetryMaxOver( false );
 		message.setRetryCount( 0 );
-	}
-	message.setIsConfirmed( false );
-	message.setIsPasswordLock( isLockPassword );
-	message.setIsCrypted( isEncrypted );
-	message.setIsConfirmAnswered( false );
-	message.setHostCountAtSameTime( hostCountAtSameTime );
-	message.setOpt( opt );
-	message.setIsNoLogging( IsNoLogging );
-	message.setIsSecret( isSecret );
-	message.setFiles( files );
-	message.setIsSent( false );
-
-	if ( SaveSentMessage() && !isRetry ){
-		sentMsgList.append( message );
+		message.setIsConfirmed( false );
+		message.setIsPasswordLock( isLockPassword );
+		message.setIsCrypted( isEncrypted );
+		message.setIsConfirmAnswered( false );
+		message.setHostCountAtSameTime( hostCountAtSameTime );
+		message.setOpt( opt );
+		message.setIsNoLogging( IsNoLogging );
+		message.setIsSecret( isSecret );
+		message.setFiles( files );
+		message.setIsSent( false );
+		if ( SaveSentMessage() ){
+			sentMsgList.append( message );
+		}
 	}
 
 #if defined(DEBUG)
@@ -847,7 +857,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 #endif
 
 	free( optBuf );
-	return message;
+	return true;
 }
 
 /**

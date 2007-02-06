@@ -623,17 +623,17 @@ class IpMessengerAgent {
 		/**
 		 * メッセージ送信（添付無し）
 		 **/
-		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（一つ添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（複数添付）
 		 **/
-		SentMessage SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
 
 		/**
 		 * 不在解除
@@ -800,6 +800,11 @@ class IpMessengerAgent {
 		bool SaveRecievedMessage() const;
 		void setSaveRecievedMessage( const bool isSave );
 
+		/**
+		 * 暗号化に失敗したらメッセージを送信しない。
+		 **/
+		bool NoSendMessageOnEncryptionFailed() const;
+		void setNoSendMessageOnEncryptionFailed( const bool isNoSend );
 	private:
 		IpMessengerAgent();
 		~IpMessengerAgent();
