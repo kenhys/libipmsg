@@ -116,6 +116,7 @@ class IpMessengerAgentImpl {
 		RSA *RsaMin;
 		RSA *GetOptimizedRsa( unsigned long cap );
 		unsigned long encryptionCapacity;
+		void GetPubKey( struct sockaddr_in address );
 #endif
 		IpMessengerEvent *event;
 		HostListComparator *compare;

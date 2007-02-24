@@ -758,6 +758,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 		if ( EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, optBufSize ) ) {
 			isEncrypted = true;
 		} else if ( NoSendMessageOnEncryptionFailed() ) {
+			printf("暗号化失敗...\n");fflush(stdout);
 			free( optBuf );
 			return false;
 		} else {
@@ -1885,6 +1886,9 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
+#ifdef HAVE_OPENSSL
+	GetPubKey( packet.Addr() );
+#endif
 	// ホストリストに追加
 	char ipAddrBuf[IP_ADDR_MAX_SIZE];
 	AddHostListFromPacket( packet );
@@ -1952,6 +1956,9 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) ) );
 	hostList.DeleteHostByAddress( ipAddrBuf );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
+#ifdef HAVE_OPENSSL
+	GetPubKey( packet.Addr() );
+#endif
 	if ( event != NULL ){
 		it = hostList.FindHostByAddress( ipAddrBuf );
 		if ( it != hostList.end() ) {
@@ -2335,6 +2342,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 #endif
 	// ホストリストに追加
 	AddHostListFromPacket( packet ); 
+#ifdef HAVE_OPENSSL
+	GetPubKey( packet.Addr() );
+#endif
 	if ( event != NULL ) {
 		event->RefreashHostListAfter( hostList );
 	}
@@ -3251,6 +3261,12 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostList.AddHost( item );
 
 #ifdef HAVE_OPENSSL
+		struct sockaddr_in addr;
+		addr.sin_family = AF_INET;
+		addr.sin_port = htons( item.PortNo() );
+		addr.sin_addr.s_addr = inet_addr( item.IpAddress().c_str() );
+		GetPubKey( addr );
+#if 0
 		char sendBuf[MAX_UDPBUF];
 		int sendBufLen;
 		char optBuf[MAX_UDPBUF];
@@ -3269,6 +3285,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		addr.sin_addr.s_addr = inet_addr( item.IpAddress().c_str() );
 		SendPacket( IPMSG_GETPUBKEY, sendBuf, sendBufLen, addr );
 #endif
+#endif
 		//(A)最後のトークンは最後に判定する。(A)
 		if ( token == NULL ) break;
 		add_count++;
@@ -3276,6 +3293,26 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 	free( hostListTmpBuf );
 	return add_count;
 }
+
+#ifdef HAVE_OPENSSL
+void
+IpMessengerAgentImpl::GetPubKey( struct sockaddr_in address )
+{
+	char sendBuf[MAX_UDPBUF];
+	int sendBufLen;
+	char optBuf[MAX_UDPBUF];
+	size_t optBufLen;
+	optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx", encryptionCapacity );
+	if ( optBufLen >= sizeof(optBuf) ){
+		optBufLen = sizeof(optBuf);
+	}
+	sendBufLen = CreateNewPacketBuffer( IPMSG_GETPUBKEY,
+										  _LoginName, _HostName,
+										  optBuf, optBufLen,
+										  sendBuf, sizeof( sendBuf ) );
+	SendPacket( IPMSG_GETPUBKEY, sendBuf, sendBufLen, address );
+}
+#endif
 
 /**
  * 受信メッセージの個数を取得する。
