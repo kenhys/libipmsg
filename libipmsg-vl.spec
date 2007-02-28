@@ -24,7 +24,7 @@ Ip Messenger ¥é¥¤¥Ö¥é¥ê¤ÏIpMessenger(Windows¾å¤ÎÍ­Ì¾¤Ê¥¢¥×¥ê¥±¡¼¥·¥ç¥ó)¤È²ñÏÃ¤·¤
 Summary: 	Ip Messenger Library Development kit
 Summary(ja):Ip¥á¥Ã¥»¥ó¥¸¥ã¡¼¥é¥¤¥Ö¥é¥ê³«È¯¥­¥Ã¥È
 Group:		System Environment/Libraries
-Requires: 	openssl-devel
+Requires: 	openssl-devel %{name} = %{version}
 %description devel
 The Ip Messenger Library Development kit
 
@@ -57,10 +57,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libipmsg.*a
 
 %changelog
-* Wed Feb 28 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.3-0vl0
+* Wed Feb 28 2007 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.3-0vl0
 - New upstream release.
 
-* Mon Jan 20 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.2-0vl0
+* Mon Jan 20 2007 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.2-0vl0
 - New upstream release.
 
 * Fri Dec 29 2006 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.1-0vl0
