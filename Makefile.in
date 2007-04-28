@@ -169,7 +169,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = src
-EXTRA_DIST = libipmsg-vl.spec sol10_blastwave_configure.sh
+EXTRA_DIST = libipmsg-vl.spec libipmsg-fc.spec sol10_blastwave_configure.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

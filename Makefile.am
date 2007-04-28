@@ -1,3 +1,3 @@
 SUBDIRS = src
 
-EXTRA_DIST = libipmsg-vl.spec sol10_blastwave_configure.sh
+EXTRA_DIST = libipmsg-vl.spec libipmsg-fc.spec sol10_blastwave_configure.sh
