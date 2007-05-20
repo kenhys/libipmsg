@@ -116,7 +116,7 @@ class IpMessengerAgentImpl {
 		RSA *RsaMin;
 		RSA *GetOptimizedRsa( unsigned long cap );
 		unsigned long encryptionCapacity;
-		void GetPubKey( struct sockaddr_in address );
+		void GetPubKey( const struct sockaddr_storage &address );
 #endif
 		IpMessengerEvent *event;
 		HostListComparator *compare;
@@ -138,7 +138,7 @@ class IpMessengerAgentImpl {
 		std::vector<struct sockaddr_in> addr_recv;
 		struct timeval tv;
 		fd_set rfds;
-		std::vector<struct sockaddr_in> broadcastAddr;
+		std::vector<struct sockaddr_storage> broadcastAddr;
 		std::vector<Packet> PacketsForChecking;
 		HostList hostList;
 		std::vector<NetworkInterface> NICs;
@@ -152,17 +152,17 @@ class IpMessengerAgentImpl {
 		void NetworkEnd();
 		void InitSend( const std::vector<NetworkInterface>& nics );
 		void InitRecv( const std::vector<NetworkInterface>& nics );
-		int InitUdpRecv( struct sockaddr_in addr );
-		int InitTcpRecv( struct sockaddr_in addr );
+		int InitUdpRecv( struct sockaddr_storage addr );
+		int InitTcpRecv( struct sockaddr_storage addr );
 		int RecvPacket();
-		bool RecvUdp( fd_set *fds, struct sockaddr_in *sender_addr, int *sz, char *buf );
-		bool RecvTcp( fd_set *fds, struct sockaddr_in *sender_addr, int *sz, char *buf, int *tcp_socket );
+		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf );
+		bool RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket );
 		bool FindDuplicatePacket( const Packet &packet );
 		void PurgePacket( time_t nowTime );
 		void CheckSendMsgRetry( time_t nowTime );
 		void CheckGetHostListRetry( time_t nowTime );
-		void UdpSendto( const struct sockaddr_in *addr, char *buf, int size );
-		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_in toAddr );
+		void UdpSendto( const struct sockaddr_storage *addr, char *buf, int size );
+		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage toAddr );
 		void SendBroadcast( const unsigned long cmd, char *buf, int size );
 		void DoRecvCommand( const Packet& packet );
 		int SendNoOperation();
@@ -193,11 +193,11 @@ class IpMessengerAgentImpl {
 		int TcpRecvEventGetDirFiles( const Packet& packet );
 		int AddDefaultHost();
 		int CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int bufLen );
-		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_in sender, time_t nowTime );
+		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_storage sender, time_t nowTime );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
 		bool EncryptMsg( const HostListItem &host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
 		bool DecryptMsg( const Packet &packet, std::string& msg );
-		std::vector<struct sockaddr_in>::iterator FindBroadcastNetworkByAddress( std::string addr );
+		std::vector<struct sockaddr_storage>::iterator FindBroadcastNetworkByAddress( std::string addr );
 		unsigned long AddCommonCommandOption( const unsigned long cmd );
 		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 
@@ -246,11 +246,25 @@ class IpMessengerAgentImpl {
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
 
 #define	IP_ADDR_MAX_SIZE	INET6_ADDRSTRLEN + 1
+
+//Network.cpp
+struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port );
+void setSockAddrInPortNo( struct sockaddr_storage *addr, int port );
+int getSockAddrInPortNo( const struct sockaddr_storage *addr );
+int getSockAddrInPortNo( const struct sockaddr_storage &addr );
+std::string getSockAddrInRawAddress( const struct sockaddr_storage *addr );
+std::string getSockAddrInRawAddress( const struct sockaddr_storage &addr );
+bool isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask );
+bool isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check );
+struct in_addr GetNativeBroadcastAddress( struct in_addr net_addr, struct in_addr netmask );
+std::string GetBroadcastAddress( struct in_addr net_addr, struct in_addr netmask );
+
+//PrivateUtils.cpp
 int IpMsgSendFileBuffer( int ifd, int sock, int size );
 
 #if defined(DEBUG) || defined(INFO)
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
-void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in *sender_addr );
+void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr );
 std::string GetCommandString( unsigned  long cmd );
 void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
 #else
@@ -269,8 +283,6 @@ int IpMsgUCharToHexString( char buf[3], const unsigned char val );
 std::string IpMsgPortToStr( int portNo );
 std::string IpMsgGetLoginName( uid_t uid );
 std::string IpMsgGetHostName();
-bool isSameNetwork(  struct in_addr addr, struct in_addr ifnetaddr, struct in_addr netmask );
-struct in_addr GetBroadcastAddress( struct in_addr net_addr, struct in_addr netmask );
 
 }; //namespace ipmsg
 

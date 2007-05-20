@@ -60,7 +60,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libipmsg_la_LIBADD =
 am_libipmsg_la_OBJECTS = IpMessenger.lo IpMessengerImpl.lo HostList.lo \
 	AttachFile.lo RecievedMessage.lo SentMessage.lo \
-	PrivateUtils.lo Crypto.lo
+	PrivateUtils.lo Crypto.lo Network.lo
 libipmsg_la_OBJECTS = $(am_libipmsg_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -137,6 +137,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -185,7 +186,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 lib_LTLIBRARIES = libipmsg.la
-libipmsg_la_SOURCES = IpMessenger.cpp IpMessengerImpl.h IpMessengerImpl.cpp ipmsg.h HostList.cpp AttachFile.cpp RecievedMessage.cpp SentMessage.cpp PrivateUtils.cpp Crypto.cpp
+libipmsg_la_SOURCES = IpMessenger.cpp IpMessengerImpl.h IpMessengerImpl.cpp ipmsg.h HostList.cpp AttachFile.cpp RecievedMessage.cpp SentMessage.cpp PrivateUtils.cpp Crypto.cpp Network.cpp
 libipmsgincludedir = $(includedir)
 libipmsginclude_HEADERS = IpMessenger.h
 
@@ -209,7 +210,7 @@ libipmsginclude_HEADERS = IpMessenger.h
 #  既存のインターフェースを削除     7:0:0           libipmsg.so.7.0.0
 
 #0.1.2
-libipmsg_la_LDFLAGS = -version-info 1:3:1
+libipmsg_la_LDFLAGS = -version-info 1:4:1
 all: all-am
 
 .SUFFIXES:
@@ -284,6 +285,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HostList.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IpMessenger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IpMessengerImpl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Network.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrivateUtils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RecievedMessage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SentMessage.Plo@am__quote@

@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libipmsg.la
-libipmsg_la_SOURCES = IpMessenger.cpp IpMessengerImpl.h IpMessengerImpl.cpp ipmsg.h HostList.cpp AttachFile.cpp RecievedMessage.cpp SentMessage.cpp PrivateUtils.cpp Crypto.cpp
+libipmsg_la_SOURCES = IpMessenger.cpp IpMessengerImpl.h IpMessengerImpl.cpp ipmsg.h HostList.cpp AttachFile.cpp RecievedMessage.cpp SentMessage.cpp PrivateUtils.cpp Crypto.cpp Network.cpp
 libipmsgincludedir = $(includedir)
 libipmsginclude_HEADERS = IpMessenger.h
 
@@ -23,4 +23,4 @@ libipmsginclude_HEADERS = IpMessenger.h
 #  既存のインターフェースを削除     7:0:0           libipmsg.so.7.0.0
 
 #0.1.2
-libipmsg_la_LDFLAGS = -version-info 1:3:1
+libipmsg_la_LDFLAGS = -version-info 1:4:1

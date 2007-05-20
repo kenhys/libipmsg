@@ -115,10 +115,9 @@ ipmsg::GetCommandString( unsigned long cmd )
  * @param sender_addr 送信元IPアドレス
  */
 void
-ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_in *sender_addr ){
+ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
-	char ipaddrbuf[IP_ADDR_MAX_SIZE];
-	printf( "send from %s(%d)\n", inet_ntop( AF_INET, &( sender_addr->sin_addr ) , ipaddrbuf, sizeof( ipaddrbuf ) ), ntohs( sender_addr->sin_port ) );fflush(stdout);
+	printf( "send from %s(%d)\n", getSockAddrInRawAddress( sender_addr ).c_str(), ntohs( getSockAddrInPortNo( sender_addr ) ) );fflush(stdout);
 	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
 	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
 	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), ipmsg::GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
@@ -436,91 +435,3 @@ ipmsg::IpMsgGetLoginName( uid_t uid )
 	return "";
 }
 
-/**
- * ファイルバッファ送信メソッド。
- * <ul>
- * <li>sendfileがサポートされているプラットフォームではsendfileシステムコールを使って高速化。ケースバイケースだが実装によってはゼロコピーになる。<br>
- * でも、テストが出来ませんねぇ。とりあえず、hp-uxはデフォルトのread/write実装を使うので遅い。Linuxでは4-5MBのファイルだと2倍違うこともある</li>
- * </ul>
- */
-int
-ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
-{
-#if defined(SUPPORT_SENDFILE_LINUX_STYLE)
-	//Linux用
-	//printf("sendfile as sendfile syscall by linux\n");
-	return sendfile( sock, ifd, NULL, size );
-#elif defined(SUPPORT_SENDFILE_BSD_STYLE)
-	//printf("sendfile as sendfile syscall by freebsd\n");
-	//FreeBSD用
-	return sendfile( sock, ifd, NULL, size, NULL, NULL, 0 );
-/*
-// TODO solaris support start from here.
-#elif defined( SUPPORT_SENDFILE_SOLARIS_STYLE )
-// TODO hp-ux support start from here.
-#if 0
-//#elif defined(SUPPORT_SENDFILE_HPUX_STYLE)
-	printf("sendfile as sendfile syscall by hp-ux\n");
-	//FreeBSD用
-	return sendfile( sock, ifd, NULL, size, NULL, 0 );
-#endif
-// TODO hp-ux support end.
-*/
-#else
-	//printf("sendfile as read write\n");
-	//デフォルト実装
-	char readbuf[8192];
-	int readSize = read( ifd, readbuf, sizeof( readbuf ) );
-	if ( readSize > 0 ){
-		return send( sock, readbuf, readSize, 0 );
-	}
-	return -1;
-#endif // SUPPORT_SENDFILE_LINUX, SUPPORT_SENDFILE_FREEBSD
-}
-
-/**
- * 同じネットワークに属しているかを判定するメソッド。
- * <ul>
- * <li>アドレスがNICと同じネットワークに属しているかを判定。
- * </ul>
- * @param addr 判定するIPアドレス。
- * @param ifnetaddr NICのネットワークアドレス。
- * @param netmask ネットマスク。
- * @retval true:同じネットワーク。
- * @retval false:違うネットワーク。
- */
-bool
-ipmsg::isSameNetwork(  struct in_addr addr, struct in_addr ifnetaddr, struct in_addr netmask )
-{
-#if defined(DEBUG) || defined(INFO)
-	char ipaddrbuf[IP_ADDR_MAX_SIZE];
-	printf( "ADDR %s & ", inet_ntop( AF_INET, &addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-	printf( "NETMASK %s", inet_ntop( AF_INET, &netmask, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-	struct in_addr tmp;
-	tmp.s_addr = addr.s_addr & netmask.s_addr;
-	printf( "(%s) ", inet_ntop( AF_INET, &tmp, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-	printf( "%s", ifnetaddr.s_addr == tmp.s_addr ? "==" : "!=" );fflush(stdout);
-	printf( " IFNET %s\n", inet_ntop( AF_INET, &ifnetaddr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-#endif
-	return ifnetaddr.s_addr == ( addr.s_addr & netmask.s_addr );
-}
-
-/**
- * ブロードキャストアドレスを取得する。
- * @param net_addr ネットワークアドレス。
- * @param netmask ネットマスク。
- * @retval ブロードキャストアドレス。
- */
-struct in_addr
-ipmsg::GetBroadcastAddress( struct in_addr net_addr, struct in_addr netmask )
-{
-	struct in_addr ret;
-	ret.s_addr = net_addr.s_addr | ( 0xffffffff ^ netmask.s_addr );
-#if defined(DEBUG) || defined(INFO)
-	char ipaddrbuf[IP_ADDR_MAX_SIZE];
-	printf( "BROADCAST %s = ", inet_ntop( AF_INET, &ret, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-	printf( "NERADDR %s | ", inet_ntop( AF_INET, &net_addr, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-	printf( "0xffffffff ^ NETMASK %s\n", inet_ntop( AF_INET, &netmask, ipaddrbuf, sizeof( ipaddrbuf ) ) );fflush(stdout);
-#endif
-	return ret;
-}

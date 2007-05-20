@@ -91,7 +91,7 @@ class Packet{
 		IPMSG_PROPERTY( std::string, HostName );
 		IPMSG_PROPERTY( std::string, UserName );
 		IPMSG_PROPERTY( std::string, Option );
-		IPMSG_PROPERTY( struct sockaddr_in, Addr );
+		IPMSG_PROPERTY( struct sockaddr_storage, Addr );
 		IPMSG_PROPERTY( int, TcpSocket );
 };
 
@@ -174,6 +174,7 @@ class HostListComparator{
 		 * @retval +n:host2が大きい
 		 */
 		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 )=0;
+		virtual ~HostListComparator(){};
 };
 
 /**
@@ -213,7 +214,7 @@ class HostList{
 		std::vector<HostListItem>::iterator end();
 		int size() const;
 		void clear();
-		std::string ToString( int start, const struct sockaddr_in *addr );
+		std::string ToString( int start, const struct sockaddr_storage *addr );
 		void sort( HostListComparator *comparator );
 		HostList();
 		HostList( const HostList& other );
@@ -237,6 +238,7 @@ class FileNameConverter {
 	public:
 		virtual std::string ConvertNetworkToLocal( std::string original_file_name ) = 0;
 		virtual std::string ConvertLocalToNetwork( std::string original_file_name ) = 0;
+		virtual ~FileNameConverter(){};
 };
 
 /**
@@ -384,7 +386,7 @@ class RecievedMessageList {
  **/
 class SentMessage{
 	public:
-		IPMSG_PROPERTY( struct sockaddr_in, To );
+		IPMSG_PROPERTY( struct sockaddr_storage, To );
 		IPMSG_PROPERTY( HostListItem, Host );
 		IPMSG_PROPERTY( unsigned long, PacketNo );
 		IPMSG_PROPERTY( std::string, Message );

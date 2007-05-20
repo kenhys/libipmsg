@@ -30,6 +30,7 @@ IpMessengerEvent::~IpMessengerEvent(){};
 IpMessengerAgent *
 IpMessengerAgent::GetInstance()
 {
+	mutex_init_result = 0; //fix warnings. but no effect.
 	IpMsgMutexLock( "IpMessengerAgent::GetInstance()", &instanceMutex );
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgent();
@@ -713,7 +714,7 @@ NetworkInterface::recalc()
 	_NativeNetworkAddress.s_addr = _NativeIpAddress.s_addr & _NativeNetMask.s_addr;
 	_NetworkAddress = inet_ntop( AF_INET, &_NativeNetworkAddress, buf, sizeof( buf ) );
 
-	_NativeBroadcastAddress = GetBroadcastAddress( _NativeNetworkAddress, _NativeNetMask );
+	_NativeBroadcastAddress = GetNativeBroadcastAddress( _NativeNetworkAddress, _NativeNetMask );
 	_BroadcastAddress = inet_ntop( AF_INET, &_NativeBroadcastAddress, buf, sizeof( buf ) );
 }
 //end of source

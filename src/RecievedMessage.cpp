@@ -262,7 +262,7 @@ RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPat
 bool
 RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
-	struct sockaddr_in svr_addr;
+	struct sockaddr_storage svr_addr;
 	int sock = socket( AF_INET, SOCK_STREAM, 0 );
 
 	svr_addr = MessagePacket().Addr();
@@ -477,7 +477,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 		return false;
 	}
 
-	struct sockaddr_in svr_addr;
+	struct sockaddr_storage svr_addr;
 	int sock = socket( AF_INET, SOCK_STREAM, 0 );
 
 	svr_addr = MessagePacket().Addr();

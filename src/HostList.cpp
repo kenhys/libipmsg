@@ -293,7 +293,7 @@ HostList::DeleteHostByAddress( std::string addr )
  * @retval ホストリスト送信用文字列。
  */
 std::string
-HostList::ToString( int start, const struct sockaddr_in *addr )
+HostList::ToString( int start, const struct sockaddr_storage *addr )
 {
 	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
@@ -312,7 +312,7 @@ HostList::ToString( int start, const struct sockaddr_in *addr )
 			std::vector<NetworkInterface> nics = agent->NICs;
 			std::string localaddr = nics[0].IpAddress();
 			for( unsigned int i = 0; i < nics.size(); i++ ){
-				if ( isSameNetwork( addr->sin_addr, nics[i].NativeNetworkAddress(), nics[i].NativeNetMask() ) ){
+				if ( isSameNetwork( addr, nics[i].NetworkAddress(), nics[i].NetMask() ) ){
 					localaddr = nics[i].IpAddress();
 					break;
 				}
@@ -362,12 +362,11 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 	ret.setHostName( packet.HostName() );
 	ret.setUserName( packet.UserName() );
 	ret.setCommandNo( packet.CommandMode() | packet.CommandOption() );
-	char tmp[100];
-	ret.setIpAddress( inet_ntop( AF_INET, &packet.Addr().sin_addr, tmp, sizeof( tmp ) ) );
+	ret.setIpAddress( getSockAddrInRawAddress( packet.Addr() ) );
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "CreateHostListItemFromPacket port %d\n", ntohs( packet.Addr().sin_port ) );fflush(stdout);
+	printf( "CreateHostListItemFromPacket port %d\n", ntohs( getSockAddrInPortNo( packet.Addr() ) ) );fflush(stdout);
 #endif
-	ret.setPortNo( ntohs( packet.Addr().sin_port ) );
+	ret.setPortNo( ntohs( getSockAddrInPortNo( packet.Addr() ) ) );
 	unsigned int loc = packet.Option().find_first_of( '\0' );
 	if ( loc == std::string::npos ) {
 		ret.setNickname( packet.Option() );
@@ -389,7 +388,12 @@ HostList::FindHostByHostName( std::string hostName )
 {
 	Lock( "HostList::FindHostByHostName()" );
 	std::vector<HostListItem>::iterator ret = end();
+	printf( "HostName [%s]\n", hostName.c_str() );fflush(stdout);
+	printf( "HostList.size [%d]\n", items.size() );fflush(stdout);
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
+#if defined(INFO) || !defined(NDEBUG)
+	printf( "ix->HostName [%s]\n", ix->HostName().c_str() );fflush(stdout);
+#endif
 		if ( ix->HostName() == hostName ) {
 			ret = ix;
 			break;
