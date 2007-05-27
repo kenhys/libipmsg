@@ -274,7 +274,14 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 	} else if ( addr->ss_family == AF_INET6 ) {
 		in6_addr sin_addr = ( (struct sockaddr_in6 *) addr )->sin6_addr;
 		in6_addr ifnet_addr = ( (struct sockaddr_in6 *) &ifnet )->sin6_addr;
-		ret = sin_addr.s6_addr32[0] == ifnet_addr.s6_addr32[0] && sin_addr.s6_addr32[1] == ifnet_addr.s6_addr32[1];
+		ret = sin_addr.s6_addr[0] == ifnet_addr.s6_addr[0]
+		   && sin_addr.s6_addr[1] == ifnet_addr.s6_addr[1]
+		   && sin_addr.s6_addr[2] == ifnet_addr.s6_addr[2]
+		   && sin_addr.s6_addr[3] == ifnet_addr.s6_addr[3]
+		   && sin_addr.s6_addr[4] == ifnet_addr.s6_addr[4]
+		   && sin_addr.s6_addr[5] == ifnet_addr.s6_addr[5]
+		   && sin_addr.s6_addr[6] == ifnet_addr.s6_addr[6]
+		   && sin_addr.s6_addr[7] == ifnet_addr.s6_addr[7];
 	}
 	return ret;
 }
@@ -529,8 +536,14 @@ ipmsg::GetNetworkAddress( int family, std::string rawAddress, std::string netmas
 		in6_addr inetNetwork;
 		inet_pton( family, rawAddress.c_str(), (void *)&inetNetwork );
 
-		inetNetwork.s6_addr32[2] = 0x0LU;
-		inetNetwork.s6_addr32[3] = 0x0LU;
+		inetNetwork.s6_addr[8] = 0x0U;
+		inetNetwork.s6_addr[9] = 0x0U;
+		inetNetwork.s6_addr[10] = 0x0U;
+		inetNetwork.s6_addr[11] = 0x0U;
+		inetNetwork.s6_addr[12] = 0x0U;
+		inetNetwork.s6_addr[13] = 0x0U;
+		inetNetwork.s6_addr[14] = 0x0U;
+		inetNetwork.s6_addr[15] = 0x0U;
 
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
