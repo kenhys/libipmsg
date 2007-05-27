@@ -290,7 +290,9 @@ void
 ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
 // getifaddrsを使う実装も用意。その方が行儀が良い。
+#if defined(DEBUG) || !defined(NDEBUG)
 printf( "getifaddr ver\n" );fflush(stdout);
+#endif
 	struct ifaddrs *ifap0, *ifap;
 
 	int err = getifaddrs( &ifap0 );
