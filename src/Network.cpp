@@ -34,15 +34,15 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 		return -1;
 	}
 	if ( sock >= 0 && proto == SOCK_DGRAM && addr.ss_family == AF_INET6 && devname != NULL ){
-		unsigned int devindex = if_nametoindex( devname );
-		if ( setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char *)&devindex, sizeof(devindex)) != 0 ) {
+		const unsigned int devindex = if_nametoindex( devname );
+		if ( setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, &devindex, sizeof(devindex)) != 0 ) {
 			close( sock );
 			return -1;
 		}
 	}
 	if ( sock >= 0 && proto == SOCK_DGRAM && addr.ss_family == AF_INET ){
 		const int yes = 1;
-		if ( setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes)) != 0 ) {
+		if ( setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(yes)) != 0 ) {
 			perror("setsockopt(broadcast)");
 			close( sock );
 			return -1;
@@ -122,9 +122,11 @@ ipmsg::getSockAddrInPortNo( const struct sockaddr_storage &addr )
 {
 	int ret = -1;
 	if ( addr.ss_family == AF_INET ) {
-		ret = ( ( struct sockaddr_in *)&addr )->sin_port;
+		const struct sockaddr_in *addrp = (const struct sockaddr_in *)&addr;
+		ret = addrp->sin_port;
 	} else if ( addr.ss_family == AF_INET6 ) {
-		ret = ( ( struct sockaddr_in6 *)&addr )->sin6_port;
+		const struct sockaddr_in6 *addrp = (const struct sockaddr_in6 *)&addr;
+		ret = addrp->sin6_port;
 	}
 	return ret;
 }
@@ -150,9 +152,11 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 {
 	char ipAddrBuf[IP_ADDR_MAX_SIZE] = {0};
 	if ( addr.ss_family == AF_INET ) {
-		inet_ntop( addr.ss_family, &( ( struct sockaddr_in *)&addr )->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+		const struct sockaddr_in *addrp = (const struct sockaddr_in *)&addr;
+		inet_ntop( addr.ss_family, &addrp->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	} else if ( addr.ss_family == AF_INET6 ) {
-		inet_ntop( addr.ss_family, &( ( struct sockaddr_in6 *)&addr )->sin6_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+		const struct sockaddr_in6 *addrp = (const struct sockaddr_in6 *)&addr;
+		inet_ntop( addr.ss_family, &addrp->sin6_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
 	} else {
 		return "";
 	}
@@ -267,13 +271,18 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 		return ret;
 	}
 	if ( addr->ss_family == AF_INET ) {
-		in_addr sin_addr = ( (struct sockaddr_in *) addr )->sin_addr;
-		in_addr ifnet_addr = ( (struct sockaddr_in *) &ifnet )->sin_addr;
-		in_addr mask_addr = ( (struct sockaddr_in *) &mask )->sin_addr;
+		const struct sockaddr_in *addrp = (const struct sockaddr_in *)addr;
+		in_addr sin_addr = addrp->sin_addr;
+		const struct sockaddr_in *ifnetp = (const struct sockaddr_in *)&ifnet;
+		in_addr ifnet_addr = ifnetp->sin_addr;
+		const struct sockaddr_in *maskp = (const struct sockaddr_in *)&mask;
+		in_addr mask_addr = maskp->sin_addr;
 		ret = ifnet_addr.s_addr == sin_addr.s_addr & mask_addr.s_addr;
 	} else if ( addr->ss_family == AF_INET6 ) {
-		in6_addr sin_addr = ( (struct sockaddr_in6 *) addr )->sin6_addr;
-		in6_addr ifnet_addr = ( (struct sockaddr_in6 *) &ifnet )->sin6_addr;
+		const struct sockaddr_in6 *addrp = ( const struct sockaddr_in6 *) addr;
+		in6_addr sin_addr = addrp->sin6_addr;
+		const struct sockaddr_in6 *ifnetp = ( struct sockaddr_in6 *)&ifnet;
+		in6_addr ifnet_addr = ifnetp->sin6_addr;
 		ret = sin_addr.s6_addr[0] == ifnet_addr.s6_addr[0]
 		   && sin_addr.s6_addr[1] == ifnet_addr.s6_addr[1]
 		   && sin_addr.s6_addr[2] == ifnet_addr.s6_addr[2]

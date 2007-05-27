@@ -1,5 +1,5 @@
 %define name libipmsg
-%define version 0.1.3
+%define version 0.1.4
 %define release 0vl0
 
 Summary: 	Ip Messenger Library
