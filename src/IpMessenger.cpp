@@ -666,7 +666,6 @@ void
 NetworkInterface::setIpAddress( const std::string val )
 {
 	_IpAddress = val;
-	inet_pton( AF_INET, val.c_str(), (void *)&_NativeIpAddress );
 	recalc();
 }
 /**
@@ -677,44 +676,16 @@ void
 NetworkInterface::setNetMask( const std::string val )
 {
 	_NetMask = val;
-	inet_pton( AF_INET, val.c_str(), (void *)&_NativeNetMask );
 	recalc();
 }
-/**
- * IPアドレス(ネイティブ)を設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
- * @param val IPアドレス。
- */
-void
-NetworkInterface::setNativeIpAddress( const struct in_addr val )
-{
-	_NativeIpAddress = val;
-	char ipAddrBuf[IP_ADDR_MAX_SIZE];
-	_IpAddress = inet_ntop( AF_INET, &val, ipAddrBuf, sizeof( ipAddrBuf ) );
-	recalc();
-}
-/**
- * ネットマスク(ネイティブ)を設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
- * @param val ネットマスク。
- */
-void
-NetworkInterface::setNativeNetMask( const struct in_addr val )
-{
-	_NativeNetMask = val;
-	char netMaskBuf[IP_ADDR_MAX_SIZE];
-	_NetMask = inet_ntop( AF_INET, &val, netMaskBuf, sizeof( netMaskBuf ) );
-	recalc();
-}
+
 /**
  * ネットワークアドレス、ブロードキャストアドレスを計算する。
  */
 void
 NetworkInterface::recalc()
 {
-	char buf[IP_ADDR_MAX_SIZE];
-	_NativeNetworkAddress.s_addr = _NativeIpAddress.s_addr & _NativeNetMask.s_addr;
-	_NetworkAddress = inet_ntop( AF_INET, &_NativeNetworkAddress, buf, sizeof( buf ) );
-
-	_NativeBroadcastAddress = GetNativeBroadcastAddress( _NativeNetworkAddress, _NativeNetMask );
-	_BroadcastAddress = inet_ntop( AF_INET, &_NativeBroadcastAddress, buf, sizeof( buf ) );
+	_NetworkAddress = GetNetworkAddress( _AddressFamily, _IpAddress, _NetMask );
+	_BroadcastAddress = GetBroadcastAddress( _AddressFamily, _NetworkAddress, _NetMask );
 }
 //end of source

@@ -391,52 +391,7 @@ IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
 void
 IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
-	//情報取得のためのソケットを作成
-	int fd;
-	fd = socket(AF_INET, SOCK_DGRAM, 0);
-
-	/* ローカルループバックをのぞく全てのIPアドレスが対象 */
-	/* 全てのNICを取得する(より移植性が高い方法) */
-	struct in_addr localLoopbackAddress;
-	inet_pton( AF_INET, "127.0.0.1", &localLoopbackAddress );
-	struct in_addr nullAddress;
-	inet_pton( AF_INET, "0.0.0.0", &nullAddress );
-	struct in_addr broadcastAddress;
-	inet_pton( AF_INET, "255.255.255.255", &broadcastAddress );
-	struct if_nameindex *p0 = NULL, *p = NULL;
-	for( p0 = p = if_nameindex(); p->if_index > 0; p++ ){
-		struct ifreq ifr;
-		memset( &ifr, 0, sizeof( ifr ) );
-
-		ifr.ifr_addr.sa_family = AF_INET;
-		strncpy(ifr.ifr_name, p->if_name, IFNAMSIZ-1);
-		ioctl(fd, SIOCGIFADDR, &ifr);
-		struct in_addr ipAddr = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr;
-		if ( memcmp( &localLoopbackAddress, &ipAddr, sizeof( struct in_addr ) ) == 0 ||
-			 memcmp( &nullAddress, &ipAddr, sizeof( struct in_addr ) ) == 0 ||
-			 memcmp( &broadcastAddress, &ipAddr, sizeof( struct in_addr ) ) == 0 ){
-			continue;
-		}
-		ioctl(fd, SIOCGIFNETMASK, &ifr);
-		struct in_addr netMask = ( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr;
-
-		NetworkInterface ni( std::string( ifr.ifr_name ) );
-		ni.setPortNo( defaultPortNo );
-		ni.setNativeIpAddress( ipAddr );
-		ni.setNativeNetMask( netMask );
-		nics.push_back( ni );
-#if defined(DEBUG) || !defined(NDEBUG)
-		printf( "NIC device=%s[IpAddress=%s][Port=%d][NetMask=%s][NetworkAddress=%s]\n",
-						nics[nics.size() - 1].DeviceName().c_str(),
-						nics[nics.size()-1].IpAddress().c_str(),
-						nics[nics.size()-1].PortNo(),
-						nics[nics.size()-1].NetMask().c_str(),
-						nics[nics.size()-1].NetworkAddress().c_str());fflush( stdout );
-#endif
-	}
-	if_freenameindex( p0 );
-	//情報取得のためのソケットを閉じる。
-	close(fd);
+	ipmsg::GetNetworkInterfaceInfo( nics, defaultPortNo );
 }
 
 /**
@@ -474,8 +429,10 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 		InitSend( nics );
 		InitRecv( nics );
 	} else {
-		InitSend( NICs);
-		InitRecv( NICs );
+		if ( NICs.size() > 0 ) {
+			InitSend( NICs);
+			InitRecv( NICs );
+		}
 	}
 }
 
@@ -920,10 +877,7 @@ IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )
 std::vector<struct sockaddr_storage>::iterator
 IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 {
-//	struct in_addr saddr;
-//	inet_pton( AF_INET, addr.c_str(), &saddr );
 	for( std::vector<struct sockaddr_storage>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
-//		if ( memcmp( &ixaddr->sin_addr, &saddr, sizeof( struct in_addr ) == 0 ) ) {
 		if ( getSockAddrInRawAddress( &(*ixaddr) ) == addr ) {
 			return ixaddr;
 		}
@@ -1112,15 +1066,42 @@ void
 IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 {
 	struct sockaddr_storage addr;
-
-	if ( createSockAddrIn( &addr, "255.255.255.255", DefaultPortNo() ) == NULL ) {
-		return;
+	haveIPv4Nic = false;
+	haveIPv6Nic = false;
+	
+	for( unsigned int i = 0; i < nics.size(); i++ ){
+		if ( nics[i].AddressFamily() == AF_INET ) {
+//printf("I have NIC for IPv4(checking...[%s])\n", nics[i].DeviceName().c_str() );fflush(stdout);
+			haveIPv4Nic = true;
+		} else if ( nics[i].AddressFamily() == AF_INET6 ) {
+//printf("I have NIC for IPv6(checking...[%s])\n", nics[i].DeviceName().c_str());fflush(stdout);
+			haveIPv6Nic = true;
+		} else {
+		}
 	}
-	broadcastAddr.push_back( addr );
-
+	if ( haveIPv4Nic ) {
+//printf("I have NIC for IPv4\n");fflush(stdout);
+		if ( createSockAddrIn( &addr, "255.255.255.255", DefaultPortNo() ) == NULL ) {
+			return;
+		}
+		broadcastAddr.push_back( addr );
+	}
+	if ( haveIPv6Nic ) {
+//printf("I have NIC for IPv6\n");fflush(stdout);
+		for( unsigned int i = 0; i < nics.size(); i++ ){
+			if ( nics[i].AddressFamily() == AF_INET6 ) {
+				if ( createSockAddrIn( &addr, "ff02::1", DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
+					return;
+				}
+			}
+		}
+		broadcastAddr.push_back( addr );
+	}
+	
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
-		if ( createSockAddrIn( &addr, GetBroadcastAddress( nics[i].NativeNetworkAddress(), nics[i].NativeNetMask() ), DefaultPortNo() ) == NULL ) {
+		if ( createSockAddrIn( &addr, GetBroadcastAddress( nics[i].AddressFamily(), nics[i].NetworkAddress(), nics[i].NetMask() ), DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
+printf("createSockAddrIn is out(InitSend)\n");fflush(stdout);
 			return;
 		}
 		bool IsFound = false;
@@ -1177,6 +1158,7 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 	printf( "Send  %s(%d)\n", getSockAddrInRawAddress( &to_addr ).c_str(), ntohs( getSockAddrInPortNo( &to_addr ) ) );fflush( stdout );
 #endif
+//printf("DEBUG:SendPacket\n");
 	IpMsgPrintBuf( "SendUdpPacket:SendUdpBuffer", buf, size );
 
 	UdpSendto( &to_addr, buf, size );
@@ -1201,36 +1183,53 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	printf("== S E N D   B R O A D C A S T ========================>\n");fflush( stdout );
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 #endif
+//printf("DEBUG:SendBroadcast\n");
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( std::vector<struct sockaddr_storage>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
+printf("DEBUG:SendBroadcast %s\n", getSockAddrInRawAddress( &(*ixaddr) ).c_str()  );
 		UdpSendto( &(*ixaddr), buf, size );
 	}
+//printf("DEBUG:SendBroadcast for DIALUP HOST\n");
 	for( std::vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ){
 		if ( ixhost->CommandNo() | IPMSG_DIALUPOPT ) {
 			struct sockaddr_storage addr;
 			if ( createSockAddrIn( &addr, ixhost->IpAddress(), ixhost->PortNo() ) == NULL ) {
 				return;
 			}
+printf("DEBUG:SendBroadcast for dialup host %s\n", getSockAddrInRawAddress( &addr ).c_str() );
 			UdpSendto( &addr, buf, size );
 		}
 	}
 	//念のため自分にも
 	struct sockaddr_storage addr;
-	if ( createSockAddrIn( &addr, "127.0.0.1", DefaultPortNo() ) == NULL ) {
+	if ( haveIPv4Nic ) {
+//printf("I have NIC for IPv4\n");fflush(stdout);
+		if ( createSockAddrIn( &addr, "127.0.0.1", DefaultPortNo() ) == NULL ) {
+			return;
+		}
+	} else if ( haveIPv6Nic ) {
+//printf("I have NIC for IPv6\n");fflush(stdout);
+		if ( createSockAddrIn( &addr, "::1", DefaultPortNo() ) == NULL ) {
+			return;
+		}
+	} else {
+printf("DEBUG:SendBroadcast EXIT.\n" );
 		return;
 	}
 
+	if ( udp_sd.size() > 0 ) {
 #if defined(DEBUG)
-	printf( "Send To %s(%d)\n", getSockAddrInRawAddress( &addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
+		printf( "Send To %s(%d)\n", getSockAddrInRawAddress( &addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
-	int ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr ) );
-	if ( ret <= 0 ) {
-		perror("sendto myself.");
+printf("DEBUG:SendBroadcast to myself %s\n", getSockAddrInRawAddress( &addr ).c_str() );
+		int ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr_storage ) );
+		if ( ret <= 0 ) {
+			perror("sendto myself.");
 #if defined(DEBUG)
-		printf("S E N D   F A I L E D\n");fflush( stdout );
+			printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
+		}
 	}
-
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
 #endif
@@ -1245,13 +1244,16 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 void
 IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf, int size )
 {
+	if ( udp_sd.size() == 0 ) {
+		return;
+	}
 	int sock = udp_sd[0];
 #if defined(DEBUG)
 	std::string from_addr = sd_addr.begin()->second.IpAddress();
 
 	printf( "Addr %s(%d)\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
-printf( "DEBUG::UdpSendto Addr %s(%d)\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
+//printf( "DEBUG::UdpSendto Addr %s(%d)\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 	for( std::map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
 #if defined(DEBUG)
 		printf( "Send Check Before %s(%d)\n",
@@ -1272,7 +1274,7 @@ printf( "DEBUG::UdpSendto Addr %s(%d)\n", getSockAddrInRawAddress( addr ).c_str(
 #if defined(DEBUG)
 	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
-	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sizeof( struct sockaddr ) );
+	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sizeof( struct sockaddr_storage ) );
 	if ( ret <= 0 ) {
 		perror("sendto broadcast.");
 #if defined(DEBUG)
@@ -1300,47 +1302,79 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
+//printf( "InitRecv[size=%d]\n", nics.size() );fflush(stdout);
 	for( unsigned int i = 0; i < nics.size(); i++ ){
+//printf( "InitRecv.for[%s]\n", nics[i].DeviceName().c_str() );fflush(stdout);
 		struct sockaddr_storage addr;
-		if ( createSockAddrIn( &addr, nics[i].IpAddress(), nics[i].PortNo() ) == NULL ) {
+//		addr.ss_family = nics[i].AddressFamily();
+
+		if ( createSockAddrIn( &addr, nics[i].IpAddress(), nics[i].PortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
 			return;
 		}
 
+//printf( "addr.ss_family =%d\n", addr.ss_family );fflush(stdout);
 		int sock = -1;
 
-		sock = InitUdpRecv( addr );
+		sock = InitUdpRecv( addr, nics[i].DeviceName().c_str() );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "UDP_SD[%d][%s] = %d\n", udp_sd.size(), getSockAddrInRawAddress( &addr ).c_str(), sock );fflush( stdout );
+			printf( "UDP_SD[%d][%s:%s] = %d\n",
+							udp_sd.size(),
+							getSockAddrInRawAddress( &addr ).c_str(),
+							getSockAddrInAddressFamilyString( addr ).c_str(),
+							sock );
+			fflush( stdout );
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
 		} else {
-			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
+			printf( "UDP Error[%s:%s]=%s\n",
+							nics[i].DeviceName().c_str(),
+							getAddressFamilyString( nics[i].AddressFamily() ).c_str(),
+							nics[i].IpAddress().c_str() );
+			fflush( stdout );
 		}
-		sock = InitTcpRecv( addr );
+		sock = InitTcpRecv( addr, nics[i].DeviceName().c_str() );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "TCP_SD[%d][%s] = %d\n", tcp_sd.size(), getSockAddrInRawAddress( &addr ).c_str(), sock );fflush( stdout );
+			printf( "TCP_SD[%d][%s:%s] = %d\n",
+							udp_sd.size(),
+							getSockAddrInRawAddress( &addr ).c_str(),
+							getSockAddrInAddressFamilyString( addr ).c_str(),
+							sock );
+			fflush( stdout );
 #endif
 			tcp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
 		} else {
-			printf( "TCP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
+			printf( "TCP Error[%s:%s]=%s\n",
+							nics[i].DeviceName().c_str(),
+							getAddressFamilyString( nics[i].AddressFamily() ).c_str(),
+							nics[i].IpAddress().c_str() );
+			fflush( stdout );
 		}
 
-		if ( createSockAddrIn( &addr, nics[i].BroadcastAddress(), nics[i].PortNo() ) == NULL ) {
+		if ( createSockAddrIn( &addr, nics[i].BroadcastAddress(), nics[i].PortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
 			return;
 		}
-		sock = InitUdpRecv( addr );
+		sock = InitUdpRecv( addr, nics[i].DeviceName().c_str() );
 		if ( sock > 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "UDP_SD[%d][%s] = %d\n", udp_sd.size(), getSockAddrInRawAddress( &addr ).c_str(), sock );fflush( stdout );
+			printf( "UDP_SD[%d][%s:%s] = %d\n",
+							udp_sd.size(),
+							getSockAddrInRawAddress( &addr ).c_str(),
+							getSockAddrInAddressFamilyString( addr ).c_str(),
+							sock );
+			fflush( stdout );
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
 		} else {
-			printf( "UDP Error[%s]=%s\n", nics[i].DeviceName().c_str(), nics[i].IpAddress().c_str() );fflush( stdout );
+			printf( "UDP Error[%s:%s]=%s\n",
+							nics[i].DeviceName().c_str(),
+							getAddressFamilyString( nics[i].AddressFamily() ).c_str(),
+							nics[i].IpAddress().c_str() );
+			fflush( stdout );
 		}
 	}
 	FD_ZERO( &rfds );
@@ -1371,20 +1405,14 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
  * @retval 初期化済みのソケット
  */
 int
-IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr )
+IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *devname )
 {
-	int sock = socket( AF_INET, SOCK_DGRAM, 0 );
-	if ( bind(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0 ){
-		perror("bind(udp)");
-		close( sock );
+	int sock = bindSocket( SOCK_DGRAM, addr, devname );
+	if ( sock < 0 ) {
 		return -1;
 	}
-	int yes = 1;
-	if ( setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes)) != 0 ) {
-		perror("setsockopt(broadcast)");
-		close( sock );
-		return -1;
-	}
+
+//printf("BIND OK(UDP:%s)\n", getSockAddrInRawAddress( addr ).c_str() );fflush(stdout);
 	int buf_size = MAX_SOCKBUF, buf_minsize = MAX_SOCKBUF / 2;
 	if ( setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&buf_size, sizeof(int)) != 0 &&
 		 setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
@@ -1413,14 +1441,14 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr )
  * @retval 初期化済みのソケット
  */
 int
-IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr )
+IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr, const char *devname )
 {
-	int sock = socket( AF_INET, SOCK_STREAM, 0 );
-	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0 ){
-		perror("bind(tcp)");
-		close( sock );
+	int sock = bindSocket( SOCK_STREAM, addr, devname );
+	if ( sock < 0 ) {
 		return -1;
 	}
+
+//printf("BIND OK(TCP:%s)\n", getSockAddrInRawAddress( addr ).c_str() );fflush(stdout);
 	int yes = 1;
 	if ( sock >= 0 && setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(yes)) != 0 ) {
 		perror("setsockopt(reuseaddr)");
@@ -1559,8 +1587,8 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr
 	//UDPでソケットに変化が有ったら受信
 	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		if ( FD_ISSET( udp_sd[i], fds ) ){
-			memset( sender_addr, 0, sizeof( struct sockaddr_in ) );
-			sender_addr_len = sizeof( struct sockaddr_in );
+			memset( sender_addr, 0, sizeof( struct sockaddr_storage ) );
+			sender_addr_len = sizeof( struct sockaddr_storage );
 			size = recvfrom( udp_sd[i], buf, size, 0, (struct sockaddr *)sender_addr, &sender_addr_len );
 			if ( size < 0 ) {
 				perror("recvfrom");
@@ -1594,8 +1622,8 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr
 	//TCPでソケットに変化が有ったら受信
 	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 		if ( FD_ISSET( tcp_sd[i], fds ) ){
-			memset( sender_addr, 0, sizeof( struct sockaddr_in ) );
-			sender_addr_len = sizeof( struct sockaddr_in );
+			memset( sender_addr, 0, sizeof( struct sockaddr_storage ) );
+			sender_addr_len = sizeof( struct sockaddr_storage );
 			*tcp_socket = accept( tcp_sd[i], (struct sockaddr *)sender_addr, &sender_addr_len );
 			if ( *tcp_socket < 0 ) {
 				perror("accept");
@@ -3454,17 +3482,17 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	free( packet_tmp_buf );
 
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByHostName( ret.HostName() );
+	struct sockaddr_storage hostaddr;
 	if ( hostIt != hostList.end() ) {
-		struct sockaddr_storage hostaddr;
 		if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
 			return ret;
 		}
-		ret.setAddr( hostaddr );
 	} else {
-		setSockAddrInPortNo( &sender, htons( DefaultPortNo() ) );
-		ret.setAddr( sender );
+		if ( createSockAddrIn( &hostaddr, getSockAddrInRawAddress( sender ), ntohs( getSockAddrInPortNo( sender ) ) ) == NULL ) {
+			return ret;
+		}
 	}
-
+	ret.setAddr( hostaddr );
 	return ret;
 }
 

@@ -207,16 +207,22 @@ HostList::AddHost( const HostListItem& host )
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
 		if ( host.IpAddress() == nics[i].IpAddress() ) {
+#if defined(INFO) || !defined(NDEBUG)
+			printf("AddHost HOST MATCH\n" );fflush(stdout);
+#endif
 			Unlock( "HostList::AddHost()" );
 			return;
 		}
 	}
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
+		printf("AddHost ADDR CHECK IpAddress=%s net=%s broad=%s\n", host.IpAddress().c_str(), nics[i].NetworkAddress().c_str(), nics[i].BroadcastAddress().c_str() );fflush(stdout);
 #endif
 		if ( host.IpAddress() == nics[i].NetworkAddress() ||
 			 host.IpAddress() == nics[i].BroadcastAddress() ){
+#if defined(INFO) || !defined(NDEBUG)
+			printf("AddHost ADDR MATCH\n" );fflush(stdout);
+#endif
 			Unlock( "HostList::AddHost()" );
 			return;
 		}
@@ -225,7 +231,7 @@ HostList::AddHost( const HostListItem& host )
 	printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );fflush(stdout);
 	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );fflush(stdout);
 #endif
-	if ( host.IpAddress() == "127.0.0.1" ){
+	if ( host.IpAddress() == "127.0.0.1" || host.IpAddress() == "::1" ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
@@ -233,6 +239,9 @@ HostList::AddHost( const HostListItem& host )
 		return;
 	}
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
+#if defined(INFO) || !defined(NDEBUG)
+		printf("MATCH IPADDRESS but not same hostname.\n" );fflush(stdout);
+#endif
 		Unlock( "HostList::AddHost()" );
 		return;
 	}
@@ -388,17 +397,23 @@ HostList::FindHostByHostName( std::string hostName )
 {
 	Lock( "HostList::FindHostByHostName()" );
 	std::vector<HostListItem>::iterator ret = end();
-	printf( "HostName [%s]\n", hostName.c_str() );fflush(stdout);
-	printf( "HostList.size [%d]\n", items.size() );fflush(stdout);
+//	printf( "HostName [%s]\n", hostName.c_str() );fflush(stdout);
+//	printf( "HostList.size [%d]\n", items.size() );fflush(stdout);
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "ix->HostName [%s]\n", ix->HostName().c_str() );fflush(stdout);
 #endif
 		if ( ix->HostName() == hostName ) {
+#if defined(DEBUG)
+			printf("HOSTNAME MATCH!!!\n");fflush(stdout);
+#endif
 			ret = ix;
 			break;
 		}
 	}
+#if defined(DEBUG)
+	printf("HOSTNAME UNMATCH!!!\n");fflush(stdout);
+#endif
 	Unlock( "HostList::FindHostByHostName()" );
 	return ret;
 }

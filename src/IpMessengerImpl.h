@@ -143,6 +143,8 @@ class IpMessengerAgentImpl {
 		HostList hostList;
 		std::vector<NetworkInterface> NICs;
 		std::string localEncoding;
+		bool haveIPv4Nic;
+		bool haveIPv6Nic;
 
 		IpMessengerAgentImpl();
 		~IpMessengerAgentImpl();
@@ -152,8 +154,8 @@ class IpMessengerAgentImpl {
 		void NetworkEnd();
 		void InitSend( const std::vector<NetworkInterface>& nics );
 		void InitRecv( const std::vector<NetworkInterface>& nics );
-		int InitUdpRecv( struct sockaddr_storage addr );
-		int InitTcpRecv( struct sockaddr_storage addr );
+		int InitUdpRecv( struct sockaddr_storage addr, const char *devname );
+		int InitTcpRecv( struct sockaddr_storage addr, const char *devname );
 		int RecvPacket();
 		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf );
 		bool RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket );
@@ -248,16 +250,24 @@ class IpMessengerAgentImpl {
 #define	IP_ADDR_MAX_SIZE	INET6_ADDRSTRLEN + 1
 
 //Network.cpp
-struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port );
-void setSockAddrInPortNo( struct sockaddr_storage *addr, int port );
+int bindSocket( int proto, struct sockaddr_storage addr, const char *devname );
+struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char * devname=NULL );
+//void setSockAddrInPortNo( struct sockaddr_storage *addr, int port );
 int getSockAddrInPortNo( const struct sockaddr_storage *addr );
 int getSockAddrInPortNo( const struct sockaddr_storage &addr );
 std::string getSockAddrInRawAddress( const struct sockaddr_storage *addr );
 std::string getSockAddrInRawAddress( const struct sockaddr_storage &addr );
+std::string getSockAddrInAddressFamilyString( const struct sockaddr_storage &addr );
+std::string getAddressFamilyString( int family );
 bool isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask );
 bool isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check );
-struct in_addr GetNativeBroadcastAddress( struct in_addr net_addr, struct in_addr netmask );
-std::string GetBroadcastAddress( struct in_addr net_addr, struct in_addr netmask );
+void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo );
+#ifndef HAVE_GETIFADDR
+void GetNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo );
+void GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo );
+#endif
+std::string GetBroadcastAddress( int family, std::string netAddress, std::string netmask );
+std::string GetNetworkAddress( int family, std::string rawAddress, std::string netmask );
 
 //PrivateUtils.cpp
 int IpMsgSendFileBuffer( int ifd, int sock, int size );
