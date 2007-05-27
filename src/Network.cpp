@@ -7,6 +7,10 @@
 #include <ctype.h>
 #include <ipmsg.h>
 #include <pwd.h>
+#ifdef HAVE_GETIFADDRS
+#include <net/if.h>
+#include <ifaddrs.h>
+#endif
 
 /**
  * ソケットを生成し、バインドする。
@@ -26,18 +30,15 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 	}
 	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_storage)) != 0 ){
 		perror("bind(udp)");
-//printf( "DEBUG:bindSocket.bind addr = %s,dev = %s\n", getSockAddrInRawAddress( addr ).c_str(), devname );
 		close( sock );
 		return -1;
 	}
 	if ( sock >= 0 && proto == SOCK_DGRAM && addr.ss_family == AF_INET6 && devname != NULL ){
 		unsigned int devindex = if_nametoindex( devname );
 		if ( setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char *)&devindex, sizeof(devindex)) != 0 ) {
-//printf( "DEBUG:bindSocket.setsockopt addr = %s, dev = %s(index=%u)\n", getSockAddrInRawAddress( addr ).c_str(), devname, devindex );
 			close( sock );
 			return -1;
 		}
-//printf( "DEBUG:bindSocket.OK addr = %s, dev = %s(index=%u)\n", getSockAddrInRawAddress( addr ).c_str(), devname, devindex );
 	}
 	if ( sock >= 0 && proto == SOCK_DGRAM && addr.ss_family == AF_INET ){
 		const int yes = 1;
@@ -70,10 +71,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 		hints.ai_socktype = SOCK_DGRAM;
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_flags = AI_NUMERICHOST;
-//		hints.ai_flags = AI_PASSIVE;
 
-//printf( "DEBUG:createSockAddrIn addr = %s(%s:%u)\n", getSockAddrInRawAddress( addr ).c_str(), portstr, getSockAddrInPortNo( addr ) );
-//		int err = getaddrinfo( rawAddress.c_str(), NULL, &hints, &res );
 		int err = getaddrinfo( rawAddress.c_str(), portstr, &hints, &res );
 		if ( err != 0 ){
 			fprintf(stderr, "getaddrinfo(addr=[%s] port=[%u] portstr[%s]):%s\n",
@@ -83,16 +81,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 		if ( res->ai_family == AF_INET ) {
 			struct sockaddr_in *sockaddrp = ( struct sockaddr_in * )addr;
 			*sockaddrp = *( (struct sockaddr_in *)res->ai_addr );
-//printf( "DEBUG:createSockAddrIn(IPv4) family = %d addr = %s(%d)\n", res->ai_family, getSockAddrInRawAddress( addr ).c_str(), sockaddrp->sin_port );
-#if 0
-			int i = 1;
-			for( struct addrinfo *res0 = res; res0; res0 = res0->ai_next, i++ ) {
-				printf("RES V4(%d)->%s\n", i, getSockAddrInRawAddress( (struct sockaddr_storage *)res0->ai_addr ).c_str() );
-			}
-			printf("===================================\n");
-#endif
 			freeaddrinfo( res );
-//printf( "DEBUG:createSockAddrIn(IPv4) addr = %s(%s:%u) OK!!\n", getSockAddrInRawAddress( addr ).c_str(), portstr, getSockAddrInPortNo( addr ) );
 			return addr;
 		} else if ( res->ai_family == AF_INET6 ) {
 			struct sockaddr_in6 *sockaddrp = ( struct sockaddr_in6 * )addr;
@@ -100,16 +89,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 			if ( devname != NULL ) {
 				sockaddrp->sin6_scope_id = if_nametoindex( devname );
 			}
-//printf( "DEBUG:createSockAddrIn(IPv6) family = %d addr = %s(%d) lnk=%lu flow=%lu\n", res->ai_family, getSockAddrInRawAddress( addr ).c_str(), sockaddrp->sin6_port, sockaddrp->sin6_scope_id, sockaddrp->sin6_flowinfo );
-#if 0
-			int i = 1;
-			for( struct addrinfo *res0 = res; res0; res0 = res0->ai_next, i++ ) {
-				printf("RES V6(%d)->%s\n", i, getSockAddrInRawAddress( (struct sockaddr_storage *)res0->ai_addr ).c_str() );
-			}
-			printf("===================================\n");
-#endif
 			freeaddrinfo( res );
-//printf( "DEBUG:createSockAddrIn(IPv6) addr = %s(%s:%u) OK!!\n", getSockAddrInRawAddress( addr ).c_str(), portstr, getSockAddrInPortNo( addr ) );
 			return addr;
 		} else {
 			fprintf( stderr, "createSockAddrIn::unknown address family\n" );
@@ -146,7 +126,6 @@ ipmsg::getSockAddrInPortNo( const struct sockaddr_storage &addr )
 	} else if ( addr.ss_family == AF_INET6 ) {
 		ret = ( ( struct sockaddr_in6 *)&addr )->sin6_port;
 	}
-//printf( "DEBUG::getSockAddrInPortNo[%d]\n", ret );fflush( stdout );
 	return ret;
 }
 
@@ -177,7 +156,6 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 	} else {
 		return "";
 	}
-//printf( "DEBUG::getSockAddrInRawAddress[%s]\n", ipAddrBuf );fflush( stdout );
 	return ipAddrBuf;
 }
 
@@ -278,26 +256,20 @@ ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
 bool
 ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask )
 {
-//printf( "DEBUG:isSameNetwork addr = %s\n", getSockAddrInRawAddress( addr ).c_str() );fflush(stdout);
-//printf( "DEBUG:isSameNetwork ifnetaddr = %s\n", ifnetaddr.c_str() );fflush(stdout);
-//printf( "DEBUG:isSameNetwork netmask = %s\n", netmask.c_str() );fflush(stdout);
 	bool ret = false;
 	sockaddr_storage ifnet, mask;
 	memcpy( &ifnet, addr, sizeof( sockaddr_storage ) );
 	if ( createSockAddrIn( &ifnet, ifnetaddr, IPMSG_DEFAULT_PORT ) == NULL ) {
-//printf( "createSockAddrIn( ifnet );\n" );fflush(stdout);
 		return ret;
 	}
 	memcpy( &mask, addr, sizeof( sockaddr_storage ) );
 	if ( createSockAddrIn( &mask, netmask, IPMSG_DEFAULT_PORT ) == NULL ) {
-//printf( "createSockAddrIn( mask );\n" );fflush(stdout);
 		return ret;
 	}
 	if ( addr->ss_family == AF_INET ) {
 		in_addr sin_addr = ( (struct sockaddr_in *) addr )->sin_addr;
 		in_addr ifnet_addr = ( (struct sockaddr_in *) &ifnet )->sin_addr;
 		in_addr mask_addr = ( (struct sockaddr_in *) &mask )->sin_addr;
-//printf( "DEBUG:isSameNetwork = %s\n", ifnet_addr.s_addr == sin_addr.s_addr & mask_addr.s_addr ? "YES" : "NO" );fflush(stdout);
 		ret = ifnet_addr.s_addr == sin_addr.s_addr & mask_addr.s_addr;
 	} else if ( addr->ss_family == AF_INET6 ) {
 		in6_addr sin_addr = ( (struct sockaddr_in6 *) addr )->sin6_addr;
@@ -307,7 +279,7 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 	return ret;
 }
 
-#ifdef HAVE_GETIFADDR
+#ifdef HAVE_GETIFADDRS
 /**
  * ネットワークインターフェースの情報を取得する。
  * @param AddressFamily アドレスファミリ
@@ -317,7 +289,65 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 void
 ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
-//TODO getifaddrsを使う実装も用意。その方が行儀が良い。
+// getifaddrsを使う実装も用意。その方が行儀が良い。
+printf( "getifaddr ver\n" );fflush(stdout);
+	struct ifaddrs *ifap0, *ifap;
+
+	int err = getifaddrs( &ifap0 );
+	if ( err != 0 ){
+		fprintf(stderr, "getifaddrs:%s\n", gai_strerror( err ) );
+		return;
+	}
+
+	std::string v4localLoopbackAddress = "127.0.0.1";
+	std::string v4nullAddress = "0.0.0.0";
+	std::string v4broadcastAddress = "255.255.255.255";
+	std::string v6localLoopbackAddress = "::1";
+	std::string v6nullAddress = "::";
+	std::string v6broadcastAddress = "ff02::1";
+
+	for( ifap = ifap0; ifap; ifap = ifap->ifa_next ) {
+		if ( ifap->ifa_addr == NULL ) {
+			continue;
+		}
+		if ( ifap->ifa_addr->sa_family == AF_INET ) {
+			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
+			if ( rawAddress == v4localLoopbackAddress || rawAddress == v4nullAddress || rawAddress == v4broadcastAddress ){
+				continue;
+			}
+			std::string rawNetMask = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_netmask );
+			NetworkInterface ni( AF_INET, std::string( ifap->ifa_name ) );
+			ni.setPortNo( defaultPortNo );
+			ni.setIpAddress( rawAddress );
+			ni.setNetMask( rawNetMask );
+#if defined(DEBUG) || !defined(NDEBUG)
+printf( "getifaddr ver(IPv4)\n" );fflush(stdout);
+printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
+printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
+printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
+printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
+#endif
+			nics.push_back( ni );
+		} else if ( ifap->ifa_addr->sa_family == AF_INET6 ) {
+			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
+			if ( rawAddress == v6localLoopbackAddress || rawAddress == v6nullAddress || rawAddress == v6broadcastAddress ){
+				continue;
+			}
+			std::string rawNetMask = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_netmask );
+			NetworkInterface ni( AF_INET6, std::string( ifap->ifa_name ) );
+			ni.setPortNo( defaultPortNo );
+			ni.setIpAddress( rawAddress );
+			ni.setNetMask( rawNetMask );
+#if defined(DEBUG) || !defined(NDEBUG)
+printf( "getifaddr ver(IPv6)\n" );fflush(stdout);
+printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
+printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
+printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
+printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
+#endif
+			nics.push_back( ni );
+		}
+	}
 	return;
 }
 #else
@@ -331,7 +361,7 @@ ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int default
 void
 ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
-//	GetNetworkInterfaceInfoForIPv4( nics, defaultPortNo );
+	GetNetworkInterfaceInfoForIPv4( nics, defaultPortNo );
 	GetNetworkInterfaceInfoForIPv6( nics, defaultPortNo );
 }
 
@@ -418,10 +448,9 @@ ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
 					v6addr[4], v6addr[5], v6addr[6], v6addr[7],
 					&dmy1, &dmy2, &dmy3, &dmy4, devname );
 			char ipaddrbuf[IP_ADDR_MAX_SIZE + 100];
-			snprintf( ipaddrbuf, sizeof( ipaddrbuf ), "%s:%s:%s:%s:%s:%s:%s:%s%%%s",
+			snprintf( ipaddrbuf, sizeof( ipaddrbuf ), "%s:%s:%s:%s:%s:%s:%s:%s",
 					v6addr[0], v6addr[1], v6addr[2], v6addr[3],
-					v6addr[4], v6addr[5], v6addr[6], v6addr[7], devname );
-//printf("IPv6 Address(%s) = %s\n", devname, ipaddrbuf );fflush(stdout);
+					v6addr[4], v6addr[5], v6addr[6], v6addr[7] );
 			//アドレスを最適化
 			struct sockaddr_storage ss;
 			memset( &ss, 0, sizeof( ss ) );
@@ -430,9 +459,7 @@ ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
 				continue;
 			}
 			std::string rawAddress = getSockAddrInRawAddress( &ss );
-//printf("IPv6 RawAddress(%s) = %s\n", devname, rawAddress.c_str() );fflush(stdout);
 			if ( rawAddress == localLoopbackAddress || rawAddress == nullAddress || rawAddress == broadcastAddress ){
-//printf("IPv6 Address(%s) = %s, continue\n", devname, ipaddrbuf );fflush(stdout);
 				continue;
 			}
 			NetworkInterface ni( AF_INET6, std::string( devname ) );
@@ -440,7 +467,6 @@ ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
 			ni.setIpAddress( rawAddress );
 			ni.setNetMask( "ffff:ffff:ffff:ffff::" );
 			nics.push_back( ni );
-//printf("IPv6 Address(%s) = %s, added\n", devname, ipaddrbuf );fflush(stdout);
 		}
 		fclose( fp );
 	}
@@ -473,7 +499,7 @@ ipmsg::GetBroadcastAddress( int family, std::string netAddress, std::string netm
 		return ipaddrbuf;
 	} else if ( family == AF_INET6 ) {
 		//TODO
-		return "ff02::1%eth0";
+		return "ff02::1";
 	}
 	return "";
 }
@@ -506,7 +532,6 @@ ipmsg::GetNetworkAddress( int family, std::string rawAddress, std::string netmas
 
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
-//printf("NETWORK ADDR=%s\n", ipaddrbuf);fflush(stdout);
 		return ipaddrbuf;
 	}
 	return "";

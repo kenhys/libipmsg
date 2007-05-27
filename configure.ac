@@ -32,7 +32,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_STAT
 AC_FUNC_UTIME_NULL
-AC_CHECK_FUNCS([inet_ntoa memset mkdir select socket strerror strtoul strtoull utime])
+AC_CHECK_FUNCS([inet_ntoa memset mkdir select socket strerror strtoul strtoull utime, getifaddrs])
 
 # Checks for libraries.
 AC_ARG_WITH(openssl,
