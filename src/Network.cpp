@@ -28,8 +28,15 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 		close( sock );
 		return -1;
 	}
-	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_storage)) != 0 ){
+	int sz = sizeof( struct sockaddr_storage );
+	if ( addr.ss_family == AF_INET ){
+		sz = sizeof( struct sockaddr_in );
+	} else if ( addr.ss_family == AF_INET6 ){
+		sz = sizeof( struct sockaddr_in6 );
+	}
+	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sz) != 0 ){
 		perror("bind(udp)");
+		fprintf( stderr, "  ip addr=%s,port=%u,dev=%s\n", getSockAddrInRawAddress( addr ).c_str(), getSockAddrInPortNo( addr ), devname );fflush( stdout );
 		close( sock );
 		return -1;
 	}

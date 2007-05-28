@@ -1242,9 +1242,11 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 #endif
 	for( std::map<int,NetworkInterface>::iterator i = sd_addr.begin(); i != sd_addr.end(); ++i ){
 #if defined(DEBUG)
-		printf( "Send Check Before %s(%d)\n",
+		printf( "Send Check Before address=%s(%d) networkr=%s mask=%s\n",
 				i->second.IpAddress().c_str(),
-				i->second.PortNo() );fflush( stdout );
+				i->second.PortNo(),
+				i->second.NetworkAddress().c_str(),
+				i->second.NetMaks().c_str() );fflush( stdout );
 #endif
 		if ( isSameNetwork( addr, i->second.NetworkAddress() ,i->second.NetMask() ) ) {
 			sock = i->first;
@@ -1275,7 +1277,13 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 #if defined(DEBUG)
 	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
-	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sizeof( struct sockaddr_storage ) );
+	int sz = sizeof( struct sockaddr_storage );
+	if ( addr->ss_family == AF_INET ) {
+		sz = sizeof( struct sockaddr_in );
+	} else if ( addr->ss_family == AF_INET6 ) {
+		sz = sizeof( struct sockaddr_in6 );
+	}
+	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz );
 	if ( ret <= 0 ) {
 		perror("sendto broadcast.");
 #if defined(DEBUG)
