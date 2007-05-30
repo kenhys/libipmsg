@@ -1274,6 +1274,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
 		perror("sendto.");
+		fprintf( stderr, "Address=%s Port=%d\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #if defined(DEBUG)
 		printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
