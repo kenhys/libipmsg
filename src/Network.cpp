@@ -58,6 +58,27 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 	return sock;
 }
 
+
+/**
+ * ソケットアドレスにパケットを送信する。
+ * @param sock ソケット。
+ * @param buf 送信バッファ。
+ * @param size 送信バッファのサイズ。
+ * @param addr ソケットアドレスのポインタ。
+ * @retval sendtoの戻り値。
+ */
+int
+ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr )
+{
+	int sz = sizeof( struct sockaddr_storage );
+	if ( addr->ss_family == AF_INET ) {
+		sz = sizeof( struct sockaddr_in );
+	} else if ( addr->ss_family == AF_INET6 ) {
+		sz = sizeof( struct sockaddr_in6 );
+	}
+	return sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz );
+}
+
 /**
  * ソケットアドレスを生成する。
  * @param addr ソケットアドレスのポインタ。
@@ -310,7 +331,7 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
  * @param defaultPort デフォルトポート
  */
 void
-ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
+ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
 // getifaddrsを使う実装も用意。その方が行儀が良い。
 #if defined(DEBUG) || !defined(NDEBUG)
@@ -353,7 +374,7 @@ printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
 printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
 #endif
 			nics.push_back( ni );
-		} else if ( ifap->ifa_addr->sa_family == AF_INET6 ) {
+		} else if ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) {
 			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
 			if ( rawAddress == v6localLoopbackAddress || rawAddress == v6nullAddress || rawAddress == v6broadcastAddress ){
 				continue;
@@ -384,10 +405,12 @@ printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
  * ※getifaddrsが有る場合は使用しない。
  */
 void
-ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
+ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
+	if ( useIPv6 ) {
+		GetNetworkInterfaceInfoForIPv6( nics, defaultPortNo );
+	}
 	GetNetworkInterfaceInfoForIPv4( nics, defaultPortNo );
-	GetNetworkInterfaceInfoForIPv6( nics, defaultPortNo );
 }
 
 /**

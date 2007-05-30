@@ -587,7 +587,7 @@ class IpMessengerAgent {
 		/**
 		 * NICの情報を取得
 		 **/
-		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics );
+		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 = false );
 
 		/**
 		 * ブロードキャストアドレスのリストをクリア
@@ -809,6 +809,12 @@ class IpMessengerAgent {
 		 **/
 		bool NoSendMessageOnEncryptionFailed() const;
 		void setNoSendMessageOnEncryptionFailed( const bool isNoSend );
+
+		/**
+		 * IPv6を使用する。
+		 **/
+		bool UseIPv6() const;
+		void setUseIPv6( const bool useIPv6 );
 	private:
 		IpMessengerAgent();
 		~IpMessengerAgent();

@@ -389,9 +389,9 @@ IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
  * @param nics ネットワークインターフェースの一覧
  */
 void
-IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo )
+IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
-	ipmsg::GetNetworkInterfaceInfo( nics, defaultPortNo );
+	ipmsg::GetNetworkInterfaceInfo( nics, useIPv6, defaultPortNo );
 }
 
 /**
@@ -404,6 +404,17 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& ni
 void
 IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 {
+	haveIPv4Nic = false;
+	haveIPv6Nic = false;
+
+	for( unsigned int i = 0; i < nics.size(); i++ ){
+		if ( nics[i].AddressFamily() == AF_INET ) {
+			haveIPv4Nic = true;
+		} else if ( nics[i].AddressFamily() == AF_INET6 ) {
+			haveIPv6Nic = true;
+		}
+	}
+
 	_HostName = IpMsgGetHostName();
 	if ( _HostName == "" ) {
 		_HostName = "localhost";
@@ -1066,24 +1077,13 @@ void
 IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 {
 	struct sockaddr_storage addr;
-	haveIPv4Nic = false;
-	haveIPv6Nic = false;
-	
-	for( unsigned int i = 0; i < nics.size(); i++ ){
-		if ( nics[i].AddressFamily() == AF_INET ) {
-			haveIPv4Nic = true;
-		} else if ( nics[i].AddressFamily() == AF_INET6 ) {
-			haveIPv6Nic = true;
-		} else {
-		}
-	}
 	if ( haveIPv4Nic ) {
 		if ( createSockAddrIn( &addr, "255.255.255.255", DefaultPortNo() ) == NULL ) {
 			return;
 		}
 		broadcastAddr.push_back( addr );
 	}
-	if ( haveIPv6Nic ) {
+	if ( _UseIPv6 && haveIPv6Nic ) {
 		for( unsigned int i = 0; i < nics.size(); i++ ){
 			if ( nics[i].AddressFamily() == AF_INET6 ) {
 				if ( createSockAddrIn( &addr, "ff02::1", DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
@@ -1196,7 +1196,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 		if ( createSockAddrIn( &addr, "127.0.0.1", DefaultPortNo() ) == NULL ) {
 			return;
 		}
-	} else if ( haveIPv6Nic ) {
+	} else if ( _UseIPv6 && haveIPv6Nic ) {
 		if ( createSockAddrIn( &addr, "::1", DefaultPortNo() ) == NULL ) {
 			return;
 		}
@@ -1208,13 +1208,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 #if defined(DEBUG)
 		printf( "Send To %s(%d)\n", getSockAddrInRawAddress( &addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
-		int ret = sendto( udp_sd[0], buf, size + 1, 0, ( struct sockaddr * )&addr, sizeof( struct sockaddr_storage ) );
-		if ( ret <= 0 ) {
-			perror("sendto myself.");
-#if defined(DEBUG)
-			printf("S E N D   F A I L E D\n");fflush( stdout );
-#endif
-		}
+		UdpSendto( &addr, buf, size + 1 );
 	}
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
@@ -1246,7 +1240,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 				i->second.IpAddress().c_str(),
 				i->second.PortNo(),
 				i->second.NetworkAddress().c_str(),
-				i->second.NetMaks().c_str() );fflush( stdout );
+				i->second.NetMask().c_str() );fflush( stdout );
 #endif
 		if ( isSameNetwork( addr, i->second.NetworkAddress() ,i->second.NetMask() ) ) {
 			sock = i->first;
@@ -1277,15 +1271,9 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 #if defined(DEBUG)
 	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
-	int sz = sizeof( struct sockaddr_storage );
-	if ( addr->ss_family == AF_INET ) {
-		sz = sizeof( struct sockaddr_in );
-	} else if ( addr->ss_family == AF_INET6 ) {
-		sz = sizeof( struct sockaddr_in6 );
-	}
-	int ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz );
+	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
-		perror("sendto broadcast.");
+		perror("sendto.");
 #if defined(DEBUG)
 		printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
@@ -1306,6 +1294,14 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 {
 	if ( nics.size() > 0 ) {
 		HostAddress = nics[0].IpAddress();
+		if ( _UseIPv6 ) {
+			for( unsigned int i = 0; i < nics.size(); i++ ){
+				if ( nics[i].AddressFamily() == AF_INET6 ) {
+					HostAddress = nics[i].IpAddress();
+					break;
+				}
+			}
+		}
 	}
 
 	udp_sd.clear();

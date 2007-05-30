@@ -193,9 +193,9 @@ IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
  * @param nics ネットワークインターフェースの一覧
  */
 void
-IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics )
+IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 )
 {
-	IpMessengerAgentImpl::GetNetworkInterfaceInfo( nics );
+	IpMessengerAgentImpl::GetNetworkInterfaceInfo( nics, useIPv6 );
 }
 
 /**
@@ -589,11 +589,29 @@ bool IpMessengerAgent::NoSendMessageOnEncryptionFailed() const
 
 /**
  * 暗号化に失敗したらメッセージを送信しないかどうかのフラグのセッター
- * @param isSave 暗号化に失敗したらメッセージを送信しないかどうかのフラグ
+ * @param isNoSend 暗号化に失敗したらメッセージを送信しないかどうかのフラグ
  */
 void IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )
 {
 	return ipmsgImpl->setNoSendMessageOnEncryptionFailed( isNoSend );
+}
+
+/**
+ * IPv6を使うかどうかのフラグのゲッター
+ * @retval IPv6を使うかどうかのフラグ
+ */
+bool IpMessengerAgent::UseIPv6() const
+{
+	return ipmsgImpl->UseIPv6();
+}
+
+/**
+ * IPv6を使うかどうかのフラグのセッター
+ * @param useIPv6 IPv6を使うかどうかのフラグ
+ */
+void IpMessengerAgent::setUseIPv6( const bool useIPv6 )
+{
+	return ipmsgImpl->setUseIPv6( useIPv6 );
 }
 
 /**

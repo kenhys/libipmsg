@@ -399,20 +399,27 @@ HostList::FindHostByHostName( std::string hostName )
 	std::vector<HostListItem>::iterator ret = end();
 //	printf( "HostName [%s]\n", hostName.c_str() );fflush(stdout);
 //	printf( "HostList.size [%d]\n", items.size() );fflush(stdout);
+
+#if defined(DEBUG)
+	bool isMatch = false;
+#endif
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "ix->HostName [%s]\n", ix->HostName().c_str() );fflush(stdout);
+		printf( "ix->HostName [%s]\n", ix->HostName().c_str() );fflush(stdout);
 #endif
 		if ( ix->HostName() == hostName ) {
 #if defined(DEBUG)
 			printf("HOSTNAME MATCH!!!\n");fflush(stdout);
+			isMatch = true;
 #endif
 			ret = ix;
 			break;
 		}
 	}
 #if defined(DEBUG)
-	printf("HOSTNAME UNMATCH!!!\n");fflush(stdout);
+	if ( !isMatch ){
+		printf("HOSTNAME UNMATCH!!!\n");fflush(stdout);
+	}
 #endif
 	Unlock( "HostList::FindHostByHostName()" );
 	return ret;

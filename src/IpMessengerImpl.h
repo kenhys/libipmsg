@@ -62,6 +62,7 @@ class IpMessengerAgentImpl {
 		IPMSG_READONLY_PROPERTY( std::string, LoginName );
 		IPMSG_READONLY_PROPERTY( std::string, HostName );
 		IPMSG_PROPERTY( bool, IsDialup );
+		IPMSG_PROPERTY( bool, UseIPv6 );
 		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
 		IPMSG_PROPERTY( bool, SaveSentMessage );
 		IPMSG_PROPERTY( bool, SaveRecievedMessage );
@@ -70,7 +71,7 @@ class IpMessengerAgentImpl {
 
 		static IpMessengerAgentImpl *GetInstance();
 		static void Release();
-		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo=IPMSG_DEFAULT_PORT );
+		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo=IPMSG_DEFAULT_PORT );
 		void ClearBroadcastAddress();
 		void DeleteBroadcastAddress( std::string addr );
 		void AddBroadcastAddress( std::string addr );
@@ -251,8 +252,8 @@ class IpMessengerAgentImpl {
 
 //Network.cpp
 int bindSocket( int proto, struct sockaddr_storage addr, const char *devname );
+int sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr );
 struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char * devname=NULL );
-//void setSockAddrInPortNo( struct sockaddr_storage *addr, int port );
 int getSockAddrInPortNo( const struct sockaddr_storage *addr );
 int getSockAddrInPortNo( const struct sockaddr_storage &addr );
 std::string getSockAddrInRawAddress( const struct sockaddr_storage *addr );
@@ -261,7 +262,7 @@ std::string getSockAddrInAddressFamilyString( const struct sockaddr_storage &add
 std::string getAddressFamilyString( int family );
 bool isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask );
 bool isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check );
-void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, int defaultPortNo );
+void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo );
 #ifndef HAVE_GETIFADDR
 void GetNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo );
 void GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo );
