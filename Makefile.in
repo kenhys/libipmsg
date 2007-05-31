@@ -175,7 +175,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = src
-EXTRA_DIST = libipmsg-vl.spec libipmsg-fc.spec sol10_blastwave_configure.sh
+EXTRA_DIST = spec/libipmsg-vl.spec spec/libipmsg-fc.spec sol10_blastwave_configure.sh
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -378,7 +378,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/test
+	$(mkdir_p) $(distdir)/spec $(distdir)/test
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
