@@ -142,6 +142,7 @@ class HostListItem{
 		IPMSG_PROPERTY( std::string, UserName );
 		IPMSG_PROPERTY( std::string, HostName );
 		IPMSG_PROPERTY( unsigned long, CommandNo );
+		IPMSG_PROPERTY( int, AddressFamily );
 		IPMSG_PROPERTY( std::string, IpAddress );
 		IPMSG_PROPERTY( std::string, Nickname );
 		IPMSG_PROPERTY( std::string, GroupName );

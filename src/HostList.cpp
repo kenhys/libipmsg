@@ -335,6 +335,9 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
 		} else {
+			if ( item.AddressFamily() == AF_INET6 && addr->ss_family == AF_INET ) {
+				continue;
+			}	
 			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%s\a%s\a%s\a",
 							item.UserName() == "" ? "\b" : item.UserName().c_str(),
 							item.HostName() == "" ? "\b" : item.HostName().c_str(),
