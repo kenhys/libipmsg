@@ -135,13 +135,14 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 IpMessengerAgentImpl *
 IpMessengerAgentImpl::GetInstance()
 {
+	IPMSG_FUNC_ENTER("IpMessengerAgentImpl *IpMessengerAgentImpl::GetInstance()");
 	mutex_init_result = 0; //fix warnings, but no effect.
 	IpMsgMutexLock( "IpMessengerAgentImpl::GetInstance()", &instanceMutex );
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgentImpl();
 	}
 	IpMsgMutexUnlock( "IpMessengerAgentImpl::GetInstance()", &instanceMutex );
-	return myInstance;
+	IPMSG_FUNC_RETURN( myInstance );
 }
 
 /**
@@ -154,14 +155,16 @@ IpMessengerAgentImpl::GetInstance()
 void
 IpMessengerAgentImpl::Release()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::Release()");
 	IpMsgMutexLock( "IpMessengerAgentImpl::Release()", &instanceMutex );
 	if ( myInstance == NULL ) {
 		IpMsgMutexUnlock( "IpMessengerAgentImpl::Release()", &instanceMutex );
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	delete myInstance;
 	myInstance = NULL;
 	IpMsgMutexUnlock( "IpMessengerAgentImpl::Release()", &instanceMutex );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -176,6 +179,7 @@ IpMessengerAgentImpl::Release()
 IpMessengerAgentImpl::IpMessengerAgentImpl()
 		:_DefaultPortNo( IPMSG_DEFAULT_PORT )
 {
+	IPMSG_FUNC_ENTER("IpMessengerAgentImpl::IpMessengerAgentImpl()");
 	CryptoInit();
 	srandom( time( NULL ) );
 	converter = new NullFileNameConverter();
@@ -185,6 +189,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	setSaveRecievedMessage( true );
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, DefaultPortNo() );
 	event = new IpMessengerNullEvent();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -198,6 +203,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
  */
 IpMessengerAgentImpl::~IpMessengerAgentImpl()
 {
+	IPMSG_FUNC_ENTER("IpMessengerAgentImpl::~IpMessengerAgentImpl()");
 	if ( networkStarted ){
 		Logout();
 		StopNetwork();
@@ -206,6 +212,7 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
 	delete converter;
 	delete compare;
 	delete event;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -217,8 +224,10 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
 void
 IpMessengerAgentImpl::StartNetwork()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StartNetwork()");
 	std::vector<NetworkInterface> nics;
 	StartNetwork( nics );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -232,10 +241,12 @@ IpMessengerAgentImpl::StartNetwork()
 void
 IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )");
 	NetworkInit( nics );
 	Logout();
 	// TODO 受信スレッド開始
 	networkStarted = true;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -247,9 +258,11 @@ IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 void
 IpMessengerAgentImpl::StopNetwork()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StopNetwork()");
 	// TODO 受信スレッド終了。＆待ち合わせ。
 	NetworkEnd();
 	networkStarted = false;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -261,8 +274,10 @@ IpMessengerAgentImpl::StopNetwork()
 void
 IpMessengerAgentImpl::RestartNetwork()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::RestartNetwork()");
 	std::vector<NetworkInterface> nics;
 	RestartNetwork( nics );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -277,12 +292,14 @@ IpMessengerAgentImpl::RestartNetwork()
 void
 IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics )");
 	if ( networkStarted ) {
 		Logout();
 		StopNetwork();
 	}
 	StartNetwork( nics );
 	Login( Nickname, GroupName );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -292,7 +309,8 @@ IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics 
 FileNameConverter *
 IpMessengerAgentImpl::GetFileNameConverter() const
 {
-	return converter;
+	IPMSG_FUNC_ENTER("FileNameConverter *IpMessengerAgentImpl::GetFileNameConverter() const");
+	IPMSG_FUNC_RETURN( converter );
 }
 
 /**
@@ -306,15 +324,17 @@ IpMessengerAgentImpl::GetFileNameConverter() const
 void
 IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )");
 	if ( conv == NULL ){
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	//自己代入を考慮
 	if ( conv == converter ){
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	delete converter;
 	converter = const_cast<FileNameConverter *>( conv );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -324,7 +344,8 @@ IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )
 HostListComparator *
 IpMessengerAgentImpl::GetSortHostListComparator() const
 {
-	return compare;
+	IPMSG_FUNC_ENTER("HostListComparator *IpMessengerAgentImpl::GetSortHostListComparator() const");
+	IPMSG_FUNC_RETURN( compare );
 }; 
 
 /**
@@ -338,15 +359,17 @@ IpMessengerAgentImpl::GetSortHostListComparator() const
 void
 IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *comparator )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *comparator )");
 	if ( comparator == NULL ){
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	//自己代入を考慮
 	if ( comparator == compare ){
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	delete compare;
 	compare = const_cast<HostListComparator *>( comparator );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -356,7 +379,8 @@ IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *compa
 IpMessengerEvent *
 IpMessengerAgentImpl::GetEventObject() const
 {
-	return event;
+	IPMSG_FUNC_ENTER("IpMessengerEvent *IpMessengerAgentImpl::GetEventObject() const");
+	IPMSG_FUNC_RETURN( event );
 }; 
 
 /**
@@ -370,15 +394,17 @@ IpMessengerAgentImpl::GetEventObject() const
 void
 IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )");
 	if ( evt == NULL ){
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	//自己代入を考慮
 	if ( evt == event ){
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	delete event;
 	event = const_cast<IpMessengerEvent *>( evt );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -391,7 +417,9 @@ IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
 void
 IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )");
 	ipmsg::GetNetworkInterfaceInfo( nics, useIPv6, defaultPortNo );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -404,6 +432,7 @@ IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& ni
 void
 IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )");
 	haveIPv4Nic = false;
 	haveIPv6Nic = false;
 
@@ -445,6 +474,7 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 			InitRecv( NICs );
 		}
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -456,6 +486,7 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 void
 IpMessengerAgentImpl::NetworkEnd()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::NetworkEnd()");
 	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		close(udp_sd[i]);
 	}
@@ -465,6 +496,7 @@ IpMessengerAgentImpl::NetworkEnd()
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -478,6 +510,7 @@ IpMessengerAgentImpl::NetworkEnd()
 void
 IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -503,6 +536,7 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 	//0.05秒まつ。
 	usleep( 50000L );
 	RecvPacket();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -514,6 +548,7 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 void
 IpMessengerAgentImpl::Logout()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::Logout()");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -523,6 +558,7 @@ IpMessengerAgentImpl::Logout()
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_EXIT, sendBuf, sendBufLen );
 	RecvPacket();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -532,7 +568,8 @@ IpMessengerAgentImpl::Logout()
 HostList&
 IpMessengerAgentImpl::GetHostList()
 {
-	return hostList;
+	IPMSG_FUNC_ENTER("HostList& IpMessengerAgentImpl::GetHostList()");
+	IPMSG_FUNC_RETURN( hostList );
 }
 
 /**
@@ -550,6 +587,7 @@ IpMessengerAgentImpl::GetHostList()
 HostList&
 IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 {
+	IPMSG_FUNC_ENTER("HostList& IpMessengerAgentImpl::UpdateHostList( bool isRetry )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -607,7 +645,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 		event->UpdateHostListAfter( hostList );
 		event->RefreashHostListAfter( hostList );
 	}
-	return hostList;
+	IPMSG_FUNC_RETURN( hostList );
 }
 
 /**
@@ -617,7 +655,8 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 bool
 IpMessengerAgentImpl::IsAbsence() const
 {
-	return _IsAbsence;
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::IsAbsence() const");
+	IPMSG_FUNC_RETURN( _IsAbsence );
 }
 /**
  * 不在モードをクリアする。
@@ -625,11 +664,13 @@ IpMessengerAgentImpl::IsAbsence() const
 void
 IpMessengerAgentImpl::ResetAbsence()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::ResetAbsence()");
 	_IsAbsence = false;
 	localEncoding = "";
 	std::vector<AbsenceMode> d;
 	absenceModeList = d;
 	SendAbsence();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -640,11 +681,13 @@ IpMessengerAgentImpl::ResetAbsence()
 void
 IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )");
 	_IsAbsence = true;
 
 	localEncoding = encoding;
 	absenceModeList = absenceModes;
 	SendAbsence();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -661,8 +704,9 @@ IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode>
 bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
 	AttachFileList files;
-	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL );
+	IPMSG_FUNC_RETURN( SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL ) );
 }
 
 /**
@@ -680,9 +724,10 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
 	AttachFileList files;
 	files.AddFile( file );
-	return SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL );
+	IPMSG_FUNC_RETURN( SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL ) );
 }
 
 /**
@@ -703,6 +748,7 @@ bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
 		
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	size_t optBufSize = GetMaxOptionBufferSize() + 1;
@@ -714,7 +760,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 	struct sockaddr_storage addr;
 	bool isEncrypted = false;
 	if ( createSockAddrIn( &addr, host.IpAddress(), host.PortNo() ) == NULL ) {
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	RecvPacket();
@@ -729,7 +775,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 		} else if ( NoSendMessageOnEncryptionFailed() ) {
 			printf("暗号化失敗...\n");fflush(stdout);
 			free( optBuf );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		} else {
 			optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 			memcpy( optBuf, msg.c_str(), optBufLen );
@@ -827,7 +873,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 #endif
 
 	free( optBuf );
-	return true;
+	IPMSG_FUNC_RETURN( true );
 }
 
 /**
@@ -836,7 +882,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 void
 IpMessengerAgentImpl::ClearBroadcastAddress()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::ClearBroadcastAddress()");
 	broadcastAddr.clear();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -846,6 +894,7 @@ IpMessengerAgentImpl::ClearBroadcastAddress()
 void
 IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )");
 	std::vector<struct sockaddr_storage>::iterator net = FindBroadcastNetworkByAddress( addr );
 	if ( net != broadcastAddr.end() ) {
 #if defined(DEBUG)
@@ -853,8 +902,9 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )
 		printf( "Delete Broadcast Address from %s(%d)\n", getSockAddrInRawAddress( netaddr ).c_str(), ntohs( getSockAddrInPortNo( netaddr ) ) );fflush( stdout );
 #endif
 		broadcastAddr.erase( net );
-		return;
+		IPMSG_FUNC_EXIT;
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -864,20 +914,22 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )
 void
 IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )");
 	struct sockaddr_storage addAddr;
 	if ( createSockAddrIn( &addAddr, addr, DefaultPortNo() ) == NULL ) {
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 
 	std::string broadIp = getSockAddrInRawAddress( addAddr );
 	std::vector<struct sockaddr_storage>::iterator net = FindBroadcastNetworkByAddress( broadIp );
 	if ( net != broadcastAddr.end() ) {
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 #if defined(DEBUG)
 	printf( "Add Broadcast Address To %s(%d)\n", getSockAddrInRawAddress( &addAddr ).c_str(), ntohs( getSockAddrInPortNo( addAddr ) ) );fflush( stdout );
 #endif
 	broadcastAddr.push_back( addAddr );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -888,12 +940,13 @@ IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )
 std::vector<struct sockaddr_storage>::iterator
 IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER("std::vector<struct sockaddr_storage>::iterator IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )");
 	for( std::vector<struct sockaddr_storage>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 		if ( getSockAddrInRawAddress( &(*ixaddr) ) == addr ) {
-			return ixaddr;
+			IPMSG_FUNC_RETURN( ixaddr );
 		}
 	}
-	return broadcastAddr.end();
+	IPMSG_FUNC_RETURN( broadcastAddr.end() );
 }
 
 /**
@@ -906,17 +959,19 @@ IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 void
 IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )");
 	char sendBuf[MAX_UDPBUF]={0};
 	int sendBufLen;
 	struct sockaddr_storage addr;
 	if ( createSockAddrIn( &addr, host.IpAddress(), host.PortNo() ) == NULL ) {
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETINFO,
 										_LoginName, _HostName,
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_GETINFO, sendBuf, sendBufLen, addr );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -933,15 +988,16 @@ IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
 std::string
 IpMessengerAgentImpl::GetInfo( HostListItem& host )
 {
+	IPMSG_FUNC_ENTER("std::string IpMessengerAgentImpl::GetInfo( HostListItem& host )");
 	RecvPacket();
 	for( int i = 0; i < 5; i++ ) {
 		RecvPacket();
 	}
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
-		return hostIt->Version();
+		IPMSG_FUNC_RETURN( hostIt->Version() );
 	}
-	return "";
+	IPMSG_FUNC_RETURN( "" );
 }
 
 /**
@@ -954,12 +1010,13 @@ IpMessengerAgentImpl::GetInfo( HostListItem& host )
 void
 IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )");
 	char sendBuf[MAX_UDPBUF]={0};
 	int sendBufLen;
 	struct sockaddr_storage addr;
 
 	if ( createSockAddrIn( &addr, host.IpAddress(), host.PortNo() ) == NULL ) {
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_GETABSENCEINFO,
@@ -967,6 +1024,7 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_GETABSENCEINFO, sendBuf, sendBufLen, addr );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -983,6 +1041,7 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
 std::string
 IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 {
+	IPMSG_FUNC_ENTER("std::string IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )");
 	QueryAbsenceInfo( host );
 	RecvPacket();
 	for( int i = 0; i < 5; i++ ) {
@@ -990,9 +1049,9 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 	}
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
-		return hostIt->AbsenceDescription();
+		IPMSG_FUNC_RETURN( hostIt->AbsenceDescription() );
 	}
-	return "";
+	IPMSG_FUNC_RETURN( "" );
 }
 
 /**
@@ -1002,7 +1061,8 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 std::vector<GroupItem>
 IpMessengerAgentImpl::GetGroupList()
 {
-	return hostList.GetGroupList();
+	IPMSG_FUNC_ENTER("std::vector<GroupItem> IpMessengerAgentImpl::GetGroupList()");
+	IPMSG_FUNC_RETURN( hostList.GetGroupList() );
 }
 
 /**
@@ -1012,6 +1072,7 @@ IpMessengerAgentImpl::GetGroupList()
 void
 IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
@@ -1025,7 +1086,7 @@ IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_DELMSG, sendBuf, sendBufLen, msg.MessagePacket().Addr() );
-	return;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1035,6 +1096,7 @@ IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 void
 IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char packetNoBuf[MAX_UDPBUF];
@@ -1050,6 +1112,7 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 	}
 	msg.setIsConfirmed( true );
 //	RecvPacket();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1059,10 +1122,12 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 void
 IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )");
 	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( msg.PacketNo() );
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsConfirmAnswered( true );
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 // private methods start here
@@ -1076,10 +1141,11 @@ IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
 void
 IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )");
 	struct sockaddr_storage addr;
 	if ( haveIPv4Nic ) {
 		if ( createSockAddrIn( &addr, "255.255.255.255", DefaultPortNo() ) == NULL ) {
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 		broadcastAddr.push_back( addr );
 	}
@@ -1087,7 +1153,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 		for( unsigned int i = 0; i < nics.size(); i++ ){
 			if ( nics[i].AddressFamily() == AF_INET6 ) {
 				if ( createSockAddrIn( &addr, "ff02::1", DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
-					return;
+					IPMSG_FUNC_EXIT;
 				}
 			}
 		}
@@ -1097,7 +1163,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
 		if ( createSockAddrIn( &addr, GetBroadcastAddress( nics[i].AddressFamily(), nics[i].NetworkAddress(), nics[i].NetMask() ), DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 		bool IsFound = false;
 		for( std::vector<struct sockaddr_storage>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
@@ -1111,6 +1177,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 			broadcastAddr.push_back( addr );
 		}
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1122,6 +1189,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 void
 IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )");
 #if defined(DEBUG)
 	printf("== S E N D   T C P ====================================>\n");fflush( stdout );
 #endif
@@ -1137,6 +1205,7 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 #if defined(DEBUG)
 	printf("<= S E N D   T C P======================================\n");fflush( stdout );
 #endif
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1148,6 +1217,7 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 void
 IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage to_addr )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage to_addr )");
 #if defined(DEBUG)
 	printf("== S E N D ============================================>\n");fflush( stdout );
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
@@ -1160,6 +1230,7 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 #if defined(DEBUG)
 	printf("<= S E N D =============================================\n");fflush( stdout );
 #endif
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1173,6 +1244,7 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 void
 IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int size )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int size )");
 #if defined(DEBUG)
 	printf("== S E N D   B R O A D C A S T ========================>\n");fflush( stdout );
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
@@ -1185,7 +1257,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 		if ( ixhost->CommandNo() | IPMSG_DIALUPOPT ) {
 			struct sockaddr_storage addr;
 			if ( createSockAddrIn( &addr, ixhost->IpAddress(), ixhost->PortNo() ) == NULL ) {
-				return;
+				IPMSG_FUNC_EXIT;
 			}
 			UdpSendto( &addr, buf, size );
 		}
@@ -1194,14 +1266,14 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	struct sockaddr_storage addr;
 	if ( haveIPv4Nic ) {
 		if ( createSockAddrIn( &addr, "127.0.0.1", DefaultPortNo() ) == NULL ) {
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 	} else if ( _UseIPv6 && haveIPv6Nic ) {
 		if ( createSockAddrIn( &addr, "::1", DefaultPortNo() ) == NULL ) {
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 	} else {
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 
 	if ( udp_sd.size() > 0 ) {
@@ -1213,6 +1285,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
 #endif
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1224,8 +1297,9 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 void
 IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf, int size )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf, int size )");
 	if ( udp_sd.size() == 0 ) {
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	int sock = -1;
 	int same_family_sock = -1;
@@ -1255,6 +1329,9 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 		//同じアドレスファミリのソケットをデフォルトとして用いる。
 		if ( same_family_sock < 0 && addr->ss_family == i->second.AddressFamily() ) {
 			same_family_sock = i->first;
+#if defined(DEBUG)
+			from_addr = i->second.IpAddress();
+#endif
 		}
 	}
 	//送信ソケットが未確定の場合で、
@@ -1263,6 +1340,9 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 		if ( same_family_sock < 0 ) {
 			//ソケットの先頭のソケットを用いる。（エラーになる可能性有り）
 			sock = udp_sd[0];
+#if defined(DEBUG)
+			from_addr = sd_addr.begin()->second.IpAddress();
+#endif
 		} else {
 			//同じアドレスファミリのソケットの先頭のソケットを用いる。（エラーにはならないが到達しないかも）
 			sock = same_family_sock;
@@ -1279,6 +1359,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 		printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1293,6 +1374,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 void
 IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )");
 	if ( nics.size() > 0 ) {
 		HostAddress = nics[0].IpAddress();
 		if ( _UseIPv6 ) {
@@ -1312,7 +1394,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 		struct sockaddr_storage addr;
 
 		if ( createSockAddrIn( &addr, nics[i].IpAddress(), nics[i].PortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 
 		int sock = -1;
@@ -1357,7 +1439,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 		}
 
 		if ( createSockAddrIn( &addr, nics[i].BroadcastAddress(), nics[i].PortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 		sock = InitUdpRecv( addr, nics[i].DeviceName().c_str() );
 		if ( sock > 0 ) {
@@ -1395,6 +1477,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			max_sd = tcp_sd[i];
 		}
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1409,9 +1492,10 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 int
 IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *devname )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *devname )");
 	int sock = bindSocket( SOCK_DGRAM, addr, devname );
 	if ( sock < 0 ) {
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 
 	int buf_size = MAX_SOCKBUF, buf_minsize = MAX_SOCKBUF / 2;
@@ -1419,16 +1503,16 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *dev
 		 setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
 		perror("setsockopt(sendbuf)");
 		close( sock );
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 	if ( setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char *)&buf_size, sizeof(int)) != 0 &&
 		 setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char *)&buf_minsize, sizeof(int)) != 0 ) {
 		perror("setsockopt(recvbuf)");
 		close( sock );
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 
-	return sock;
+	IPMSG_FUNC_RETURN( sock );
 }
 
 /**
@@ -1444,23 +1528,24 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *dev
 int
 IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr, const char *devname )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr, const char *devname )");
 	int sock = bindSocket( SOCK_STREAM, addr, devname );
 	if ( sock < 0 ) {
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 
 	int yes = 1;
 	if ( sock >= 0 && setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(yes)) != 0 ) {
 		perror("setsockopt(reuseaddr)");
 		close( sock );
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 	if ( sock >= 0 && listen(sock, 5 ) != 0 ) {
 		perror("setsockopt(reuseaddr)");
 		close( sock );
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
-	return sock;
+	IPMSG_FUNC_RETURN( sock );
 }
 
 /**
@@ -1470,7 +1555,8 @@ IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr, const char *dev
 int
 IpMessengerAgentImpl::Process()
 {
-	return RecvPacket();
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::Process()");
+	IPMSG_FUNC_RETURN( RecvPacket() );
 }
 
 /**
@@ -1486,6 +1572,7 @@ IpMessengerAgentImpl::Process()
 int
 IpMessengerAgentImpl::RecvPacket()
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::RecvPacket()");
 	char buf[MAX_UDPBUF];
 	int selret = 1;
 	int ret = 0;
@@ -1567,7 +1654,7 @@ IpMessengerAgentImpl::RecvPacket()
 	//ホストリスト取得のリトライチェック
 	CheckGetHostListRetry( nowTime );
 
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -1580,6 +1667,7 @@ IpMessengerAgentImpl::RecvPacket()
 bool
 IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf )");
 	socklen_t sender_addr_len = 0;
 	bool recieved = false;
 	int size = *sz;
@@ -1601,7 +1689,7 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr
 			break;
 		}
 	}
-	return recieved;
+	IPMSG_FUNC_RETURN( recieved );
 }
 
 /**
@@ -1615,6 +1703,7 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr
 bool
 IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket )");
 	socklen_t sender_addr_len = 0;
 	bool recieved = false;
 	int size = *sz;
@@ -1640,7 +1729,7 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr
 			break;
 		}
 	}
-	return recieved;
+	IPMSG_FUNC_RETURN( recieved );
 }
 
 /**
@@ -1652,14 +1741,15 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr
 bool
 IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )");
 	//直近のパケットから探す。
 	for( int i = (int)PacketsForChecking.size() - 1; i >= 0; i-- ){
 		if ( PacketsForChecking[i].PacketNo()             == packet.PacketNo() &&
 			 isSameSockAddrIn( PacketsForChecking[i].Addr(), packet.Addr() ) ) {
-			return true;
+			IPMSG_FUNC_RETURN( true );
 		}
 	}
-	return false;
+	IPMSG_FUNC_RETURN( false );
 }
 
 /**
@@ -1669,6 +1759,7 @@ IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
 void
 IpMessengerAgentImpl::PurgePacket( time_t nowTime )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::PurgePacket( time_t nowTime )");
 	for( std::vector<Packet>::iterator pack = PacketsForChecking.begin(); pack != PacketsForChecking.end(); pack++ ){
 		if ( nowTime > pack->Recieved() + PACKET_CHECK_FOR_SAVING_INTERVAL ) {
 			pack = PacketsForChecking.erase( pack ) - 1;
@@ -1676,6 +1767,7 @@ IpMessengerAgentImpl::PurgePacket( time_t nowTime )
 			break;
 		}
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1685,6 +1777,7 @@ IpMessengerAgentImpl::PurgePacket( time_t nowTime )
 void
 IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )");
 	for( std::vector<SentMessage>::iterator ixmsg = sentMsgList.begin(); ixmsg != sentMsgList.end(); ixmsg++ ) {
 		if ( ixmsg->needSendRetry( nowTime ) ) {
 			//再送信
@@ -1716,6 +1809,7 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 			//イベントで継続を設定しない場合はリトライマックスオーバーしたらやめる。
 		}
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1725,6 +1819,7 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 void
 IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )");
 	if ( hostList.IsAsking() ){
 		hostList.setPrevTry( time( NULL ) );
 		if ( hostList.PrevTry() - hostList.AskStartTime() > GETLIST_RETRY_INTERVAL ) {
@@ -1746,6 +1841,7 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 			}
 		}
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 // Protocol event processor start here.
@@ -1756,6 +1852,7 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 void
 IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )");
 #if defined(DEBUG)
 	printf( "PACKET.COMMAND=[%s]\n", GetCommandString( packet.CommandMode() ).c_str() );fflush( stdout );
 #endif
@@ -1787,6 +1884,7 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 		default:
 			fprintf(stderr, "PROTOCOL COMMAND MISS!!(CommandMode =i%ld\n", packet.CommandMode() );fflush(stderr);
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -1799,10 +1897,11 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvNoOperation\n");fflush( stdout );
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -1814,6 +1913,7 @@ IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )
 int
 IpMessengerAgentImpl::SendNoOperation()
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::SendNoOperation()");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -1822,7 +1922,7 @@ IpMessengerAgentImpl::SendNoOperation()
 										  NULL, 0,
 										  sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_NOOPERATION, sendBuf, sendBufLen );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -1836,6 +1936,7 @@ IpMessengerAgentImpl::SendNoOperation()
 int
 IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	std::string optBuf;
@@ -1873,7 +1974,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 		}
 		event->RefreashHostListAfter( hostList );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -1885,6 +1986,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 int
 IpMessengerAgentImpl::SendAbsence()
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::SendAbsence()");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	std::string optBuf;
@@ -1910,7 +2012,7 @@ IpMessengerAgentImpl::SendAbsence()
 										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ABSENCE, sendBuf, sendBufLen );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -1923,6 +2025,7 @@ IpMessengerAgentImpl::SendAbsence()
 int
 IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrAbsence\n");fflush( stdout );
 #endif
@@ -1939,7 +2042,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 		}
 		event->RefreashHostListAfter( hostList );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -1952,6 +2055,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrExit\n");fflush( stdout );
 #endif
@@ -1969,7 +2073,7 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 		}
 		event->RefreashHostListAfter( hostList );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -1982,6 +2086,7 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )");
 	char *dmyptr;
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 10 );
 	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packetNo );
@@ -1997,7 +2102,7 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvRecvMsg\n");fflush( stdout );
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2011,6 +2116,7 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char packetNoBuf[MAX_UDPBUF];
@@ -2037,7 +2143,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvReadMsg\n");fflush( stdout );
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2050,6 +2156,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char *dmyptr;
 	unsigned long packet_no = strtoul( packet.Option().c_str(), &dmyptr, 10 );
 	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packet_no );
@@ -2059,7 +2166,7 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvDelMsg\n");fflush( stdout );
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2072,10 +2179,11 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsReadMsg\n");fflush( stdout );
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2092,6 +2200,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char packetNoBuf[MAX_UDPBUF];
@@ -2109,7 +2218,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 #if defined(DEBUG) || !defined(NDEBUG)
 			printf("すでに追加済み\n");fflush( stdout );
 #endif
-			return 0;
+			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
@@ -2191,7 +2300,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	if ( SaveRecievedMessage() && !eventRet ){
 		recvMsgList.append( message );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2204,6 +2313,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -2215,7 +2325,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_OKGETLIST, sendBuf, sendBufLen, packet.Addr() );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2228,6 +2338,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -2239,7 +2350,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_OKGETLIST, sendBuf, sendBufLen, packet.Addr() );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2252,6 +2363,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	int start = 0;
@@ -2269,7 +2381,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 										hosts.c_str(), hosts.length(),
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_ANSLIST, sendBuf, sendBufLen, packet.Addr() );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2282,6 +2394,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	std::string hosts;
@@ -2294,7 +2407,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2307,6 +2420,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsEntry\n");fflush( stdout );
 #endif
@@ -2318,7 +2432,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 	if ( event != NULL ) {
 		event->RefreashHostListAfter( hostList );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2331,6 +2445,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char nextBuf[1024];
@@ -2357,7 +2472,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 	std::string packetIpAddress = getSockAddrInRawAddress( packet.Addr() );
 	for( unsigned int i = 0; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
-			return 0;
+			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
 	//自分以外からのホストリスト通知があれば、リトライ関連変数をクリア。
@@ -2365,7 +2480,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 	hostList.setAskStartTime( 0L );
 	hostList.setPrevTry( 0L );
 	hostList.setRetryCount( 0 );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2378,6 +2493,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	std::string version = IPMSG_AGENT_VERSION;
@@ -2390,7 +2506,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 										version.c_str(), version.length(),
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_SENDINFO, sendBuf, sendBufLen, packet.Addr() );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2403,6 +2519,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )");
 	std::string pIpAddress = getSockAddrInRawAddress( packet.Addr() );
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
@@ -2411,7 +2528,7 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 			event->VersionInfoRecieveAfter( *hostIt, packet.Option() );
 		}
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2424,6 +2541,7 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
@@ -2452,7 +2570,7 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 										AbsenceDescription.c_str(), AbsenceDescription.length(),
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_SENDABSENCEINFO, sendBuf, sendBufLen, packet.Addr() );
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2465,6 +2583,7 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )");
 	std::string pIpAddress = getSockAddrInRawAddress( packet.Addr() );
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
@@ -2473,7 +2592,7 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 			event->AbsenceDetailRecieveAfter( *hostIt, packet.Option() );
 		}
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2487,6 +2606,7 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 static unsigned long
 GetSendFileOffsetInPacket( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("static unsigned long GetSendFileOffsetInPacket( const Packet& packet )");
 	char *dmyptr;
 	char *startptr;
 	strtoul( packet.Option().c_str(), &dmyptr, 16 );
@@ -2495,7 +2615,7 @@ GetSendFileOffsetInPacket( const Packet& packet )
 	startptr = ++dmyptr;
 	unsigned long offset = strtoul( startptr, &dmyptr, 16 );
 
-	return offset;
+	IPMSG_FUNC_RETURN( offset );
 }
 
 /**
@@ -2508,6 +2628,7 @@ GetSendFileOffsetInPacket( const Packet& packet )
 int
 IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "TcpRecvEventGetFileData\n" );fflush( stdout );
 #endif
@@ -2518,13 +2639,13 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 
 	if ( pthread_create( &t_id, NULL, GetFileDataThread, (void *)packetClone ) != 0 ){
 		perror("TcpRecvEventGetFileData:pthread_create");
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 	if ( pthread_detach( t_id ) != 0 ){
 		perror("TcpRecvEventGetFileData:pthread_detach");
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2538,6 +2659,7 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "TcpRecvEventReleaseFiles\n" );fflush( stdout );
 #endif
@@ -2547,7 +2669,7 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsgList.erase(sentMsg);
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2560,6 +2682,7 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )");
 #ifdef HAVE_OPENSSL
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
@@ -2581,7 +2704,7 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 		SendPacket( IPMSG_ANSPUBKEY, sendBuf, sendBufLen, packet.Addr() );
 	}
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2594,6 +2717,7 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 int
 IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )");
 #ifdef HAVE_OPENSSL
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvAnsPubKey[%s]\n", packet.Option().c_str());fflush( stdout );
@@ -2605,7 +2729,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 	//NNNNN=RSAモジュール
 	char *opt = (char *)calloc( packet.Option().length() + 1, 1 );
 	if ( opt == NULL ){
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	memcpy( opt, packet.Option().c_str(), packet.Option().length() );
 	opt[packet.Option().length()] = 0;
@@ -2617,7 +2741,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		cap = strtoul( opt, &dmyptr, 16 );
 	} else {
 		free( opt );
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	token = nextpos;
 	token = strtok_r( token, "-", &nextpos );
@@ -2626,14 +2750,14 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		meth = token;
 	} else {
 		free( opt );
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	std::string pkey;
 	if ( token != NULL ) {
 		pkey = nextpos;
 	} else {
 		free( opt );
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	free( opt );
 	std::string pIpAddress = getSockAddrInRawAddress( packet.Addr() );
@@ -2644,7 +2768,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		hostIt->setEncryptMethodHex( meth );
 	}
 #endif
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2657,19 +2781,20 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 int
 IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )");
 	pthread_t t_id;
 	Packet *packetClone = new Packet( packet );
 
 	if ( pthread_create( &t_id, NULL, GetDirFilesThread, (void *)packetClone ) != 0 ){
 		perror("TcpRecvEventGetFileData:pthread_create");
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 	if ( pthread_detach( t_id ) != 0 ){
 		perror("TcpRecvEventGetFileData:pthread_detach");
-		return -1;
+		IPMSG_FUNC_RETURN( -1 );
 	}
 
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
@@ -2682,6 +2807,7 @@ IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 void *
 ipmsg::GetFileDataThread( void *param )
 {
+	IPMSG_FUNC_ENTER("void * ipmsg::GetFileDataThread( void *param )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "GetFileDataThread\n" );fflush( stdout );
 #endif
@@ -2692,13 +2818,13 @@ ipmsg::GetFileDataThread( void *param )
 	if ( msg == IpMessengerAgentImpl::GetInstance()->GetSentMessages()->end() ){
 		close( packet->TcpSocket() );
 		delete packet;
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	std::vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
 	if ( FoundFile == msg->Files().end() ){
 		close( packet->TcpSocket() );
 		delete packet;
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 
 	FoundFile->setIsDownloading( true );
@@ -2712,7 +2838,7 @@ ipmsg::GetFileDataThread( void *param )
 	FoundFile->setIsDownloaded( ret );
 	close( packet->TcpSocket() );
 	delete packet;
-	return NULL;
+	IPMSG_FUNC_RETURN( NULL );
 }
 
 /**
@@ -2725,6 +2851,7 @@ ipmsg::GetFileDataThread( void *param )
 void *
 ipmsg::GetDirFilesThread( void *param )
 {
+	IPMSG_FUNC_ENTER("void * ipmsg::GetDirFilesThread( void *param )");
 	Packet *packet = (Packet *)param;
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "TcpRecvEventGetDirFiles\n" );fflush( stdout );
@@ -2733,13 +2860,13 @@ ipmsg::GetDirFilesThread( void *param )
 	if ( msg == myInstance->GetSentMessages()->end() ){
 		close( packet->TcpSocket() );
 		delete packet;
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	std::vector<AttachFile>::iterator FoundFile = msg->FindAttachFileByPacket( *packet );
 	if ( FoundFile == msg->Files().end() ){
 		close( packet->TcpSocket() );
 		delete packet;
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 
 	std::vector<std::string> DownloadFileList;
@@ -2750,7 +2877,7 @@ ipmsg::GetDirFilesThread( void *param )
 	close( packet->TcpSocket() );
 	delete packet;
 
-	return NULL;
+	IPMSG_FUNC_RETURN( NULL );
 }
 
 /**
@@ -2763,12 +2890,13 @@ ipmsg::GetDirFilesThread( void *param )
 bool
 IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, std::vector<std::string> &files )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, std::vector<std::string> &files )");
 	DIR *d= opendir( dir.c_str() );
 	struct stat st;
 	char headBuf[8192];
 
 	if ( d == NULL ) {
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	stat( cd.c_str(), &st );
@@ -2800,7 +2928,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 				if ( !SendDirData( sock, dent->d_name, dir_name, files ) ){
 					closedir( d );
 					free( buf );
-					return false;
+					IPMSG_FUNC_RETURN( false );
 				}
 			} else {
 #if defined(INFO) || !defined(NDEBUG)
@@ -2819,7 +2947,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 				if ( !SendFile( sock, dir_name, st.st_mtime, st.st_size, NULL , 0 ) ){
 					closedir( d );
 					free( buf );
-					return false;
+					IPMSG_FUNC_RETURN( false );
 				}
 			}
 		}
@@ -2830,7 +2958,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 	send( sock, headBuf, headBufLen, 0 );
 	closedir( d );
 	free( buf );
-	return true;
+	IPMSG_FUNC_RETURN( true );
 }
 
 /**
@@ -2844,13 +2972,14 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 bool
 IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
 {
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )");
 	struct stat statInit;
 	unsigned long long transSize = 0LL;
 	char realPathName[PATH_MAX];
 
 	memset( realPathName, 0, sizeof( realPathName ) );
 	if ( realpath( FileName.c_str(), realPathName ) == NULL ) {
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	int fd = open( realPathName, O_RDONLY );
 
@@ -2861,12 +2990,12 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 #ifdef DEBUG
 		printf("FileName.c_str() [%s]\n", FileName.c_str() );fflush(stdout);
 #endif
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	int rc = fstat( fd, &statInit );
 	if ( rc != 0 ){
 		close( fd );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	lseek( fd, offset, SEEK_SET );
 	int readSize;
@@ -2878,14 +3007,14 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
 				close( fd );
-				return false;
+				IPMSG_FUNC_RETURN( false );
 			}
 			if ( IsFileChanged( mtime, size, statInit, statProgress ) ){
 #ifdef DEBUG
 				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
 				close( fd );
-				return false;
+				IPMSG_FUNC_RETURN( false );
 			}
 #ifdef DEBUG
 			printf("FileName.c_str() [%s]\nFile Unchanged.\n", FileName.c_str() );fflush(stdout);
@@ -2895,7 +3024,7 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 		if ( file != NULL ) file->setTransSize( transSize );
 	}
 	close( fd );
-	return true;
+	IPMSG_FUNC_RETURN( true );
 }
 
 /**
@@ -2910,11 +3039,12 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 bool
 IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress )
 {
-	return mtime             != statProgress.st_mtime ||
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress )");
+	IPMSG_FUNC_RETURN( mtime             != statProgress.st_mtime ||
 		   statInit.st_ctime != statProgress.st_ctime ||
 		   statInit.st_uid   != statProgress.st_uid   ||
 		   statInit.st_gid   != statProgress.st_gid   ||
-		   size              != (unsigned long long)statProgress.st_size;
+		   size              != (unsigned long long)statProgress.st_size );
 }
 
 /**
@@ -2925,11 +3055,12 @@ IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, stru
 int
 IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList &files )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList &files )");
 	files.clear();
 	int filelist_startpos = strlen( option ) + 1;
 	int alloc_size = strlen( &option[filelist_startpos] );
 	if ( alloc_size == 0 ) {
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	alloc_size++;
 
@@ -2939,7 +3070,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 	char *ptrdmy;
 	char *file_list_tmp_buf = (char *)calloc( alloc_size, 1 );
 	if ( file_list_tmp_buf == NULL ) {
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	memset( file_list_tmp_buf, 0, alloc_size );
 	memcpy( file_list_tmp_buf,  &option[filelist_startpos] , alloc_size - 1 );
@@ -3056,7 +3187,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 		}
 	}
 	free( file_list_tmp_buf );
-	return files.size();
+	IPMSG_FUNC_RETURN( files.size() );
 }
 
 /**
@@ -3067,6 +3198,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 int
 IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int buf_len )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int buf_len )");
 	int alloc_size = buf_len + 1;
 	int add_count = 0;
 	char *hostListTmpPtr;
@@ -3081,7 +3213,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 #endif
 	AddDefaultHost();
 	if ( hostListTmpBuf == NULL ) {
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	memset( hostListTmpBuf, 0, alloc_size );
 	memcpy( hostListTmpBuf, hostListBuf, buf_len );
@@ -3090,14 +3222,14 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 	token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 	if ( token == NULL ) {
 		free( hostListTmpBuf );
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	// LIST COUNTS
 	hostListTmpPtr = nextpos;
 	token = strtok_r( hostListTmpPtr, "\a", &nextpos );
 	if ( token == NULL ) {
 		free( hostListTmpBuf );
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	// USER NAME(1st)
 	hostListTmpPtr = nextpos;
@@ -3228,7 +3360,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 #ifdef HAVE_OPENSSL
 		struct sockaddr_storage addr;
 		if ( createSockAddrIn( &addr, item.IpAddress(), item.PortNo() ) == NULL ) {
-			return add_count;
+			IPMSG_FUNC_RETURN( add_count );
 		}
 		GetPubKey( addr );
 #endif
@@ -3237,13 +3369,14 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		add_count++;
 	}
 	free( hostListTmpBuf );
-	return add_count;
+	IPMSG_FUNC_RETURN( add_count );
 }
 
 #ifdef HAVE_OPENSSL
 void
 IpMessengerAgentImpl::GetPubKey( const struct sockaddr_storage &address )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::GetPubKey( const struct sockaddr_storage &address )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
@@ -3257,6 +3390,7 @@ IpMessengerAgentImpl::GetPubKey( const struct sockaddr_storage &address )
 										  optBuf, optBufLen,
 										  sendBuf, sizeof( sendBuf ) );
 	SendPacket( IPMSG_GETPUBKEY, sendBuf, sendBufLen, address );
+	IPMSG_FUNC_EXIT;
 }
 #endif
 
@@ -3267,7 +3401,8 @@ IpMessengerAgentImpl::GetPubKey( const struct sockaddr_storage &address )
 int
 IpMessengerAgentImpl::GetRecievedMessageCount()
 {
-	return recvMsgList.size();
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::GetRecievedMessageCount()");
+	IPMSG_FUNC_RETURN( recvMsgList.size() );
 }
 
 /**
@@ -3277,13 +3412,14 @@ IpMessengerAgentImpl::GetRecievedMessageCount()
 RecievedMessage
 IpMessengerAgentImpl::PopRecievedMessage()
 {
+	IPMSG_FUNC_ENTER("RecievedMessage IpMessengerAgentImpl::PopRecievedMessage()");
 	RecievedMessage ret;
 	for( std::vector<RecievedMessage>::iterator ix = recvMsgList.begin(); ix != recvMsgList.end(); ix++ ){
 		ret = *ix;
 		recvMsgList.erase( ix );
 		break;
 	}
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -3293,7 +3429,8 @@ IpMessengerAgentImpl::PopRecievedMessage()
 SentMessageList *
 IpMessengerAgentImpl::GetSentMessages()
 {
-	return &sentMsgList;
+	IPMSG_FUNC_ENTER("SentMessageList *IpMessengerAgentImpl::GetSentMessages()");
+	IPMSG_FUNC_RETURN( &sentMsgList );
 }
 
 /**
@@ -3303,7 +3440,8 @@ IpMessengerAgentImpl::GetSentMessages()
 SentMessageList
 IpMessengerAgentImpl::CloneSentMessages() const
 {
-	return sentMsgList;
+	IPMSG_FUNC_ENTER("SentMessageList IpMessengerAgentImpl::CloneSentMessages() const");
+	IPMSG_FUNC_RETURN( sentMsgList );
 }
 
 /**
@@ -3313,10 +3451,11 @@ IpMessengerAgentImpl::CloneSentMessages() const
 int
 IpMessengerAgentImpl::GetMaxOptionBufferSize()
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::GetMaxOptionBufferSize()");
 	char tmp[MAX_UDPBUF];
 	int headSize = snprintf(tmp, sizeof(tmp), "%d:0000000000:%s:%s:0000000000:", IPMSG_VERSION, _LoginName.c_str(), _HostName.c_str() );
 	int ret = MAX_UDPBUF - headSize;
-	return ret < 0 ? 0 : ret;
+	IPMSG_FUNC_RETURN( ret < 0 ? 0 : ret );
 }
 
 /**
@@ -3327,6 +3466,7 @@ IpMessengerAgentImpl::GetMaxOptionBufferSize()
 unsigned long
 IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 {
+	IPMSG_FUNC_ENTER("unsigned long IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )");
 	unsigned long ret = cmd | IPMSG_FILEATTACHOPT
 #ifdef HAVE_OPENSSL
 							| ( encryptionCapacity != 0UL ?  IPMSG_ENCRYPTOPT : 0UL )
@@ -3337,7 +3477,7 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 	printf( "Option=%lu\n", ret );fflush( stdout );
 	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>AddCommonCommandOption>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush( stdout );
 #endif
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -3355,6 +3495,7 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 int
 IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::CreateNewPacketBuffer()\n" );fflush(stdout);
 #endif
@@ -3370,14 +3511,14 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long pa
 										host == "" ? "\b" : host.c_str(),
 										cmd );
 	if ( send_size > size ) {
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	if ( send_size + optLen < size && optLen > 0 && opt != NULL ) {
 		memcpy(&buf[send_size], opt, optLen );
 	} else {
 		optLen = 0;
 	}
-	return send_size + optLen;
+	IPMSG_FUNC_RETURN( send_size + optLen );
 }
 
 /**
@@ -3394,11 +3535,12 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long pa
 int
 IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::CreateNewPacketBuffer()\n" );fflush(stdout);
 #endif
 	unsigned long packetNo = random();
-	return CreateNewPacketBuffer(cmd, packetNo, user, host, opt, optLen, buf, size );
+	IPMSG_FUNC_RETURN( CreateNewPacketBuffer(cmd, packetNo, user, host, opt, optLen, buf, size ) );
 }
 
 /**
@@ -3411,6 +3553,7 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user
 Packet
 IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct sockaddr_storage sender, time_t nowTime )
 {
+	IPMSG_FUNC_ENTER("Packet IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct sockaddr_storage sender, time_t nowTime )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::DismantlePacketBuffer()\n" );fflush(stdout);
 #endif
@@ -3425,7 +3568,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	ret.setRecieved( nowTime );
 	packet_tmp_buf = (char *)calloc( alloc_size, 1 );
 	if ( packet_tmp_buf == NULL ) {
-		return ret;
+		IPMSG_FUNC_RETURN( ret );
 	}
 	memset( packet_tmp_buf, 0, alloc_size );
 	memcpy( packet_tmp_buf, packet_buf, size );
@@ -3434,7 +3577,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	token = strtok_r( packet_tmp_buf, PACKET_DELIMITER_STRING, &nextpos );
 	if ( token == NULL ) {
 		free( packet_tmp_buf );
-		return ret;
+		IPMSG_FUNC_RETURN( ret );
 	}
 	ret.setVersionNo( strtoul( token, &ptrdmy, 10 ) );
 
@@ -3443,7 +3586,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	token = strtok_r( packet_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
 	if ( token == NULL ) {
 		free( packet_tmp_buf );
-		return ret;
+		IPMSG_FUNC_RETURN( ret );
 	}
 	ret.setPacketNo( strtoul( token, &ptrdmy, 10 ) );
 
@@ -3452,7 +3595,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	token = strtok_r( packet_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
 	if ( token == NULL ) {
 		free( packet_tmp_buf );
-		return ret;
+		IPMSG_FUNC_RETURN( ret );
 	}
 	ret.setUserName( token );
 
@@ -3461,7 +3604,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	token = strtok_r( packet_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
 	if ( token == NULL ) {
 		free( packet_tmp_buf );
-		return ret;
+		IPMSG_FUNC_RETURN( ret );
 	}
 	ret.setHostName( token );
 
@@ -3470,7 +3613,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	token = strtok_r( packet_tmp_ptr, PACKET_DELIMITER_STRING, &nextpos );
 	if ( token == NULL ) {
 		free( packet_tmp_buf );
-		return ret;
+		IPMSG_FUNC_RETURN( ret );
 	}
 	unsigned long command = strtoul( token, &ptrdmy, 10 ); 
 	ret.setCommandMode( GET_MODE(command) );
@@ -3485,15 +3628,15 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	struct sockaddr_storage hostaddr;
 	if ( hostIt != hostList.end() ) {
 		if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
-			return ret;
+			IPMSG_FUNC_RETURN( ret );
 		}
 	} else {
 		if ( createSockAddrIn( &hostaddr, getSockAddrInRawAddress( sender ), ntohs( getSockAddrInPortNo( sender ) ) ) == NULL ) {
-			return ret;
+			IPMSG_FUNC_RETURN( ret );
 		}
 	}
 	ret.setAddr( hostaddr );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -3503,6 +3646,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 void
 IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::AddHostListFromPacket()\n" );fflush(stdout);
 #endif
@@ -3520,7 +3664,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	for( unsigned int i = 1; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			AddDefaultHost();
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 	}
 	//デフォルトカード
@@ -3539,6 +3683,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	item.setPubKeyHex( "" );
 	item.setEncryptMethodHex( "" );
 	hostList.AddHost( item );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -3548,6 +3693,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 int
 IpMessengerAgentImpl::AddDefaultHost()
 {
+	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::AddDefaultHost()");
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::AddDefaultHost()\n" );fflush(stdout);
 #endif
@@ -3565,8 +3711,8 @@ IpMessengerAgentImpl::AddDefaultHost()
 #if defined(INFO) || !defined(NDEBUG)
 		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
 #endif
-		return 1;
+		IPMSG_FUNC_RETURN( 1 );
 	}
-	return 0;
+	IPMSG_FUNC_RETURN( 0 );
 }
 //end of source
