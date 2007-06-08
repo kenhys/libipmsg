@@ -253,6 +253,7 @@ class IpMessengerAgentImpl {
 //Network.cpp
 int bindSocket( int proto, struct sockaddr_storage addr, const char *devname );
 int sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr );
+bool isLocalLoopbackAddress( struct sockaddr_storage *addr );
 struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char * devname=NULL );
 int getSockAddrInPortNo( const struct sockaddr_storage *addr );
 int getSockAddrInPortNo( const struct sockaddr_storage &addr );
@@ -282,7 +283,7 @@ void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )
 #define GetCommandString( cmd )
-#define IpMsgDumpHostList( s, hostList );
+#define IpMsgDumpHostList( s, hostList )
 #endif
 int IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr );
 int IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex );
@@ -296,5 +297,43 @@ std::string IpMsgGetLoginName( uid_t uid );
 std::string IpMsgGetHostName();
 
 }; //namespace ipmsg
+
+#ifdef DEBUG_TRACE
+#ifndef DEFINE_DEBUG_TRACE_VALUE
+extern int __func_call_level__;
+extern FILE *__trace_fp__;
+#endif
+#define	IPMSG_FUNC_ENTER( __func__ )	const char *__func_name__ = __func__; \
+										do{ \
+											char arrow[200]; \
+											memset( arrow, 0, sizeof( arrow ) ); \
+											memset( arrow, '=', __func_call_level__ * 4 ); \
+											__func_call_level__++; \
+											fprintf( __trace_fp__, "ENTER %s> %s\n", arrow, __func__); \
+											fflush( __trace_fp__ ); \
+										}while(0)
+#define	IPMSG_FUNC_EXIT					do{ \
+											char arrow[200]; \
+											memset( arrow, 0, sizeof( arrow ) ); \
+											__func_call_level__--; \
+											memset( arrow, '=', __func_call_level__ * 4 ); \
+											fprintf( __trace_fp__, "EXIT  <%s %s\n", arrow, __func_name__ ); \
+											fflush( __trace_fp__ ); \
+										}while(0); \
+										return
+#define	IPMSG_FUNC_RETURN( __val__ )	do{ \
+											char arrow[200]; \
+											memset( arrow, 0, sizeof( arrow ) ); \
+											__func_call_level__--; \
+											memset( arrow, '=', __func_call_level__ * 4 ); \
+											fprintf( __trace_fp__, "EXIT  <%s %s\n", arrow, __func_name__ ); \
+											fflush( __trace_fp__ ); \
+										}while(0); \
+										return __val__
+#else
+#define	IPMSG_FUNC_ENTER( __func__ )
+#define	IPMSG_FUNC_EXIT					return
+#define	IPMSG_FUNC_RETURN( __val__ )	return __val__
+#endif
 
 #endif
