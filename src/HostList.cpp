@@ -24,7 +24,9 @@ using namespace ipmsg;
  */
 HostList::HostList()
 {
+	IPMSG_FUNC_ENTER( "HostList::HostList()" );
 	IpMsgMutexInit( "HostList::HostList()", &hostListMutex, NULL );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -36,10 +38,12 @@ HostList::HostList()
  */
 HostList::HostList( const HostList& other )
 {
+	IPMSG_FUNC_ENTER( "HostList::HostList( const HostList& other )" );
 	IpMsgMutexInit( "HostList::HostList(HostList&)", &hostListMutex, NULL );
 	Lock( "HostList::HostList(HostList&)" );
 	CopyFrom( other );
 	Unlock( "HostList::HostList(HostList&)" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -50,7 +54,9 @@ HostList::HostList( const HostList& other )
  */
 HostList::~HostList()
 {
+	IPMSG_FUNC_ENTER( "HostList::~HostList()" );
 	IpMsgMutexDestroy( "HostList::~HostList()", &hostListMutex );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -64,11 +70,12 @@ HostList::~HostList()
 HostList&
 HostList::operator=( const HostList& other )
 {
+	IPMSG_FUNC_ENTER( "HostList& HostList::operator=( const HostList& other )" );
 	IpMsgMutexInit( "HostList::operator=(HostList&)", &hostListMutex, NULL );
 	Lock( "HostList::operator=(HostList&)" );
 	CopyFrom( other );
 	Unlock( "HostList::operator=(HostList&)" );
-	return *this;
+	IPMSG_FUNC_RETURN( *this );
 }
 
 /**
@@ -78,7 +85,9 @@ HostList::operator=( const HostList& other )
 void
 HostList::CopyFrom( const HostList& other )
 {
+	IPMSG_FUNC_ENTER( "void HostList::CopyFrom( const HostList& other )" );
 	items = other.items;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -88,7 +97,9 @@ HostList::CopyFrom( const HostList& other )
 void
 HostList::Lock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void HostList::Lock( const char *pos ) const" );
 	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &hostListMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -98,7 +109,9 @@ HostList::Lock( const char *pos ) const
 void
 HostList::Unlock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void HostList::Unlock( const char *pos ) const" );
 	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &hostListMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -108,7 +121,8 @@ HostList::Unlock( const char *pos ) const
 std::vector<HostListItem>::iterator
 HostList::begin()
 {
-	return items.begin();
+	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::begin()" );
+	IPMSG_FUNC_RETURN( items.begin() );
 }
 
 /**
@@ -118,7 +132,8 @@ HostList::begin()
 std::vector<HostListItem>::iterator
 HostList::end()
 {
-	return items.end();
+	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::end()" );
+	IPMSG_FUNC_RETURN(  items.end() );
 }
 
 /**
@@ -128,10 +143,11 @@ HostList::end()
 int
 HostList::size() const
 {
+	IPMSG_FUNC_ENTER( "int HostList::size() const" );
 	Lock( "HostList::size()" );
 	int ret = items.size();
 	Unlock( "HostList::size()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -140,9 +156,11 @@ HostList::size() const
 void
 HostList::clear()
 {
+	IPMSG_FUNC_ENTER( "void HostList::clear()" );
 	Lock( "HostList::clear()" );
 	items.clear();
 	Unlock( "HostList::clear()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -151,8 +169,10 @@ HostList::clear()
 void
 HostListItem::QueryVersionInfo()
 {
+	IPMSG_FUNC_ENTER( "void HostListItem::QueryVersionInfo()" );
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	agent->QueryVersionInfo( *this );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -161,8 +181,10 @@ HostListItem::QueryVersionInfo()
 void
 HostListItem::QueryAbsenceInfo()
 {
+	IPMSG_FUNC_ENTER( "void HostListItem::QueryAbsenceInfo()" );
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	agent->QueryAbsenceInfo( *this );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -173,6 +195,7 @@ HostListItem::QueryAbsenceInfo()
 bool
 HostListItem::IsLocalHost() const
 {
+	IPMSG_FUNC_ENTER( "bool HostListItem::IsLocalHost() const" );
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	std::vector<NetworkInterface> nics = agent->NICs;
 	for( unsigned int i = 0; i < nics.size(); i++ ){
@@ -180,13 +203,13 @@ HostListItem::IsLocalHost() const
 #if defined(INFO) || !defined(NDEBUG)
 			printf("LOCALHOST\n");fflush(stdout);
 #endif
-			return true;
+			IPMSG_FUNC_RETURN( true );
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
 	printf("OTHERHOST\n");fflush(stdout);
 #endif
-	return false;
+	IPMSG_FUNC_RETURN( false );
 }
 
 /**
@@ -196,6 +219,7 @@ HostListItem::IsLocalHost() const
 void
 HostList::AddHost( const HostListItem& host )
 {
+	IPMSG_FUNC_ENTER( "void HostList::AddHost( const HostListItem& host )" );
 	Lock( "HostList::AddHost()" );
 	bool is_found = false;
 
@@ -211,7 +235,7 @@ HostList::AddHost( const HostListItem& host )
 			printf("AddHost HOST MATCH\n" );fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 	}
 	for( unsigned int i = 0; i < nics.size(); i++ ){
@@ -224,7 +248,7 @@ HostList::AddHost( const HostListItem& host )
 			printf("AddHost ADDR MATCH\n" );fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
-			return;
+			IPMSG_FUNC_EXIT;
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
@@ -236,14 +260,14 @@ HostList::AddHost( const HostListItem& host )
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
 		Unlock( "HostList::AddHost()" );
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("MATCH IPADDRESS but not same hostname.\n" );fflush(stdout);
 #endif
 		Unlock( "HostList::AddHost()" );
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	for( unsigned int i = 0; i < items.size(); i++ ){
 		HostListItem tmpHost = items.at( i );
@@ -265,6 +289,7 @@ HostList::AddHost( const HostListItem& host )
 		}
 	}
 	Unlock( "HostList::AddHost()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -274,9 +299,11 @@ HostList::AddHost( const HostListItem& host )
 void
 HostList::Delete( std::vector<HostListItem>::iterator &it )
 {
+	IPMSG_FUNC_ENTER( "void HostList::Delete( std::vector<HostListItem>::iterator &it )" );
 	Lock( "HostList::Delete()" );
 	items.erase( it );
 	Unlock( "HostList::Delete()" );
+	IPMSG_FUNC_EXIT;
 }
 /**
  * ホスト情報をホストリストから削除する。
@@ -285,6 +312,7 @@ HostList::Delete( std::vector<HostListItem>::iterator &it )
 void
 HostList::DeleteHostByAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER( "void HostList::DeleteHostByAddress( std::string addr )" );
 	Lock( "HostList::DeleteHostIpAddress()" );
 	for( std::vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		if ( ix->IpAddress() == addr ) {
@@ -293,6 +321,7 @@ HostList::DeleteHostByAddress( std::string addr )
 		}
 	}
 	Unlock( "HostList::DeleteHostByAddress()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -304,6 +333,7 @@ HostList::DeleteHostByAddress( std::string addr )
 std::string
 HostList::ToString( int start, const struct sockaddr_storage *addr )
 {
+	IPMSG_FUNC_ENTER( "std::string HostList::ToString( int start, const struct sockaddr_storage *addr )" );
 	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
 	std::string ret;
@@ -337,7 +367,10 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 		} else {
 			if ( item.AddressFamily() == AF_INET6 && addr->ss_family == AF_INET ) {
 				continue;
-			}	
+			}
+			if ( item.AddressFamily() != addr->ss_family ) {
+				continue;
+			}
 			len = snprintf( buf, sizeof( buf ), "%s\a%s\a%ld\a%s\a%s\a%s\a%s\a",
 							item.UserName() == "" ? "\b" : item.UserName().c_str(),
 							item.HostName() == "" ? "\b" : item.HostName().c_str(),
@@ -358,8 +391,11 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 	}
 	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , hostCount );
 	ret = buf + ret;
+#if defined(INFO) || !defined(NDEBUG)
+	printf( "HostList::ToString [%s]\n", ret.c_str() );fflush(stdout);
+#endif
 	Unlock( "HostList::ToString" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -370,6 +406,7 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 HostListItem
 HostList::CreateHostListItemFromPacket( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER( "HostListItem HostList::CreateHostListItemFromPacket( const Packet& packet )" );
 	HostListItem ret;
 	ret.setHostName( packet.HostName() );
 	ret.setUserName( packet.UserName() );
@@ -387,7 +424,7 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 		ret.setNickname( packet.Option().substr( 0, loc ) );
 		ret.setGroupName( packet.Option().substr( loc + 1 ) );
 	}
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -398,6 +435,7 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 std::vector<HostListItem>::iterator
 HostList::FindHostByHostName( std::string hostName )
 {
+	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::FindHostByHostName( std::string hostName )" );
 	Lock( "HostList::FindHostByHostName()" );
 	std::vector<HostListItem>::iterator ret = end();
 //	printf( "HostName [%s]\n", hostName.c_str() );fflush(stdout);
@@ -425,7 +463,7 @@ HostList::FindHostByHostName( std::string hostName )
 	}
 #endif
 	Unlock( "HostList::FindHostByHostName()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -436,6 +474,7 @@ HostList::FindHostByHostName( std::string hostName )
 std::vector<HostListItem>::iterator
 HostList::FindHostByAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::FindHostByAddress( std::string addr )" );
 	Lock( "HostList::FindHostByAddress()" );
 	std::vector<HostListItem>::iterator ret = end();
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
@@ -454,7 +493,7 @@ HostList::FindHostByAddress( std::string addr )
 	printf("HOST NOT FOUND!!!\n");fflush(stdout);
 #endif
 	Unlock( "HostList::FindHostByAddress()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -465,7 +504,8 @@ HostList::FindHostByAddress( std::string addr )
 bool
 HostListItem::IsFileAttachSupport() const
 {
-	return CommandNo() & IPMSG_FILEATTACHOPT;
+	IPMSG_FUNC_ENTER( "bool HostListItem::IsFileAttachSupport() const" );
+	IPMSG_FUNC_RETURN( CommandNo() & IPMSG_FILEATTACHOPT );
 }
 
 /**
@@ -476,7 +516,8 @@ HostListItem::IsFileAttachSupport() const
 bool
 HostListItem::IsEncryptSupport() const
 {
-	return CommandNo() & IPMSG_ENCRYPTOPT;
+	IPMSG_FUNC_ENTER( "bool HostListItem::IsEncryptSupport() const" );
+	IPMSG_FUNC_RETURN( CommandNo() & IPMSG_ENCRYPTOPT );
 }
 
 /**
@@ -487,7 +528,8 @@ HostListItem::IsEncryptSupport() const
 bool
 HostListItem::IsAbsence() const
 {
-	return CommandNo() & IPMSG_ABSENCEOPT;
+	IPMSG_FUNC_ENTER( "bool HostListItem::IsAbsence() const" );
+	IPMSG_FUNC_RETURN( CommandNo() & IPMSG_ABSENCEOPT );
 }
 
 /**
@@ -499,7 +541,8 @@ HostListItem::IsAbsence() const
 bool
 HostListItem::Equals( const HostListItem& item ) const
 {
-	return	Compare( item ) == 0;
+	IPMSG_FUNC_ENTER( "bool HostListItem::Equals( const HostListItem& item ) const" );
+	IPMSG_FUNC_RETURN( Compare( item ) == 0 );
 }
 /**
  * 比較。
@@ -511,6 +554,7 @@ HostListItem::Equals( const HostListItem& item ) const
 int
 HostListItem::Compare( const HostListItem& item ) const
 {
+	IPMSG_FUNC_ENTER( "int HostListItem::Compare( const HostListItem& item ) const" );
 //	if ( item.UserName()  == UserName() &&
 //		 item.HostName()  == HostName() &&
 //		 item.IpAddress() == IpAddress() &&
@@ -520,7 +564,7 @@ HostListItem::Compare( const HostListItem& item ) const
 	if ( item.UserName()  == UserName() &&
 		 item.HostName()  == HostName() &&
 		 item.IpAddress() == IpAddress() ){
-		return 0;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 //	if ( item.UserName()  > UserName() &&
 //		 item.HostName()  > HostName() &&
@@ -531,9 +575,9 @@ HostListItem::Compare( const HostListItem& item ) const
 	if ( item.UserName()  > UserName() &&
 		 item.HostName()  > HostName() &&
 		 item.IpAddress() > IpAddress() ){
-		return 1;
+		IPMSG_FUNC_RETURN( 1 );
 	}
-	return -1;
+	IPMSG_FUNC_RETURN(  -1 );
 }
 
 /**
@@ -543,6 +587,7 @@ HostListItem::Compare( const HostListItem& item ) const
 void
 HostList::qsort( HostListComparator *comparator, int left, int right )
 {
+	IPMSG_FUNC_ENTER( "void HostList::qsort( HostListComparator *comparator, int left, int right )" );
 	//範囲の開始、終了位置
 	int i = left, j = right;
 #if defined(INFO) || !defined(NDEBUG)
@@ -574,6 +619,7 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 	if ( j + 1 < right ) {	//基準値の右に２個以上要素があれば右の配列をソートする。
 		qsort( comparator, j + 1, right );
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -583,9 +629,11 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 void
 HostList::sort( HostListComparator *comparator )
 {
+	IPMSG_FUNC_ENTER( "void HostList::sort( HostListComparator *comparator )" );
 	if ( items.size() > 0 ) {
 		qsort( comparator, 0, items.size() - 1 );
 	}
+	IPMSG_FUNC_EXIT;
 }
 
 class IpMsgGetGroupListComparator: public HostListComparator{
@@ -621,6 +669,7 @@ class IpMsgGetGroupListComparator: public HostListComparator{
 std::vector<GroupItem>
 HostList::GetGroupList()
 {
+	IPMSG_FUNC_ENTER( "std::vector<GroupItem> HostList::GetGroupList()" );
 	std::vector<GroupItem> ret;
 	HostList tmp = *this;
 	tmp.sort( new IpMsgGetGroupListComparator() );
@@ -635,7 +684,7 @@ HostList::GetGroupList()
 		hostName = ixhost->HostName();
 		encodingName = ixhost->EncodingName();
 	}
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 //end of source
