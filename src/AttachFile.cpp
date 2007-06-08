@@ -23,7 +23,9 @@ static int file_id = 0;
  */
 AttachFileList::AttachFileList()
 {
+	IPMSG_FUNC_ENTER( "AttachFileList::AttachFileList()" );
 	IpMsgMutexInit( "AttachFileList::AttachFileList()", &filesMutex, NULL );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -35,10 +37,12 @@ AttachFileList::AttachFileList()
  */
 AttachFileList::AttachFileList( const AttachFileList& other )
 {
+	IPMSG_FUNC_ENTER( "AttachFileList::AttachFileList( const AttachFileList& other )" );
 	IpMsgMutexInit( "AttachFileList::AttachFileList(AttachFileList&)", &filesMutex, NULL );
 	other.Lock( "AttachFileList::AttachFileList(AttachFileList&)" );
 	CopyFrom( other );
 	other.Unlock( "AttachFileList::AttachFileList(AttachFileList&)" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -52,11 +56,12 @@ AttachFileList::AttachFileList( const AttachFileList& other )
 AttachFileList&
 AttachFileList::operator=( const AttachFileList& other )
 {
+	IPMSG_FUNC_ENTER( "AttachFileList& AttachFileList::operator=( const AttachFileList& other )" );
 	IpMsgMutexInit( "AttachFileList::operator=(AttachFileList&)", &filesMutex, NULL );
 	other.Lock( "AttachFileList::operator=(AttachFileList&)" );
 	CopyFrom( other );
 	other.Unlock( "AttachFileList::operator=(AttachFileList&)" );
-	return *this;
+	IPMSG_FUNC_RETURN( *this );
 }
 
 /**
@@ -66,7 +71,9 @@ AttachFileList::operator=( const AttachFileList& other )
 void
 AttachFileList::CopyFrom( const AttachFileList& other )
 {
+	IPMSG_FUNC_ENTER( "void AttachFileList::CopyFrom( const AttachFileList& other )" );
 	files = other.files;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -77,7 +84,9 @@ AttachFileList::CopyFrom( const AttachFileList& other )
  */
 AttachFileList::~AttachFileList()
 {
+	IPMSG_FUNC_ENTER( "AttachFileList::~AttachFileList()" );
 	IpMsgMutexDestroy( "AttachFileList::~AttachFileList()", &filesMutex );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -87,7 +96,9 @@ AttachFileList::~AttachFileList()
 void
 AttachFileList::Lock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void AttachFileList::Lock( const char *pos ) const" );
 	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &filesMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -97,7 +108,9 @@ AttachFileList::Lock( const char *pos ) const
 void
 AttachFileList::Unlock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void AttachFileList::Unlock( const char *pos ) const" );
 	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &filesMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -107,9 +120,11 @@ AttachFileList::Unlock( const char *pos ) const
 void
 AttachFileList::AddFile( const AttachFile& file )
 {
+	IPMSG_FUNC_ENTER( "void AttachFileList::AddFile( const AttachFile& file )" );
 	Lock( "AttachFileList::AddFile()" );
 	files.push_back( file );
 	Unlock( "AttachFileList::AddFile()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -118,7 +133,8 @@ AttachFileList::AddFile( const AttachFile& file )
 std::vector<AttachFile>::iterator
 AttachFileList::begin()
 {
-	return files.begin();
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::begin()" );
+	IPMSG_FUNC_RETURN( files.begin() );
 }
 
 /**
@@ -127,7 +143,8 @@ AttachFileList::begin()
 std::vector<AttachFile>::iterator
 AttachFileList::end()
 {
-	return files.end();
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::end()" );
+	IPMSG_FUNC_RETURN( files.end() );
 }
 
 /**
@@ -137,10 +154,11 @@ AttachFileList::end()
 int
 AttachFileList::size() const
 {
+	IPMSG_FUNC_ENTER( "int AttachFileList::size() const" );
 	Lock( "AttachFileList::size()" );
 	int ret = files.size();
 	Unlock( "AttachFileList::size()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -149,9 +167,11 @@ AttachFileList::size() const
 void
 AttachFileList::clear()
 {
+	IPMSG_FUNC_ENTER( "void AttachFileList::clear()" );
 	Lock( "AttachFileList::clear()" );
 	files.clear();
 	Unlock( "AttachFileList::clear()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -161,10 +181,11 @@ AttachFileList::clear()
 std::vector<AttachFile>::iterator
 AttachFileList::erase( std::vector<AttachFile>::iterator item )
 {
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::erase( std::vector<AttachFile>::iterator item )" );
 	Lock( "AttachFileList::erase(std::vector<AttachFile>::iterator)" );
 	std::vector<AttachFile>::iterator ret = files.erase( item );
 	Unlock( "AttachFileList::erase(std::vector<AttachFile>::iterator)" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -174,11 +195,12 @@ AttachFileList::erase( std::vector<AttachFile>::iterator item )
 std::vector<AttachFile>::iterator
 AttachFileList::erase( const AttachFile& item )
 {
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::erase( const AttachFile& item )" );
 	std::vector<AttachFile>::iterator it = FindByFileId( item.FileId() );
 	Lock( "AttachFileList::erase(AttachFile&)" );
 	std::vector<AttachFile>::iterator ret = files.erase( it );
 	Unlock( "AttachFileList::erase(AttachFile&)" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -190,6 +212,7 @@ AttachFileList::erase( const AttachFile& item )
 std::vector<AttachFile>::iterator
 AttachFileList::FindByFullPath( const std::string& fullPath )
 {
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::FindByFullPath( const std::string& fullPath )" );
 	Lock( "AttachFileList::FindByFullPath()" );
 	std::vector<AttachFile>::iterator ret = end();
 	for( std::vector<AttachFile>::iterator i = begin(); i != end(); i++ ) {
@@ -199,7 +222,7 @@ AttachFileList::FindByFullPath( const std::string& fullPath )
 		}
 	}
 	Unlock( "AttachFileList::FindByFullPath()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -211,6 +234,7 @@ AttachFileList::FindByFullPath( const std::string& fullPath )
 std::vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
 {
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::FindByFileId( int file_id )" );
 	Lock( "AttachFileList::FindByFileId()" );
 	std::vector<AttachFile>::iterator ret = end();
 	for( std::vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
@@ -225,7 +249,7 @@ AttachFileList::FindByFileId( int file_id )
 		}
 	}
 	Unlock( "AttachFileList::FindByFileId()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -236,6 +260,7 @@ AttachFileList::FindByFileId( int file_id )
  */
 AttachFile::AttachFile()
 {
+	IPMSG_FUNC_ENTER( "AttachFile::AttachFile()" );
 #ifdef DEBUG
 	printf("file_id before     == %d\n", file_id );fflush(stdout);
 #endif
@@ -244,6 +269,7 @@ AttachFile::AttachFile()
 	printf("AttachFile::FileId == %d\n", FileId() );fflush(stdout);
 	printf("file_id after      == %d\n", file_id );fflush(stdout);
 #endif
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -252,6 +278,7 @@ AttachFile::AttachFile()
 void
 AttachFile::GetLocalFileInfo()
 {
+	IPMSG_FUNC_ENTER( "void AttachFile::GetLocalFileInfo()" );
 	struct stat st;
 	unsigned int loc = FullPath().find_last_of( '/' );
 	std::string filename, location;
@@ -275,6 +302,7 @@ AttachFile::GetLocalFileInfo()
 	setIsDownloaded( false );
 	setIsDownloading( false );
 	setFileSize( st.st_size );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -285,7 +313,8 @@ AttachFile::GetLocalFileInfo()
 bool
 AttachFile::IsRegularFile() const
 {
-	return GET_FILETYPE( Attr() ) == IPMSG_FILE_REGULAR;
+	IPMSG_FUNC_ENTER( "bool AttachFile::IsRegularFile() const" );
+	IPMSG_FUNC_RETURN( GET_FILETYPE( Attr() ) == IPMSG_FILE_REGULAR );
 }
 
 /**
@@ -296,7 +325,8 @@ AttachFile::IsRegularFile() const
 bool
 AttachFile::IsDirectory() const
 {
-	return GET_FILETYPE( Attr() ) == IPMSG_FILE_DIR;
+	IPMSG_FUNC_ENTER( "bool AttachFile::IsDirectory() const" );
+	IPMSG_FUNC_RETURN( GET_FILETYPE( Attr() ) == IPMSG_FILE_DIR );
 }
 
 /**
@@ -307,6 +337,7 @@ AttachFile::IsDirectory() const
 std::string
 AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 {
+	IPMSG_FUNC_ENTER( "std::string AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )" );
 	std::string retdir = "";
 	for( int i = 0; i < (int)dirstack.size(); i++ ){
 		if ( dirstack[i] != "" ) {
@@ -316,7 +347,7 @@ AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 #endif
 		}
 	}
-	return retdir;
+	IPMSG_FUNC_RETURN( retdir );
 }
 
 /**
@@ -328,6 +359,7 @@ AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 AttachFile
 AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
 {
+	IPMSG_FUNC_ENTER( "AttachFile AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )" );
 	char tmpbuf[100];
 	int len = strlen( buf );
 	int j = 0;
@@ -407,5 +439,5 @@ AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )
 		}
 	}
 
-	return f;
+	IPMSG_FUNC_RETURN( f );
 }

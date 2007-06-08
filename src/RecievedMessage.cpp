@@ -16,7 +16,11 @@ using namespace ipmsg;
 /**
  * コンストラクタ。
  */
-RecievedMessage::RecievedMessage(){}
+RecievedMessage::RecievedMessage()
+{
+	IPMSG_FUNC_ENTER( "RecievedMessage::RecievedMessage()" );
+	IPMSG_FUNC_EXIT;
+}
 
 /**
  * コピーコンストラクタ。
@@ -24,7 +28,9 @@ RecievedMessage::RecievedMessage(){}
  */
 RecievedMessage::RecievedMessage( const RecievedMessage& other )
 {
+	IPMSG_FUNC_ENTER( "RecievedMessage::RecievedMessage( const RecievedMessage& other )" );
 	CopyFrom( other );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -35,8 +41,9 @@ RecievedMessage::RecievedMessage( const RecievedMessage& other )
 RecievedMessage&
 RecievedMessage::operator=( const RecievedMessage& other )
 {
+	IPMSG_FUNC_ENTER( "RecievedMessage& RecievedMessage::operator=( const RecievedMessage& other )" );
 	CopyFrom( other );
-	return *this;
+	IPMSG_FUNC_RETURN( *this );
 }
 
 /**
@@ -46,6 +53,7 @@ RecievedMessage::operator=( const RecievedMessage& other )
 void
 RecievedMessage::CopyFrom( const RecievedMessage& other )
 {
+	IPMSG_FUNC_ENTER( "void RecievedMessage::CopyFrom( const RecievedMessage& other )" );
 	_MessagePacket = other. _MessagePacket;
 	_Message = other. _Message;
 	_Recieved = other. _Recieved;
@@ -59,6 +67,7 @@ RecievedMessage::CopyFrom( const RecievedMessage& other )
 	_IsMulticast = other. _IsMulticast;
 	_HasAttachFile = other. _HasAttachFile;
 	_Files = other._Files;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -69,7 +78,9 @@ RecievedMessage::CopyFrom( const RecievedMessage& other )
  */
 RecievedMessageList::RecievedMessageList()
 {
+	IPMSG_FUNC_ENTER( "RecievedMessageList::RecievedMessageList()" );
 	IpMsgMutexInit( "RecievedMessageList::RecievedMessageList()", &messagesMutex, NULL );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -78,10 +89,12 @@ RecievedMessageList::RecievedMessageList()
  */
 RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )
 {
+	IPMSG_FUNC_ENTER( "RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )" );
 	IpMsgMutexInit( "RecievedMessageList::RecievedMessageList(RecievedMessageList&)", &messagesMutex, NULL );
 	Lock( "RecievedMessageList::RecievedMessageList(RecievedMessageList&)" );
 	CopyFrom( other );
 	Unlock( "RecievedMessageList::RecievedMessageList(RecievedMessageList&)" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -92,7 +105,9 @@ RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )
  */
 RecievedMessageList::~RecievedMessageList()
 {
+	IPMSG_FUNC_ENTER( "RecievedMessageList::~RecievedMessageList()" );
 	IpMsgMutexDestroy( "RecievedMessageList::~RecievedMessageList()", &messagesMutex );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -103,11 +118,12 @@ RecievedMessageList::~RecievedMessageList()
 RecievedMessageList&
 RecievedMessageList::operator=( const RecievedMessageList& other )
 {
+	IPMSG_FUNC_ENTER( "RecievedMessageList& RecievedMessageList::operator=( const RecievedMessageList& other )" );
 	IpMsgMutexInit( "RecievedMessageList::operator=(RecievedMessageList&)", &messagesMutex, NULL );
 	Lock( "RecievedMessageList::operator=(RecievedMessageList&)" );
 	CopyFrom( other );
 	Unlock( "RecievedMessageList::operator=(RecievedMessageList&)" );
-	return *this;
+	IPMSG_FUNC_RETURN( *this );
 }
 
 /**
@@ -117,7 +133,9 @@ RecievedMessageList::operator=( const RecievedMessageList& other )
 void
 RecievedMessageList::CopyFrom( const RecievedMessageList& other )
 {
+	IPMSG_FUNC_ENTER( "void RecievedMessageList::CopyFrom( const RecievedMessageList& other )" );
 	messages = other.messages;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -127,7 +145,9 @@ RecievedMessageList::CopyFrom( const RecievedMessageList& other )
 void
 RecievedMessageList::Lock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void RecievedMessageList::Lock( const char *pos ) const" );
 	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &messagesMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -137,7 +157,9 @@ RecievedMessageList::Lock( const char *pos ) const
 void
 RecievedMessageList::Unlock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void RecievedMessageList::Unlock( const char *pos ) const" );
 	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &messagesMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -147,7 +169,8 @@ RecievedMessageList::Unlock( const char *pos ) const
 std::vector<RecievedMessage>::iterator
 RecievedMessageList::begin()
 {
-	return messages.begin();
+	IPMSG_FUNC_ENTER( "std::vector<RecievedMessage>::iterator RecievedMessageList::begin()" );
+	IPMSG_FUNC_RETURN( messages.begin() );
 }
 
 /**
@@ -157,7 +180,8 @@ RecievedMessageList::begin()
 std::vector<RecievedMessage>::iterator
 RecievedMessageList::end()
 {
-	return messages.end();
+	IPMSG_FUNC_ENTER( "std::vector<RecievedMessage>::iterator RecievedMessageList::end()" );
+	IPMSG_FUNC_RETURN( messages.end() );
 }
 
 /**
@@ -168,10 +192,11 @@ RecievedMessageList::end()
 std::vector<RecievedMessage>::iterator
 RecievedMessageList::erase( std::vector<RecievedMessage>::iterator item )
 {
+	IPMSG_FUNC_ENTER( "std::vector<RecievedMessage>::iterator RecievedMessageList::erase( std::vector<RecievedMessage>::iterator item )" );
 	Lock( "RecievedMessageList::erase()" );
 	std::vector<RecievedMessage>::iterator ret = messages.erase( item );
 	Unlock( "RecievedMessageList::erase()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -181,9 +206,11 @@ RecievedMessageList::erase( std::vector<RecievedMessage>::iterator item )
 void
 RecievedMessageList::append( const RecievedMessage &item )
 {
+	IPMSG_FUNC_ENTER( "void RecievedMessageList::append( const RecievedMessage &item )" );
 	Lock( "RecievedMessageList::append()" );
 	messages.push_back( item );
 	Unlock( "RecievedMessageList::append()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -193,10 +220,11 @@ RecievedMessageList::append( const RecievedMessage &item )
 int
 RecievedMessageList::size() const
 {
+	IPMSG_FUNC_ENTER( "int RecievedMessageList::size() const" );
 	Lock( "RecievedMessageList::size()" );
 	int ret = messages.size();
 	Unlock( "RecievedMessageList::size()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -205,9 +233,11 @@ RecievedMessageList::size() const
 void
 RecievedMessageList::clear()
 {
+	IPMSG_FUNC_ENTER( "void RecievedMessageList::clear()" );
 	Lock( "RecievedMessageList::clear()" );
 	messages.clear();
 	Unlock( "RecievedMessageList::clear()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -219,6 +249,7 @@ RecievedMessageList::clear()
 bool
 RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
+	IPMSG_FUNC_ENTER( "bool RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )" );
 #if defined(DEBUG)
 	printf("DownloadFile\n" );fflush(stdout);
 #endif
@@ -250,7 +281,7 @@ RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPat
 	if ( conv == NULL ){
 		delete converter;
 	}
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -262,6 +293,7 @@ RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPat
 bool
 RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
+	IPMSG_FUNC_ENTER( "bool RecievedMessage::DownloadFilePrivate( IpMessengerEvent *event, AttachFile &file, std::string saveFileNameFullPath, DownloadInfo& info, FileNameConverter *conv, void *data )" );
 	struct sockaddr_storage svr_addr;
 	svr_addr = MessagePacket().Addr();
 	int sock = socket( svr_addr.ss_family, SOCK_STREAM, 0 );
@@ -271,7 +303,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 		perror("connect");
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
@@ -281,7 +313,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	char optBuf[MAX_UDPBUF];
 	size_t optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
 	if ( optBufLen <= sizeof( optBuf ) ) {
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETFILEDATA,
 												 agent->LoginName(), agent->HostName(),
@@ -294,7 +326,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 		perror("open");
 		close( sock );
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
 	char readbuf[MAX_UDPBUF];
@@ -307,7 +339,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 		close( sock );
 		close( fd );
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	readSize += read_len;
 	while( read_len > 0 ){
@@ -317,7 +349,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 			close( sock );
 			close( fd );
 			info.setProcessing( false );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		wroteSize += wrote_len;
 		info.setSize( readSize );
@@ -339,7 +371,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 			close( sock );
 			close( fd );
 			info.setProcessing( false );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		readSize += read_len;
 	}
@@ -360,7 +392,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 	if ( event != NULL ) {
 		event->DownloadProcessing( *this, file, info, data );
 	}
-	return true;
+	IPMSG_FUNC_RETURN( true );
 }
 
 /**
@@ -372,6 +404,7 @@ printf("saveFileNameFullPath[%s]\n", saveFileNameFullPath.c_str() );fflush(stdou
 bool
 RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
+	IPMSG_FUNC_ENTER( "bool RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )" );
 #if defined(DEBUG)
 	printf("DownloadDir\n" );fflush(stdout);
 #endif
@@ -403,7 +436,7 @@ RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::strin
 	if ( conv == NULL ){
 		delete converter;
 	}
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -414,10 +447,11 @@ RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::strin
 std::string
 RecievedMessage::GetFormalDir( std::string dirName )
 {
+	IPMSG_FUNC_ENTER( "std::string RecievedMessage::GetFormalDir( std::string dirName )" );
 	if ( dirName.at( dirName.length() - 1 ) != '/' ) {
-		return dirName + "/";
+		IPMSG_FUNC_RETURN( dirName + "/" );
 	}
-	return dirName;
+	IPMSG_FUNC_RETURN( dirName );
 }
 
 /**
@@ -433,7 +467,8 @@ RecievedMessage::GetFormalDir( std::string dirName )
 std::string
 RecievedMessage::GetSaveDir( std::string saveName, std::string saveBaseDir )
 {
-	return GetFormalDir( saveBaseDir ) + saveName + "/";
+	IPMSG_FUNC_ENTER( "std::string RecievedMessage::GetSaveDir( std::string saveName, std::string saveBaseDir )" );
+	IPMSG_FUNC_RETURN( GetFormalDir( saveBaseDir ) + saveName + "/" );
 }
 
 /**
@@ -445,9 +480,10 @@ RecievedMessage::GetSaveDir( std::string saveName, std::string saveBaseDir )
 bool
 RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, std::string saveName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )
 {
+	IPMSG_FUNC_ENTER( "bool RecievedMessage::DownloadDirPrivate( IpMessengerEvent *event, AttachFile &file, std::string saveName, std::string saveBaseDir, DownloadInfo& info, FileNameConverter *conv, void *data )" );
 	if ( conv == NULL ) {
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	struct stat st;
 	std::string saveBaseDirFormal = GetFormalDir( saveBaseDir );
@@ -465,7 +501,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 		printf("saveBaseDir == [%s]\n", saveBaseDir.c_str());fflush(stdout);
 #endif
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	if ( mkdir( saveDir.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) != 0 ) {
 		perror("mkdir(1)");
@@ -473,7 +509,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 		printf("saveDir == [%s]\n", saveDir.c_str());fflush(stdout);
 #endif
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	struct sockaddr_storage svr_addr;
@@ -483,7 +519,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	if ( connect( sock, (struct sockaddr *)&svr_addr, sizeof( svr_addr ) ) != 0 ){
 		perror("connect");
 		info.setProcessing( false );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
@@ -493,7 +529,7 @@ printf("saveBaseDirFormal[%s]\n", saveBaseDirFormal.c_str() );fflush(stdout);
 	char optBuf[MAX_UDPBUF];
 	size_t optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x", MessagePacket().PacketNo(), file.FileId() );
 	if ( optBufLen <= sizeof( optBuf ) ) {
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETDIRFILES,
 												 agent->LoginName(), agent->HostName(),
@@ -568,7 +604,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf2", readbuf, read_len );
 			if ( fd < 0 ){
 				perror("open");
 				info.setProcessing( false );
-				return false;
+				IPMSG_FUNC_RETURN( false );
 			}
 			fchmod( fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
 			memset( readbuf, 0, sizeof( readbuf ) );
@@ -592,7 +628,7 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 					close( sock );
 					close( fd );
 					info.setProcessing( false );
-					return false;
+					IPMSG_FUNC_RETURN( false );
 				}
 				wroteSize += wrote_len;
 				info.setSize( totalReadSize );
@@ -652,5 +688,5 @@ IpMsgPrintBuf( "DownloadDir:readbuf3", readbuf, read_len );
 	if ( event != NULL ) {
 		event->DownloadProcessing( *this, file, info, data );
 	}
-	return true;
+	IPMSG_FUNC_RETURN( true );
 }

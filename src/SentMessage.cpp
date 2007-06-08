@@ -19,7 +19,11 @@ using namespace ipmsg;
 /**
  * コンストラクタ。
  */
-SentMessage::SentMessage(){}
+SentMessage::SentMessage()
+{
+	IPMSG_FUNC_ENTER( "SentMessage::SentMessage()" );
+	IPMSG_FUNC_EXIT;
+}
 
 /**
  * コピーコンストラクタ。
@@ -27,7 +31,9 @@ SentMessage::SentMessage(){}
  */
 SentMessage::SentMessage( const SentMessage& other )
 {
+	IPMSG_FUNC_ENTER( "SentMessage::SentMessage( const SentMessage& other )" );
 	CopyFrom( other );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -38,8 +44,9 @@ SentMessage::SentMessage( const SentMessage& other )
 SentMessage&
 SentMessage::operator=( const SentMessage& other )
 {
+	IPMSG_FUNC_ENTER( "SentMessage& SentMessage::operator=( const SentMessage& other )" );
 	CopyFrom( other );
-	return *this;
+	IPMSG_FUNC_RETURN( *this );
 }
 
 /**
@@ -49,6 +56,7 @@ SentMessage::operator=( const SentMessage& other )
 void
 SentMessage::CopyFrom( const SentMessage& other )
 {
+	IPMSG_FUNC_ENTER( "void SentMessage::CopyFrom( const SentMessage& other )" );
 	_To = other. _To;
 	_Host = other. _Host;
 	_PacketNo = other. _PacketNo;
@@ -67,6 +75,7 @@ SentMessage::CopyFrom( const SentMessage& other )
 	_HostCountAtSameTime = other. _HostCountAtSameTime;
 	_Opt = other. _Opt;
 	_Files = other._Files;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -77,7 +86,9 @@ SentMessage::CopyFrom( const SentMessage& other )
  */
 SentMessageList::SentMessageList()
 {
+	IPMSG_FUNC_ENTER( "SentMessageList::SentMessageList()" );
 	IpMsgMutexInit( "SentMessageList::SentMessageList()", &messagesMutex, NULL );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -86,10 +97,12 @@ SentMessageList::SentMessageList()
  */
 SentMessageList::SentMessageList( const SentMessageList& other )
 {
+	IPMSG_FUNC_ENTER( "SentMessageList::SentMessageList( const SentMessageList& other )" );
 	IpMsgMutexInit( "SentMessageList::SentMessageList(SentMessageList&)", &messagesMutex, NULL );
 	Lock( "SentMessageList::SentMessageList(SentMessageList&)" );
 	CopyFrom( other );
 	Unlock( "SentMessageList::SentMessageList(SentMessageList&)" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -100,7 +113,9 @@ SentMessageList::SentMessageList( const SentMessageList& other )
  */
 SentMessageList::~SentMessageList()
 {
+	IPMSG_FUNC_ENTER( "SentMessageList::~SentMessageList()" );
 	IpMsgMutexDestroy( "SentMessageList::~SentMessageList()", &messagesMutex );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -111,11 +126,12 @@ SentMessageList::~SentMessageList()
 SentMessageList&
 SentMessageList::operator=( const SentMessageList& other )
 {
+	IPMSG_FUNC_ENTER( "SentMessageList& SentMessageList::operator=( const SentMessageList& other )" );
 	IpMsgMutexInit( "SentMessageList::operator=(SentMessageList&)", &messagesMutex, NULL );
 	Lock( "SentMessageList::operator=(SentMessageList&)" );
 	CopyFrom( other );
 	Unlock( "SentMessageList::operator=(SentMessageList&)" );
-	return *this;
+	IPMSG_FUNC_RETURN( *this );
 }
 
 /**
@@ -125,7 +141,9 @@ SentMessageList::operator=( const SentMessageList& other )
 void
 SentMessageList::CopyFrom( const SentMessageList& other )
 {
+	IPMSG_FUNC_ENTER( "void SentMessageList::CopyFrom( const SentMessageList& other )" );
 	messages = other.messages;
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -135,7 +153,9 @@ SentMessageList::CopyFrom( const SentMessageList& other )
 void
 SentMessageList::Lock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void SentMessageList::Lock( const char *pos ) const" );
 	IpMsgMutexLock( pos, const_cast< pthread_mutex_t* >( &messagesMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -145,7 +165,9 @@ SentMessageList::Lock( const char *pos ) const
 void
 SentMessageList::Unlock( const char *pos ) const
 {
+	IPMSG_FUNC_ENTER( "void SentMessageList::Unlock( const char *pos ) const" );
 	IpMsgMutexUnlock( pos, const_cast< pthread_mutex_t * >( &messagesMutex ) );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -155,7 +177,8 @@ SentMessageList::Unlock( const char *pos ) const
 std::vector<SentMessage>::iterator
 SentMessageList::begin()
 {
-	return messages.begin();
+	IPMSG_FUNC_ENTER( "std::vector<SentMessage>::iterator SentMessageList::begin()" );
+	IPMSG_FUNC_RETURN( messages.begin() );
 }
 
 /**
@@ -163,8 +186,10 @@ SentMessageList::begin()
  * @retval 送信済メッセージリストの末尾＋１を示すイテレータ。
  */
 std::vector<SentMessage>::iterator
-SentMessageList::end(){
-	return messages.end();
+SentMessageList::end()
+{
+	IPMSG_FUNC_ENTER( "std::vector<SentMessage>::iterator SentMessageList::end()" );
+	IPMSG_FUNC_RETURN( messages.end() );
 }
 
 /**
@@ -175,10 +200,11 @@ SentMessageList::end(){
 std::vector<SentMessage>::iterator
 SentMessageList::erase( std::vector<SentMessage>::iterator item )
 {
+	IPMSG_FUNC_ENTER( "std::vector<SentMessage>::iterator SentMessageList::erase( std::vector<SentMessage>::iterator item )" );
 	Lock( "SentMessageList::erase()" );
 	std::vector<SentMessage>::iterator ret = messages.erase( item );
 	Unlock( "SentMessageList::erase()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -188,9 +214,11 @@ SentMessageList::erase( std::vector<SentMessage>::iterator item )
 void
 SentMessageList::append( const SentMessage &item )
 {
+	IPMSG_FUNC_ENTER( "void SentMessageList::append( const SentMessage &item )" );
 	Lock( "SentMessageList::append()" );
 	messages.push_back( item );
 	Unlock( "SentMessageList::append()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -200,10 +228,11 @@ SentMessageList::append( const SentMessage &item )
 int
 SentMessageList::size() const
 {
+	IPMSG_FUNC_ENTER( "int SentMessageList::size() const" );
 	Lock( "SentMessageList::size()" );
 	int ret = messages.size();
 	Unlock( "SentMessageList::size()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -212,9 +241,11 @@ SentMessageList::size() const
 void
 SentMessageList::clear()
 {
+	IPMSG_FUNC_ENTER( "void SentMessageList::clear()" );
 	Lock( "SentMessageList::clear()" );
 	messages.clear();
 	Unlock( "SentMessageList::clear()" );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -224,7 +255,8 @@ SentMessageList::clear()
 std::vector<SentMessage> *
 SentMessageList::GetMessageList()
 {
-	return &messages;
+	IPMSG_FUNC_ENTER( "std::vector<SentMessage> *SentMessageList::GetMessageList()" );
+	IPMSG_FUNC_RETURN( &messages );
 }
 
 /**
@@ -239,6 +271,7 @@ SentMessageList::GetMessageList()
 std::vector<AttachFile>::iterator
 SentMessage::FindAttachFileByPacket( const Packet& packet )
 {
+	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator SentMessage::FindAttachFileByPacket( const Packet& packet )" );
 	char *dmyptr;
 	char *startptr;
 	strtoul( packet.Option().c_str(), &dmyptr, 16 );
@@ -248,7 +281,7 @@ SentMessage::FindAttachFileByPacket( const Packet& packet )
 
 	std::vector<AttachFile>::iterator FoundFile;
 	FoundFile = Files().FindByFileId( packet_file_id );
-	return FoundFile;
+	IPMSG_FUNC_RETURN( FoundFile );
 }
 
 /**
@@ -259,10 +292,11 @@ SentMessage::FindAttachFileByPacket( const Packet& packet )
 bool
 SentMessage::isRetryMaxOver() const
 {
+	IPMSG_FUNC_ENTER( "bool SentMessage::isRetryMaxOver() const" );
 	if ( RetryCount() > SENDMSG_RETRY_MAX ) {
-		return true;
+		IPMSG_FUNC_RETURN( true );
 	}
-	return false;
+	IPMSG_FUNC_RETURN( false );
 }
 
 /**
@@ -274,10 +308,11 @@ SentMessage::isRetryMaxOver() const
 bool
 SentMessage::needSendRetry( time_t tryNow ) const
 {
+	IPMSG_FUNC_ENTER( "bool SentMessage::needSendRetry( time_t tryNow ) const" );
 	if ( !IsSent() && PrevTry() != tryNow && !IsRetryMaxOver() ) {
-		return true;
+		IPMSG_FUNC_RETURN( true );
 	}
-	return false;
+	IPMSG_FUNC_RETURN( false );
 }
 
 /**
@@ -289,6 +324,7 @@ SentMessage::needSendRetry( time_t tryNow ) const
 std::vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 {
+	IPMSG_FUNC_ENTER( "std::vector<SentMessage>::iterator SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )" );
 	Lock( "SentMessageList::FindSentMessageByPacketNo()" );
 	std::vector<SentMessage>::iterator ret = end();
 	for( std::vector<SentMessage>::iterator ixmsg = begin(); ixmsg != end(); ixmsg++ ) {
@@ -298,7 +334,7 @@ SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 		}
 	}
 	Unlock( "SentMessageList::FindSentMessageByPacketNo()" );
-	return ret;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -313,6 +349,7 @@ SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 std::vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacket( Packet packet )
 {
+	IPMSG_FUNC_ENTER( "std::vector<SentMessage>::iterator SentMessageList::FindSentMessageByPacket( Packet packet )" );
 	char *dmyptr;
 	char *startptr;
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 16 );
@@ -327,6 +364,6 @@ SentMessageList::FindSentMessageByPacket( Packet packet )
 		}
 	}
 	Unlock( "SentMessageList::FindSentMessageByPacket()" );
-	return ret; 
+	IPMSG_FUNC_RETURN( ret );
 }
 

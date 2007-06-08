@@ -20,7 +20,11 @@ static IpMessengerAgent *myInstance = NULL;
 static pthread_mutex_t instanceMutex;
 static int mutex_init_result = IpMsgMutexInit( "IpMessenger::Global", &instanceMutex, NULL );
 
-IpMessengerEvent::~IpMessengerEvent(){};
+IpMessengerEvent::~IpMessengerEvent()
+{
+	IPMSG_FUNC_ENTER("IpMessengerEvent::~IpMessengerEvent()");
+	IPMSG_FUNC_EXIT;
+};
 /**
  * IP メッセンジャエージェントクラスのインスタンスを取得する。
  * <ul>
@@ -30,13 +34,14 @@ IpMessengerEvent::~IpMessengerEvent(){};
 IpMessengerAgent *
 IpMessengerAgent::GetInstance()
 {
+	IPMSG_FUNC_ENTER("IpMessengerAgent * IpMessengerAgent::GetInstance()");
 	mutex_init_result = 0; //fix warnings. but no effect.
 	IpMsgMutexLock( "IpMessengerAgent::GetInstance()", &instanceMutex );
 	if ( myInstance == NULL ) {
 		myInstance = new IpMessengerAgent();
 	}
 	IpMsgMutexUnlock( "IpMessengerAgent::GetInstance()", &instanceMutex );
-	return myInstance;
+	IPMSG_FUNC_RETURN( myInstance );
 }
 
 /**
@@ -49,14 +54,16 @@ IpMessengerAgent::GetInstance()
 void
 IpMessengerAgent::Release()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::Release()");
 	IpMsgMutexLock( "IpMessengerAgent::Release()", &instanceMutex );
 	if ( myInstance == NULL ) {
 		IpMsgMutexUnlock( "IpMessengerAgent::Release()", &instanceMutex );
-		return;
+		IPMSG_FUNC_EXIT;
 	}
 	delete myInstance;
 	myInstance = NULL;
 	IpMsgMutexUnlock( "IpMessengerAgent::Release()", &instanceMutex );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -64,7 +71,9 @@ IpMessengerAgent::Release()
  */
 IpMessengerAgent::IpMessengerAgent()
 {
+	IPMSG_FUNC_ENTER("IpMessengerAgent::IpMessengerAgent()");
 	ipmsgImpl = IpMessengerAgentImpl::GetInstance();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -72,7 +81,9 @@ IpMessengerAgent::IpMessengerAgent()
  */
 IpMessengerAgent::~IpMessengerAgent()
 {
+	IPMSG_FUNC_ENTER("IpMessengerAgent::~IpMessengerAgent()");
 	IpMessengerAgentImpl::Release();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -84,7 +95,9 @@ IpMessengerAgent::~IpMessengerAgent()
 void
 IpMessengerAgent::StartNetwork()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::StartNetwork()");
 	ipmsgImpl->StartNetwork();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -94,7 +107,9 @@ IpMessengerAgent::StartNetwork()
 void
 IpMessengerAgent::StartNetwork( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::StartNetwork( const std::vector<NetworkInterface>& nics )");
 	ipmsgImpl->StartNetwork( nics );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -103,7 +118,9 @@ IpMessengerAgent::StartNetwork( const std::vector<NetworkInterface>& nics )
 void
 IpMessengerAgent::StopNetwork()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::StopNetwork()");
 	ipmsgImpl->StopNetwork();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -115,7 +132,9 @@ IpMessengerAgent::StopNetwork()
 void
 IpMessengerAgent::RestartNetwork()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::RestartNetwork()");
 	ipmsgImpl->RestartNetwork();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -125,7 +144,9 @@ IpMessengerAgent::RestartNetwork()
 void
 IpMessengerAgent::RestartNetwork( const std::vector<NetworkInterface>& nics )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::RestartNetwork( const std::vector<NetworkInterface>& nics )");
 	ipmsgImpl->RestartNetwork( nics );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -135,7 +156,8 @@ IpMessengerAgent::RestartNetwork( const std::vector<NetworkInterface>& nics )
 FileNameConverter *
 IpMessengerAgent::GetFileNameConverter() const
 {
-	return ipmsgImpl->GetFileNameConverter();
+	IPMSG_FUNC_ENTER("FileNameConverter *IpMessengerAgent::GetFileNameConverter() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetFileNameConverter() );
 }
 
 /**
@@ -145,7 +167,9 @@ IpMessengerAgent::GetFileNameConverter() const
 void
 IpMessengerAgent::SetFileNameConverter( const FileNameConverter *conv )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::SetFileNameConverter( const FileNameConverter *conv )");
 	ipmsgImpl->SetFileNameConverter( conv );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -155,7 +179,8 @@ IpMessengerAgent::SetFileNameConverter( const FileNameConverter *conv )
 HostListComparator *
 IpMessengerAgent::GetSortHostListComparator() const
 {
-	return ipmsgImpl->GetSortHostListComparator();
+	IPMSG_FUNC_ENTER("HostListComparator *IpMessengerAgent::GetSortHostListComparator() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetSortHostListComparator() );
 }; 
 
 /**
@@ -165,7 +190,9 @@ IpMessengerAgent::GetSortHostListComparator() const
 void
 IpMessengerAgent::SetSortHostListComparator( const HostListComparator *comparator )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::SetSortHostListComparator( const HostListComparator *comparator )");
 	ipmsgImpl->SetSortHostListComparator( comparator );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -175,7 +202,8 @@ IpMessengerAgent::SetSortHostListComparator( const HostListComparator *comparato
 IpMessengerEvent *
 IpMessengerAgent::GetEventObject() const
 {
-	return ipmsgImpl->GetEventObject();
+	IPMSG_FUNC_ENTER("IpMessengerEvent *IpMessengerAgent::GetEventObject() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetEventObject() );
 }; 
 
 /**
@@ -185,7 +213,9 @@ IpMessengerAgent::GetEventObject() const
 void
 IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )");
 	ipmsgImpl->SetEventObject( evt );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -195,7 +225,9 @@ IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
 void
 IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 )");
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( nics, useIPv6 );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -204,7 +236,9 @@ IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, 
 void
 IpMessengerAgent::Login( std::string nickname, std::string groupName )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::Login( std::string nickname, std::string groupName )");
 	ipmsgImpl->Login( nickname, groupName );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -213,7 +247,9 @@ IpMessengerAgent::Login( std::string nickname, std::string groupName )
 void
 IpMessengerAgent::Logout()
 {	
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::Logout()");
 	ipmsgImpl->Logout();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -223,7 +259,8 @@ IpMessengerAgent::Logout()
 HostList&
 IpMessengerAgent::GetHostList()
 {
-	return ipmsgImpl->GetHostList();
+	IPMSG_FUNC_ENTER("HostList& IpMessengerAgent::GetHostList()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetHostList() );
 }
 
 /**
@@ -233,7 +270,8 @@ IpMessengerAgent::GetHostList()
 HostList&
 IpMessengerAgent::UpdateHostList()
 {
-	return ipmsgImpl->UpdateHostList();
+	IPMSG_FUNC_ENTER("HostList& IpMessengerAgent::UpdateHostList()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->UpdateHostList() );
 }
 
 /**
@@ -243,7 +281,8 @@ IpMessengerAgent::UpdateHostList()
 bool
 IpMessengerAgent::IsAbsence() const
 {
-	return ipmsgImpl->IsAbsence();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::IsAbsence() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->IsAbsence() );
 }
 /**
  * 不在モードをクリアする。
@@ -251,7 +290,9 @@ IpMessengerAgent::IsAbsence() const
 void
 IpMessengerAgent::ResetAbsence()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::ResetAbsence()");
 	ipmsgImpl->ResetAbsence();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -262,7 +303,9 @@ IpMessengerAgent::ResetAbsence()
 void
 IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )");
 	ipmsgImpl->SetAbsence( encoding, absenceModes );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -278,7 +321,8 @@ IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> abs
 bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
-	return ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsNoLogging, opt ) );
 }
 
 /**
@@ -295,7 +339,8 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bo
 bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
-	return ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt ) );
 }
 
 /**
@@ -312,7 +357,8 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, At
 bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
 {
-	return ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt );
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt ) );
 }
 
 /**
@@ -321,7 +367,9 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, At
 void
 IpMessengerAgent::ClearBroadcastAddress()
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::ClearBroadcastAddress()");
 	ipmsgImpl->ClearBroadcastAddress();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -331,7 +379,9 @@ IpMessengerAgent::ClearBroadcastAddress()
 void
 IpMessengerAgent::DeleteBroadcastAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::DeleteBroadcastAddress( std::string addr )");
 	ipmsgImpl->DeleteBroadcastAddress( addr );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -341,7 +391,9 @@ IpMessengerAgent::DeleteBroadcastAddress( std::string addr )
 void
 IpMessengerAgent::AddBroadcastAddress( std::string addr )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::AddBroadcastAddress( std::string addr )");
 	ipmsgImpl->AddBroadcastAddress( addr );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -352,7 +404,8 @@ IpMessengerAgent::AddBroadcastAddress( std::string addr )
 std::string
 IpMessengerAgent::GetInfo( HostListItem& host )
 {
-	return ipmsgImpl->GetInfo( host );
+	IPMSG_FUNC_ENTER("std::string IpMessengerAgent::GetInfo( HostListItem& host )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetInfo( host ) );
 }
 
 /**
@@ -363,7 +416,8 @@ IpMessengerAgent::GetInfo( HostListItem& host )
 std::string
 IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
 {
-	return ipmsgImpl->GetAbsenceInfo( host );
+	IPMSG_FUNC_ENTER("std::string IpMessengerAgent::GetAbsenceInfo( HostListItem& host )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetAbsenceInfo( host ) );
 }
 
 /**
@@ -373,7 +427,8 @@ IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
 std::vector<GroupItem>
 IpMessengerAgent::GetGroupList()
 {
-	return ipmsgImpl->GetGroupList();
+	IPMSG_FUNC_ENTER("std::vector<GroupItem> IpMessengerAgent::GetGroupList()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetGroupList() );
 }
 
 /**
@@ -383,7 +438,9 @@ IpMessengerAgent::GetGroupList()
 void
 IpMessengerAgent::DeleteNotify( RecievedMessage msg )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::DeleteNotify( RecievedMessage msg )");
 	ipmsgImpl->DeleteNotify( msg );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -393,7 +450,9 @@ IpMessengerAgent::DeleteNotify( RecievedMessage msg )
 void
 IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )");
 	ipmsgImpl->ConfirmMessage( msg );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -403,7 +462,8 @@ IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
 void
 IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )
 {
-	ipmsgImpl->AcceptConfirmNotify( msg );
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->AcceptConfirmNotify( msg ) );
 }
 		
 // private methods start here
@@ -415,7 +475,8 @@ IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )
 int
 IpMessengerAgent::Process()
 {
-	return ipmsgImpl->Process();
+	IPMSG_FUNC_ENTER("int IpMessengerAgent::Process()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->Process() );
 }
 
 /**
@@ -425,7 +486,8 @@ IpMessengerAgent::Process()
 int
 IpMessengerAgent::GetRecievedMessageCount()
 {
-	return ipmsgImpl->GetRecievedMessageCount();
+	IPMSG_FUNC_ENTER("int IpMessengerAgent::GetRecievedMessageCount()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetRecievedMessageCount() );
 }
 
 /**
@@ -435,7 +497,8 @@ IpMessengerAgent::GetRecievedMessageCount()
 RecievedMessage
 IpMessengerAgent::PopRecievedMessage()
 {
-	return ipmsgImpl->PopRecievedMessage();
+	IPMSG_FUNC_ENTER("RecievedMessage IpMessengerAgent::PopRecievedMessage()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->PopRecievedMessage() );
 }
 
 /**
@@ -445,7 +508,8 @@ IpMessengerAgent::PopRecievedMessage()
 SentMessageList *
 IpMessengerAgent::GetSentMessages()
 {
-	return ipmsgImpl->GetSentMessages();
+	IPMSG_FUNC_ENTER("SentMessageList *IpMessengerAgent::GetSentMessages()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetSentMessages() );
 }
 
 /**
@@ -455,7 +519,8 @@ IpMessengerAgent::GetSentMessages()
 SentMessageList
 IpMessengerAgent::CloneSentMessages() const
 {
-	return ipmsgImpl->CloneSentMessages();
+	IPMSG_FUNC_ENTER("SentMessageList IpMessengerAgent::CloneSentMessages() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->CloneSentMessages() );
 }
 
 /**
@@ -465,7 +530,8 @@ IpMessengerAgent::CloneSentMessages() const
 std::string
 IpMessengerAgent::LoginName() const
 {
-	return ipmsgImpl->LoginName();
+	IPMSG_FUNC_ENTER("std::string IpMessengerAgent::LoginName() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->LoginName() );
 }
 
 /**
@@ -475,7 +541,8 @@ IpMessengerAgent::LoginName() const
 std::string
 IpMessengerAgent::HostName() const
 {
-	return ipmsgImpl->HostName();
+	IPMSG_FUNC_ENTER("std::string IpMessengerAgent::HostName() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->HostName() );
 }
 
 /**
@@ -485,7 +552,8 @@ IpMessengerAgent::HostName() const
 int
 IpMessengerAgent::DefaultPortNo() const
 {
-	return ipmsgImpl->DefaultPortNo();
+	IPMSG_FUNC_ENTER("int IpMessengerAgent::DefaultPortNo() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->DefaultPortNo() );
 }
 
 /**
@@ -495,7 +563,9 @@ IpMessengerAgent::DefaultPortNo() const
 void
 IpMessengerAgent::setDefaultPortNo( const int defaultPortNo )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setDefaultPortNo( const int defaultPortNo )");
 	ipmsgImpl->setDefaultPortNo( defaultPortNo );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -505,7 +575,8 @@ IpMessengerAgent::setDefaultPortNo( const int defaultPortNo )
 bool
 IpMessengerAgent::IsDialup() const
 {
-	return ipmsgImpl->IsDialup();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::IsDialup() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->IsDialup() );
 }
 
 /**
@@ -515,7 +586,9 @@ IpMessengerAgent::IsDialup() const
 void
 IpMessengerAgent::setIsDialup( const bool isDialup )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setIsDialup( const bool isDialup )");
 	ipmsgImpl->setIsDialup( isDialup );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -525,7 +598,8 @@ IpMessengerAgent::setIsDialup( const bool isDialup )
 bool
 IpMessengerAgent::AbortDownloadAtFileChanged() const
 {
-	return ipmsgImpl->AbortDownloadAtFileChanged();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::AbortDownloadAtFileChanged() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->AbortDownloadAtFileChanged() );
 }
 
 /**
@@ -535,7 +609,9 @@ IpMessengerAgent::AbortDownloadAtFileChanged() const
 void
 IpMessengerAgent::setAbortDownloadAtFileChanged( const bool isAbort )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setAbortDownloadAtFileChanged( const bool isAbort )");
 	ipmsgImpl->setAbortDownloadAtFileChanged( isAbort );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -545,7 +621,8 @@ IpMessengerAgent::setAbortDownloadAtFileChanged( const bool isAbort )
 bool
 IpMessengerAgent::SaveSentMessage() const
 {
-	return ipmsgImpl->SaveSentMessage();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SaveSentMessage() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SaveSentMessage() );
 }
 
 /**
@@ -555,7 +632,9 @@ IpMessengerAgent::SaveSentMessage() const
 void
 IpMessengerAgent::setSaveSentMessage( const bool isSave )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setSaveSentMessage( const bool isSave )");
 	ipmsgImpl->setSaveSentMessage( isSave );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -565,7 +644,8 @@ IpMessengerAgent::setSaveSentMessage( const bool isSave )
 bool
 IpMessengerAgent::SaveRecievedMessage() const
 {
-	return ipmsgImpl->SaveRecievedMessage();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SaveRecievedMessage() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SaveRecievedMessage() );
 }
 
 /**
@@ -575,43 +655,53 @@ IpMessengerAgent::SaveRecievedMessage() const
 void
 IpMessengerAgent::setSaveRecievedMessage( const bool isSave )
 {
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setSaveRecievedMessage( const bool isSave )");
 	ipmsgImpl->setSaveRecievedMessage( isSave );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
  * 暗号化に失敗したらメッセージを送信しないかどうかのフラグのゲッター
  * @retval 暗号化に失敗したらメッセージを送信しないかどうかのフラグ
  */
-bool IpMessengerAgent::NoSendMessageOnEncryptionFailed() const
+bool
+IpMessengerAgent::NoSendMessageOnEncryptionFailed() const
 {
-	return ipmsgImpl->NoSendMessageOnEncryptionFailed();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::NoSendMessageOnEncryptionFailed() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->NoSendMessageOnEncryptionFailed() );
 }
 
 /**
  * 暗号化に失敗したらメッセージを送信しないかどうかのフラグのセッター
  * @param isNoSend 暗号化に失敗したらメッセージを送信しないかどうかのフラグ
  */
-void IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )
+void
+IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )
 {
-	return ipmsgImpl->setNoSendMessageOnEncryptionFailed( isNoSend );
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->setNoSendMessageOnEncryptionFailed( isNoSend ) );
 }
 
 /**
  * IPv6を使うかどうかのフラグのゲッター
  * @retval IPv6を使うかどうかのフラグ
  */
-bool IpMessengerAgent::UseIPv6() const
+bool
+IpMessengerAgent::UseIPv6() const
 {
-	return ipmsgImpl->UseIPv6();
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::UseIPv6() const");
+	IPMSG_FUNC_RETURN( ipmsgImpl->UseIPv6() );
 }
 
 /**
  * IPv6を使うかどうかのフラグのセッター
  * @param useIPv6 IPv6を使うかどうかのフラグ
  */
-void IpMessengerAgent::setUseIPv6( const bool useIPv6 )
+void
+IpMessengerAgent::setUseIPv6( const bool useIPv6 )
 {
-	return ipmsgImpl->setUseIPv6( useIPv6 );
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::setUseIPv6( const bool useIPv6 )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->setUseIPv6( useIPv6 ) );
 }
 
 /**
@@ -621,7 +711,8 @@ void IpMessengerAgent::setUseIPv6( const bool useIPv6 )
 long double
 DownloadInfo::getSpeed()
 {
-	return Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() );
+	IPMSG_FUNC_ENTER("long double DownloadInfo::getSpeed()");
+	IPMSG_FUNC_RETURN( Time() == 0 ? (long double)0 : ( ( long double )Size() / ( long double )Time() ) );
 }
 
 /**
@@ -631,7 +722,8 @@ DownloadInfo::getSpeed()
 std::string
 DownloadInfo::getSpeedString()
 {
-	return DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec";
+	IPMSG_FUNC_ENTER("std::string DownloadInfo::getSpeedString()");
+	IPMSG_FUNC_RETURN( DownloadInfo::getUnitSizeString( ( long long )getSpeed() ) + "/sec" );
 }
 
 /**
@@ -641,7 +733,8 @@ DownloadInfo::getSpeedString()
 std::string
 DownloadInfo::getSizeString()
 {
-	return DownloadInfo::getUnitSizeString( Size() );
+	IPMSG_FUNC_ENTER("std::string DownloadInfo::getSizeString()");
+	IPMSG_FUNC_RETURN( DownloadInfo::getUnitSizeString( Size() ) );
 }
 
 #define IPMSG_SIZE_B	(long double)(1)
@@ -657,23 +750,24 @@ DownloadInfo::getSizeString()
 std::string
 DownloadInfo::getUnitSizeString( long long size )
 {
+	IPMSG_FUNC_ENTER("std::string DownloadInfo::getUnitSizeString( long long size )");
 	long double dsize = (long double)size;
 	char buf[100];
 	if ( dsize >= IPMSG_SIZE_TB ) {
 		snprintf( buf, sizeof( buf ), "%.2Lf TB", (dsize / IPMSG_SIZE_TB) );
-		return buf;
+		IPMSG_FUNC_RETURN( buf );
 	} else if ( dsize >= IPMSG_SIZE_GB ) {
 		snprintf( buf, sizeof( buf ), "%.2Lf GB", (dsize / IPMSG_SIZE_GB) );
-		return buf;
+		IPMSG_FUNC_RETURN( buf );
 	} else if ( dsize >= IPMSG_SIZE_MB ) {
 		snprintf( buf, sizeof( buf ), "%.2Lf MB", (dsize / IPMSG_SIZE_MB) );
-		return buf;
+		IPMSG_FUNC_RETURN( buf );
 	} else if ( dsize >= IPMSG_SIZE_KB ) {
 		snprintf( buf, sizeof( buf ), "%.2Lf KB", (dsize / IPMSG_SIZE_KB) );
-		return buf;
+		IPMSG_FUNC_RETURN( buf );
 	}
 	snprintf( buf, sizeof( buf ), "%lld B", size );
-	return buf;
+	IPMSG_FUNC_RETURN( buf );
 }
 
 /**
@@ -683,9 +777,12 @@ DownloadInfo::getUnitSizeString( long long size )
 void
 NetworkInterface::setIpAddress( const std::string val )
 {
+	IPMSG_FUNC_ENTER("void NetworkInterface::setIpAddress( const std::string val )");
 	_IpAddress = val;
 	recalc();
+	IPMSG_FUNC_EXIT;
 }
+
 /**
  * ネットマスクを設定し、ネットワークアドレス、ブロードキャストアドレスを再計算する。
  * @param val ネットマスク文字列。
@@ -693,8 +790,10 @@ NetworkInterface::setIpAddress( const std::string val )
 void
 NetworkInterface::setNetMask( const std::string val )
 {
+	IPMSG_FUNC_ENTER("void NetworkInterface::setNetMask( const std::string val )");
 	_NetMask = val;
 	recalc();
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -703,7 +802,9 @@ NetworkInterface::setNetMask( const std::string val )
 void
 NetworkInterface::recalc()
 {
+	IPMSG_FUNC_ENTER("void NetworkInterface::recalc()");
 	_NetworkAddress = GetNetworkAddress( _AddressFamily, _IpAddress, _NetMask );
 	_BroadcastAddress = GetBroadcastAddress( _AddressFamily, _NetworkAddress, _NetMask );
+	IPMSG_FUNC_EXIT;
 }
 //end of source

@@ -2,6 +2,14 @@
 #  include "config.h"
 #endif
 
+#ifdef DEBUG_TRACE
+#define DEFINE_DEBUG_TRACE_VALUE
+#include <stdio.h>
+int __func_call_level__ = 0;
+FILE *__trace_fp__ = stdout;
+//FILE *__trace_fp__ = fopen("./trace.log","w");
+#endif
+
 #include <IpMessenger.h>
 #include <IpMessengerImpl.h>
 #include <ctype.h>

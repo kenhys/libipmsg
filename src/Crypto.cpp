@@ -46,6 +46,7 @@ using namespace ipmsg;
 void
 IpMessengerAgentImpl::CryptoInit()
 {
+	IPMSG_FUNC_ENTER( "void IpMessengerAgentImpl::CryptoInit()" );
 #ifdef HAVE_OPENSSL
 	ERR_load_crypto_strings();
 
@@ -106,6 +107,7 @@ IpMessengerAgentImpl::CryptoInit()
 	encryptionCapacity |= IPMSG_BLOWFISH_256;
 #endif	//SUPPORT_BLOWFISH_256
 #endif	//HAVE_OPENSSL
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -115,6 +117,7 @@ IpMessengerAgentImpl::CryptoInit()
 void
 IpMessengerAgentImpl::CryptoEnd()
 {
+	IPMSG_FUNC_ENTER( "void IpMessengerAgentImpl::CryptoEnd()" );
 #ifdef HAVE_OPENSSL
 	if ( RsaMin != NULL ) {
 		RSA_free( RsaMin );
@@ -127,6 +130,7 @@ IpMessengerAgentImpl::CryptoEnd()
 	}
 	ERR_free_strings();
 #endif	//HAVE_OPENSSL
+	IPMSG_FUNC_EXIT;
 }
 
 /**
@@ -142,6 +146,7 @@ IpMessengerAgentImpl::CryptoEnd()
 bool
 IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBuf, int optBufLen, int *enc_optBufLen, int opt_size )
 {
+	IPMSG_FUNC_ENTER( "bool IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBuf, int optBufLen, int *enc_optBufLen, int opt_size )" );
 #ifdef HAVE_OPENSSL
 	unsigned long pubKeyMethod = 0UL;
 	unsigned char iv[EVP_MAX_IV_LENGTH];
@@ -173,7 +178,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		printf("host.EncryptionCapacity()(%lx)\n", host.EncryptionCapacity() );fflush(stdout);
 		printf("pubKeyMethod == 0UL\n");fflush(stdout);
 #endif
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	RSA *rsa = RSA_new();
@@ -184,7 +189,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		printf( "BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
 #endif
 		RSA_free( rsa );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	rsa->n = BN_new();
 	if ( BN_hex2bn( &rsa->n, host.PubKeyHex().c_str() ) == 0 ){
@@ -193,7 +198,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		printf( "BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
 #endif
 		RSA_free( rsa );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	memset( iv, 0, sizeof( iv ) );
@@ -260,7 +265,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		printf("shareKeyMethod == 0UL\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	int enc_key_size = RSA_size( rsa );
 	unsigned char *enc_key = (unsigned char *)calloc( enc_key_size + 1, 1 );
@@ -272,7 +277,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		printf("enc_key == NULL\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	//共通鍵をRSA公開鍵で暗号化。
 	int enc_key_len = RSA_public_encrypt( key_bytes_size, sharekey, enc_key, rsa, RSA_PKCS1_PADDING );
@@ -282,7 +287,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #endif
 		RSA_free( rsa );
 		free( enc_key );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	//共通鍵で本文を暗号化。
 	EVP_CIPHER_CTX ctx;
@@ -348,7 +353,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #endif
 		RSA_free( rsa );
 		free( enc_key );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	int ol;
 	int o_len = 0;
@@ -374,7 +379,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		RSA_free( rsa );
 		free( enc_key );
 		free( enc_buf );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	snprintf( (char *)out_buf, ob_len, "%lx:", pubKeyMethod | shareKeyMethod );
 	for( int i = 0; i < enc_key_len; i++ ) {
@@ -401,15 +406,15 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #if defined(INFO) || !defined(NDEBUG)
 		printf("TRUE!!\n");fflush(stdout);
 #endif
-		return true;
+		IPMSG_FUNC_RETURN( true );
 	}
 
 #if defined(INFO) || !defined(NDEBUG)
 	printf("FALSE!!\n");fflush(stdout);
 #endif
-	return false;
+	IPMSG_FUNC_RETURN( false );
 #else	//HAVE_OPENSSL
-	return false;
+	IPMSG_FUNC_RETURN( false );
 #endif	//HAVE_OPENSSL
 }
 
@@ -422,13 +427,14 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 bool
 IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 {
+	IPMSG_FUNC_ENTER( "bool IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )" );
 #ifdef HAVE_OPENSSL
 	EVP_CIPHER_CTX ctx;
 	unsigned char iv[EVP_MAX_IV_LENGTH];
 
 	char *buf = (char *)calloc( packet.Option().size() + 1, 1);
 	if ( buf == NULL ){
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	memcpy( buf, packet.Option().c_str(), packet.Option().size());
 	char *file_ptr = &buf[strlen( buf ) + 1];
@@ -436,7 +442,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	int file_info_len = strlen( file_ptr );
 	if ( file_info == NULL ) {
 		free( buf );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	memcpy( file_info, file_ptr, file_info_len );
 	IpMsgPrintBuf("file_ptr:", file_ptr, file_info_len);
@@ -448,7 +454,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	if ( token == NULL ) {
 		free( buf );
 		free( file_info );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	char *dmyptr;
 	unsigned long methods = strtoul( token, &dmyptr, 16 );
@@ -458,7 +464,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	if ( token == NULL ) {
 		free( buf );
 		free( file_info );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	std::string ekey = token;
 
@@ -467,7 +473,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	if ( token == NULL ) {
 		free( buf );
 		free( file_info );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	std::string emsg = token;
 
@@ -508,7 +514,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 #endif	//SUPPORT_RSA_512
 	//暗号化されていない？
 	if ( pubKeyMethod == 0UL ) {
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	//パディングを含むサイズ
 	int ekey_len = ekey.length() / 2;
@@ -521,7 +527,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		printf("calloc 1\n");fflush(stdout);
 #endif
 		perror("calloc");
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	unsigned char *ekp = ek;
 	for( unsigned int i = 0; i < ekey.length(); i += 2 ) {
@@ -602,7 +608,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	if ( shareKeyMethod == 0UL ) {
 		free( file_info );
 		free( ek );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	unsigned char *emsg_buf = (unsigned char *)calloc( emsg.length() + 1, 1 );
 	if ( emsg_buf == NULL ) {
@@ -612,7 +618,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		perror("calloc");
 		free( file_info );
 		free( ek );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	int data_len = 0;
 	for( unsigned int i = 0; i < emsg.length(); i += 2 ) {
@@ -645,7 +651,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( file_info );
 			free( ek );
 			free( emsg_buf );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
@@ -660,7 +666,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( file_info );
 			free( ek );
 			free( emsg_buf );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
@@ -676,7 +682,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( file_info );
 			free( ek );
 			free( emsg_buf );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
@@ -695,7 +701,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( file_info );
 			free( ek );
 			free( emsg_buf );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
@@ -710,7 +716,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( file_info );
 			free( ek );
 			free( emsg_buf );
-			return false;
+			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
@@ -721,7 +727,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		free( file_info );
 		free( ek );
 		free( emsg_buf );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 	int tmp_len = 0;
 	int tmp;
@@ -731,7 +737,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		free( file_info );
 		free( ek );
 		free( emsg_buf );
-		return false;
+		IPMSG_FUNC_RETURN( false );
 	}
 
 	int ret;
@@ -752,9 +758,9 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	IpMsgPrintBuf( "optBuf(2):", (char *)optBuf, tmp_len );
 	free( optBuf );
 	free( file_info );
-	return true;
+	IPMSG_FUNC_RETURN( true );
 #else	//HAVE_OPENSSL
-	return false;
+	IPMSG_FUNC_RETURN( false );
 #endif	//HAVE_OPENSSL
 }
 
@@ -764,7 +770,9 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
  * @retval 暗号化に使用するRSAオブジェクト。
  */
 RSA *
-IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap ){
+IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap )
+{
+	IPMSG_FUNC_ENTER( "RSA *IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap )" );
 	RSA *rsa = NULL;
 	unsigned long pubKeyMethod = 0UL;
 #ifdef SUPPORT_RSA_2048
@@ -785,5 +793,5 @@ IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap ){
 		rsa = RsaMin != NULL ? RsaMin : NULL;
 	}
 #endif	// SUPPORT_RSA_512
-	return rsa;
+	IPMSG_FUNC_RETURN( rsa );
 }
