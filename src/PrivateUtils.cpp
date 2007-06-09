@@ -6,8 +6,7 @@
 #define DEFINE_DEBUG_TRACE_VALUE
 #include <stdio.h>
 int __func_call_level__ = 0;
-FILE *__trace_fp__ = stdout;
-//FILE *__trace_fp__ = fopen("./trace.log","w");
+FILE *__trace_fp__ = fopen("./trace.log","w");
 #endif
 
 #include <IpMessenger.h>
@@ -36,6 +35,38 @@ FILE *__trace_fp__ = stdout;
     #define SUPPORT_SENDFILE_HPUX_STYLE
 #endif // __HPUX__
 
+
+#ifdef DEBUG_TRACE
+void
+ipmsg::IpMsgCallTraceEnter( const char* funcname )
+{
+	char arrow[200];
+	memset( arrow, 0, sizeof( arrow ) );
+	__func_call_level__++;
+	for( int i = 0; i < __func_call_level__; i++  ){
+		strcat( arrow, "    " );
+	}
+	fprintf( __trace_fp__, "ENTR %s+==> %s\n", arrow, funcname);
+	fflush( __trace_fp__ );
+	fprintf( stdout, "ENTR %s===> %s\n", arrow, funcname);
+	fflush( stdout );
+}
+
+void
+ipmsg::IpMsgCallTraceExit( const char* funcname )
+{
+	char arrow[200];
+	memset( arrow, 0, sizeof( arrow ) );
+	for( int i = 0; i < __func_call_level__ ; i++ ){
+		strcat( arrow, "    " );
+	}
+	__func_call_level__--;
+	fprintf( __trace_fp__, "EXIT %s<=== %s\n", arrow, funcname );
+	fflush( __trace_fp__ );
+	fprintf( stdout, "EXIT %s<=== %s\n", arrow, funcname );
+	fflush( stdout );
+}
+#endif
 
 #if defined(DEBUG) || defined(INFO)
 

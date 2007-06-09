@@ -295,7 +295,10 @@ int IpMsgUCharToHexString( char buf[3], const unsigned char val );
 std::string IpMsgPortToStr( int portNo );
 std::string IpMsgGetLoginName( uid_t uid );
 std::string IpMsgGetHostName();
-
+#ifdef DEBUG_TRACE
+void IpMsgCallTraceEnter( const char* funcname );
+void IpMsgCallTraceExit( const char* funcname );
+#endif
 }; //namespace ipmsg
 
 #ifdef DEBUG_TRACE
@@ -303,33 +306,12 @@ std::string IpMsgGetHostName();
 extern int __func_call_level__;
 extern FILE *__trace_fp__;
 #endif
-#define	IPMSG_FUNC_ENTER( __func__ )	const char *__func_name__ = __func__; \
-										do{ \
-											char arrow[200]; \
-											memset( arrow, 0, sizeof( arrow ) ); \
-											memset( arrow, '=', __func_call_level__ * 4 ); \
-											__func_call_level__++; \
-											fprintf( __trace_fp__, "ENTER %s> %s\n", arrow, __func__); \
-											fflush( __trace_fp__ ); \
-										}while(0)
-#define	IPMSG_FUNC_EXIT					do{ \
-											char arrow[200]; \
-											memset( arrow, 0, sizeof( arrow ) ); \
-											__func_call_level__--; \
-											memset( arrow, '=', __func_call_level__ * 4 ); \
-											fprintf( __trace_fp__, "EXIT  <%s %s\n", arrow, __func_name__ ); \
-											fflush( __trace_fp__ ); \
-										}while(0); \
-										return
-#define	IPMSG_FUNC_RETURN( __val__ )	do{ \
-											char arrow[200]; \
-											memset( arrow, 0, sizeof( arrow ) ); \
-											__func_call_level__--; \
-											memset( arrow, '=', __func_call_level__ * 4 ); \
-											fprintf( __trace_fp__, "EXIT  <%s %s\n", arrow, __func_name__ ); \
-											fflush( __trace_fp__ ); \
-										}while(0); \
-										return __val__
+#define	IPMSG_FUNC_ENTER( __func__ )				const char *__func_name__ = __func__; \
+													ipmsg::IpMsgCallTraceEnter( __func_name__ )
+#define	IPMSG_FUNC_EXIT								ipmsg::IpMsgCallTraceExit( __func_name__ ); \
+													return
+#define	IPMSG_FUNC_RETURN( __val__ )				ipmsg::IpMsgCallTraceExit( __func_name__ ); \
+													return __val__
 #else
 #define	IPMSG_FUNC_ENTER( __func__ )
 #define	IPMSG_FUNC_EXIT					return
