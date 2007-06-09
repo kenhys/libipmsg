@@ -463,7 +463,8 @@ void
 IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )");
-	IPMSG_FUNC_RETURN( ipmsgImpl->AcceptConfirmNotify( msg ) );
+	ipmsgImpl->AcceptConfirmNotify( msg );
+	IPMSG_FUNC_EXIT;
 }
 		
 // private methods start here
