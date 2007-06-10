@@ -82,6 +82,14 @@ ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct
 	IPMSG_FUNC_RETURN( sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz ) );
 }
 
+void
+ipmsg::setScopeId( struct sockaddr_storage *addr, int scope_id )
+{
+	if ( addr->ss_family == AF_INET6 ){
+		struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)addr;
+		in6->sin6_scope_id = scope_id;
+	}
+}
 /**
  * ソケットアドレスがローカルループバックかを判定する。
  * @param addr ソケットアドレスのポインタ。
@@ -110,6 +118,9 @@ ipmsg::isLocalLoopbackAddress( struct sockaddr_storage *addr )
 			if ( getSockAddrInRawAddress( (struct sockaddr_storage * )res_i->ai_addr ) == "127.0.0.1" ||
 				 getSockAddrInRawAddress( (struct sockaddr_storage * )res_i->ai_addr ) == "::1" ) {
 				freeaddrinfo( res );
+#ifdef DEBUG
+printf("THIS IS LOCAL LOOPBACK ADDRESS[%s]\n", getSockAddrInRawAddress( addr ).c_str() );
+#endif
 				IPMSG_FUNC_RETURN( true );
 			}
 		}
@@ -358,8 +369,14 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 	if ( createSockAddrIn( &ifnet, ifnetaddr, IPMSG_DEFAULT_PORT ) == NULL ) {
 		IPMSG_FUNC_RETURN( ret );
 	}
+	if ( addr->ss_family != ifnet.ss_family ) {
+		IPMSG_FUNC_RETURN( ret );
+	}
 	memcpy( &mask, addr, sizeof( sockaddr_storage ) );
 	if ( createSockAddrIn( &mask, netmask, IPMSG_DEFAULT_PORT ) == NULL ) {
+		IPMSG_FUNC_RETURN( ret );
+	}
+	if ( addr->ss_family != mask.ss_family ) {
 		IPMSG_FUNC_RETURN( ret );
 	}
 	if ( addr->ss_family == AF_INET ) {
@@ -430,6 +447,52 @@ printf( "getifaddr ver\n" );fflush(stdout);
 		if ( isLocalLoopbackAddress( ( struct sockaddr_storage * )ifap->ifa_addr ) ) {
 			continue;
 		}
+		if ( ifap->ifa_addr->sa_family == AF_INET || ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) ) {
+#if 0
+			char info[NI_MAXHOST];
+			socklen_t salen = sizeof( sockaddr_storage );
+			if ( ifap->ifa_addr->sa_family == AF_INET ) {
+				salen = sizeof( sockaddr_in );
+			} else if ( ifap->ifa_addr->sa_family == AF_INET6 ) {
+				salen = sizeof( sockaddr_in6 );
+			}
+			int err = getnameinfo( ifap->ifa_addr, salen, info, sizeof( info ), NULL, 0, NI_NUMERICHOST );
+			if ( err != 0 ) {
+				fprintf( stdout, "getnameinfo:%s ", gai_strerror( err ) );
+				fflush( stdout );
+				continue;
+			}
+			std::string rawAddress = info;
+#else
+			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
+#endif
+			if ( ifap->ifa_addr->sa_family == AF_INET ) {
+				if ( rawAddress == v4anyAddress || rawAddress == v4broadcastAddress ){
+					continue;
+				}
+			} else if ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) {
+				if ( rawAddress == v6anyAddress || rawAddress == v6broadcastAddress ){
+					continue;
+				}
+			}
+			std::string rawNetMask = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_netmask );
+			NetworkInterface ni( ifap->ifa_addr->sa_family, std::string( ifap->ifa_name ) );
+			ni.setPortNo( defaultPortNo );
+			ni.setIpAddress( rawAddress );
+			ni.setNetMask( rawNetMask );
+#if defined(DEBUG) || !defined(NDEBUG)
+printf( "getifaddr ver(%s)\n", getAddressFamilyString( ifap->ifa_addr->sa_family ).c_str() );fflush(stdout);
+printf( "  IF %s\n", ni.DeviceName().c_str() );fflush(stdout);
+printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
+printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
+printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
+printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
+struct sockaddr_storage test;
+createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName().c_str() );
+#endif
+			nics.push_back( ni );
+		}
+#if 0
 		if ( ifap->ifa_addr->sa_family == AF_INET ) {
 			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
 			if ( rawAddress == v4anyAddress || rawAddress == v4broadcastAddress ){
@@ -447,6 +510,8 @@ printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
 printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
 printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
 printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
+struct sockaddr_storage test;
+createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName() );
 #endif
 			nics.push_back( ni );
 		} else if ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) {
@@ -466,9 +531,12 @@ printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
 printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
 printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
 printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
+struct sockaddr_storage test;
+createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName() );
 #endif
 			nics.push_back( ni );
 		}
+#endif
 	}
 	IPMSG_FUNC_EXIT;
 }
