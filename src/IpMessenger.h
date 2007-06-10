@@ -490,6 +490,16 @@ class IpMessengerEvent {
 		 */
 		virtual void SendAfter( SentMessage& msg )=0;
 		/**
+		 * メッセージ暗号化失敗通知イベント。
+		 */
+		virtual void NotifySendEncryptionFail( HostListItem& host )=0;
+		/**
+		 * メッセージ暗号化失敗イベント。
+		 * @retval true:暗号化せずに送信する
+		 * @retval false:失敗させる
+		 */
+		virtual bool IsSendContinueOnEncryptionFail( HostListItem& host )=0;
+		/**
 		 * メッセージ送信リトライエラーイベント
 		 * @param msg 送信メッセージ
 		 * @retval true:リトライする
