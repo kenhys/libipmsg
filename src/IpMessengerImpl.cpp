@@ -59,6 +59,16 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		 */
 		virtual bool SendRetryError( SentMessage& msg ){ printf("SendRetryError\n");return false; };
 		/**
+		 * メッセージ暗号化失敗通知イベント。
+		 */
+		virtual void NotifySendEncryptionFail( HostListItem& host ){ printf("NotifySendEncryptionFail\n"); };
+		/**
+		 * メッセージ暗号化失敗イベント。
+		 * @retval true:暗号化せずに送信する
+		 * @retval false:失敗させる
+		 */
+		virtual bool IsSendContinueOnEncryptionFail( HostListItem& host ){ printf("IsSendContinueOnEncryptionFail\n"); return false; };
+		/**
 		 * 開封通知後イベント。イベントが発生したことを示すためprintを行う。
 		 * @param msg 送信メッセージ
 		 */
@@ -598,6 +608,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 			printf("!! HOSTLIST CLEAR !! ");fflush( stdout );
 		printf("\n");fflush(stdout);
 #endif
+		hostListBackup = hostList;
 		hostList.clear();
 #if defined(DEBUG)
 		for(int i=0;i < 6;i++)
@@ -773,10 +784,19 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 		if ( EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, optBufSize ) ) {
 			isEncrypted = true;
 		} else if ( NoSendMessageOnEncryptionFailed() ) {
-			printf("暗号化失敗...\n");fflush(stdout);
+			printf("Encryption failed...\n");fflush(stdout);
+			if ( event != NULL && !isRetry ) {
+				event->NotifySendEncryptionFail( host );
+			}
 			free( optBuf );
 			IPMSG_FUNC_RETURN( false );
 		} else {
+			if ( event != NULL && !isRetry ) {
+				if ( !event->IsSendContinueOnEncryptionFail( host ) ) {
+					free( optBuf );
+					IPMSG_FUNC_RETURN( false );
+				}
+			}
 			optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 			memcpy( optBuf, msg.c_str(), optBufLen );
 		}
@@ -1295,7 +1315,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
  * @param size バッファサイズ
  */
 void
-IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf, int size )
+IpMessengerAgentImpl::UdpSendto( struct sockaddr_storage *addr, char *buf, int size )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf, int size )");
 	if ( udp_sd.size() == 0 ) {
@@ -1303,6 +1323,8 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 	}
 	int sock = -1;
 	int same_family_sock = -1;
+	int scope = if_nametoindex( sd_addr.begin()->second.DeviceName().c_str() );
+
 #if defined(DEBUG)
 	std::string from_addr = sd_addr.begin()->second.IpAddress();
 
@@ -1318,6 +1340,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 #endif
 		if ( isSameNetwork( addr, i->second.NetworkAddress() ,i->second.NetMask() ) ) {
 			sock = i->first;
+			scope = if_nametoindex( i->second.DeviceName().c_str() );
 #if defined(DEBUG)
 			from_addr = i->second.IpAddress();
 			printf( "Send Check Found %s(%d)\n",
@@ -1329,6 +1352,7 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 		//同じアドレスファミリのソケットをデフォルトとして用いる。
 		if ( same_family_sock < 0 && addr->ss_family == i->second.AddressFamily() ) {
 			same_family_sock = i->first;
+			scope = if_nametoindex( i->second.DeviceName().c_str() );
 #if defined(DEBUG)
 			from_addr = i->second.IpAddress();
 #endif
@@ -1349,8 +1373,9 @@ IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf,
 		}
 	}
 #if defined(DEBUG)
-	printf( "Send %s --> %s(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
+	printf( "Send %s --> %s scope %d(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), scope, ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
+	ipmsg::setScopeId( addr, scope );
 	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
 		perror("sendto.");
@@ -2375,7 +2400,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 #endif
 	start = strtoul( packet.Option().c_str(), &dmy, 10 );
 	struct sockaddr_storage addr = packet.Addr();
-	hosts = hostList.ToString( start, &addr );
+	hosts = hostListBackup.ToString( start, &addr );
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSLIST ),
 										_LoginName, _HostName,
 										hosts.c_str(), hosts.length(),
