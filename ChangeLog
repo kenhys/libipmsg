@@ -1,3 +1,13 @@
+2007-06-10 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add private API(setScopeId).
+- Update:Add some debug messages.
+- Update:Change isSameNetwork(strictly judgement)
+- Update:Duplicate logic was deleted.(GetNetworkInterfaceInfo).
+- Update:Delete "const" from UdpSendto parameter.
+- Update:Add hostListBackup.
+- Update:using backup on host list create.
+- Update:Raise event on encryption failed.
+
 2007-06-09 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:6th step for IPv6.
 - Update:Add some debug messages.
