@@ -142,6 +142,7 @@ class IpMessengerAgentImpl {
 		std::vector<struct sockaddr_storage> broadcastAddr;
 		std::vector<Packet> PacketsForChecking;
 		HostList hostList;
+		HostList hostListBackup;
 		std::vector<NetworkInterface> NICs;
 		std::string localEncoding;
 		bool haveIPv4Nic;
@@ -164,7 +165,7 @@ class IpMessengerAgentImpl {
 		void PurgePacket( time_t nowTime );
 		void CheckSendMsgRetry( time_t nowTime );
 		void CheckGetHostListRetry( time_t nowTime );
-		void UdpSendto( const struct sockaddr_storage *addr, char *buf, int size );
+		void UdpSendto( struct sockaddr_storage *addr, char *buf, int size );
 		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage toAddr );
 		void SendBroadcast( const unsigned long cmd, char *buf, int size );
 		void DoRecvCommand( const Packet& packet );
@@ -253,6 +254,7 @@ class IpMessengerAgentImpl {
 //Network.cpp
 int bindSocket( int proto, struct sockaddr_storage addr, const char *devname );
 int sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr );
+void setScopeId( struct sockaddr_storage *addr, int scope_id );
 bool isLocalLoopbackAddress( struct sockaddr_storage *addr );
 struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char * devname=NULL );
 int getSockAddrInPortNo( const struct sockaddr_storage *addr );
