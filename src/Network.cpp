@@ -24,17 +24,22 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 {
 	IPMSG_FUNC_ENTER( "int ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname )" );
 	int sock = socket( addr.ss_family, proto, 0 );
+#ifdef ENABLE_IPV6
 	const int on = 1;
 	if ( sock >= 0 && addr.ss_family == AF_INET6 && setsockopt( sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof( on ) ) < 0 ){
 		perror("setsockopt(udp,IPV6)");
 		close( sock );
 		IPMSG_FUNC_RETURN( -1 );
 	}
+#endif // ENABLE_IPV6
+	IpMsgDumpAddr( &addr );
 	int sz = sizeof( struct sockaddr_storage );
 	if ( addr.ss_family == AF_INET ){
 		sz = sizeof( struct sockaddr_in );
+#ifdef ENABLE_IPV6
 	} else if ( addr.ss_family == AF_INET6 ){
 		sz = sizeof( struct sockaddr_in6 );
+#endif // ENABLE_IPV6
 	}
 	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sz) != 0 ){
 		perror("bind(udp)");
@@ -42,6 +47,7 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 		close( sock );
 		IPMSG_FUNC_RETURN( -1 );
 	}
+#ifdef ENABLE_IPV6
 	if ( sock >= 0 && proto == SOCK_DGRAM && addr.ss_family == AF_INET6 && devname != NULL ){
 		const unsigned int devindex = if_nametoindex( devname );
 		if ( setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, &devindex, sizeof(devindex)) != 0 ) {
@@ -49,6 +55,7 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 			IPMSG_FUNC_RETURN( -1 );
 		}
 	}
+#endif // ENABLE_IPV6
 	if ( sock >= 0 && proto == SOCK_DGRAM && addr.ss_family == AF_INET ){
 		const int yes = 1;
 		if ( setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(yes)) != 0 ) {
@@ -76,20 +83,39 @@ ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct
 	int sz = sizeof( struct sockaddr_storage );
 	if ( addr->ss_family == AF_INET ) {
 		sz = sizeof( struct sockaddr_in );
+#ifdef ENABLE_IPV6
 	} else if ( addr->ss_family == AF_INET6 ) {
 		sz = sizeof( struct sockaddr_in6 );
+#endif // ENABLE_IPV6
 	}
+	IpMsgDumpAddr( addr );
 	IPMSG_FUNC_RETURN( sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz ) );
 }
 
 void
 ipmsg::setScopeId( struct sockaddr_storage *addr, int scope_id )
 {
+#if 0
+#ifdef ENABLE_IPV6
 	if ( addr->ss_family == AF_INET6 ){
 		struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)addr;
 		in6->sin6_scope_id = scope_id;
 	}
+#endif // ENABLE_IPV6
+#endif
 }
+int
+ipmsg::getScopeId( struct sockaddr_storage *addr )
+{
+#ifdef ENABLE_IPV6
+	if ( addr->ss_family == AF_INET6 ){
+		struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)addr;
+		return in6->sin6_scope_id;
+	}
+	return -1;
+#endif // ENABLE_IPV6
+}
+
 /**
  * ソケットアドレスがローカルループバックかを判定する。
  * @param addr ソケットアドレスのポインタ。
@@ -141,6 +167,9 @@ struct sockaddr_storage *
 ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char *devname )
 {
 	IPMSG_FUNC_ENTER( "struct sockaddr_storage *ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char *devname )" );
+#ifdef DEBUG
+	printf( "createSockAddrIn(addr=[%s] port=[%u] devname[%s])\n", rawAddress.c_str(), port, devname );fflush(stdout);
+#endif
 	if ( addr != NULL ) {
 		struct addrinfo hints, *res;
 		char portstr[10];
@@ -171,6 +200,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 #endif
 			freeaddrinfo( res );
 			IPMSG_FUNC_RETURN( addr );
+#ifdef ENABLE_IPV6
 		} else if ( res->ai_family == AF_INET6 ) {
 			struct sockaddr_in6 *sockaddrp = ( struct sockaddr_in6 * )addr;
 			*sockaddrp = *( (struct sockaddr_in6 *)res->ai_addr );
@@ -188,6 +218,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 #endif
 			freeaddrinfo( res );
 			IPMSG_FUNC_RETURN( addr );
+#endif // ENABLE_IPV6
 		} else {
 			fprintf( stderr, "createSockAddrIn::unknown address family\n" );
 		}
@@ -223,13 +254,37 @@ ipmsg::getSockAddrInPortNo( const struct sockaddr_storage &addr )
 	if ( addr.ss_family == AF_INET ) {
 		const struct sockaddr_in *addrp = (const struct sockaddr_in *)&addr;
 		ret = addrp->sin_port;
+#ifdef ENABLE_IPV6
 	} else if ( addr.ss_family == AF_INET6 ) {
 		const struct sockaddr_in6 *addrp = (const struct sockaddr_in6 *)&addr;
 		ret = addrp->sin6_port;
+#endif // ENABLE_IPV6
 	}
 	IPMSG_FUNC_RETURN( ret );
 }
 
+std::string
+ipmsg::getLocalhostAddress( bool useIPv6, const std::vector<NetworkInterface>& nics )
+{
+	std::string HostAddress = nics[0].IpAddress();
+	for( unsigned int i = 0; i < nics.size(); i++ ){
+		if ( nics[i].AddressFamily() == AF_INET ) {
+			HostAddress = nics[i].IpAddress();
+			break;
+		}
+	}
+#ifdef ENABLE_IPV6
+	if ( useIPv6 ) {
+		for( unsigned int i = 0; i < nics.size(); i++ ){
+			if ( nics[i].AddressFamily() == AF_INET6 ) {
+				HostAddress = nics[i].IpAddress();
+				break;
+			}
+		}
+	}
+#endif // ENABLE_IPV6
+	return HostAddress;
+}
 /**
  * ソケットアドレスからIPアドレス文字列を取得する。
  * @param addr ソケットアドレスのポインタ。
@@ -251,14 +306,50 @@ std::string
 ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 {
 	IPMSG_FUNC_ENTER( "std::string ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )" );
+#if 0
 	char ipAddrBuf[IP_ADDR_MAX_SIZE] = {0};
 	if ( addr.ss_family == AF_INET ) {
 		const struct sockaddr_in *addrp = (const struct sockaddr_in *)&addr;
 		inet_ntop( addr.ss_family, &addrp->sin_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+#ifdef ENABLE_IPV6
 	} else if ( addr.ss_family == AF_INET6 ) {
 		const struct sockaddr_in6 *addrp = (const struct sockaddr_in6 *)&addr;
-		inet_ntop( addr.ss_family, &addrp->sin6_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+		struct sockaddr_in6 sin6 = *addrp;
+		if ( IN6_IS_ADDR_LINKLOCAL(&sin6.sin6_addr) ) {
+			sin6.sin6_scope_id = ntohs( *( u_int16_t * )&sin6.sin6_addr.s6_addr[2] );
+			sin6.sin6_addr.s6_addr[2] = sin6.sin6_addr.s6_addr[3] = 0;
+		}
+		inet_ntop( addr.ss_family, &sin6.sin6_addr, ipAddrBuf, sizeof( ipAddrBuf ) );
+#endif // ENABLE_IPV6
 	}
+#else
+	char ipAddrBuf[NI_MAXHOST] = {0};
+	const struct sockaddr *addrp = ( const struct sockaddr *)&addr;
+#ifdef BSD
+	int salen = addrp->sa_len;
+#else
+	int salen = sizeof( addr );
+#endif
+
+	int err = getnameinfo( addrp, salen, ipAddrBuf, sizeof( ipAddrBuf ), NULL, 0, NI_NUMERICHOST );
+	if ( err != 0 ) {
+		printf( "getnameinfo Error:%s\n", gai_strerror( err ) );
+	} else {
+#if 0
+		if ( addr.ss_family == AF_INET6 ) {
+			const struct sockaddr_in6 *sin6 = ( const struct sockaddr_in6 *)&addr;
+			if ( IN6_IS_ADDR_LINKLOCAL(&sin6->sin6_addr) || IN6_IS_ADDR_SITELOCAL(&sin6->sin6_addr) ) {
+				char *p = strchr( ipAddrBuf, '%' );
+				if ( p != NULL ){
+					*p = 0;
+				}
+			}
+		}
+#endif
+		printf( "getnameinfo:IP addr %s\n", ipAddrBuf );
+	}
+	fflush( stdout );
+#endif
 	IPMSG_FUNC_RETURN( ipAddrBuf );
 }
 
@@ -285,8 +376,10 @@ ipmsg::getAddressFamilyString( int family )
 	IPMSG_FUNC_ENTER( "std::string ipmsg::getAddressFamilyString( int family )" );
 	if ( family == AF_INET ) {
 		IPMSG_FUNC_RETURN( "IPv4" );
+#ifdef ENABLE_IPV6
 	} else if ( family == AF_INET6 ) {
 		IPMSG_FUNC_RETURN( "IPv6" );
+#endif // ENABLE_IPV6
 	}
 	IPMSG_FUNC_RETURN( "other" );
 }
@@ -302,7 +395,20 @@ bool
 ipmsg::isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check )
 {
 	IPMSG_FUNC_ENTER( "bool ipmsg::isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check )" );
-	IPMSG_FUNC_RETURN( memcmp( &base, &check, sizeof( struct sockaddr_storage ) ) == 0 );
+	bool ret = false;
+	if ( base.ss_family == check.ss_family ) {
+		if ( base.ss_family == AF_INET ) {
+			struct sockaddr_in *basep = ( struct sockaddr_in *)&base;
+			struct sockaddr_in *checkp = ( struct sockaddr_in *)&check;
+			ret = basep->sin_addr.s_addr == checkp->sin_addr.s_addr && basep->sin_port == checkp->sin_port;
+		} else if ( base.ss_family == AF_INET6 ) {
+			struct sockaddr_in6 *basep = ( struct sockaddr_in6 *)&base;
+			struct sockaddr_in6 *checkp = ( struct sockaddr_in6 *)&check;
+			ret = memcmp( &basep->sin6_addr, &checkp->sin6_addr, 16 ) == 0 && basep->sin6_port == checkp->sin6_port;
+		}
+	}
+	IPMSG_FUNC_RETURN( ret );
+//	IPMSG_FUNC_RETURN( memcmp( &base, &check, sizeof( struct sockaddr_storage ) ) == 0 );
 }
 
 /**
@@ -387,11 +493,21 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 		const struct sockaddr_in *maskp = (const struct sockaddr_in *)&mask;
 		in_addr mask_addr = maskp->sin_addr;
 		ret = ifnet_addr.s_addr == ( sin_addr.s_addr & mask_addr.s_addr );
+#ifdef ENABLE_IPV6
 	} else if ( addr->ss_family == AF_INET6 ) {
 		const struct sockaddr_in6 *addrp = ( const struct sockaddr_in6 *) addr;
 		in6_addr sin_addr = addrp->sin6_addr;
 		const struct sockaddr_in6 *ifnetp = ( struct sockaddr_in6 *)&ifnet;
 		in6_addr ifnet_addr = ifnetp->sin6_addr;
+
+#ifdef BSD
+		if ( IN6_IS_ADDR_LINKLOCAL(&sin_addr) ) {
+			sin_addr.s6_addr[2] = sin_addr.s6_addr[3] = 0;
+		}
+		if ( IN6_IS_ADDR_LINKLOCAL(&ifnet_addr) ) {
+			ifnet_addr.s6_addr[2] = ifnet_addr.s6_addr[3] = 0;
+		}
+#endif
 		ret = sin_addr.s6_addr[0] == ifnet_addr.s6_addr[0]
 		   && sin_addr.s6_addr[1] == ifnet_addr.s6_addr[1]
 		   && sin_addr.s6_addr[2] == ifnet_addr.s6_addr[2]
@@ -400,6 +516,7 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 		   && sin_addr.s6_addr[5] == ifnet_addr.s6_addr[5]
 		   && sin_addr.s6_addr[6] == ifnet_addr.s6_addr[6]
 		   && sin_addr.s6_addr[7] == ifnet_addr.s6_addr[7];
+#endif // ENABLE_IPV6
 	}
 
 #ifdef DEBUG
@@ -417,9 +534,9 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
  * @param defaultPort デフォルトポート
  */
 void
-ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
+ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
-	IPMSG_FUNC_ENTER( "void ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
+	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
 // getifaddrsを使う実装も用意。その方が行儀が良い。
 #if defined(DEBUG) || !defined(NDEBUG)
 printf( "getifaddr ver\n" );fflush(stdout);
@@ -441,39 +558,39 @@ printf( "getifaddr ver\n" );fflush(stdout);
 		if ( ifap->ifa_addr == NULL ) {
 			continue;
 		}
-		if ( ifap->ifa_addr->sa_family != AF_INET && ifap->ifa_addr->sa_family != AF_INET6 ) {
+		if ( ifap->ifa_addr->sa_family != AF_INET
+#ifdef ENABLE_IPV6
+		&& ifap->ifa_addr->sa_family != AF_INET6
+#endif // ENABLE_IPV6
+		) {
 			continue;
 		}
 		if ( isLocalLoopbackAddress( ( struct sockaddr_storage * )ifap->ifa_addr ) ) {
 			continue;
 		}
-		if ( ifap->ifa_addr->sa_family == AF_INET || ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) ) {
-#if 0
-			char info[NI_MAXHOST];
-			socklen_t salen = sizeof( sockaddr_storage );
-			if ( ifap->ifa_addr->sa_family == AF_INET ) {
-				salen = sizeof( sockaddr_in );
-			} else if ( ifap->ifa_addr->sa_family == AF_INET6 ) {
-				salen = sizeof( sockaddr_in6 );
-			}
-			int err = getnameinfo( ifap->ifa_addr, salen, info, sizeof( info ), NULL, 0, NI_NUMERICHOST );
-			if ( err != 0 ) {
-				fprintf( stdout, "getnameinfo:%s ", gai_strerror( err ) );
-				fflush( stdout );
-				continue;
-			}
-			std::string rawAddress = info;
-#else
-			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
+#if defined( ENABLE_IPV6 ) && defined( DEBUG )
+		if ( ifap->ifa_addr->sa_family == AF_INET ) {
+			continue;
+		}
 #endif
+		if ( ifap->ifa_addr->sa_family == AF_INET
+#ifdef ENABLE_IPV6
+			|| ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 )
+#endif // ENABLE_IPV6
+		) {
+			struct sockaddr_storage *addrp = ( struct sockaddr_storage *)ifap->ifa_addr;
+			struct sockaddr_storage addr = *addrp;
+			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
 			if ( ifap->ifa_addr->sa_family == AF_INET ) {
 				if ( rawAddress == v4anyAddress || rawAddress == v4broadcastAddress ){
 					continue;
 				}
+#ifdef ENABLE_IPV6
 			} else if ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) {
 				if ( rawAddress == v6anyAddress || rawAddress == v6broadcastAddress ){
 					continue;
 				}
+#endif // ENABLE_IPV6
 			}
 			std::string rawNetMask = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_netmask );
 			NetworkInterface ni( ifap->ifa_addr->sa_family, std::string( ifap->ifa_name ) );
@@ -492,51 +609,6 @@ createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName().c_str() );
 #endif
 			nics.push_back( ni );
 		}
-#if 0
-		if ( ifap->ifa_addr->sa_family == AF_INET ) {
-			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
-			if ( rawAddress == v4anyAddress || rawAddress == v4broadcastAddress ){
-				continue;
-			}
-			std::string rawNetMask = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_netmask );
-			NetworkInterface ni( AF_INET, std::string( ifap->ifa_name ) );
-			ni.setPortNo( defaultPortNo );
-			ni.setIpAddress( rawAddress );
-			ni.setNetMask( rawNetMask );
-#if defined(DEBUG) || !defined(NDEBUG)
-printf( "getifaddr ver(IPv4)\n" );fflush(stdout);
-printf( "  IF %s\n", ni.DeviceName().c_str() );fflush(stdout);
-printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
-printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
-printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
-printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
-struct sockaddr_storage test;
-createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName() );
-#endif
-			nics.push_back( ni );
-		} else if ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) {
-			std::string rawAddress = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_addr );
-			if ( rawAddress == v6anyAddress || rawAddress == v6broadcastAddress ){
-				continue;
-			}
-			std::string rawNetMask = getSockAddrInRawAddress( ( struct sockaddr_storage * )ifap->ifa_netmask );
-			NetworkInterface ni( AF_INET6, std::string( ifap->ifa_name ) );
-			ni.setPortNo( defaultPortNo );
-			ni.setIpAddress( rawAddress );
-			ni.setNetMask( rawNetMask );
-#if defined(DEBUG) || !defined(NDEBUG)
-printf( "getifaddr ver(IPv6)\n" );fflush(stdout);
-printf( "  IF %s\n", ni.DeviceName().c_str() );fflush(stdout);
-printf( "  IP %s\n", ni.IpAddress().c_str() );fflush(stdout);
-printf( "  NM %s\n", ni.NetMask().c_str() );fflush(stdout);
-printf( "  NA %s\n", ni.NetworkAddress().c_str() );fflush(stdout);
-printf( "  BA %s\n", ni.BroadcastAddress().c_str() );fflush(stdout);
-struct sockaddr_storage test;
-createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName() );
-#endif
-			nics.push_back( ni );
-		}
-#endif
 	}
 	IPMSG_FUNC_EXIT;
 }
@@ -549,13 +621,15 @@ createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName() );
  * ※getifaddrsが有る場合は使用しない。
  */
 void
-ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
+ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
-	IPMSG_FUNC_ENTER( "void ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
+	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
 	if ( useIPv6 ) {
-		GetNetworkInterfaceInfoForIPv6( nics, defaultPortNo );
+#ifdef ENABLE_IPV6
+		getNetworkInterfaceInfoForIPv6( nics, defaultPortNo );
+#endif
 	}
-	GetNetworkInterfaceInfoForIPv4( nics, defaultPortNo );
+	getNetworkInterfaceInfoForIPv4( nics, defaultPortNo );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -566,9 +640,9 @@ ipmsg::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv
  * ※getifaddrsが有る場合は使用しない。
  */
 void
-ipmsg::GetNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo )
+ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
-	IPMSG_FUNC_ENTER( "void ipmsg::GetNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo )" );
+	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo )" );
 	/* ローカルループバックをのぞく全てのIPアドレスが対象 */
 	/* 全てのNICを取得する(より移植性が高い方法) */
 	std::string localLoopbackAddress = "127.0.0.1";
@@ -628,9 +702,10 @@ ipmsg::GetNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int 
  * ※getifaddrsが有る場合は使用しない。
  */
 void
-ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo )
+ipmsg::getNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
-	IPMSG_FUNC_ENTER( "void ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo )" );
+	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo )" );
+#ifdef ENABLE_IPV6
 	std::string localLoopbackAddress = "::1";
 	std::string anyAddress = "::";
 	std::string broadcastAddress = "ff02::1";
@@ -667,6 +742,7 @@ ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
 		}
 		fclose( fp );
 	}
+#endif // ENABLE_IPV6
 	IPMSG_FUNC_EXIT;
 }
 #endif
@@ -678,9 +754,9 @@ ipmsg::GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
  * @retval ブロードキャストアドレス。
  */
 std::string
-ipmsg::GetBroadcastAddress( int family, std::string netAddress, std::string netmask )
+ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netmask )
 {
-	IPMSG_FUNC_ENTER( "std::string ipmsg::GetBroadcastAddress( int family, std::string netAddress, std::string netmask )" );
+	IPMSG_FUNC_ENTER( "std::string ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netmask )" );
 	std::string ret = "";
 	if ( family == AF_INET ) {
 		in_addr inetBroad, inetMask, inetNetwork;
@@ -697,9 +773,11 @@ ipmsg::GetBroadcastAddress( int family, std::string netAddress, std::string netm
 		printf( "0xffffffff ^ NETMASK %s\n", netmask.c_str() );fflush(stdout);
 #endif
 		ret = ipaddrbuf;
+#ifdef ENABLE_IPV6
 	} else if ( family == AF_INET6 ) {
 		//TODO
 		ret = "ff02::1";
+#endif // ENABLE_IPV6
 	}
 	IPMSG_FUNC_RETURN( ret );
 }
@@ -712,9 +790,9 @@ ipmsg::GetBroadcastAddress( int family, std::string netAddress, std::string netm
  * @retval ネットワークアドレス。
  */
 std::string
-ipmsg::GetNetworkAddress( int family, std::string rawAddress, std::string netmask )
+ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmask )
 {
-	IPMSG_FUNC_ENTER( "std::string ipmsg::GetNetworkAddress( int family, std::string rawAddress, std::string netmask )" );
+	IPMSG_FUNC_ENTER( "std::string ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmask )" );
 	std::string ret = "";
 	if ( family == AF_INET ) {
 		in_addr inetAddr, inetMask, inetNetwork;
@@ -725,6 +803,7 @@ ipmsg::GetNetworkAddress( int family, std::string rawAddress, std::string netmas
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
 		ret = ipaddrbuf;
+#ifdef ENABLE_IPV6
 	} else if ( family == AF_INET6 ) {
 		in6_addr inetNetwork;
 		inet_pton( family, rawAddress.c_str(), (void *)&inetNetwork );
@@ -741,6 +820,7 @@ ipmsg::GetNetworkAddress( int family, std::string rawAddress, std::string netmas
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
 		ret = ipaddrbuf;
+#endif // ENABLE_IPV6
 	}
 	IPMSG_FUNC_RETURN( ret );
 }
