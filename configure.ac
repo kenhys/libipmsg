@@ -98,6 +98,15 @@ else
 	AC_MSG_ERROR([libipmsg required pthread library, but test for libpthread failed])
 fi
 
+AC_ARG_ENABLE(ipv6,
+		AC_HELP_STRING([--enable-ipv6],[IPv6 support @<:@default=yes@:>@]), ,[enable_ipv6=yes])
+if test "x$enable_ipv6" = xno; then
+	echo IPv6 support disabled.
+else
+	AC_DEFINE(ENABLE_IPV6, 1, [ipv6 support])
+	echo IPv6 support enabled.
+fi
+
 AC_ARG_ENABLE(debug,
 		AC_HELP_STRING([--enable-debug],[Debug message support @<:@default=no@:>@]), ,[enable_debug=no])
 if test "x$enable_debug" = xno; then
