@@ -428,7 +428,7 @@ void
 IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )");
-	ipmsg::GetNetworkInterfaceInfo( nics, useIPv6, defaultPortNo );
+	ipmsg::getNetworkInterfaceInfo( nics, useIPv6, defaultPortNo );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -961,8 +961,12 @@ std::vector<struct sockaddr_storage>::iterator
 IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 {
 	IPMSG_FUNC_ENTER("std::vector<struct sockaddr_storage>::iterator IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )");
+	struct sockaddr_storage ss;
+	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ) {
+		IPMSG_FUNC_RETURN( broadcastAddr.end() );
+	}
 	for( std::vector<struct sockaddr_storage>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
-		if ( getSockAddrInRawAddress( &(*ixaddr) ) == addr ) {
+		if ( isSameSockAddrIn( ss, *ixaddr ) ){
 			IPMSG_FUNC_RETURN( ixaddr );
 		}
 	}
@@ -1182,7 +1186,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 	
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
-		if ( createSockAddrIn( &addr, GetBroadcastAddress( nics[i].AddressFamily(), nics[i].NetworkAddress(), nics[i].NetMask() ), DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
+		if ( createSockAddrIn( &addr, getBroadcastAddress( nics[i].AddressFamily(), nics[i].NetworkAddress(), nics[i].NetMask() ), DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
 			IPMSG_FUNC_EXIT;
 		}
 		bool IsFound = false;
@@ -1239,6 +1243,7 @@ IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, 
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage to_addr )");
 #if defined(DEBUG)
+	printf( "SENDTO UNICAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( to_addr ).c_str() );fflush( stdout );
 	printf("== S E N D ============================================>\n");fflush( stdout );
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 	printf( "Send  %s(%d)\n", getSockAddrInRawAddress( &to_addr ).c_str(), ntohs( getSockAddrInPortNo( &to_addr ) ) );fflush( stdout );
@@ -1271,6 +1276,9 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 #endif
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( std::vector<struct sockaddr_storage>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
+#if defined(DEBUG)
+		printf( "SENDTO BROADCAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( *ixaddr ).c_str() );fflush( stdout );
+#endif
 		UdpSendto( &(*ixaddr), buf, size );
 	}
 	for( std::vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ){
@@ -1279,6 +1287,9 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 			if ( createSockAddrIn( &addr, ixhost->IpAddress(), ixhost->PortNo() ) == NULL ) {
 				IPMSG_FUNC_EXIT;
 			}
+#if defined(DEBUG)
+			printf( "SENDTO BROADCAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( addr ).c_str() );fflush( stdout );
+#endif
 			UdpSendto( &addr, buf, size );
 		}
 	}
@@ -1298,6 +1309,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 
 	if ( udp_sd.size() > 0 ) {
 #if defined(DEBUG)
+		printf( "SENDTO BROADCAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( addr ).c_str() );fflush( stdout );
 		printf( "Send To %s(%d)\n", getSockAddrInRawAddress( &addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #endif
 		UdpSendto( &addr, buf, size + 1 );
@@ -1372,10 +1384,12 @@ IpMessengerAgentImpl::UdpSendto( struct sockaddr_storage *addr, char *buf, int s
 			sock = same_family_sock;
 		}
 	}
-#if defined(DEBUG)
-	printf( "Send %s --> %s scope %d(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), scope, ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
-#endif
 	ipmsg::setScopeId( addr, scope );
+#if defined(DEBUG)
+	printf( "Send %s --> %s scope %d(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), getScopeId( addr ), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
+	printf("SendToAddr");
+	IpMsgDumpAddr( addr );
+#endif
 	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
 		perror("sendto.");
@@ -1400,8 +1414,18 @@ void
 IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )");
+	if ( nics.size() == 0 ) {
+		IPMSG_FUNC_EXIT;
+	}
+#if 0
 	if ( nics.size() > 0 ) {
 		HostAddress = nics[0].IpAddress();
+		for( unsigned int i = 0; i < nics.size(); i++ ){
+			if ( nics[i].AddressFamily() == AF_INET ) {
+				HostAddress = nics[i].IpAddress();
+				break;
+			}
+		}
 		if ( _UseIPv6 ) {
 			for( unsigned int i = 0; i < nics.size(); i++ ){
 				if ( nics[i].AddressFamily() == AF_INET6 ) {
@@ -1411,7 +1435,8 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			}
 		}
 	}
-
+#endif
+	HostAddress = getLocalhostAddress( _UseIPv6, nics );
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
@@ -1879,7 +1904,7 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )");
 #if defined(DEBUG)
-	printf( "PACKET.COMMAND=[%s]\n", GetCommandString( packet.CommandMode() ).c_str() );fflush( stdout );
+	printf( "RECV PACKET COMMAND=[%s][From %s]\n", GetCommandString( packet.CommandMode() ).c_str(), getSockAddrInRawAddress( packet.Addr() ).c_str() );fflush( stdout );
 #endif
 	switch( packet.CommandMode() ) {
 		case IPMSG_NOOPERATION:     UdpRecvEventNoOperation( packet ); break;
