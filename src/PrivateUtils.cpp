@@ -6,7 +6,10 @@
 #define DEFINE_DEBUG_TRACE_VALUE
 #include <stdio.h>
 int __func_call_level__ = 0;
+#define TRACE_LOG 0
+#if TRACE_LOG_FILE
 FILE *__trace_fp__ = fopen("./trace.log","w");
+#endif
 #endif
 
 #include <IpMessenger.h>
@@ -46,8 +49,10 @@ ipmsg::IpMsgCallTraceEnter( const char* funcname )
 	for( int i = 0; i < __func_call_level__; i++  ){
 		strcat( arrow, "    " );
 	}
+#if TRACE_LOG_FILE
 	fprintf( __trace_fp__, "ENTR %s+==> %s\n", arrow, funcname);
 	fflush( __trace_fp__ );
+#endif
 	fprintf( stdout, "ENTR %s===> %s\n", arrow, funcname);
 	fflush( stdout );
 }
@@ -61,8 +66,10 @@ ipmsg::IpMsgCallTraceExit( const char* funcname )
 		strcat( arrow, "    " );
 	}
 	__func_call_level__--;
+#if TRACE_LOG_FILE
 	fprintf( __trace_fp__, "EXIT %s<=== %s\n", arrow, funcname );
 	fflush( __trace_fp__ );
+#endif
 	fprintf( stdout, "EXIT %s<=== %s\n", arrow, funcname );
 	fflush( stdout );
 }
@@ -156,7 +163,9 @@ ipmsg::GetCommandString( unsigned long cmd )
 void
 ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr ){
 	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
-	printf( "send from %s(%d)\n", getSockAddrInRawAddress( sender_addr ).c_str(), ntohs( getSockAddrInPortNo( sender_addr ) ) );fflush(stdout);
+	printf( "send from \n" );
+	IpMsgDumpAddr( sender_addr );
+	//printf( "send from %s(%d)\n", getSockAddrInRawAddress( sender_addr ).c_str(), ntohs( getSockAddrInPortNo( sender_addr ) ) );fflush(stdout);
 	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
 	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
 	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), ipmsg::GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
@@ -212,6 +221,30 @@ ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 				ix->PortNo() );fflush(stdout);
 	}
 	printf("%s", foot );fflush(stdout);
+}
+void
+ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
+{
+	if ( addr->ss_family == AF_INET ) {
+		const struct sockaddr_in *sin = ( const struct sockaddr_in *)addr;
+		printf( "THIS IS AF_INET addr\n" );
+		printf( "  IP   =%s\n", getSockAddrInRawAddress( addr ).c_str() );
+		printf( "  PORT =%d\n", ntohs( sin->sin_port ) );
+#ifdef BSD
+		printf( "  LEN  =%d\n", sin->sin_len );
+#endif
+		fflush( stdout );
+	} else if ( addr->ss_family == AF_INET6 ) {
+		const struct sockaddr_in6 *sin6 = ( const struct sockaddr_in6 *)addr;
+		printf( "THIS IS AF_INET6 addr\n" );
+		printf( "  IP   =%s\n", getSockAddrInRawAddress( addr ).c_str() );
+		printf( "  PORT =%d\n", ntohs( sin6->sin6_port ) );
+#ifdef SIN6_LEN
+		printf( "  LEN  =%d\n", sin6->sin6_len );
+#endif
+		printf( "  SCOPE=%d\n", sin6->sin6_scope_id );
+		fflush( stdout );
+	}
 }
 #endif
 
