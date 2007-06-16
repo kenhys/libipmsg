@@ -1,3 +1,13 @@
+2007-06-17 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Check IP address difference by binary.
+- Update:Change API name(Get->get).
+- Update:Add option --enable-debug.
+- Update:Add some debug private API.
+- Update:Add getLocalHostAddress private API.
+- Update:Add some debug print.
+- Update:Change using inet_ntop -> getnameinfo.
+- Update:Add #ifdef ENABLE_IPV6
+
 2007-06-10 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add private API(setScopeId).
 - Update:Add some debug messages.
