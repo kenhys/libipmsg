@@ -314,8 +314,16 @@ HostList::DeleteHostByAddress( std::string addr )
 {
 	IPMSG_FUNC_ENTER( "void HostList::DeleteHostByAddress( std::string addr )" );
 	Lock( "HostList::DeleteHostIpAddress()" );
+	struct sockaddr_storage ss;
+	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ){
+		IPMSG_FUNC_EXIT;
+	}
 	for( std::vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
-		if ( ix->IpAddress() == addr ) {
+		struct sockaddr_storage ixss;
+		if ( createSockAddrIn( &ixss, ix->IpAddress(), 0 ) == NULL ){
+			IPMSG_FUNC_EXIT;
+		}
+		if ( isSameSockAddrIn( ss, ixss ) ){
 			items.erase( ix );
 			break;
 		}
@@ -365,9 +373,6 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 							item.Nickname() == "" ? "\b" : item.Nickname().c_str(),
 							item.GroupName() == "" ? "\b" : item.GroupName().c_str() );
 		} else {
-			if ( item.AddressFamily() == AF_INET6 && addr->ss_family == AF_INET ) {
-				continue;
-			}
 			if ( item.AddressFamily() != addr->ss_family ) {
 				continue;
 			}
@@ -477,11 +482,19 @@ HostList::FindHostByAddress( std::string addr )
 	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::FindHostByAddress( std::string addr )" );
 	Lock( "HostList::FindHostByAddress()" );
 	std::vector<HostListItem>::iterator ret = end();
+	struct sockaddr_storage ss;
+	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ){
+		IPMSG_FUNC_RETURN( ret );
+	}
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 #if defined(DEBUG)
 		printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );fflush(stdout);
 #endif
-		if ( ix->IpAddress() == addr ) {
+		struct sockaddr_storage ixss;
+		if ( createSockAddrIn( &ixss, ix->IpAddress(), 0 ) == NULL ){
+			IPMSG_FUNC_RETURN( ret );
+		}
+		if ( isSameSockAddrIn( ss, ixss ) ){
 #if defined(DEBUG)
 			printf("HOST FOUND!!!\n");fflush(stdout);
 #endif
