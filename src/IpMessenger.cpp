@@ -804,8 +804,8 @@ void
 NetworkInterface::recalc()
 {
 	IPMSG_FUNC_ENTER("void NetworkInterface::recalc()");
-	_NetworkAddress = GetNetworkAddress( _AddressFamily, _IpAddress, _NetMask );
-	_BroadcastAddress = GetBroadcastAddress( _AddressFamily, _NetworkAddress, _NetMask );
+	_NetworkAddress = getNetworkAddress( _AddressFamily, _IpAddress, _NetMask );
+	_BroadcastAddress = getBroadcastAddress( _AddressFamily, _NetworkAddress, _NetMask );
 	IPMSG_FUNC_EXIT;
 }
 //end of source
