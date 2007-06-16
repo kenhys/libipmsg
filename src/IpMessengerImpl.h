@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -255,6 +256,7 @@ class IpMessengerAgentImpl {
 int bindSocket( int proto, struct sockaddr_storage addr, const char *devname );
 int sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr );
 void setScopeId( struct sockaddr_storage *addr, int scope_id );
+int getScopeId( struct sockaddr_storage *addr );
 bool isLocalLoopbackAddress( struct sockaddr_storage *addr );
 struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char * devname=NULL );
 int getSockAddrInPortNo( const struct sockaddr_storage *addr );
@@ -263,15 +265,16 @@ std::string getSockAddrInRawAddress( const struct sockaddr_storage *addr );
 std::string getSockAddrInRawAddress( const struct sockaddr_storage &addr );
 std::string getSockAddrInAddressFamilyString( const struct sockaddr_storage &addr );
 std::string getAddressFamilyString( int family );
+std::string getLocalhostAddress( bool useIpv6, const std::vector<NetworkInterface>& nics );
 bool isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask );
 bool isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check );
-void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo );
+void getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo );
 #ifndef HAVE_GETIFADDR
-void GetNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo );
-void GetNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo );
+void getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo );
+void getNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo );
 #endif
-std::string GetBroadcastAddress( int family, std::string netAddress, std::string netmask );
-std::string GetNetworkAddress( int family, std::string rawAddress, std::string netmask );
+std::string getBroadcastAddress( int family, std::string netAddress, std::string netmask );
+std::string getNetworkAddress( int family, std::string rawAddress, std::string netmask );
 
 //PrivateUtils.cpp
 int IpMsgSendFileBuffer( int ifd, int sock, int size );
@@ -281,11 +284,13 @@ void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
 void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr );
 std::string GetCommandString( unsigned  long cmd );
 void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
+void IpMsgDumpAddr( const struct sockaddr_storage *addr );
 #else
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )
 #define GetCommandString( cmd )
 #define IpMsgDumpHostList( s, hostList )
+#define IpMsgDumpAddr( addr )
 #endif
 int IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr );
 int IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex );
@@ -304,10 +309,6 @@ void IpMsgCallTraceExit( const char* funcname );
 }; //namespace ipmsg
 
 #ifdef DEBUG_TRACE
-#ifndef DEFINE_DEBUG_TRACE_VALUE
-extern int __func_call_level__;
-extern FILE *__trace_fp__;
-#endif
 #define	IPMSG_FUNC_ENTER( __func__ )				const char *__func_name__ = __func__; \
 													ipmsg::IpMsgCallTraceEnter( __func_name__ )
 #define	IPMSG_FUNC_EXIT								ipmsg::IpMsgCallTraceExit( __func_name__ ); \
