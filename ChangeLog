@@ -1,3 +1,16 @@
+2007-06-20 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add UdpSocket property in Packet class.
+- Update:Add udp_socket parameter in UdpRecv private API.
+- Update:Add send_socket parameter in UdpSendto private API.
+- Update:Add udp_socket parameter in SendPacket private API.
+- Update:UdpSendto check Scope ID, if not specified IPv6 socket descriptor(-1).
+- Update:UdpSendto use send_socket,if specified  IPv6 socket descriptor.
+- Update:setScopeId deleted.
+- Update:Add some debug print.
+- Update:getScopeId API returns -1 at using IPv4.
+- Update:Local loopback NIC without NIC List.
+- Update:Add #ifdef statement.
+
 2007-06-17 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Check IP address difference by binary.
 - Update:Change API name(Get->get).
