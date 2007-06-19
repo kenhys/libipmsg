@@ -225,6 +225,7 @@ ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 void
 ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 {
+#ifdef ENABLE_IPV4
 	if ( addr->ss_family == AF_INET ) {
 		const struct sockaddr_in *sin = ( const struct sockaddr_in *)addr;
 		printf( "THIS IS AF_INET addr\n" );
@@ -234,7 +235,10 @@ ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 		printf( "  LEN  =%d\n", sin->sin_len );
 #endif
 		fflush( stdout );
-	} else if ( addr->ss_family == AF_INET6 ) {
+	}
+#endif
+#ifdef ENABLE_IPV6
+	if ( addr->ss_family == AF_INET6 ) {
 		const struct sockaddr_in6 *sin6 = ( const struct sockaddr_in6 *)addr;
 		printf( "THIS IS AF_INET6 addr\n" );
 		printf( "  IP   =%s\n", getSockAddrInRawAddress( addr ).c_str() );
@@ -245,6 +249,7 @@ ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 		printf( "  SCOPE=%d\n", sin6->sin6_scope_id );
 		fflush( stdout );
 	}
+#endif
 }
 #endif
 

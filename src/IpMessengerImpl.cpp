@@ -447,11 +447,16 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 	haveIPv6Nic = false;
 
 	for( unsigned int i = 0; i < nics.size(); i++ ){
+#ifdef ENABLE_IPV4
 		if ( nics[i].AddressFamily() == AF_INET ) {
 			haveIPv4Nic = true;
-		} else if ( nics[i].AddressFamily() == AF_INET6 ) {
+		}
+#endif
+#ifdef ENABLE_IPV6
+	 	if ( nics[i].AddressFamily() == AF_INET6 ) {
 			haveIPv6Nic = true;
 		}
+#endif
 	}
 
 	_HostName = IpMsgGetHostName();
@@ -1167,12 +1172,15 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )");
 	struct sockaddr_storage addr;
+#ifdef ENABLE_IPV4
 	if ( haveIPv4Nic ) {
 		if ( createSockAddrIn( &addr, "255.255.255.255", DefaultPortNo() ) == NULL ) {
 			IPMSG_FUNC_EXIT;
 		}
 		broadcastAddr.push_back( addr );
 	}
+#endif	
+#ifdef ENABLE_IPV6
 	if ( _UseIPv6 && haveIPv6Nic ) {
 		for( unsigned int i = 0; i < nics.size(); i++ ){
 			if ( nics[i].AddressFamily() == AF_INET6 ) {
@@ -1183,7 +1191,7 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 		}
 		broadcastAddr.push_back( addr );
 	}
-	
+#endif	
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
 		if ( createSockAddrIn( &addr, getBroadcastAddress( nics[i].AddressFamily(), nics[i].NetworkAddress(), nics[i].NetMask() ), DefaultPortNo(), nics[i].DeviceName().c_str() ) == NULL ) {
@@ -1434,25 +1442,6 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 	if ( nics.size() == 0 ) {
 		IPMSG_FUNC_EXIT;
 	}
-#if 0
-	if ( nics.size() > 0 ) {
-		HostAddress = nics[0].IpAddress();
-		for( unsigned int i = 0; i < nics.size(); i++ ){
-			if ( nics[i].AddressFamily() == AF_INET ) {
-				HostAddress = nics[i].IpAddress();
-				break;
-			}
-		}
-		if ( _UseIPv6 ) {
-			for( unsigned int i = 0; i < nics.size(); i++ ){
-				if ( nics[i].AddressFamily() == AF_INET6 ) {
-					HostAddress = nics[i].IpAddress();
-					break;
-				}
-			}
-		}
-	}
-#endif
 	HostAddress = getLocalhostAddress( _UseIPv6, nics );
 	udp_sd.clear();
 	tcp_sd.clear();
