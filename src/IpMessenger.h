@@ -92,6 +92,7 @@ class Packet{
 		IPMSG_PROPERTY( std::string, UserName );
 		IPMSG_PROPERTY( std::string, Option );
 		IPMSG_PROPERTY( struct sockaddr_storage, Addr );
+		IPMSG_PROPERTY( int, UdpSocket );
 		IPMSG_PROPERTY( int, TcpSocket );
 };
 
