@@ -98,13 +98,29 @@ else
 	AC_MSG_ERROR([libipmsg required pthread library, but test for libpthread failed])
 fi
 
+AC_ARG_ENABLE(ipv4,
+		AC_HELP_STRING([--enable-ipv4],[IPv4 support @<:@default=yes@:>@]), ,[enable_ipv4=yes])
+if test "x$enable_ipv4" = xno; then
+	AC_DEFINE(DISABLE_IPV4, 1, [ipv4 support])
+	echo IPv4 support disabled.
+else
+	AC_DEFINE(ENABLE_IPV4, 1, [ipv4 support])
+	echo IPv4 support enabled.
+fi
+
 AC_ARG_ENABLE(ipv6,
 		AC_HELP_STRING([--enable-ipv6],[IPv6 support @<:@default=yes@:>@]), ,[enable_ipv6=yes])
 if test "x$enable_ipv6" = xno; then
+	AC_DEFINE(DISABLE_IPV6, 1, [ipv6 support])
 	echo IPv6 support disabled.
 else
 	AC_DEFINE(ENABLE_IPV6, 1, [ipv6 support])
 	echo IPv6 support enabled.
+fi
+
+if test "x$enable_ipv4" = xno &&
+   test "x$enable_ipv6" = xno; then
+	AC_MSG_ERROR([libipmsg required --disable-ipv4 and --disable-ipv6, so enable protocol nothing])
 fi
 
 AC_ARG_ENABLE(debug,

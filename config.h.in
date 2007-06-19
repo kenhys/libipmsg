@@ -3,6 +3,15 @@
 /* Define to 1 if the `closedir' function returns void instead of `int'. */
 #undef CLOSEDIR_VOID
 
+/* ipv4 support */
+#undef DISABLE_IPV4
+
+/* ipv6 support */
+#undef DISABLE_IPV6
+
+/* ipv4 support */
+#undef ENABLE_IPV4
+
 /* ipv6 support */
 #undef ENABLE_IPV6
 
