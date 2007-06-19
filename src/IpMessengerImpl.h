@@ -160,14 +160,14 @@ class IpMessengerAgentImpl {
 		int InitUdpRecv( struct sockaddr_storage addr, const char *devname );
 		int InitTcpRecv( struct sockaddr_storage addr, const char *devname );
 		int RecvPacket();
-		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf );
+		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *udp_socket );
 		bool RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket );
 		bool FindDuplicatePacket( const Packet &packet );
 		void PurgePacket( time_t nowTime );
 		void CheckSendMsgRetry( time_t nowTime );
 		void CheckGetHostListRetry( time_t nowTime );
-		void UdpSendto( struct sockaddr_storage *addr, char *buf, int size );
-		void SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage toAddr );
+		void UdpSendto( const int send_socket, struct sockaddr_storage *addr, char *buf, int size );
+		void SendPacket( const int send_socket, const unsigned long cmd, char *buf, int size, struct sockaddr_storage toAddr );
 		void SendBroadcast( const unsigned long cmd, char *buf, int size );
 		void DoRecvCommand( const Packet& packet );
 		int SendNoOperation();
@@ -255,6 +255,8 @@ class IpMessengerAgentImpl {
 //Network.cpp
 int bindSocket( int proto, struct sockaddr_storage addr, const char *devname );
 int sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr );
+bool isSiteLocal( struct sockaddr_storage *addr );
+bool isLinkLocal( struct sockaddr_storage *addr );
 void setScopeId( struct sockaddr_storage *addr, int scope_id );
 int getScopeId( struct sockaddr_storage *addr );
 bool isLocalLoopbackAddress( struct sockaddr_storage *addr );
