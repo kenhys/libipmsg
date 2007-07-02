@@ -446,17 +446,32 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 	haveIPv4Nic = false;
 	haveIPv6Nic = false;
 
-	for( unsigned int i = 0; i < nics.size(); i++ ){
+	if ( nics.size() > 0 ){
+		for( unsigned int i = 0; i < nics.size(); i++ ){
 #ifdef ENABLE_IPV4
-		if ( nics[i].AddressFamily() == AF_INET ) {
-			haveIPv4Nic = true;
-		}
+			if ( nics[i].AddressFamily() == AF_INET ) {
+				haveIPv4Nic = true;
+			}
 #endif
 #ifdef ENABLE_IPV6
-	 	if ( nics[i].AddressFamily() == AF_INET6 ) {
-			haveIPv6Nic = true;
-		}
+		 	if ( nics[i].AddressFamily() == AF_INET6 ) {
+				haveIPv6Nic = true;
+			}
 #endif
+		}
+	} else {
+		for( unsigned int i = 0; i < NICs.size(); i++ ){
+#ifdef ENABLE_IPV4
+			if ( NICs[i].AddressFamily() == AF_INET ) {
+				haveIPv4Nic = true;
+			}
+#endif
+#ifdef ENABLE_IPV6
+		 	if ( NICs[i].AddressFamily() == AF_INET6 ) {
+				haveIPv6Nic = true;
+			}
+#endif
+		}
 	}
 
 	_HostName = IpMsgGetHostName();
@@ -1342,8 +1357,8 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 	if ( send_socket >= 0 ){
 		int ret = sendToSockAddrIn( send_socket, buf, size + 1, addr );
 		if ( ret <= 0 ) {
+			fprintf( stderr, "Address=%s Port=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 			perror("sendto.");
-			fprintf( stderr, "Address=%s Port=%d\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #if defined(DEBUG)
 			printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
@@ -1417,8 +1432,8 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 #endif
 	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
+		fprintf( stderr, "Address=%s Port=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 		perror("sendto.");
-		fprintf( stderr, "Address=%s Port=%d\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
 #if defined(DEBUG)
 		printf("S E N D   F A I L E D\n");fflush( stdout );
 #endif
