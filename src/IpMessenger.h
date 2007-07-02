@@ -101,26 +101,21 @@ class Packet{
  **/
 class NetworkInterface {
 	public:
-		IPMSG_PROPERTY( std::string, DeviceName );
+		IPMSG_READONLY_PROPERTY( std::string, DeviceName );
 		IPMSG_PROPERTY( int, AddressFamily );
 		IPMSG_READONLY_PROPERTY( std::string, IpAddress );
+		IPMSG_READONLY_PROPERTY( std::string, HardwareAddress );
 		IPMSG_READONLY_PROPERTY( std::string, NetMask );
 		IPMSG_READONLY_PROPERTY( std::string, NetworkAddress );
 		IPMSG_READONLY_PROPERTY( std::string, BroadcastAddress );
-//		IPMSG_READONLY_PROPERTY( struct in_addr, NativeIpAddress );
-//		IPMSG_READONLY_PROPERTY( struct in_addr, NativeNetMask );
-//		IPMSG_READONLY_PROPERTY( struct in_addr, NativeNetworkAddress );
-//		IPMSG_READONLY_PROPERTY( struct in_addr, NativeBroadcastAddress );
 		IPMSG_PROPERTY( int, PortNo );
-		NetworkInterface( std::string deviceName ):_DeviceName( deviceName ),_AddressFamily( AF_INET ){};
-		NetworkInterface( int addressFamily, std::string deviceName ):_DeviceName( deviceName ),_AddressFamily( addressFamily ){};
+		NetworkInterface( std::string deviceName ):_AddressFamily( AF_INET ){ setDeviceName( deviceName ); };
+		NetworkInterface( int addressFamily, std::string deviceName ):_AddressFamily( addressFamily ){ setDeviceName( deviceName ); };
 		NetworkInterface():_AddressFamily( AF_INET ){};
 	public:
+		void setDeviceName( const std::string val );
 		void setIpAddress( const std::string val );
 		void setNetMask( const std::string val );
-//		void setNativeIpAddress( const struct in_addr val );
-//		void setNativeNetMask( const struct in_addr val );
-//	private:
 		void recalc();
 };
 
@@ -144,7 +139,9 @@ class HostListItem{
 		IPMSG_PROPERTY( std::string, HostName );
 		IPMSG_PROPERTY( unsigned long, CommandNo );
 		IPMSG_PROPERTY( int, AddressFamily );
-		IPMSG_PROPERTY( std::string, IpAddress );
+		std::string IpAddress() const;
+		void setIpAddress( const std::string val );
+		IPMSG_READONLY_PROPERTY( std::string, HardwareAddress );
 		IPMSG_PROPERTY( std::string, Nickname );
 		IPMSG_PROPERTY( std::string, GroupName );
 		IPMSG_PROPERTY( std::string, EncodingName );
@@ -161,6 +158,8 @@ class HostListItem{
 		int Compare( const HostListItem& item ) const;
 		void QueryVersionInfo();
 		void QueryAbsenceInfo();
+	private:
+		std::string _IpAddress;
 };
 
 /**
@@ -827,6 +826,12 @@ class IpMessengerAgent {
 		 **/
 		bool UseIPv6() const;
 		void setUseIPv6( const bool useIPv6 );
+
+		/**
+		 * APIのサポート状況を調べる。
+		 **/
+		bool isSupportIPv6();
+		bool isSupportIPv4();
 	private:
 		IpMessengerAgent();
 		~IpMessengerAgent();
