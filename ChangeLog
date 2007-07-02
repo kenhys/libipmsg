@@ -1,3 +1,8 @@
+2007-07-03 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add debug print.
+- Update:Delete inet_ntop,inet_pton API.
+- Fix:Quick hack for Linux and BSD API difference.
+
 2007-07-02 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add IpAddress accessor in HostListItem(Add getting hardware address).
 - Update:Add print supported protocol in IpMessengerAgent.
