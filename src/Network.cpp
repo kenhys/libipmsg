@@ -11,6 +11,17 @@
 #include <net/if.h>
 #include <ifaddrs.h>
 #endif
+#include <sys/ioctl.h>
+#include <net/if_arp.h>
+#ifndef SIOCGARP
+#include <sys/sysctl.h>
+#include <netinet/if_ether.h>
+#include <net/route.h>
+#endif
+#ifndef SIOCGIFHWADDR
+#include <net/if_dl.h>
+#include <sys/sockio.h>
+#endif
 
 /**
  * ソケットを生成し、バインドする。
@@ -96,7 +107,9 @@ ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct
 		sz = sizeof( struct sockaddr_in6 );
 	}
 #endif // ENABLE_IPV6
+#ifdef DEBUG
 	printf( "sendToSockAddrIn sock = %d\n", sock );
+#endif
 	IpMsgDumpAddr( addr );
 	IPMSG_FUNC_RETURN( sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz ) );
 }
@@ -230,6 +243,153 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 	IPMSG_FUNC_RETURN( NULL );
 }
 
+std::string
+ipmsg::getNetworkInterfaceMacAddress( std::string deviceName )
+{
+	IPMSG_FUNC_ENTER( "std::string ipmsg::getNetworkInterfaceMacAddress( std::string deviceName )");
+#ifdef SIOCGIFHWADDR
+	int sock = socket( AF_INET, SOCK_DGRAM, 0 );
+	struct ifreq ifr;
+
+	ifr.ifr_addr.sa_family = AF_INET;
+	strncpy( ifr.ifr_name, deviceName.c_str(), IFNAMSIZ - 1 );
+	char retbuf[20]={0};
+	errno = 0;
+	perror("errno");
+	int rc = ioctl( sock, SIOCGIFHWADDR, &ifr );
+	if ( rc == -1 ) {
+		int err = errno;
+		fprintf( stderr, "ioctl in getNetworkInterfaceMacAddress:%s:%s\n", deviceName.c_str(), strerror( err ) );
+	} else {
+		convertMacAddressToBuffer( ( unsigned char * )&ifr.ifr_hwaddr.sa_data[0], retbuf, sizeof( retbuf ) );
+	}
+	close( sock );
+#elif defined( HAVE_GETIFADDRS )
+	struct ifaddrs *ifa, *ifa0;
+	struct sockaddr_dl* dl;
+	unsigned char mac_addr[6];
+	bool is_found = false;
+	getifaddrs( &ifa0 );
+	for( ifa = ifa0; ifa; ifa=ifa->ifa_next ) {
+		dl = (struct sockaddr_dl*)ifa->ifa_addr;
+		if( strncmp( deviceName.c_str(), dl->sdl_data, dl->sdl_nlen) == 0 ) {
+			memcpy( mac_addr, LLADDR(dl), 6 );
+			is_found = true;
+			break;
+		}
+	}
+	freeifaddrs(ifa0);
+	char retbuf[20]={0};
+	if ( is_found ) {
+		convertMacAddressToBuffer( ( unsigned char * )mac_addr, retbuf, sizeof( retbuf ) );
+	}
+#endif
+	IPMSG_FUNC_RETURN( retbuf );
+}
+
+char *
+ipmsg::convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsize )
+{
+	IPMSG_FUNC_ENTER( "std::string ipmsg::convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsize )");
+	snprintf( buf, bufsize, "%02x:%02x:%02x:%02x:%02x:%02x",
+				*mac, *( mac + 1 ), *( mac + 2 ), *( mac + 3 ), *( mac + 4 ), *( mac + 5 ) );
+printf("MAC=%s\n", buf );
+	IPMSG_FUNC_RETURN( buf );
+}
+
+std::string
+ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<NetworkInterface> &nics )
+{
+	IPMSG_FUNC_ENTER( "std::string ipmsg::convertIpAddressToMacAddress( std::string ipAddress )");
+	sockaddr_storage ip;
+	if ( createSockAddrIn( &ip, ipAddress, 0 ) == NULL ) {
+		IPMSG_FUNC_RETURN( "" );
+	}
+	char retbuf[20]={0};
+	if ( ip.ss_family == AF_INET ) {
+#ifdef SIOCGARP
+		int sockfd = socket( AF_INET, SOCK_DGRAM, 0 );
+		struct sockaddr_in *sockaddrp = ( struct sockaddr_in * )&ip;
+		struct arpreq arpreq;
+		struct sockaddr_in *sin;
+
+		memset( &arpreq, 0, sizeof( arpreq ) );
+		sin = ( struct sockaddr_in * )&arpreq.arp_pa;
+		sin->sin_family = AF_INET;
+		sin->sin_addr = sockaddrp->sin_addr;
+		errno = 0;
+		perror("errno");
+		int rc = ioctl( sockfd, SIOCGARP, &arpreq );
+		if ( rc == -1 ) {
+			int err = errno;
+			for( unsigned int i = 0; i < nics.size(); i++ ){
+				if ( nics[i].IpAddress() == ipAddress ) {
+					close( sockfd );
+					IPMSG_FUNC_RETURN( nics[i].HardwareAddress() );
+				}
+			}
+			fprintf( stderr, "ioctl in convertIpAddressToMacAddress:%s:%s\n", ipAddress.c_str(),strerror( err ) );
+		} else {
+			convertMacAddressToBuffer( ( unsigned char * )&arpreq.arp_ha.sa_data[0], retbuf, sizeof( retbuf ) );
+		}
+		close( sockfd );
+		IPMSG_FUNC_RETURN( retbuf );
+#else	// FreeBSD, etc...
+		int s, mib[6];
+		size_t len;
+		char *buf;
+ 
+		mib[0] = CTL_NET;
+		mib[1] = PF_ROUTE;
+		mib[2] = 0;
+		mib[3] = AF_INET;
+		mib[4] = NET_RT_FLAGS;
+		mib[5] = RTF_LLINFO;
+ 
+		if ( sysctl(mib, 6, NULL, &len, NULL, 0 ) < 0 ) {
+			IPMSG_FUNC_RETURN( "" );
+		}
+		if( ( buf = (char*)malloc(len)) == NULL ) {
+			IPMSG_FUNC_RETURN( "" );
+		}
+		if ( sysctl( mib, 6, buf, &len, NULL, 0 ) < 0 ){ 
+			free( buf );
+			IPMSG_FUNC_RETURN( "" );
+		}
+		struct sockaddr_in *sin = ( struct sockaddr_in * )&ip;
+		struct rt_msghdr *rtm;
+		for( s = 0; s < ( int )len; s += rtm->rtm_msglen ){
+			rtm = ( struct rt_msghdr * )( buf + s ); 
+			struct sockaddr_inarp *inarp = ( struct sockaddr_inarp * )( rtm + 1 ); 
+			struct sockaddr_dl *sdl = ( struct sockaddr_dl * )( sin + 1 ); 
+	
+			if( sin->sin_addr.s_addr == inarp->sin_addr.s_addr ){ 
+				convertMacAddressToBuffer( ( unsigned char *)sdl, retbuf, sizeof( retbuf ) );
+printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
+				free( buf );
+				IPMSG_FUNC_RETURN( retbuf );
+			}
+		}
+		free( buf ); 
+		IPMSG_FUNC_RETURN( "" );
+#endif
+	}
+	if ( ip.ss_family == AF_INET6 ) {
+		struct sockaddr_in6 *sockaddrp = ( struct sockaddr_in6 * )&ip;
+		unsigned char mac[6];
+		mac[0] = sockaddrp->sin6_addr.s6_addr[8] ^ 0x02;
+		mac[1] = sockaddrp->sin6_addr.s6_addr[9];
+		mac[2] = sockaddrp->sin6_addr.s6_addr[10];
+		mac[3] = sockaddrp->sin6_addr.s6_addr[13];
+		mac[4] = sockaddrp->sin6_addr.s6_addr[14];
+		mac[5] = sockaddrp->sin6_addr.s6_addr[15];
+		convertMacAddressToBuffer( mac, retbuf, sizeof( retbuf ) );
+printf( "MAC Addr v6 [%s] <= %s\n", retbuf, ipAddress.c_str() );
+		IPMSG_FUNC_RETURN( retbuf );
+	}
+	IPMSG_FUNC_RETURN( "" );
+}
+
 /**
  * ソケットアドレスからポート番号を取得する。
  * @param addr ソケットアドレスのポインタ。
@@ -323,8 +483,10 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 	int err = getnameinfo( addrp, salen, ipAddrBuf, sizeof( ipAddrBuf ), NULL, 0, NI_NUMERICHOST );
 	if ( err != 0 ) {
 		printf( "getnameinfo Error:%s\n", gai_strerror( err ) );
+#ifdef DEBUG
 	} else {
 		printf( "getnameinfo:IP addr %s\n", ipAddrBuf );
+#endif
 	}
 	IPMSG_FUNC_RETURN( ipAddrBuf );
 }
@@ -546,10 +708,13 @@ printf( "getifaddr ver\n" );fflush(stdout);
 		}
 #if defined( ENABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET && ifap->ifa_addr->sa_family != AF_INET6 ) {
-#elif defined( ENABLE_IPV4 ) && !defined( ENABLE_IPV6 )
+			printf( "ENABLE_IPV4 && ENABLE_IPV6\n" );
+#elif defined( ENABLE_IPV4 ) && defined( DISABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET ) {
-#elif !defined( ENABLE_IPV4 ) && defined( ENABLE_IPV6 )
+			printf( "ENABLE_IPV4 && DISABLE_IPV6\n" );
+#elif defined( DISABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET6 ) {
+			printf( "DISABLE_IPV4 && ENABLE_IPV6\n" );
 #endif // ENABLE_IPV6
 			continue;
 		}
@@ -559,16 +724,11 @@ printf( "getifaddr ver\n" );fflush(stdout);
 		if ( isLocalLoopbackAddress( ( struct sockaddr_storage * )ifap->ifa_addr ) ) {
 			continue;
 		}
-#if defined( ENABLE_IPV6 ) && defined( DEBUG )
-		if ( ifap->ifa_addr->sa_family == AF_INET ) {
-			continue;
-		}
-#endif
 #if defined( ENABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family == AF_INET || ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) ) {
-#elif defined( ENABLE_IPV4 ) && !defined( ENABLE_IPV6 )
+#elif defined( ENABLE_IPV4 ) && defined( DISABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family == AF_INET ) {
-#elif !defined( ENABLE_IPV4 ) && defined( ENABLE_IPV6 )
+#elif defined( DISABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( useIPv6 && ifap->ifa_addr->sa_family == AF_INET6 ) {
 #endif // ENABLE_IPV6
 			struct sockaddr_storage *addrp = ( struct sockaddr_storage *)ifap->ifa_addr;
@@ -597,6 +757,7 @@ printf( "getifaddr ver\n" );fflush(stdout);
 printf( "getifaddr ver(%s)\n", getAddressFamilyString( ifap->ifa_addr->sa_family ).c_str() );
 printf( "  IF %s\n", ni.DeviceName().c_str() );
 printf( "  IP %s\n", ni.IpAddress().c_str() );
+printf( "  HA %s\n", ni.HardwareAddress().c_str() );
 printf( "  NM %s\n", ni.NetMask().c_str() );
 printf( "  NA %s\n", ni.NetworkAddress().c_str() );
 printf( "  BA %s\n", ni.BroadcastAddress().c_str() );

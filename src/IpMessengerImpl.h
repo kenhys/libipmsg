@@ -47,6 +47,12 @@ namespace ipmsg {
 extern "C" void *GetFileDataThread( void *param );
 extern "C" void *GetDirFilesThread( void *param );
 
+class MacAddressTableItem {
+	public:
+		IPMSG_PROPERTY( std::string, MacAddress );
+		IPMSG_PROPERTY( std::string, IpAddress );
+};
+
 /**
  * IP Messenger エージェント実装クラス。(ライブラリ内部使用)
  */
@@ -261,6 +267,9 @@ void setScopeId( struct sockaddr_storage *addr, int scope_id );
 int getScopeId( struct sockaddr_storage *addr );
 bool isLocalLoopbackAddress( struct sockaddr_storage *addr );
 struct sockaddr_storage * createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char * devname=NULL );
+std::string getNetworkInterfaceMacAddress( std::string deviceName );
+char *convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsize );
+std::string convertIpAddressToMacAddress( std::string ipAddress, const std::vector<NetworkInterface>& nics );
 int getSockAddrInPortNo( const struct sockaddr_storage *addr );
 int getSockAddrInPortNo( const struct sockaddr_storage &addr );
 std::string getSockAddrInRawAddress( const struct sockaddr_storage *addr );
