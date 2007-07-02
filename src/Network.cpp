@@ -482,7 +482,17 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 
 	int err = getnameinfo( addrp, salen, ipAddrBuf, sizeof( ipAddrBuf ), NULL, 0, NI_NUMERICHOST );
 	if ( err != 0 ) {
-		printf( "getnameinfo Error:%s\n", gai_strerror( err ) );
+#ifdef ENABLE_IPV4
+		if ( addrp->sa_family == AF_INET ) {
+			const struct sockaddr_in *sin = (const struct sockaddr_in *)addrp;
+			const unsigned char *p = (const unsigned char *)&sin->sin_addr.s_addr;
+			snprintf( ipAddrBuf, sizeof( ipAddrBuf ), "%d.%d.%d.%d", ( int )p[0], ( int )p[1], ( int )p[2], ( int )p[3] ); 
+		} else {
+#endif
+			printf( "getnameinfo Error:%s\n", gai_strerror( err ) );
+#ifdef ENABLE_IPV4
+		}
+#endif
 #ifdef DEBUG
 	} else {
 		printf( "getnameinfo:IP addr %s\n", ipAddrBuf );
@@ -959,16 +969,30 @@ ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmas
 {
 	IPMSG_FUNC_ENTER( "std::string ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmask )" );
 	std::string ret = "";
-#ifdef ENABLE_IPV6
+#ifdef ENABLE_IPV4
 	if ( family == AF_INET ) {
-		in_addr inetAddr, inetMask, inetNetwork;
-		inet_pton( family, rawAddress.c_str(), (void *)&inetAddr );
-		inet_pton( family, netmask.c_str(), (void *)&inetMask );
-		inetNetwork.s_addr = inetAddr.s_addr & inetMask.s_addr;
+//		in_addr inetAddr, inetMask, inetNetwork;
+		sockaddr_storage inetAddr;
+		if ( createSockAddrIn( &inetAddr, rawAddress, 0 ) == NULL ) {
+			IPMSG_FUNC_RETURN( "" );
+		}
+		sockaddr_storage inetMask;
+		if ( createSockAddrIn( &inetMask, netmask, 0 ) == NULL ) {
+			IPMSG_FUNC_RETURN( "" );
+		}
+		struct sockaddr_in * inetAddrp = (struct sockaddr_in *)&inetAddr;
+		struct sockaddr_in * inetMaskp = (struct sockaddr_in *)&inetMask;
+//		inet_pton( family, rawAddress.c_str(), (void *)&inetAddr );
+//		inet_pton( family, netmask.c_str(), (void *)&inetMask );
+		struct sockaddr_storage inetNetwork = inetAddr;
+		struct sockaddr_in * inetNetworkp = (struct sockaddr_in *)&inetNetwork;
+		inetNetworkp->sin_addr.s_addr = inetAddrp->sin_addr.s_addr & inetMaskp->sin_addr.s_addr;
+//		inetNetwork.s_addr = inetAddr.s_addr & inetMask.s_addr;
 
-		char ipaddrbuf[IP_ADDR_MAX_SIZE];
-		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
-		ret = ipaddrbuf;
+//		char ipaddrbuf[IP_ADDR_MAX_SIZE];
+//		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
+//		ret = ipaddrbuf;
+		ret = getSockAddrInRawAddress( inetNetwork );
 	}
 #endif // ENABLE_IPV4
 #ifdef ENABLE_IPV6
