@@ -1214,16 +1214,34 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 		}
 		bool IsFound = false;
 		for( std::vector<struct sockaddr_storage>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
+#ifdef DEBUG
+			std::string check =getSockAddrInRawAddress( &( *i ) );
+			std::string base = getSockAddrInRawAddress( &addr );
+			int checkp = getSockAddrInPortNo( &( *i ) );
+			int basep = getSockAddrInPortNo( &addr );
+			printf("check[%s][%d] == base[%s][%d]\n", check.c_str(), checkp, base.c_str(), basep );
+#endif	
 			if ( getSockAddrInRawAddress( &( *i ) ) == getSockAddrInRawAddress( &addr ) &&
 				 getSockAddrInPortNo( &( *i ) ) == getSockAddrInPortNo( &addr ) ){
 				IsFound = true;
+#ifdef DEBUG
+				printf("found!!\n" );
+#endif	
 				break;
 			}
 		}
 		if ( !IsFound ) {
+#ifdef DEBUG
+			printf("not found!!\n" );
+#endif	
 			broadcastAddr.push_back( addr );
 		}
 	}
+#ifdef DEBUG
+	for( std::vector<struct sockaddr_storage>::iterator i = broadcastAddr.begin(); i != broadcastAddr.end(); ++i ){
+		printf( "BROADCAST_ADDRESS=[%s]\n", getSockAddrInRawAddress( &( *i ) ).c_str() );
+	}
+#endif
 	IPMSG_FUNC_EXIT;
 }
 
