@@ -72,6 +72,16 @@ IpMessengerAgent::Release()
 IpMessengerAgent::IpMessengerAgent()
 {
 	IPMSG_FUNC_ENTER("IpMessengerAgent::IpMessengerAgent()");
+	if ( isSupportIPv4() ) {
+		printf("This host support IPv4.\n");
+	} else {
+		printf("This host not support IPv4.\n");
+	}
+	if ( isSupportIPv6() ) {
+		printf("This host support IPv6.\n");
+	} else {
+		printf("This host not support IPv6.\n");
+	}
 	ipmsgImpl = IpMessengerAgentImpl::GetInstance();
 	IPMSG_FUNC_EXIT;
 }
@@ -702,7 +712,42 @@ void
 IpMessengerAgent::setUseIPv6( const bool useIPv6 )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgent::setUseIPv6( const bool useIPv6 )");
-	IPMSG_FUNC_RETURN( ipmsgImpl->setUseIPv6( useIPv6 ) );
+#ifdef ENABLE_IPV6
+	ipmsgImpl->setUseIPv6( useIPv6 );
+#else
+	ipmsgImpl->setUseIPv6( false );
+#endif
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * IPv6をサポートしているかビルドオプションを取得する。
+ * @retval true:IPv6をサポート
+ * @retval false:IPv6をサポートしていない。
+ */
+bool
+IpMessengerAgent::isSupportIPv6()
+{
+#ifdef ENABLE_IPV6
+	return true;
+#else
+	return false;
+#endif
+}
+
+/**
+ * IPv4をサポートしているかビルドオプションを取得する。
+ * @retval true:IPv4をサポート
+ * @retval false:IPv4をサポートしていない。
+ */
+bool
+IpMessengerAgent::isSupportIPv4()
+{
+#ifdef ENABLE_IPV4
+	return true;
+#else
+	return false;
+#endif
 }
 
 /**
@@ -769,6 +814,19 @@ DownloadInfo::getUnitSizeString( long long size )
 	}
 	snprintf( buf, sizeof( buf ), "%lld B", size );
 	IPMSG_FUNC_RETURN( buf );
+}
+
+/**
+ * デバイス名を設定し、ハードウェアアドレスを取得する。
+ * @param val デバイス名。
+ */
+void
+NetworkInterface::setDeviceName( const std::string val )
+{
+	IPMSG_FUNC_ENTER("void NetworkInterface::setDeviceName( const std::string val )");
+	_DeviceName = val;
+	_HardwareAddress = getNetworkInterfaceMacAddress( val );
+	IPMSG_FUNC_EXIT;
 }
 
 /**
