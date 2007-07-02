@@ -1,3 +1,16 @@
+2007-07-02 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add IpAddress accessor in HostListItem(Add getting hardware address).
+- Update:Add print supported protocol in IpMessengerAgent.
+- Update:Add method for getting build option in IpMessengerAgent.
+- Update:Add DeviceName setter in NetworkInterface.
+- Update:Add property HardwareAddress in NetworkInterface.
+- Update:Add property HardwareAddress in HostListItem.
+- Fix:haveIPv6 and haveIPv4 variable setting on specify external NIC.
+- Update:Change perror information.
+- Update:Add internal API "getNetworkInterfaceMacAddress".
+- Update:Add internal API "convertMacAddressToBuffer".
+- Update:Add internal API "convertIpAddressToMacAddress".
+
 2007-06-20 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add UdpSocket property in Packet class.
 - Update:Add udp_socket parameter in UdpRecv private API.
