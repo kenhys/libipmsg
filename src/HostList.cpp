@@ -230,6 +230,7 @@ HostList::AddHost( const HostListItem& host )
 #if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
+
 		if ( host.IpAddress() == nics[i].IpAddress() ) {
 #if defined(INFO) || !defined(NDEBUG)
 			printf("AddHost HOST MATCH\n" );fflush(stdout);
@@ -507,6 +508,30 @@ HostList::FindHostByAddress( std::string addr )
 #endif
 	Unlock( "HostList::FindHostByAddress()" );
 	IPMSG_FUNC_RETURN( ret );
+}
+
+/**
+ * IPアドレスのセッター
+ * @param IPアドレス
+ */
+void
+HostListItem::setIpAddress( const std::string val )
+{
+	IPMSG_FUNC_ENTER( "void HostListItem::setIpAddress( const std::strin val )" );
+	_IpAddress = val;
+	_HardwareAddress = convertIpAddressToMacAddress( val, IpMessengerAgentImpl::GetInstance()->NICs );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * IPアドレスのゲッター
+ * @retval IPアドレス
+ */
+std::string
+HostListItem::IpAddress() const
+{
+	IPMSG_FUNC_ENTER( "std::string HostListItem::IpAddress() const" );
+	IPMSG_FUNC_RETURN( _IpAddress );
 }
 
 /**
