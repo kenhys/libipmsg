@@ -18,27 +18,6 @@ FILE *__trace_fp__ = fopen("./trace.log","w");
 #include <ipmsg.h>
 #include <pwd.h>
 
-#if defined(__linux__)
-    #include <linux/version.h>
-    #if LINUX_VERSION_CODE > KERNEL_VERSION(2,2,0)
-        #define SUPPORT_SENDFILE_LINUX_STYLE
-        #include <sys/sendfile.h>
-    #endif // LINUX_VERSION_CODE
-#endif // __linux__
-#if defined(__FreeBSD__) || defined(__DragonFly__)
-    #define SUPPORT_SENDFILE_BSD_STYLE
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <sys/uio.h>
-#endif // __FreeBSD__,__DragonFly__
-#if defined(__sun)
-    #define SUPPORT_SENDFILE_SOLARIS_STYLE
-#endif // __solaris__
-#if defined(__HPUX__)
-    #define SUPPORT_SENDFILE_HPUX_STYLE
-#endif // __HPUX__
-
-
 #ifdef DEBUG_TRACE
 void
 ipmsg::IpMsgCallTraceEnter( const char* funcname )
