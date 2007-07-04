@@ -1,3 +1,7 @@
+2007-07-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Move platform depends "define" statements.
+- Update:Comments for debug print.
+
 2007-07-03 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add debug print.
 - Update:Delete inet_ntop,inet_pton API.
