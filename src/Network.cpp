@@ -23,6 +23,26 @@
 #include <sys/sockio.h>
 #endif
 
+#if defined(__linux__)
+    #include <linux/version.h>
+    #if LINUX_VERSION_CODE > KERNEL_VERSION(2,2,0)
+        #define SUPPORT_SENDFILE_LINUX_STYLE
+        #include <sys/sendfile.h>
+    #endif // LINUX_VERSION_CODE
+#endif // __linux__
+#if defined(__FreeBSD__) || defined(__DragonFly__)
+    #define SUPPORT_SENDFILE_BSD_STYLE
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <sys/uio.h>
+#endif // __FreeBSD__,__DragonFly__
+#if defined(__sun)
+    #define SUPPORT_SENDFILE_SOLARIS_STYLE
+#endif // __solaris__
+#if defined(__HPUX__)
+    #define SUPPORT_SENDFILE_HPUX_STYLE
+#endif // __HPUX__
+
 /**
  * ソケットを生成し、バインドする。
  * @param proto プロトコル(SOCK_STREAM, SOCK_DGRAM)。
@@ -178,7 +198,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 {
 	IPMSG_FUNC_ENTER( "struct sockaddr_storage *ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char *devname )" );
 #ifdef DEBUG
-	printf( "createSockAddrIn(addr=[%s] port=[%u] devname[%s])\n", rawAddress.c_str(), port, devname );fflush(stdout);
+//	printf( "createSockAddrIn(addr=[%s] port=[%u] devname[%s])\n", rawAddress.c_str(), port, devname );fflush(stdout);
 #endif
 	if ( addr != NULL ) {
 		struct addrinfo hints, *res;
@@ -201,6 +221,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 			struct sockaddr_in *sockaddrp = ( struct sockaddr_in * )addr;
 			*sockaddrp = *( (struct sockaddr_in *)res->ai_addr );
 #ifdef DEBUG
+/*
 			struct addrinfo *res_i;
 			int i = 1;
 			for( res_i = res; res_i; res_i = res_i->ai_next,i++ ) {
@@ -208,6 +229,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 							getSockAddrInRawAddress( (struct sockaddr_storage * )res_i->ai_addr ).c_str(), getSockAddrInPortNo( (struct sockaddr_storage * )res_i->ai_addr ) );
 			}
 			fflush(stdout);
+*/
 #endif
 			freeaddrinfo( res );
 			IPMSG_FUNC_RETURN( addr );
@@ -221,6 +243,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 				sockaddrp->sin6_scope_id = if_nametoindex( devname );
 			}
 #ifdef DEBUG
+/*
 			struct addrinfo *res_i;
 			int i = 1;
 			for( res_i = res; res_i; res_i = res_i->ai_next, i++ ) {
@@ -228,6 +251,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 							getSockAddrInRawAddress( (struct sockaddr_storage * )res_i->ai_addr ).c_str(), getSockAddrInPortNo( (struct sockaddr_storage * )res_i->ai_addr ) );
 			}
 			fflush(stdout);
+*/
 #endif
 			freeaddrinfo( res );
 			IPMSG_FUNC_RETURN( addr );
@@ -293,7 +317,7 @@ ipmsg::convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsi
 	IPMSG_FUNC_ENTER( "std::string ipmsg::convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsize )");
 	snprintf( buf, bufsize, "%02x:%02x:%02x:%02x:%02x:%02x",
 				*mac, *( mac + 1 ), *( mac + 2 ), *( mac + 3 ), *( mac + 4 ), *( mac + 5 ) );
-printf("MAC=%s\n", buf );
+//printf("MAC=%s\n", buf );
 	IPMSG_FUNC_RETURN( buf );
 }
 
@@ -308,6 +332,7 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 	char retbuf[20]={0};
 	if ( ip.ss_family == AF_INET ) {
 #ifdef SIOCGARP
+//printf( "ioctl\n" );
 		int sockfd = socket( AF_INET, SOCK_DGRAM, 0 );
 		struct sockaddr_in *sockaddrp = ( struct sockaddr_in * )&ip;
 		struct arpreq arpreq;
@@ -317,9 +342,18 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 		sin = ( struct sockaddr_in * )&arpreq.arp_pa;
 		sin->sin_family = AF_INET;
 		sin->sin_addr = sockaddrp->sin_addr;
+#ifdef __linux__
+		for( unsigned int i = 0; i < nics.size(); i++ ) {
+			if ( isSameNetwork( &ip, nics[i].NetworkAddress(), nics[i].NetMask() ) ) {
+				strcpy( arpreq.arp_dev, nics[i].DeviceName().c_str() );
+				break;
+			}
+		}
+#endif
 		errno = 0;
 		perror("errno");
 		int rc = ioctl( sockfd, SIOCGARP, &arpreq );
+//printf( "ARP dev=%s\n", arpreq.arp_dev );
 		if ( rc == -1 ) {
 			int err = errno;
 			for( unsigned int i = 0; i < nics.size(); i++ ){
@@ -333,8 +367,10 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 			convertMacAddressToBuffer( ( unsigned char * )&arpreq.arp_ha.sa_data[0], retbuf, sizeof( retbuf ) );
 		}
 		close( sockfd );
+//printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 		IPMSG_FUNC_RETURN( retbuf );
 #else	// FreeBSD, etc...
+//printf( "sysctl\n" );
 		int s, mib[6];
 		size_t len;
 		char *buf;
@@ -347,30 +383,34 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 		mib[5] = RTF_LLINFO;
  
 		if ( sysctl(mib, 6, NULL, &len, NULL, 0 ) < 0 ) {
+//perror( "sysctl 1" );
 			IPMSG_FUNC_RETURN( "" );
 		}
 		if( ( buf = (char*)malloc(len)) == NULL ) {
+//perror( "malloc" );
 			IPMSG_FUNC_RETURN( "" );
 		}
-		if ( sysctl( mib, 6, buf, &len, NULL, 0 ) < 0 ){ 
+		if ( sysctl( mib, 6, buf, &len, NULL, 0 ) < 0 ){
+//perror( "sysctl 2" );
 			free( buf );
 			IPMSG_FUNC_RETURN( "" );
 		}
 		struct sockaddr_in *sin = ( struct sockaddr_in * )&ip;
 		struct rt_msghdr *rtm;
 		for( s = 0; s < ( int )len; s += rtm->rtm_msglen ){
-			rtm = ( struct rt_msghdr * )( buf + s ); 
-			struct sockaddr_inarp *inarp = ( struct sockaddr_inarp * )( rtm + 1 ); 
-			struct sockaddr_dl *sdl = ( struct sockaddr_dl * )( sin + 1 ); 
-	
-			if( sin->sin_addr.s_addr == inarp->sin_addr.s_addr ){ 
-				convertMacAddressToBuffer( ( unsigned char *)sdl, retbuf, sizeof( retbuf ) );
-printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
+			rtm = ( struct rt_msghdr * )( buf + s );
+			struct sockaddr_inarp *inarp = ( struct sockaddr_inarp * )( rtm + 1 );
+			struct sockaddr_dl *sdl = ( struct sockaddr_dl * )( inarp + 1 ); 
+
+//printf( "sin=%08x inarp=%08x\n", sin->sin_addr.s_addr, inarp->sin_addr.s_addr );
+			if( sin->sin_addr.s_addr == inarp->sin_addr.s_addr ){
+				convertMacAddressToBuffer( ( const unsigned char * )LLADDR( sdl ), retbuf, sizeof( retbuf ) );
+//printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 				free( buf );
 				IPMSG_FUNC_RETURN( retbuf );
 			}
 		}
-		free( buf ); 
+		free( buf );
 		IPMSG_FUNC_RETURN( "" );
 #endif
 	}
@@ -384,7 +424,7 @@ printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 		mac[4] = sockaddrp->sin6_addr.s6_addr[14];
 		mac[5] = sockaddrp->sin6_addr.s6_addr[15];
 		convertMacAddressToBuffer( mac, retbuf, sizeof( retbuf ) );
-printf( "MAC Addr v6 [%s] <= %s\n", retbuf, ipAddress.c_str() );
+//printf( "MAC Addr v6 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 		IPMSG_FUNC_RETURN( retbuf );
 	}
 	IPMSG_FUNC_RETURN( "" );
@@ -494,8 +534,10 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 		}
 #endif
 #ifdef DEBUG
+/*
 	} else {
 		printf( "getnameinfo:IP addr %s\n", ipAddrBuf );
+*/
 #endif
 	}
 	IPMSG_FUNC_RETURN( ipAddrBuf );
@@ -718,13 +760,13 @@ printf( "getifaddr ver\n" );fflush(stdout);
 		}
 #if defined( ENABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET && ifap->ifa_addr->sa_family != AF_INET6 ) {
-			printf( "ENABLE_IPV4 && ENABLE_IPV6\n" );
+//			printf( "ENABLE_IPV4 && ENABLE_IPV6\n" );
 #elif defined( ENABLE_IPV4 ) && defined( DISABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET ) {
-			printf( "ENABLE_IPV4 && DISABLE_IPV6\n" );
+//			printf( "ENABLE_IPV4 && DISABLE_IPV6\n" );
 #elif defined( DISABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET6 ) {
-			printf( "DISABLE_IPV4 && ENABLE_IPV6\n" );
+//			printf( "DISABLE_IPV4 && ENABLE_IPV6\n" );
 #endif // ENABLE_IPV6
 			continue;
 		}
