@@ -277,13 +277,13 @@ std::string
 ipmsg::getNetworkInterfaceMacAddress( std::string deviceName )
 {
 	IPMSG_FUNC_ENTER( "std::string ipmsg::getNetworkInterfaceMacAddress( std::string deviceName )");
+	char retbuf[20]={0};
 #ifdef SIOCGIFHWADDR
 	int sock = socket( AF_INET, SOCK_DGRAM, 0 );
 	struct ifreq ifr;
 
 	ifr.ifr_addr.sa_family = AF_INET;
 	strncpy( ifr.ifr_name, deviceName.c_str(), IFNAMSIZ - 1 );
-	char retbuf[20]={0};
 	errno = 0;
 	perror("errno");
 	int rc = ioctl( sock, SIOCGIFHWADDR, &ifr );
@@ -309,7 +309,6 @@ ipmsg::getNetworkInterfaceMacAddress( std::string deviceName )
 		}
 	}
 	freeifaddrs(ifa0);
-	char retbuf[20]={0};
 	if ( is_found ) {
 		convertMacAddressToBuffer( ( unsigned char * )mac_addr, retbuf, sizeof( retbuf ) );
 	}
