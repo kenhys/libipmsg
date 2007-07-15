@@ -1,0 +1,20 @@
+Source: libipmsg
+Priority: extra
+Maintainer: root <nikikuni@yahoo.co.jp>
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.7.2
+Section: libs
+
+Package: libipmsg-dev
+Section: libdevel
+Architecture: any
+Depends: libipmsg (= ${Source-Version})
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: libipmsg
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
