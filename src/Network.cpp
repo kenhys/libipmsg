@@ -124,14 +124,20 @@ ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct
 #endif // ENABLE_IPV4
 #ifdef ENABLE_IPV6
 	if ( addr->ss_family == AF_INET6 ) {
+#ifdef SIN6_LEN
+		const struct sockaddr_in6 *addrp = ( const struct sockaddr_in6 * )addr;
+		sz = addrp->sin6_len;
+#else
 		sz = sizeof( struct sockaddr_in6 );
+#endif
 	}
 #endif // ENABLE_IPV6
 #ifdef DEBUG
 	printf( "sendToSockAddrIn sock = %d\n", sock );
 #endif
 	IpMsgDumpAddr( addr );
-	IPMSG_FUNC_RETURN( sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz ) );
+	ssize_t ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz );
+	IPMSG_FUNC_RETURN( ret );
 }
 
 int
