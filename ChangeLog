@@ -2,6 +2,7 @@
 - Fix:Fix some small bugs.
 - Fix:Fix some comments.
 - Update:Add broadcast socket map.
+- Fix:Compile error happened,when Building on Solaris.
 
 2007-07-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Move platform depends "define" statements.
