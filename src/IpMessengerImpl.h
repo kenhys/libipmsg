@@ -140,6 +140,7 @@ class IpMessengerAgentImpl {
 		std::string HostAddress;
 
 		std::map<int, NetworkInterface> sd_addr;
+		std::map<int, bool> sd_is_broadcast;
 		std::vector<int> tcp_sd;
 		std::vector<int> udp_sd;
 		int max_sd;
