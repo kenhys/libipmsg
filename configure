@@ -23123,7 +23123,7 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_OPENSSL 1
 _ACEOF
 
-		LDFLAGS="$LDFLAGS -lssl -lcrypto"
+		LIBS="$LIBS -lssl -lcrypto"
 		echo Encryption support enabled.
 	else
 		{ { echo "$as_me:$LINENO: error: --with-openssl was given, but test for libssl failed" >&5
@@ -23485,7 +23485,7 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_PTHREAD 1
 _ACEOF
 
-	LDFLAGS="$LDFLAGS -lpthread"
+	LIBS="$LIBS -lpthread"
 	echo POSIX thread support enabled.
 else
 	{ { echo "$as_me:$LINENO: error: libipmsg required pthread library, but test for libpthread failed" >&5

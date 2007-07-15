@@ -68,7 +68,7 @@ if test "x$with_openssl" = xyes; then
 	   test "x$have_evp_cipher_ctx_set_key_length" = xyes &&
 	   test "x$have_evp_pkey_set1_rsa" = xyes; then
 		AC_DEFINE(HAVE_OPENSSL, 1, [Encryption support])
-		LDFLAGS="$LDFLAGS -lssl -lcrypto"
+		LIBS="$LIBS -lssl -lcrypto"
 		echo Encryption support enabled.
 	else
 		AC_MSG_ERROR([--with-openssl was given, but test for libssl failed])
@@ -94,7 +94,7 @@ if test "x$have_pthread_create" = xyes &&
    test "x$have_pthread_mutex_lock" = xyes &&
    test "x$have_pthread_mutex_unlock" = xyes ;then 
 	AC_DEFINE(HAVE_PTHREAD, 1, [pthread support])
-	LDFLAGS="$LDFLAGS -lpthread"
+	LIBS="$LIBS -lpthread"
 	echo POSIX thread support enabled.
 else
 	AC_MSG_ERROR([libipmsg required pthread library, but test for libpthread failed])
