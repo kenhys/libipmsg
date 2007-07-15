@@ -270,6 +270,7 @@ IpMessengerAgentImpl::StopNetwork()
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StopNetwork()");
 	// TODO 受信スレッド終了。＆待ち合わせ。
+	usleep( 1000000L );
 	NetworkEnd();
 	networkStarted = false;
 	IPMSG_FUNC_EXIT;
@@ -526,6 +527,7 @@ IpMessengerAgentImpl::NetworkEnd()
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
+	sd_is_broadcast.clear();
 	IPMSG_FUNC_EXIT;
 }
 
@@ -1275,6 +1277,7 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 
 /**
  * UDPパケットの送信を行う。
+ * @param send_socket 送信ソケット。
  * @param buf バッファ
  * @param size バッファサイズ
  * @param to_addr 送信先のIPアドレス
@@ -1284,7 +1287,7 @@ IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage to_addr )");
 #if defined(DEBUG)
-	printf( "SENDTO UNICAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( to_addr ).c_str() );fflush( stdout );
+	printf( "SENDTO UNICAST PACKET COMMAND=[%s][To %s][Sock %d]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( to_addr ).c_str(), send_socket );fflush( stdout );
 	printf("== S E N D ============================================>\n");fflush( stdout );
 	printf( "Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 	printf( "Send  %s(%d)\n", getSockAddrInRawAddress( &to_addr ).c_str(), ntohs( getSockAddrInPortNo( &to_addr ) ) );fflush( stdout );
@@ -1334,6 +1337,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 			UdpSendto( -1, &addr, buf, size );
 		}
 	}
+#if 0
 	//念のため自分にも
 	struct sockaddr_storage addr;
 	if ( haveIPv4Nic ) {
@@ -1355,6 +1359,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 #endif
 		UdpSendto( -1, &addr, buf, size + 1 );
 	}
+#endif
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
 #endif
@@ -1363,6 +1368,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 
 /**
  * ソケットにバインドされたネットワークに対して同一ネットワークに属していれば、そのNICから電文送信を行うことを保証するsendto。
+ * @param send_socket 送信ソケット。0未満はブロードキャスト。（ソケットは自動選択）。
  * @param addr 送信先のアドレス。
  * @param buf バッファ
  * @param size バッファサイズ
@@ -1375,7 +1381,7 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 	if ( send_socket >= 0 ){
 		int ret = sendToSockAddrIn( send_socket, buf, size + 1, addr );
 		if ( ret <= 0 ) {
-			fprintf( stderr, "Address=%s Port=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
+			fprintf( stderr, "Address=%s Port=%d:errno=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ),errno );fflush( stdout );
 			perror("sendto.");
 #if defined(DEBUG)
 			printf("S E N D   F A I L E D\n");fflush( stdout );
@@ -1383,6 +1389,7 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 		}
 		IPMSG_FUNC_EXIT;
 	}
+	//send_socket < 0 はブロードキャスト
 	if ( udp_sd.size() == 0 ) {
 		IPMSG_FUNC_EXIT;
 	}
@@ -1404,6 +1411,9 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 				i->second.NetMask().c_str() );fflush( stdout );
 #endif
 		if ( isSameNetwork( addr, i->second.NetworkAddress() ,i->second.NetMask() ) ) {
+//			if ( !sd_is_broadcast[i->first] ) {
+//				continue;
+//			}
 			int scope_id = if_nametoindex( i->second.DeviceName().c_str() );
 #ifdef ENABLE_IPV6
 			if ( addr->ss_family == AF_INET6 && scope_id != getScopeId( addr ) ){
@@ -1444,13 +1454,13 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 		}
 	}
 #if defined(DEBUG)
-	printf( "Send %s --> %s scope %d(%d)\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), getScopeId( addr ), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
-	printf("SendToAddr");
+	printf( "SEND PACKET %s --> %s scope %d(%d)@Sock %d\n", from_addr.c_str(), getSockAddrInRawAddress( addr ).c_str(), getScopeId( addr ), ntohs( getSockAddrInPortNo( addr ) ), sock );fflush( stdout );
+	printf("SendToAddr\n");
 	IpMsgDumpAddr( addr );
 #endif
 	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
-		fprintf( stderr, "Address=%s Port=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
+		fprintf( stderr, "Address=%s Port=%d:errno=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ),errno );fflush( stdout );
 		perror("sendto.");
 #if defined(DEBUG)
 		printf("S E N D   F A I L E D\n");fflush( stdout );
@@ -1479,6 +1489,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
+	sd_is_broadcast.clear();
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
 
@@ -1500,6 +1511,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
+			sd_is_broadcast[sock] = false;
 		} else {
 			printf( "UDP Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
@@ -1519,6 +1531,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 #endif
 			tcp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
+			sd_is_broadcast[sock] = false;
 		} else {
 			printf( "TCP Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
@@ -1542,6 +1555,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
+			sd_is_broadcast[sock] = true;
 		} else {
 			printf( "UDP Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
@@ -1947,7 +1961,7 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )");
 #if defined(DEBUG)
-	printf( "RECV PACKET COMMAND=[%s][From %s]\n", GetCommandString( packet.CommandMode() ).c_str(), getSockAddrInRawAddress( packet.Addr() ).c_str() );fflush( stdout );
+	printf( "RECV PACKET COMMAND=[%s][From %s] Sock=%d\n", GetCommandString( packet.CommandMode() ).c_str(), getSockAddrInRawAddress( packet.Addr() ).c_str(), packet.UdpSocket() );fflush( stdout );
 #endif
 	switch( packet.CommandMode() ) {
 		case IPMSG_NOOPERATION:     UdpRecvEventNoOperation( packet ); break;
@@ -2054,7 +2068,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 										_LoginName, _HostName,
 										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
-	SendPacket( packet.UdpSocket(), IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
+	SendPacket( -1/*packet.UdpSocket()*/, IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
 #endif
