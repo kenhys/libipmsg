@@ -1,3 +1,8 @@
+2007-07-15 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Fix some small bugs.
+- Fix:Fix some comments.
+- Update:Add broadcast socket map.
+
 2007-07-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Move platform depends "define" statements.
 - Update:Comments for debug print.
