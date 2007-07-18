@@ -1,3 +1,12 @@
+2007-07-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add parameter isPermitSameHardwareAddress in AddHost API.
+- Fix:AddressFamily on HostListItem.
+
+2007-07-17 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add private variable,It is appearance host list.
+- Update:GetHostList returns appearance host list.Because host added twice on host list.
+- Update:Add private API.(Compare hardware address)
+
 2007-07-15 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Fix some small bugs.
 - Fix:Fix some comments.
