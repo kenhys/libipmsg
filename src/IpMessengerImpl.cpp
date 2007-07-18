@@ -601,7 +601,7 @@ HostList&
 IpMessengerAgentImpl::GetHostList()
 {
 	IPMSG_FUNC_ENTER("HostList& IpMessengerAgentImpl::GetHostList()");
-	IPMSG_FUNC_RETURN( hostList );
+	IPMSG_FUNC_RETURN( appearanceHostList );
 }
 
 /**
@@ -678,7 +678,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 		event->UpdateHostListAfter( hostList );
 		event->RefreashHostListAfter( hostList );
 	}
-	IPMSG_FUNC_RETURN( hostList );
+	IPMSG_FUNC_RETURN( appearanceHostList );
 }
 
 /**
@@ -803,6 +803,10 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 #ifdef HAVE_OPENSSL
 	//OpenSSLサポートが有効なら、暗号化
 	if ( isSecret ) {
+#if defined(DEBUG)
+		printf( "SendMsg::PubKey=%s\n", host.PubKeyHex().c_str() );
+		printf( "SendMsg::EncryptMethodHex=%s\n", host.EncryptMethodHex().c_str() );
+#endif
 		if ( EncryptMsg( host, (unsigned char*)optBuf, optBufLen, &optBufLen, optBufSize ) ) {
 			isEncrypted = true;
 		} else if ( NoSendMessageOnEncryptionFailed() ) {
@@ -1486,6 +1490,9 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 		IPMSG_FUNC_EXIT;
 	}
 	HostAddress = getLocalhostAddress( _UseIPv6, nics );
+#if defined(INFO) || !defined(NDEBUG)
+	printf( "LOCALHOST ADDRESS=%s\n", HostAddress.c_str() );
+#endif
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
@@ -1726,7 +1733,7 @@ IpMessengerAgentImpl::RecvPacket()
 			}
 			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr, nowTime );
 #if defined(INFO) || !defined(NDEBUG)
-			printf("recv from[%s]", packet.HostName().c_str() );fflush( stdout );
+			printf("recv from[%s][UDP Sock=%d][TCP Sock=%d]", packet.HostName().c_str(), udp_socket, tcp_socket );fflush( stdout );
 			printf("[%s]\n", getSockAddrInRawAddress( sender_addr ).c_str() );fflush( stdout );
 #endif
 			packet.setUdpSocket( udp_socket );
@@ -2139,6 +2146,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
+	appearanceHostList.AddHost( HostList::CreateHostListItemFromPacket( packet ), false );
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
 #endif
@@ -2874,6 +2882,18 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 	std::string pIpAddress = getSockAddrInRawAddress( packet.Addr() );
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != hostList.end() ) {
+#ifdef DEBUG
+printf( "UdpRecvEventAnsPubKey Set key [%s][%s]\n", pkey.c_str(), meth.c_str() );
+#endif
+		hostIt->setEncryptionCapacity( cap );
+		hostIt->setPubKeyHex( pkey );
+		hostIt->setEncryptMethodHex( meth );
+	}
+	 hostIt = appearanceHostList.FindHostByAddress( pIpAddress );
+	if ( hostIt != appearanceHostList.end() ) {
+#ifdef DEBUG
+printf( "UdpRecvEventAnsPubKey appearanceHostList Set key [%s][%s]\n", pkey.c_str(), meth.c_str() );
+#endif
 		hostIt->setEncryptionCapacity( cap );
 		hostIt->setPubKeyHex( pkey );
 		hostIt->setEncryptMethodHex( meth );
@@ -3467,6 +3487,8 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		// ADD HOSTLIST
 		hostList.DeleteHostByAddress( item.IpAddress() );
 		hostList.AddHost( item );
+		appearanceHostList.DeleteHostByAddress( item.IpAddress() );
+		appearanceHostList.AddHost( item, false );
 
 #ifdef HAVE_OPENSSL
 		struct sockaddr_storage addr;
@@ -3735,15 +3757,27 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	ret.setOption( std::string( nextpos, optLen ) );
 	free( packet_tmp_buf );
 
-	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByHostName( ret.HostName() );
+	//まずは見てくれのホストリストから検索する。
+	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName() );
 	struct sockaddr_storage hostaddr;
 	if ( hostIt != hostList.end() ) {
 		if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
 			IPMSG_FUNC_RETURN( ret );
 		}
 	} else {
-		if ( createSockAddrIn( &hostaddr, getSockAddrInRawAddress( sender ), ntohs( getSockAddrInPortNo( sender ) ) ) == NULL ) {
-			IPMSG_FUNC_RETURN( ret );
+		//無ければ実際ののホストリストから検索する。
+		hostIt = hostList.FindHostByHostName( ret.HostName() );
+		if ( hostIt != hostList.end() ) {
+			if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
+				IPMSG_FUNC_RETURN( ret );
+			}
+		} else {
+			hostaddr = sender;
+#if 0
+			if ( createSockAddrIn( &hostaddr, getSockAddrInRawAddress( sender ), ntohs( getSockAddrInPortNo( sender ) ) ) == NULL ) {
+				IPMSG_FUNC_RETURN( ret );
+			}
+#endif
 		}
 	}
 	ret.setAddr( hostaddr );
@@ -3794,6 +3828,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	item.setPubKeyHex( "" );
 	item.setEncryptMethodHex( "" );
 	hostList.AddHost( item );
+	appearanceHostList.AddHost( item, false );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -3819,8 +3854,9 @@ IpMessengerAgentImpl::AddDefaultHost()
 		myHost.setGroupName( GroupName );
 		myHost.setPortNo( DefaultPortNo() );
 		hostList.AddHost( myHost );
+		appearanceHostList.AddHost( myHost, false );
 #if defined(INFO) || !defined(NDEBUG)
-		printf("MyHost Add.[%s][%s]\n", myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
+		printf("MyHost[%s] Add.[%s][%s]\n", HostAddress.c_str(), myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
 #endif
 		IPMSG_FUNC_RETURN( 1 );
 	}
