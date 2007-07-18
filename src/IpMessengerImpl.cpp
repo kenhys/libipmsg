@@ -528,6 +528,7 @@ IpMessengerAgentImpl::NetworkEnd()
 	tcp_sd.clear();
 	sd_addr.clear();
 	sd_is_broadcast.clear();
+	sd_address_family.clear();
 	IPMSG_FUNC_EXIT;
 }
 
@@ -1497,6 +1498,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 	tcp_sd.clear();
 	sd_addr.clear();
 	sd_is_broadcast.clear();
+	sd_address_family.clear();
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
 
@@ -1519,6 +1521,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
 			sd_is_broadcast[sock] = false;
+			sd_address_family[sock] = addr.ss_family;
 		} else {
 			printf( "UDP Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
@@ -1539,6 +1542,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			tcp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
 			sd_is_broadcast[sock] = false;
+			sd_address_family[sock] = addr.ss_family;
 		} else {
 			printf( "TCP Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
@@ -1563,6 +1567,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
 			sd_is_broadcast[sock] = true;
+			sd_address_family[sock] = addr.ss_family;
 		} else {
 			printf( "UDP Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
@@ -1731,7 +1736,7 @@ IpMessengerAgentImpl::RecvPacket()
 					continue;
 				}
 			}
-			Packet packet = DismantlePacketBuffer( buf, sz, sender_addr, nowTime );
+			Packet packet = DismantlePacketBuffer( udp_socket >= 0 ? udp_socket : tcp_socket, buf, sz, sender_addr, nowTime );
 #if defined(INFO) || !defined(NDEBUG)
 			printf("recv from[%s][UDP Sock=%d][TCP Sock=%d]", packet.HostName().c_str(), udp_socket, tcp_socket );fflush( stdout );
 			printf("[%s]\n", getSockAddrInRawAddress( sender_addr ).c_str() );fflush( stdout );
@@ -3684,7 +3689,7 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user
  * @retval パケットオブジェクト
  */
 Packet
-IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct sockaddr_storage sender, time_t nowTime )
+IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int size, struct sockaddr_storage sender, time_t nowTime )
 {
 	IPMSG_FUNC_ENTER("Packet IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct sockaddr_storage sender, time_t nowTime )");
 #if defined(INFO) || !defined(NDEBUG)
@@ -3757,16 +3762,17 @@ IpMessengerAgentImpl::DismantlePacketBuffer( char *packet_buf, int size, struct 
 	ret.setOption( std::string( nextpos, optLen ) );
 	free( packet_tmp_buf );
 
+	//NAT環境でsenderアドレスは信用できないので。。。
 	//まずは見てくれのホストリストから検索する。
-	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName() );
+	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
 	struct sockaddr_storage hostaddr;
-	if ( hostIt != hostList.end() ) {
+	if ( hostIt != appearanceHostList.end() ) {
 		if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
 			IPMSG_FUNC_RETURN( ret );
 		}
 	} else {
 		//無ければ実際ののホストリストから検索する。
-		hostIt = hostList.FindHostByHostName( ret.HostName() );
+		hostIt = hostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
 		if ( hostIt != hostList.end() ) {
 			if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
 				IPMSG_FUNC_RETURN( ret );

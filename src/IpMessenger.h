@@ -213,7 +213,7 @@ class HostList{
 		void Delete( std::vector<HostListItem>::iterator &it );
 		void DeleteHostByAddress( std::string addr );
 		std::vector<HostListItem>::iterator FindHostByAddress( std::string addr );
-		std::vector<HostListItem>::iterator FindHostByHostName( std::string hostName );
+		std::vector<HostListItem>::iterator FindHostByHostName( std::string hostName, int addressFamily );
 		static HostListItem CreateHostListItemFromPacket( const Packet& packet );
 		std::vector<HostListItem>::iterator begin();
 		std::vector<HostListItem>::iterator end();

@@ -141,6 +141,7 @@ class IpMessengerAgentImpl {
 
 		std::map<int, NetworkInterface> sd_addr;
 		std::map<int, bool> sd_is_broadcast;
+		std::map<int, bool> sd_address_family;
 		std::vector<int> tcp_sd;
 		std::vector<int> udp_sd;
 		int max_sd;
@@ -206,7 +207,7 @@ class IpMessengerAgentImpl {
 		int TcpRecvEventGetDirFiles( const Packet& packet );
 		int AddDefaultHost();
 		int CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int bufLen );
-		Packet DismantlePacketBuffer( char *packetBuf, int size, struct sockaddr_storage sender, time_t nowTime );
+		Packet DismantlePacketBuffer( int sock, char *packetBuf, int size, struct sockaddr_storage sender, time_t nowTime );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
 		bool EncryptMsg( const HostListItem &host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
 		bool DecryptMsg( const Packet &packet, std::string& msg );

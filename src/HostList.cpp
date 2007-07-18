@@ -481,7 +481,7 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
  * @retval HostListItem
  */
 std::vector<HostListItem>::iterator
-HostList::FindHostByHostName( std::string hostName )
+HostList::FindHostByHostName( std::string hostName, int addressFamily )
 {
 	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::FindHostByHostName( std::string hostName )" );
 	Lock( "HostList::FindHostByHostName()" );
@@ -496,7 +496,7 @@ HostList::FindHostByHostName( std::string hostName )
 #if defined(INFO) || !defined(NDEBUG)
 		printf( "ix->HostName [%s]\n", ix->HostName().c_str() );fflush(stdout);
 #endif
-		if ( ix->HostName() == hostName ) {
+		if ( ix->HostName() == hostName && addressFamily == ix->AddressFamily() ) {
 #if defined(DEBUG)
 			printf("HOSTNAME MATCH!!!\n");fflush(stdout);
 			isMatch = true;
