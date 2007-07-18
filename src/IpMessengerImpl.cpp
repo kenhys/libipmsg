@@ -1385,7 +1385,7 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 	if ( send_socket >= 0 ){
 		int ret = sendToSockAddrIn( send_socket, buf, size + 1, addr );
 		if ( ret <= 0 ) {
-			fprintf( stderr, "Address=%s Port=%d:errno=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ),errno );fflush( stdout );
+			fprintf( stderr, "Address=%s Port=%d:sock=%d:errno=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ), send_socket, errno );fflush( stdout );
 			perror("sendto.");
 #if defined(DEBUG)
 			printf("S E N D   F A I L E D\n");fflush( stdout );
@@ -1464,7 +1464,7 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 #endif
 	int ret = sendToSockAddrIn( sock, buf, size + 1, addr );
 	if ( ret <= 0 ) {
-		fprintf( stderr, "Address=%s Port=%d:errno=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ),errno );fflush( stdout );
+		fprintf( stderr, "Address=%s Port=%d:sock=%d:errno=%d:", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ), sock, errno );fflush( stdout );
 		perror("sendto.");
 #if defined(DEBUG)
 		printf("S E N D   F A I L E D\n");fflush( stdout );
