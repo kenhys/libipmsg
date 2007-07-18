@@ -1,6 +1,9 @@
 2007-07-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add parameter isPermitSameHardwareAddress in AddHost API.
 - Fix:AddressFamily on HostListItem.
+- Fix:Delete Debug print.
+- Update:Change Debug print.
+- Update:Add class variable sd_address_family and search host with address family.
 
 2007-07-17 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add private variable,It is appearance host list.
