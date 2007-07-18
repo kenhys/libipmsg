@@ -155,7 +155,9 @@ class HostListItem{
 		bool IsEncryptSupport() const;
 		bool IsAbsence() const;
 		bool Equals( const HostListItem& item ) const;
+		bool EqualsHardwareAddress( const HostListItem& item ) const;
 		int Compare( const HostListItem& item ) const;
+		int CompareHardwareAddress( const HostListItem& item ) const;
 		void QueryVersionInfo();
 		void QueryAbsenceInfo();
 	private:
@@ -207,7 +209,7 @@ class HostList{
 		IPMSG_PROPERTY( time_t, AskStartTime );
 		IPMSG_PROPERTY( time_t, PrevTry );
 		IPMSG_PROPERTY( int, RetryCount );
-		void AddHost( const HostListItem& host );
+		void AddHost( const HostListItem& host, bool isPermitSameHardwareAddress=true );
 		void Delete( std::vector<HostListItem>::iterator &it );
 		void DeleteHostByAddress( std::string addr );
 		std::vector<HostListItem>::iterator FindHostByAddress( std::string addr );
