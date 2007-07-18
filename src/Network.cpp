@@ -285,7 +285,6 @@ ipmsg::getNetworkInterfaceMacAddress( std::string deviceName )
 	ifr.ifr_addr.sa_family = AF_INET;
 	strncpy( ifr.ifr_name, deviceName.c_str(), IFNAMSIZ - 1 );
 	errno = 0;
-	perror("errno");
 	int rc = ioctl( sock, SIOCGIFHWADDR, &ifr );
 	if ( rc == -1 ) {
 		int err = errno;

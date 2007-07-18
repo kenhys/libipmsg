@@ -229,7 +229,6 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	std::vector<NetworkInterface> nics = agent->NICs;
 	//先頭のターゲットアドレスファミリのNICを探しプライマリ(自アドレス)として扱う為、その後ろから探すためのインデックスを求める。
 	int nicStartIndex = 1;
-	printf( "af=%d 4=%d 6=%d\n", host.AddressFamily(), AF_INET, AF_INET6  );
 	if ( !agent->haveIPv4Nic && !agent->haveIPv6Nic ) {
 			IPMSG_FUNC_EXIT;
 	} else if ( agent->haveIPv4Nic && agent->haveIPv6Nic && host.AddressFamily() == AF_INET6 ) {
