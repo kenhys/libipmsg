@@ -217,16 +217,34 @@ HostListItem::IsLocalHost() const
  * @param host ホスト情報
  */
 void
-HostList::AddHost( const HostListItem& host )
+HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 {
-	IPMSG_FUNC_ENTER( "void HostList::AddHost( const HostListItem& host )" );
+	IPMSG_FUNC_ENTER( "void HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )" );
 	Lock( "HostList::AddHost()" );
 	bool is_found = false;
+//	isPermitSameHardwareAddress = true;
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	std::string localhostName = agent->HostName();
 	std::vector<NetworkInterface> nics = agent->NICs;
-	for( unsigned int i = 1; i < nics.size(); i++ ){
+	//先頭のターゲットアドレスファミリのNICを探しプライマリ(自アドレス)として扱う為、その後ろから探すためのインデックスを求める。
+	int nicStartIndex = 1;
+	printf( "af=%d 4=%d 6=%d\n", host.AddressFamily(), AF_INET, AF_INET6  );
+	if ( !agent->haveIPv4Nic && !agent->haveIPv6Nic ) {
+			IPMSG_FUNC_EXIT;
+	} else if ( agent->haveIPv4Nic && agent->haveIPv6Nic && host.AddressFamily() == AF_INET6 ) {
+		//IPv4,IPv6の両刀使いならIPv6を優先。
+		for( unsigned int i = 0; i < nics.size(); i++ ){
+			if ( nics[i].AddressFamily() == AF_INET6 ) {
+				nicStartIndex = i + 1;
+				break;
+			}
+		}
+	} else {
+		nicStartIndex = 1;
+	}
+	//探したインデックス位置からスタート
+	for( unsigned int i = nicStartIndex; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
 #endif
@@ -239,6 +257,7 @@ HostList::AddHost( const HostListItem& host )
 			IPMSG_FUNC_EXIT;
 		}
 	}
+	//IPアドレスがNICのブロードキャスト、ネットワークのアドレスと一致したら無視。（たぶんありえないケド。）
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost ADDR CHECK IpAddress=%s net=%s broad=%s\n", host.IpAddress().c_str(), nics[i].NetworkAddress().c_str(), nics[i].BroadcastAddress().c_str() );fflush(stdout);
@@ -256,6 +275,7 @@ HostList::AddHost( const HostListItem& host )
 	printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );fflush(stdout);
 	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );fflush(stdout);
 #endif
+	//IPアドレスがローカルループバックアドレスと一致したら無視。
 	if ( host.IpAddress() == "127.0.0.1" || host.IpAddress() == "::1" ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
@@ -263,6 +283,7 @@ HostList::AddHost( const HostListItem& host )
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_EXIT;
 	}
+	//IPアドレスがNICのIPアドレスと一致するのにローカルホスト名と一致しなければ無視。
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("MATCH IPADDRESS but not same hostname.\n" );fflush(stdout);
@@ -270,11 +291,33 @@ HostList::AddHost( const HostListItem& host )
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_EXIT;
 	}
-	for( unsigned int i = 0; i < items.size(); i++ ){
-		HostListItem tmpHost = items.at( i );
-		if ( tmpHost.Equals( host ) ) {
-			is_found = true;
-			break;
+	std::vector<HostListItem>::iterator tmpHost;
+	for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
+		if ( isPermitSameHardwareAddress ) {
+			if ( tmpHost->Equals( host ) ) {
+				is_found = true;
+				break;
+			}
+		} else {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("SEARCHING HARDWARE ADDRESS...base[%s] check[%s]\n", host.HardwareAddress().c_str(), tmpHost->HardwareAddress().c_str() );fflush(stdout);
+#endif
+			if ( tmpHost->EqualsHardwareAddress( host ) ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("FOUND ADDRESS %s\n", host.HardwareAddress().c_str() );fflush(stdout);
+#endif
+				//IPv6をIPv4より優先する。
+				if ( host.AddressFamily() == AF_INET6 && tmpHost->AddressFamily() == AF_INET ) {
+					*tmpHost = host;
+#if defined(INFO) || !defined(NDEBUG)
+		printf("優先されました。%s\n", host.HardwareAddress().c_str() );fflush(stdout);
+#endif
+					break;
+				} else {
+					is_found = true;
+					break;
+				}
+			}
 		}
 	}
 	if ( !is_found ) {
@@ -519,6 +562,9 @@ HostListItem::setIpAddress( const std::string val )
 {
 	IPMSG_FUNC_ENTER( "void HostListItem::setIpAddress( const std::strin val )" );
 	_IpAddress = val;
+	sockaddr_storage ss;
+	createSockAddrIn( &ss, val, 0 );
+	_AddressFamily = ss.ss_family;
 	_HardwareAddress = convertIpAddressToMacAddress( val, IpMessengerAgentImpl::GetInstance()->NICs );
 	IPMSG_FUNC_EXIT;
 }
@@ -582,6 +628,20 @@ HostListItem::Equals( const HostListItem& item ) const
 	IPMSG_FUNC_ENTER( "bool HostListItem::Equals( const HostListItem& item ) const" );
 	IPMSG_FUNC_RETURN( Compare( item ) == 0 );
 }
+
+/**
+ * ホストリストアイテムオブジェクトのハードウェアアドレスが自分と一致するかを返す。
+ * @param item ホストリストアイテム
+ * @retval true:一致
+ * @retval false:一致しない
+ */
+bool
+HostListItem::EqualsHardwareAddress( const HostListItem& item ) const
+{
+	IPMSG_FUNC_ENTER( "bool HostListItem::EqualsHardwareAddress( const HostListItem& item ) const" );
+	IPMSG_FUNC_RETURN( CompareHardwareAddress( item ) == 0 );
+}
+
 /**
  * 比較。
  * @param item ホスト情報1
@@ -593,26 +653,34 @@ int
 HostListItem::Compare( const HostListItem& item ) const
 {
 	IPMSG_FUNC_ENTER( "int HostListItem::Compare( const HostListItem& item ) const" );
-//	if ( item.UserName()  == UserName() &&
-//		 item.HostName()  == HostName() &&
-//		 item.IpAddress() == IpAddress() &&
-//		 item.Nickname()  == Nickname() &&
-//		 item.GroupName() == GroupName() &&
-//		 item.PortNo()    == PortNo() {
 	if ( item.UserName()  == UserName() &&
 		 item.HostName()  == HostName() &&
 		 item.IpAddress() == IpAddress() ){
 		IPMSG_FUNC_RETURN( 0 );
 	}
-//	if ( item.UserName()  > UserName() &&
-//		 item.HostName()  > HostName() &&
-//		 item.IpAddress() > IpAddress() &&
-//		 item.Nickname()  > Nickname() &&
-//		 item.GroupName() > GroupName() &&
-//		 item.PortNo()    > PortNo() {
 	if ( item.UserName()  > UserName() &&
 		 item.HostName()  > HostName() &&
 		 item.IpAddress() > IpAddress() ){
+		IPMSG_FUNC_RETURN( 1 );
+	}
+	IPMSG_FUNC_RETURN(  -1 );
+}
+
+/**
+ * ハードウェアアドレスでの比較。
+ * @param item ホスト情報1
+ * @retval -n:*thisが大きい
+ * @retval 0:itemと*thisが等しい
+ * @retval +n:itemが大きい
+ */
+int
+HostListItem::CompareHardwareAddress( const HostListItem& item ) const
+{
+	IPMSG_FUNC_ENTER( "int HostListItem::CompareHardwareAddress( const HostListItem& item ) const" );
+	if ( item.HardwareAddress() == HardwareAddress() ){
+		IPMSG_FUNC_RETURN( 0 );
+	}
+	if ( item.HardwareAddress() > HardwareAddress() ){
 		IPMSG_FUNC_RETURN( 1 );
 	}
 	IPMSG_FUNC_RETURN(  -1 );
