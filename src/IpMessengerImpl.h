@@ -149,6 +149,7 @@ class IpMessengerAgentImpl {
 		fd_set rfds;
 		std::vector<struct sockaddr_storage> broadcastAddr;
 		std::vector<Packet> PacketsForChecking;
+		HostList appearanceHostList;
 		HostList hostList;
 		HostList hostListBackup;
 		std::vector<NetworkInterface> NICs;
