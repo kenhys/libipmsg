@@ -203,6 +203,9 @@ struct sockaddr_storage *
 ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char *devname )
 {
 	IPMSG_FUNC_ENTER( "struct sockaddr_storage *ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char *devname )" );
+	if ( rawAddress.empty() ) {
+		IPMSG_FUNC_RETURN( NULL );
+	}
 #ifdef DEBUG
 //	printf( "createSockAddrIn(addr=[%s] port=[%u] devname[%s])\n", rawAddress.c_str(), port, devname );fflush(stdout);
 #endif
@@ -355,7 +358,6 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 		}
 #endif
 		errno = 0;
-		perror("errno");
 		int rc = ioctl( sockfd, SIOCGARP, &arpreq );
 //printf( "ARP dev=%s\n", arpreq.arp_dev );
 		if ( rc == -1 ) {
@@ -1017,7 +1019,6 @@ ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmas
 	std::string ret = "";
 #ifdef ENABLE_IPV4
 	if ( family == AF_INET ) {
-//		in_addr inetAddr, inetMask, inetNetwork;
 		sockaddr_storage inetAddr;
 		if ( createSockAddrIn( &inetAddr, rawAddress, 0 ) == NULL ) {
 			IPMSG_FUNC_RETURN( "" );
@@ -1028,16 +1029,9 @@ ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmas
 		}
 		struct sockaddr_in * inetAddrp = (struct sockaddr_in *)&inetAddr;
 		struct sockaddr_in * inetMaskp = (struct sockaddr_in *)&inetMask;
-//		inet_pton( family, rawAddress.c_str(), (void *)&inetAddr );
-//		inet_pton( family, netmask.c_str(), (void *)&inetMask );
 		struct sockaddr_storage inetNetwork = inetAddr;
 		struct sockaddr_in * inetNetworkp = (struct sockaddr_in *)&inetNetwork;
 		inetNetworkp->sin_addr.s_addr = inetAddrp->sin_addr.s_addr & inetMaskp->sin_addr.s_addr;
-//		inetNetwork.s_addr = inetAddr.s_addr & inetMask.s_addr;
-
-//		char ipaddrbuf[IP_ADDR_MAX_SIZE];
-//		inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
-//		ret = ipaddrbuf;
 		ret = getSockAddrInRawAddress( inetNetwork );
 	}
 #endif // ENABLE_IPV4
