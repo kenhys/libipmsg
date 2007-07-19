@@ -215,8 +215,9 @@ HostListItem::IsLocalHost() const
 /**
  * ホスト情報をホストリストに追加する。
  * @param host ホスト情報
+ * @retval 登録した件数
  */
-void
+int
 HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 {
 	IPMSG_FUNC_ENTER( "void HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )" );
@@ -230,7 +231,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//先頭のターゲットアドレスファミリのNICを探しプライマリ(自アドレス)として扱う為、その後ろから探すためのインデックスを求める。
 	int nicStartIndex = 1;
 	if ( !agent->haveIPv4Nic && !agent->haveIPv6Nic ) {
-			IPMSG_FUNC_EXIT;
+			IPMSG_FUNC_RETURN( 0 );
 	} else if ( agent->haveIPv4Nic && agent->haveIPv6Nic && host.AddressFamily() == AF_INET6 ) {
 		//IPv4,IPv6の両刀使いならIPv6を優先。
 		for( unsigned int i = 0; i < nics.size(); i++ ){
@@ -253,7 +254,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 			printf("AddHost HOST MATCH\n" );fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
-			IPMSG_FUNC_EXIT;
+			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
 	//IPアドレスがNICのブロードキャスト、ネットワークのアドレスと一致したら無視。（たぶんありえないケド。）
@@ -267,7 +268,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 			printf("AddHost ADDR MATCH\n" );fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
-			IPMSG_FUNC_EXIT;
+			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
@@ -280,7 +281,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
 #endif
 		Unlock( "HostList::AddHost()" );
-		IPMSG_FUNC_EXIT;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	//IPアドレスがNICのIPアドレスと一致するのにローカルホスト名と一致しなければ無視。
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
@@ -288,7 +289,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		printf("MATCH IPADDRESS but not same hostname.\n" );fflush(stdout);
 #endif
 		Unlock( "HostList::AddHost()" );
-		IPMSG_FUNC_EXIT;
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	std::vector<HostListItem>::iterator tmpHost;
 	for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
@@ -305,26 +306,26 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 #if defined(INFO) || !defined(NDEBUG)
 		printf("FOUND ADDRESS %s\n", host.HardwareAddress().c_str() );fflush(stdout);
 #endif
+				is_found = true;
 				//IPv6をIPv4より優先する。
 				if ( host.AddressFamily() == AF_INET6 && tmpHost->AddressFamily() == AF_INET ) {
 					*tmpHost = host;
 #if defined(INFO) || !defined(NDEBUG)
 		printf("優先されました。%s\n", host.HardwareAddress().c_str() );fflush(stdout);
 #endif
-					break;
-				} else {
-					is_found = true;
-					break;
 				}
+				break;
 			}
 		}
 	}
+	int ret = 0;
 	if ( !is_found ) {
 #if defined(INFO) || !defined(NDEBUG)
 		printf("AddHost Nickname=%s\n", host.Nickname().c_str() );fflush(stdout);
 		printf("AddHost GroupName=%s\n", host.GroupName().c_str() );fflush(stdout);
 #endif
 		items.push_back( host );
+		ret = 1;
 	}
 	if ( agent->GetSortHostListComparator() != NULL ){
 		if ( items.size() > 0 ) {
@@ -332,7 +333,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		}
 	}
 	Unlock( "HostList::AddHost()" );
-	IPMSG_FUNC_EXIT;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**

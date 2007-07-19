@@ -209,7 +209,7 @@ class HostList{
 		IPMSG_PROPERTY( time_t, AskStartTime );
 		IPMSG_PROPERTY( time_t, PrevTry );
 		IPMSG_PROPERTY( int, RetryCount );
-		void AddHost( const HostListItem& host, bool isPermitSameHardwareAddress=true );
+		int AddHost( const HostListItem& host, bool isPermitSameHardwareAddress=true );
 		void Delete( std::vector<HostListItem>::iterator &it );
 		void DeleteHostByAddress( std::string addr );
 		std::vector<HostListItem>::iterator FindHostByAddress( std::string addr );
