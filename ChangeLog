@@ -1,3 +1,10 @@
+2007-07-20 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Event notify duplicate event twice(Change checking IPAddress to HardwareAddress).
+- Update:Add return value in public API(AddHost).
+- Update:Add return value in private API(AddHostListFromPacket).
+- Update:Check with raise event on added host list count.
+- Update:Change event parameter, Change as hostList to appearanceHostList.
+
 2007-07-19 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add parameter isPermitSameHardwareAddress in AddHost API.
 - Fix:AddressFamily on HostListItem.
