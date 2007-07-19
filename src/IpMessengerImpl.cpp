@@ -2085,13 +2085,13 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 	GetPubKey( packet.Addr() );
 #endif
 	// ホストリストに追加
-	AddHostListFromPacket( packet );
-	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+	int ret = AddHostListFromPacket( packet );
+	std::vector<HostListItem>::iterator it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( event != NULL ) {
-		if ( it != hostList.end() && !it->IsLocalHost() ) {
+		if ( it != appearanceHostList.end() && !it->IsLocalHost() && ret > 0 ) {
 			event->EntryAfter( *it );
 		}
-		event->RefreashHostListAfter( hostList );
+		event->RefreashHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2148,19 +2148,19 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrAbsence\n");fflush( stdout );
 #endif
-	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+	std::vector<HostListItem>::iterator it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
-	appearanceHostList.AddHost( HostList::CreateHostListItemFromPacket( packet ), false );
+	int ret = appearanceHostList.AddHost( HostList::CreateHostListItemFromPacket( packet ), false );
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
 #endif
 	if ( event != NULL ){
-		it = hostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
-		if ( it != hostList.end() ) {
+		it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+		if ( it != appearanceHostList.end() && ret > 0 ) {
 			event->AbsenceModeChangeAfter( *it );
 		}
-		event->RefreashHostListAfter( hostList );
+		event->RefreashHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2179,19 +2179,20 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("UdpRecvBrExit\n");fflush( stdout );
 #endif
-	std::vector<HostListItem>::iterator it = hostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+	std::vector<HostListItem>::iterator it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	bool isFound = false;
 	HostListItem host;
-	if ( it != hostList.end() ) {
+	if ( it != appearanceHostList.end() ) {
 		isFound = true;
 		host = *it;
 	}
+	appearanceHostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( event != NULL ) {
 		if ( isFound ) {
 			event->ExitAfter( host );
 		}
-		event->RefreashHostListAfter( hostList );
+		event->RefreashHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2361,8 +2362,8 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 			host.setIpAddress( getSockAddrInRawAddress( packet.Addr() ) );
 			host.setPortNo( ntohs( getSockAddrInPortNo( packet.Addr() ) ) );
 			host.setEncodingName( localEncoding );
-			std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
-			if ( hostIt != hostList.end() ) {
+			std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByAddress( host.IpAddress() );
+			if ( hostIt != appearanceHostList.end() ) {
 				host = *hostIt;
 //				host.setEncodingName( hostIt->EncodingName() );
 			}
@@ -2400,7 +2401,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	message.setIsMulticast( IPMSG_MULTICASTOPT & packet.CommandOption() );
 	message.setIsBroadcast( IPMSG_BROADCASTOPT & packet.CommandOption() );
 	message.setIsConfirmed( false );
-	for( std::vector<HostListItem>::iterator ixhost = hostList.begin(); ixhost != hostList.end(); ixhost++ ) {
+	for( std::vector<HostListItem>::iterator ixhost = appearanceHostList.begin(); ixhost != appearanceHostList.end(); ixhost++ ) {
 		if ( ixhost->UserName() == packet.UserName() && ixhost->HostName() == packet.HostName() ) {
 			message.setHost( *ixhost );
 			break;
@@ -2550,7 +2551,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 	GetPubKey( packet.Addr() );
 #endif
 	if ( event != NULL ) {
-		event->RefreashHostListAfter( hostList );
+		event->RefreashHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2641,8 +2642,8 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 {
 	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )");
 	std::string pIpAddress = getSockAddrInRawAddress( packet.Addr() );
-	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( pIpAddress );
-	if ( hostIt != hostList.end() ) {
+	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByAddress( pIpAddress );
+	if ( hostIt != appearanceHostList.end() ) {
 		hostIt->setVersion( packet.Option() );
 		if ( event != NULL ){
 			event->VersionInfoRecieveAfter( *hostIt, packet.Option() );
@@ -2672,8 +2673,8 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 	if ( _IsAbsence  ){
 		std::string IpAddress = getSockAddrInRawAddress( packet.Addr() );
 		std::string EncodingName = localEncoding;
-		std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( IpAddress );
-		if ( hostIt != hostList.end() ) {
+		std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByAddress( IpAddress );
+		if ( hostIt != appearanceHostList.end() ) {
 			EncodingName = hostIt->EncodingName();
 		}
 		for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
@@ -3793,8 +3794,9 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 /**
  * パケットからホストリストに加える。
  * @param packet パケットオブジェクト
+ * @retval 登録した件数。
  */
-void
+int
 IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )");
@@ -3815,7 +3817,7 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	for( unsigned int i = 1; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
 			AddDefaultHost();
-			IPMSG_FUNC_EXIT;
+			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
 	//デフォルトカード
@@ -3834,8 +3836,8 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	item.setPubKeyHex( "" );
 	item.setEncryptMethodHex( "" );
 	hostList.AddHost( item );
-	appearanceHostList.AddHost( item, false );
-	IPMSG_FUNC_EXIT;
+	int ret = appearanceHostList.AddHost( item, false );
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -3849,8 +3851,8 @@ IpMessengerAgentImpl::AddDefaultHost()
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::AddDefaultHost()\n" );fflush(stdout);
 #endif
-	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( HostAddress );
-	if ( hostIt == hostList.end() ) {
+	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByAddress( HostAddress );
+	if ( hostIt == appearanceHostList.end() ) {
 		HostListItem myHost;
 		myHost.setUserName( _LoginName );
 		myHost.setHostName( _HostName );
