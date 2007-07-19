@@ -216,7 +216,7 @@ class IpMessengerAgentImpl {
 		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 
 		//Library Use Only
-		void AddHostListFromPacket( const Packet& packet );
+		int AddHostListFromPacket( const Packet& packet );
 		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, std::string user, std::string host, const char *opt, int optLen, char *buf, int size );
 		int CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size );
 		void SendTcpPacket( int sd, char *buf, int size );
