@@ -131,10 +131,34 @@ if test "x$enable_debug" = xno; then
 	CXXFLAGS="$CXXFLAGS -DNDEBUG"
 	echo Debug support disabled.
 else
-	CXXFLAGS="$CXXFLAGS -g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum"
-#	CXXFLAGS="-g -DLOCK_DEBUG -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum -Weffc++"
-#	CXXFLAGS="$CXXFLAGS -Wextra -Wstrict-aliasing=2 -Woverload-virtual"
+	CXXFLAGS="$CXXFLAGS -g -DDEBUG -DINFO -Werror -Wall -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wswitch-enum"
 	echo Debug support enabled.
+fi
+
+AC_ARG_ENABLE(lockdebug,
+		AC_HELP_STRING([--enable-lockdebug],[Debug lock trace message support, needs --enable-debug @<:@default=no@:>@]), ,[enable_lockdebug=no])
+if test "x$enable_lockdebug" = xno; then
+	echo Debug lock trace support disabled.
+else
+	if test "x$enable_debug" = xno; then
+		AC_MSG_ERROR([--enable-lockdebug was given, but no specified --enable-debug option])
+	else
+		CXXFLAGS="$CXXFLAGS -DLOCK_DEBUG"
+		echo Debug lock trace support enabled.
+	fi
+fi
+
+AC_ARG_ENABLE(trace,
+		AC_HELP_STRING([--enable-trace],[Debug trace message support, needs --enable-debug @<:@default=no@:>@]), ,[enable_trace=no])
+if test "x$enable_trace" = xno; then
+	echo Debug trace support disabled.
+else
+	if test "x$enable_debug" = xno; then
+		AC_MSG_ERROR([--enable-trace was given, but no specified --enable-debug option])
+	else
+		CXXFLAGS="$CXXFLAGS -DDEBUG_TRACE"
+		echo Debug trace support enabled.
+	fi
 fi
 
 AC_CONFIG_FILES([Makefile
