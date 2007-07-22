@@ -8,13 +8,13 @@ Section: libs
 Package: libipmsg-dev
 Section: libdevel
 Architecture: any
-Depends: libipmsg (= ${Source-Version})
+Depends: libipmsg (= ${Source-Version}), libssl-dev
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
 
 Package: libipmsg
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libssl0.9.8
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
