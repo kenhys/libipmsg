@@ -350,6 +350,7 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 		sin->sin_family = AF_INET;
 		sin->sin_addr = sockaddrp->sin_addr;
 #ifdef __linux__
+		strcpy( arpreq.arp_dev, nics[0].DeviceName().c_str() );
 		for( unsigned int i = 0; i < nics.size(); i++ ) {
 			if ( isSameNetwork( &ip, nics[i].NetworkAddress(), nics[i].NetMask() ) ) {
 				strcpy( arpreq.arp_dev, nics[i].DeviceName().c_str() );
