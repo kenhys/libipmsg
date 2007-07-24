@@ -1,3 +1,8 @@
+2007-07-25 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Set default device name on get ARP table.
+- Update:Sort appearanceHostList with hostList.
+- Fix:Change event parameter, Change as hostList to appearanceHostList(UpdateHostListAfter,RefreashHostListAfter).
+
 2007-07-20 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Event notify duplicate event twice(Change checking IPAddress to HardwareAddress).
 - Update:Add return value in public API(AddHost).

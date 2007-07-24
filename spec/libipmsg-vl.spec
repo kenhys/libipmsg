@@ -57,6 +57,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libipmsg.*a
 
 %changelog
+* Wed Jul 25 2007 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.4-0vl0
+- New upstream release.
+
 * Wed Feb 28 2007 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.3-0vl0
 - New upstream release.
 
