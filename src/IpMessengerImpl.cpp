@@ -670,14 +670,15 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	//ソート
 	if ( compare != NULL ) {
 		hostList.sort( compare );
+		appearanceHostList.sort( compare );
 	}
 #if defined(DEBUG)
 	IpMsgDumpHostList( " M Y   H O S T L I S T ( AFTER SORT ) ", hostList );
 #endif
 	//イベントを挙げる
 	if ( event != NULL ) {
-		event->UpdateHostListAfter( hostList );
-		event->RefreashHostListAfter( hostList );
+		event->UpdateHostListAfter( appearanceHostList );
+		event->RefreashHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( appearanceHostList );
 }
