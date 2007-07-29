@@ -1,3 +1,7 @@
+2007-07-29 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Discard useIPv6 as not defaukt in IpMessengerAgentImpl::GetNetworkInterfaceInfo.
+- Fix:Discard useIPv6 as not defaukt in IpMessengerAgent::GetNetworkInterfaceInfo.
+
 2007-07-25 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Set default device name on get ARP table.
 - Update:Sort appearanceHostList with hostList.

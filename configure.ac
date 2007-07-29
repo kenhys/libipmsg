@@ -4,7 +4,7 @@
 AC_PREREQ(2.59)
 AC_INIT
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(libipmsg, 0.1.4)
+AM_INIT_AUTOMAKE(libipmsg, 0.1.5)
 AC_CONFIG_SRCDIR([src/ipmsg.h])
 
 # Checks for programs.
