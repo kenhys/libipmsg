@@ -197,7 +197,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	setAbortDownloadAtFileChanged( false );
 	setSaveSentMessage( true );
 	setSaveRecievedMessage( true );
-	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, DefaultPortNo() );
+	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, UseIPv6(), DefaultPortNo() );
 	event = new IpMessengerNullEvent();
 	IPMSG_FUNC_EXIT;
 }
