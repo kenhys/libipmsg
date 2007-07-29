@@ -600,7 +600,7 @@ class IpMessengerAgent {
 		/**
 		 * NICの情報を取得
 		 **/
-		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 = false );
+		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 );
 
 		/**
 		 * ブロードキャストアドレスのリストをクリア
