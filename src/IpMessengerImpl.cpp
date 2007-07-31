@@ -197,7 +197,6 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 	setAbortDownloadAtFileChanged( false );
 	setSaveSentMessage( true );
 	setSaveRecievedMessage( true );
-	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, UseIPv6(), DefaultPortNo() );
 	event = new IpMessengerNullEvent();
 	IPMSG_FUNC_EXIT;
 }
@@ -252,6 +251,8 @@ void
 IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )");
+	NICs.clear();
+	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, UseIPv6(), DefaultPortNo() );
 	NetworkInit( nics );
 	Logout();
 	// TODO 受信スレッド開始
@@ -429,6 +430,7 @@ void
 IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )");
+printf("GetNetworkInterfaceInfo useIPv6=%s\n", useIPv6 ? "true" : "false" );fflush(stdout);
 	ipmsg::getNetworkInterfaceInfo( nics, useIPv6, defaultPortNo );
 	IPMSG_FUNC_EXIT;
 }
@@ -505,6 +507,7 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 			InitRecv( NICs );
 		}
 	}
+	printf( "%s network service started.\n", IPMSG_AGENT_VERSION );fflush( stdout );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -527,7 +530,6 @@ IpMessengerAgentImpl::NetworkEnd()
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
-	sd_is_broadcast.clear();
 	sd_address_family.clear();
 	IPMSG_FUNC_EXIT;
 }
@@ -1327,7 +1329,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 	IpMsgPrintBuf( "SendBroadcast:SendUdpBroadcastBuffer", buf, size );
 	for( std::vector<struct sockaddr_storage>::iterator ixaddr = broadcastAddr.begin(); ixaddr != broadcastAddr.end(); ixaddr++ ){
 #if defined(DEBUG)
-		printf( "SENDTO BROADCAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( *ixaddr ).c_str() );fflush( stdout );
+		printf( "SENDTO BROADCAST PACKET COMMAND=[%s][To %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( *ixaddr ).c_str() );fflush( stdout );
 #endif
 		UdpSendto( -1, &(*ixaddr), buf, size );
 	}
@@ -1338,34 +1340,11 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 				IPMSG_FUNC_EXIT;
 			}
 #if defined(DEBUG)
-			printf( "SENDTO BROADCAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( addr ).c_str() );fflush( stdout );
+			printf( "SENDTO BROADCAST PACKET COMMAND=[%s][To %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( addr ).c_str() );fflush( stdout );
 #endif
 			UdpSendto( -1, &addr, buf, size );
 		}
 	}
-#if 0
-	//念のため自分にも
-	struct sockaddr_storage addr;
-	if ( haveIPv4Nic ) {
-		if ( createSockAddrIn( &addr, "127.0.0.1", DefaultPortNo() ) == NULL ) {
-			IPMSG_FUNC_EXIT;
-		}
-	} else if ( _UseIPv6 && haveIPv6Nic ) {
-		if ( createSockAddrIn( &addr, "::1", DefaultPortNo() ) == NULL ) {
-			IPMSG_FUNC_EXIT;
-		}
-	} else {
-		IPMSG_FUNC_EXIT;
-	}
-
-	if ( udp_sd.size() > 0 ) {
-#if defined(DEBUG)
-		printf( "SENDTO BROADCAST PACKET COMMAND=[%s][From %s]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( addr ).c_str() );fflush( stdout );
-		printf( "Send To %s(%d)\n", getSockAddrInRawAddress( &addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );fflush( stdout );
-#endif
-		UdpSendto( -1, &addr, buf, size + 1 );
-	}
-#endif
 #if defined(DEBUG)
 	printf("<= S E N D   B R O A D C A S T =========================\n");fflush( stdout );
 #endif
@@ -1417,9 +1396,6 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 				i->second.NetMask().c_str() );fflush( stdout );
 #endif
 		if ( isSameNetwork( addr, i->second.NetworkAddress() ,i->second.NetMask() ) ) {
-//			if ( !sd_is_broadcast[i->first] ) {
-//				continue;
-//			}
 			int scope_id = if_nametoindex( i->second.DeviceName().c_str() );
 #ifdef ENABLE_IPV6
 			if ( addr->ss_family == AF_INET6 && scope_id != getScopeId( addr ) ){
@@ -1498,7 +1474,6 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 	udp_sd.clear();
 	tcp_sd.clear();
 	sd_addr.clear();
-	sd_is_broadcast.clear();
 	sd_address_family.clear();
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		struct sockaddr_storage addr;
@@ -1521,7 +1496,6 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
-			sd_is_broadcast[sock] = false;
 			sd_address_family[sock] = addr.ss_family;
 		} else {
 			printf( "UDP Error[%s:%s]=%s\n",
@@ -1542,7 +1516,6 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 #endif
 			tcp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
-			sd_is_broadcast[sock] = false;
 			sd_address_family[sock] = addr.ss_family;
 		} else {
 			printf( "TCP Error[%s:%s]=%s\n",
@@ -1567,7 +1540,6 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 #endif
 			udp_sd.push_back( sock );
 			sd_addr[sock] = nics[i];
-			sd_is_broadcast[sock] = true;
 			sd_address_family[sock] = addr.ss_family;
 		} else {
 			printf( "UDP Error[%s:%s]=%s\n",
