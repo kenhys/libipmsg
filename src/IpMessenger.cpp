@@ -12,9 +12,6 @@
 
 using namespace ipmsg;
 
-//NICの最大数
-#define IFR_MAX 20
-
 static IpMessengerAgent *myInstance = NULL;
 
 static pthread_mutex_t instanceMutex;
