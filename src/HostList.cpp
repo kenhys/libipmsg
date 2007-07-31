@@ -223,7 +223,10 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	IPMSG_FUNC_ENTER( "void HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )" );
 	Lock( "HostList::AddHost()" );
 	bool is_found = false;
-//	isPermitSameHardwareAddress = true;
+
+#if defined(INFO) || !defined(NDEBUG)
+	printf("AddHost===> host.IpAddress() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+#endif
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	std::string localhostName = agent->HostName();
@@ -308,10 +311,14 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 #endif
 				is_found = true;
 				//IPv6をIPv4より優先する。
+#if defined(INFO) || !defined(NDEBUG)
+				printf("AddHost host.AddressFamily() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+				printf("AddHost tmpHost.AddressFamily() %s %s\n", tmpHost->IpAddress().c_str(), tmpHost->AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+#endif
 				if ( host.AddressFamily() == AF_INET6 && tmpHost->AddressFamily() == AF_INET ) {
 					*tmpHost = host;
 #if defined(INFO) || !defined(NDEBUG)
-		printf("優先されました。%s\n", host.HardwareAddress().c_str() );fflush(stdout);
+					printf("優先されました。%s\n", host.HardwareAddress().c_str() );fflush(stdout);
 #endif
 				}
 				break;
@@ -678,7 +685,7 @@ HostListItem::CompareHardwareAddress( const HostListItem& item ) const
 {
 	IPMSG_FUNC_ENTER( "int HostListItem::CompareHardwareAddress( const HostListItem& item ) const" );
 	if ( item.HardwareAddress() == HardwareAddress() ){
-		IPMSG_FUNC_RETURN( 0 );
+		IPMSG_FUNC_RETURN( Compare( item ) );
 	}
 	if ( item.HardwareAddress() > HardwareAddress() ){
 		IPMSG_FUNC_RETURN( 1 );
