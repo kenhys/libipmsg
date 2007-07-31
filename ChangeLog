@@ -1,3 +1,10 @@
+2007-07-31 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:sd_is_broadcast deleted.
+- Update:Delete comment block.
+- Update:Delete IFR_MAX
+- Update:Delete Debug print.
+- Update:CompareHardwareAddress() returns 0 to Compare's return value.
+
 2007-07-29 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Discard useIPv6 as not defaukt in IpMessengerAgentImpl::GetNetworkInterfaceInfo.
 - Fix:Discard useIPv6 as not defaukt in IpMessengerAgent::GetNetworkInterfaceInfo.
