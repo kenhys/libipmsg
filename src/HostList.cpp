@@ -201,13 +201,15 @@ HostListItem::IsLocalHost() const
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		if ( IpAddress() == nics[i].IpAddress() ){
 #if defined(INFO) || !defined(NDEBUG)
-			printf("LOCALHOST\n");fflush(stdout);
+			printf("This host item is localhost.T\n");
+			fflush(stdout);
 #endif
 			IPMSG_FUNC_RETURN( true );
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("OTHERHOST\n");fflush(stdout);
+	printf("This host item is not localhost.T\n");
+	fflush(stdout);
 #endif
 	IPMSG_FUNC_RETURN( false );
 }
@@ -225,7 +227,10 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	bool is_found = false;
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("AddHost===> host.IpAddress() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+	printf("HostList::AddHost enter. host.IpAddress()=%s host.AddressFamily()=%s\n",
+							host.IpAddress().c_str(),
+							host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+	fflush(stdout);
 #endif
 
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
@@ -249,12 +254,14 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//探したインデックス位置からスタート
 	for( unsigned int i = nicStartIndex; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[i].IpAddress().c_str() );fflush(stdout);
+		printf("HostList::AddHost now host checking IpAddress=%s NIC[%d] IpAddress=%s\n", host.IpAddress().c_str(), i, nics[i].IpAddress().c_str() );
+		fflush(stdout);
 #endif
 
 		if ( host.IpAddress() == nics[i].IpAddress() ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf("AddHost HOST MATCH\n" );fflush(stdout);
+			printf("HostList::AddHost Host IP Address is match NIC IP Address\nIgnore this IP Address\n" );fflush(stdout);
+			fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
 			IPMSG_FUNC_RETURN( 0 );
@@ -263,25 +270,36 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//IPアドレスがNICのブロードキャスト、ネットワークのアドレスと一致したら無視。（たぶんありえないケド。）
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("AddHost ADDR CHECK IpAddress=%s net=%s broad=%s\n", host.IpAddress().c_str(), nics[i].NetworkAddress().c_str(), nics[i].BroadcastAddress().c_str() );fflush(stdout);
+		printf("HostList::AddHost now host checking IpAddress=%s Network%s Broadcast=%s\n", host.IpAddress().c_str(), nics[i].NetworkAddress().c_str(), nics[i].BroadcastAddress().c_str() );
+		fflush(stdout);
 #endif
-		if ( host.IpAddress() == nics[i].NetworkAddress() ||
-			 host.IpAddress() == nics[i].BroadcastAddress() ){
+		if ( host.IpAddress() == nics[i].NetworkAddress() ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf("AddHost ADDR MATCH\n" );fflush(stdout);
+			printf("HostList::AddHost Host Ip Address is match NIC Network Address.\nIgnore this IP Address\n" );
+			fflush(stdout);
+#endif
+			Unlock( "HostList::AddHost()" );
+			IPMSG_FUNC_RETURN( 0 );
+		}
+		if ( host.IpAddress() == nics[i].BroadcastAddress() ){
+#if defined(INFO) || !defined(NDEBUG)
+			printf("HostList::AddHost Host Ip Address is match NIC Broadcast Address.\nIgnore this IP Address\n" );
+			fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
 			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("AddHost HOST CHECK IpAddress=%s addr=%s\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );fflush(stdout);
-	printf("AddHost HOST CHECK HostName=%s localhost=%s\n", host.HostName().c_str(), localhostName.c_str() );fflush(stdout);
+	printf("HostList::AddHost Host IpAddress=[%s] NIC[0] IP Address=[%s]\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );
+	printf("HostList::AddHost HostName=[%s] LocalhostName=[%s]\n", host.HostName().c_str(), localhostName.c_str() );
+	fflush(stdout);
 #endif
 	//IPアドレスがローカルループバックアドレスと一致したら無視。
 	if ( host.IpAddress() == "127.0.0.1" || host.IpAddress() == "::1" ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IGNORE HOST.Because host IpAddress local loopback.\n" );fflush(stdout);
+		printf("HostList::AddHost Ignore this host item.Because host IP Address is local loopback.\n" );
+		fflush(stdout);
 #endif
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_RETURN( 0 );
@@ -289,7 +307,8 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//IPアドレスがNICのIPアドレスと一致するのにローカルホスト名と一致しなければ無視。
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("MATCH IPADDRESS but not same hostname.\n" );fflush(stdout);
+		printf("HostList::AddHost Ignore this host item.Because host IPAddress and NIC[0]'s IP Address is match,but not same hostname.\n" );
+		fflush(stdout);
 #endif
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_RETURN( 0 );
@@ -303,11 +322,15 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 			}
 		} else {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("SEARCHING HARDWARE ADDRESS...base[%s] check[%s]\n", host.HardwareAddress().c_str(), tmpHost->HardwareAddress().c_str() );fflush(stdout);
+			printf("HostList::AddHost Searching hardware address...host[%s] host list item[%s]\n",
+							host.HardwareAddress().c_str(),
+							tmpHost->HardwareAddress().c_str() );
+			fflush(stdout);
 #endif
 			if ( tmpHost->EqualsHardwareAddress( host ) ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("FOUND ADDRESS %s\n", host.HardwareAddress().c_str() );fflush(stdout);
+				printf("HostList::AddHost Found same hardware address in this host list.(HWADDR %s)\n", host.HardwareAddress().c_str() );
+				fflush(stdout);
 #endif
 				is_found = true;
 				//IPv6をIPv4より優先する。
@@ -318,7 +341,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 				if ( host.AddressFamily() == AF_INET6 && tmpHost->AddressFamily() == AF_INET ) {
 					*tmpHost = host;
 #if defined(INFO) || !defined(NDEBUG)
-					printf("優先されました。%s\n", host.HardwareAddress().c_str() );fflush(stdout);
+					printf("HostList::AddHost Host is IPv6 supported,So swaped same hardware address in host list that is supported IPv4[%s].\n", host.HardwareAddress().c_str() );fflush(stdout);
 #endif
 				}
 				break;
@@ -328,8 +351,8 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	int ret = 0;
 	if ( !is_found ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("AddHost Nickname=%s\n", host.Nickname().c_str() );fflush(stdout);
-		printf("AddHost GroupName=%s\n", host.GroupName().c_str() );fflush(stdout);
+		printf("HostList::AddHost Nickname=[%s] GroupName=[%s]\n", host.Nickname().c_str(), host.GroupName().c_str() );
+		fflush(stdout);
 #endif
 		items.push_back( host );
 		ret = 1;
@@ -468,9 +491,6 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 	ret.setUserName( packet.UserName() );
 	ret.setCommandNo( packet.CommandMode() | packet.CommandOption() );
 	ret.setIpAddress( getSockAddrInRawAddress( packet.Addr() ) );
-#if defined(INFO) || !defined(NDEBUG)
-	printf( "CreateHostListItemFromPacket port %d\n", ntohs( getSockAddrInPortNo( packet.Addr() ) ) );fflush(stdout);
-#endif
 	ret.setPortNo( ntohs( getSockAddrInPortNo( packet.Addr() ) ) );
 	unsigned int loc = packet.Option().find_first_of( '\0' );
 	if ( loc == std::string::npos ) {
@@ -494,30 +514,13 @@ HostList::FindHostByHostName( std::string hostName, int addressFamily )
 	IPMSG_FUNC_ENTER( "std::vector<HostListItem>::iterator HostList::FindHostByHostName( std::string hostName )" );
 	Lock( "HostList::FindHostByHostName()" );
 	std::vector<HostListItem>::iterator ret = end();
-//	printf( "HostName [%s]\n", hostName.c_str() );fflush(stdout);
-//	printf( "HostList.size [%d]\n", items.size() );fflush(stdout);
 
-#if defined(DEBUG)
-	bool isMatch = false;
-#endif
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
-#if defined(INFO) || !defined(NDEBUG)
-		printf( "ix->HostName [%s]\n", ix->HostName().c_str() );fflush(stdout);
-#endif
 		if ( ix->HostName() == hostName && addressFamily == ix->AddressFamily() ) {
-#if defined(DEBUG)
-			printf("HOSTNAME MATCH!!!\n");fflush(stdout);
-			isMatch = true;
-#endif
 			ret = ix;
 			break;
 		}
 	}
-#if defined(DEBUG)
-	if ( !isMatch ){
-		printf("HOSTNAME UNMATCH!!!\n");fflush(stdout);
-	}
-#endif
 	Unlock( "HostList::FindHostByHostName()" );
 	IPMSG_FUNC_RETURN( ret );
 }
@@ -538,24 +541,15 @@ HostList::FindHostByAddress( std::string addr )
 		IPMSG_FUNC_RETURN( ret );
 	}
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
-#if defined(DEBUG)
-		printf("HOST CHECK IpAddress=%s addr=%s\n", ix->IpAddress().c_str(), addr.c_str() );fflush(stdout);
-#endif
 		struct sockaddr_storage ixss;
 		if ( createSockAddrIn( &ixss, ix->IpAddress(), 0 ) == NULL ){
 			IPMSG_FUNC_RETURN( ret );
 		}
 		if ( isSameSockAddrIn( ss, ixss ) ){
-#if defined(DEBUG)
-			printf("HOST FOUND!!!\n");fflush(stdout);
-#endif
 			ret = ix;
 			break;
 		}
 	}
-#if defined(DEBUG)
-	printf("HOST NOT FOUND!!!\n");fflush(stdout);
-#endif
 	Unlock( "HostList::FindHostByAddress()" );
 	IPMSG_FUNC_RETURN( ret );
 }
@@ -703,26 +697,17 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 	IPMSG_FUNC_ENTER( "void HostList::qsort( HostListComparator *comparator, int left, int right )" );
 	//範囲の開始、終了位置
 	int i = left, j = right;
-#if defined(INFO) || !defined(NDEBUG)
-	printf("ADDRESS LEFT(%d)  =IpAddress=%s\n", left, (items.begin() + left)->IpAddress().c_str() );fflush(stdout);
-	printf("ADDRESS RIGHT(%d) =IpAddress=%s\n", right, (items.begin() + right)->IpAddress().c_str() );fflush(stdout);
-#endif
+
 	//基準値
 	std::vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
 	//クイックソート
 	while( true ){
 		while( comparator->compare( items.begin() + i, pivot ) < 0 ) i++;
 		while( comparator->compare( pivot, items.begin() + j ) < 0 ) j--;
-		if ( i >= j ) break;
-#if defined(INFO) || !defined(NDEBUG)
-			printf("SWAP BEFORE I(%d)  =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
-			printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
-#endif
-			std::iter_swap( items.begin() + i, items.begin() + j );
-#if defined(INFO) || !defined(NDEBUG)
-		printf("SWAP BEFORE I(%d) =IpAddress=%s\n", i, (items.begin() + i)->IpAddress().c_str() );fflush(stdout);
-		printf("SWAP BEFORE J(%d) =IpAddress=%s\n", j, (items.begin() + j)->IpAddress().c_str() );fflush(stdout);
-#endif
+		if ( i >= j ) {
+			break;
+		}
+		std::iter_swap( items.begin() + i, items.begin() + j );
 		i++;
 		j--;
 	}
