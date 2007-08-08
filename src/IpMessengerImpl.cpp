@@ -1684,7 +1684,7 @@ IpMessengerAgentImpl::RecvPacket()
 			break;
 		} else if ( selret == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
-			printf("IpMessengerAgentImpl::RecvPacket Waiting for next packet.");fflush( stdout );
+			printf("IpMessengerAgentImpl::RecvPacket Waiting for next packet.\n");fflush( stdout );
 #endif
 			break;
 		} else {
