@@ -1,5 +1,10 @@
+2007-08-10 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Change some debug messages.
+- Fix:Change IsAsking property's default value(true->false).
+- Fix:Compare() returns 0 to CompareHardwareAddress's return value.CompareHardwareAddress() returns Compare's return value to 0.
+
 2007-08-08 Niki, Kuninobu <nikikuni@yahoo.co.jp>
-Update:Change some debug messages.
+- Update:Change some debug messages.
 
 2007-07-31 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:sd_is_broadcast deleted.
