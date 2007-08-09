@@ -141,18 +141,18 @@ ipmsg::GetCommandString( unsigned long cmd )
  */
 void
 ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr ){
-	printf( ">> R E C V >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");fflush(stdout);
-	printf( "send from \n" );
+	printf( "ipmsg::IpMsgDumpPacket == RECV PACKET DUMP START ============================>>\n");fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket send from \n" );
 	IpMsgDumpAddr( sender_addr );
 	//printf( "send from %s(%d)\n", getSockAddrInRawAddress( sender_addr ).c_str(), ntohs( getSockAddrInPortNo( sender_addr ) ) );fflush(stdout);
-	printf( "VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
-	printf( "PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
-	printf( "CommandMode  [%ld][%s]\n", packet.CommandMode(), ipmsg::GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
-	printf( "CommandOption[%ld]\n", packet.CommandOption() );fflush(stdout);
-	printf( "HostName     [%s]\n", packet.HostName().c_str() );fflush(stdout);
-	printf( "UserName     [%s]\n", packet.UserName().c_str() );fflush(stdout);
-	IpMsgPrintBuf("Option", packet.Option().c_str(), packet.Option().length() );
-	printf( "<< R E C V <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n");fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket CommandMode  [%ld][%s]\n", packet.CommandMode(), ipmsg::GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket CommandOption[%ld]\n", packet.CommandOption() );fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket HostName     [%s]\n", packet.HostName().c_str() );fflush(stdout);
+	printf( "ipmsg::IpMsgDumpPacket UserName     [%s]\n", packet.UserName().c_str() );fflush(stdout);
+	IpMsgPrintBuf("ipmsg::IpMsgDumpPacket Option", packet.Option().c_str(), packet.Option().length() );
+	printf( "ipmsg::IpMsgDumpPacket << RECV PACKET DUMP END =============================\n\n");fflush(stdout);
 }
 
 /**
@@ -207,25 +207,27 @@ ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 #ifdef ENABLE_IPV4
 	if ( addr->ss_family == AF_INET ) {
 		const struct sockaddr_in *sin = ( const struct sockaddr_in *)addr;
-		printf( "THIS IS AF_INET addr\n" );
-		printf( "  IP   =%s\n", getSockAddrInRawAddress( addr ).c_str() );
-		printf( "  PORT =%d\n", ntohs( sin->sin_port ) );
+		printf( "ipmsg::IpMsgDumpAddr AF_INET" );
+		printf( " IP=[%s]", getSockAddrInRawAddress( addr ).c_str() );
+		printf( " PORT=(%d)", ntohs( sin->sin_port ) );
 #ifdef BSD
-		printf( "  LEN  =%d\n", sin->sin_len );
+		printf( " LEN=%d", sin->sin_len );
 #endif
+		printf( "\n" );
 		fflush( stdout );
 	}
 #endif
 #ifdef ENABLE_IPV6
 	if ( addr->ss_family == AF_INET6 ) {
 		const struct sockaddr_in6 *sin6 = ( const struct sockaddr_in6 *)addr;
-		printf( "THIS IS AF_INET6 addr\n" );
-		printf( "  IP   =%s\n", getSockAddrInRawAddress( addr ).c_str() );
-		printf( "  PORT =%d\n", ntohs( sin6->sin6_port ) );
+		printf( "ipmsg::IpMsgDumpAddr AF_INET6" );
+		printf( " IP=[%s]", getSockAddrInRawAddress( addr ).c_str() );
+		printf( " PORT=(%d)", ntohs( sin6->sin6_port ) );
 #ifdef SIN6_LEN
-		printf( "  LEN  =%d\n", sin6->sin6_len );
+		printf( " LEN=(%d)", sin6->sin6_len );
 #endif
-		printf( "  SCOPE=%d\n", sin6->sin6_scope_id );
+		printf( " SCOPE=(%d)", sin6->sin6_scope_id );
+		printf( "\n" );
 		fflush( stdout );
 	}
 #endif

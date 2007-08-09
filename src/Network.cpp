@@ -133,7 +133,7 @@ ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct
 	}
 #endif // ENABLE_IPV6
 #ifdef DEBUG
-	printf( "sendToSockAddrIn sock = %d\n", sock );
+	printf( "ipmsg::sendToSockAddrIn sock = %d\n", sock );
 #endif
 	IpMsgDumpAddr( addr );
 	ssize_t ret = sendto( sock, buf, size + 1, 0, ( const struct sockaddr * )addr, sz );
@@ -181,13 +181,16 @@ ipmsg::isLocalLoopbackAddress( struct sockaddr_storage *addr )
 				 getSockAddrInRawAddress( (struct sockaddr_storage * )res_i->ai_addr ) == "::1" ) {
 				freeaddrinfo( res );
 #ifdef DEBUG
-printf("THIS IS LOCAL LOOPBACK ADDRESS[%s]\n", getSockAddrInRawAddress( addr ).c_str() );
+printf("ipmsg::isLocalLoopbackAddress [%s] is localloopback\n", getSockAddrInRawAddress( addr ).c_str() );
 #endif
 				IPMSG_FUNC_RETURN( true );
 			}
 		}
 		freeaddrinfo( res );
 	}
+#ifdef DEBUG
+printf("ipmsg::isLocalLoopbackAddress [%s] is not localloopback\n", getSockAddrInRawAddress( addr ).c_str() );
+#endif
 	IPMSG_FUNC_RETURN( false );
 }
 
@@ -324,7 +327,6 @@ ipmsg::convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsi
 	IPMSG_FUNC_ENTER( "std::string ipmsg::convertMacAddressToBuffer( const unsigned char *mac, char *buf, int bufsize )");
 	snprintf( buf, bufsize, "%02x:%02x:%02x:%02x:%02x:%02x",
 				*mac, *( mac + 1 ), *( mac + 2 ), *( mac + 3 ), *( mac + 4 ), *( mac + 5 ) );
-//printf("MAC=%s\n", buf );
 	IPMSG_FUNC_RETURN( buf );
 }
 
@@ -339,7 +341,6 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 	char retbuf[20]={0};
 	if ( ip.ss_family == AF_INET ) {
 #ifdef SIOCGARP
-//printf( "ioctl\n" );
 		int sockfd = socket( AF_INET, SOCK_DGRAM, 0 );
 		struct sockaddr_in *sockaddrp = ( struct sockaddr_in * )&ip;
 		struct arpreq arpreq;
@@ -360,7 +361,6 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 #endif
 		errno = 0;
 		int rc = ioctl( sockfd, SIOCGARP, &arpreq );
-//printf( "ARP dev=%s\n", arpreq.arp_dev );
 		if ( rc == -1 ) {
 			int err = errno;
 			for( unsigned int i = 0; i < nics.size(); i++ ){
@@ -374,10 +374,8 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 			convertMacAddressToBuffer( ( unsigned char * )&arpreq.arp_ha.sa_data[0], retbuf, sizeof( retbuf ) );
 		}
 		close( sockfd );
-//printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 		IPMSG_FUNC_RETURN( retbuf );
 #else	// FreeBSD, etc...
-//printf( "sysctl\n" );
 		int s, mib[6];
 		size_t len;
 		char *buf;
@@ -409,10 +407,8 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 			struct sockaddr_inarp *inarp = ( struct sockaddr_inarp * )( rtm + 1 );
 			struct sockaddr_dl *sdl = ( struct sockaddr_dl * )( inarp + 1 ); 
 
-//printf( "sin=%08x inarp=%08x\n", sin->sin_addr.s_addr, inarp->sin_addr.s_addr );
 			if( sin->sin_addr.s_addr == inarp->sin_addr.s_addr ){
 				convertMacAddressToBuffer( ( const unsigned char * )LLADDR( sdl ), retbuf, sizeof( retbuf ) );
-//printf( "MAC Addr v4 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 				free( buf );
 				IPMSG_FUNC_RETURN( retbuf );
 			}
@@ -431,7 +427,6 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 		mac[4] = sockaddrp->sin6_addr.s6_addr[14];
 		mac[5] = sockaddrp->sin6_addr.s6_addr[15];
 		convertMacAddressToBuffer( mac, retbuf, sizeof( retbuf ) );
-//printf( "MAC Addr v6 [%s] <= %s\n", retbuf, ipAddress.c_str() );
 		IPMSG_FUNC_RETURN( retbuf );
 	}
 	IPMSG_FUNC_RETURN( "" );
@@ -727,7 +722,7 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 #endif // ENABLE_IPV6
 
 #ifdef DEBUG
-	printf("IS SAME NETWORK( addr=%s ifnetaddr=%s netmask=%s? %s\n", getSockAddrInRawAddress( addr ).c_str(), ifnetaddr.c_str(), netmask.c_str(), ret ? "Yes":"No");
+	printf("ipmsg::isSameNetwork ( IP address=[%s] interface network address=%s netmask=%s )  ? %s\n", getSockAddrInRawAddress( addr ).c_str(), ifnetaddr.c_str(), netmask.c_str(), ret ? "Match":"Unmatch");
 	fflush(stdout);
 #endif
 	IPMSG_FUNC_RETURN( ret );
@@ -746,7 +741,7 @@ ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv
 	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
 // getifaddrsを使う実装も用意。その方が行儀が良い。
 #if defined(DEBUG) || !defined(NDEBUG)
-printf( "getifaddr ver\n" );fflush(stdout);
+printf( "ipmsg::getNetworkInterfaceInfo using getifaddrs version\n" );fflush(stdout);
 #endif
 	struct ifaddrs *ifap0, *ifap;
 
@@ -813,13 +808,16 @@ printf( "getifaddr ver\n" );fflush(stdout);
 			ni.setIpAddress( rawAddress );
 			ni.setNetMask( rawNetMask );
 #if defined(DEBUG) || !defined(NDEBUG)
-printf( "getifaddr ver(%s)\n", getAddressFamilyString( ifap->ifa_addr->sa_family ).c_str() );
-printf( "  IF %s\n", ni.DeviceName().c_str() );
-printf( "  IP %s\n", ni.IpAddress().c_str() );
-printf( "  HA %s\n", ni.HardwareAddress().c_str() );
-printf( "  NM %s\n", ni.NetMask().c_str() );
-printf( "  NA %s\n", ni.NetworkAddress().c_str() );
-printf( "  BA %s\n", ni.BroadcastAddress().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo ===================================================\n" );
+printf( "ipmsg::getNetworkInterfaceInfo getifaddr\n" );
+printf( "ipmsg::getNetworkInterfaceInfo    Address Family    [%s]\n", getAddressFamilyString( ifap->ifa_addr->sa_family ).c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo    NIC Device Name   [%s]\n", ni.DeviceName().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo    IP Address        [%s]\n", ni.IpAddress().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo    Hardware Address  [%s]\n", ni.HardwareAddress().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo    Netmask           [%s]\n", ni.NetMask().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo    Network Address   [%s]\n", ni.NetworkAddress().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo    Broadcast Address [%s]\n", ni.BroadcastAddress().c_str() );
+printf( "ipmsg::getNetworkInterfaceInfo ===================================================\n" );
 fflush(stdout);
 struct sockaddr_storage test;
 createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName().c_str() );
@@ -990,16 +988,16 @@ ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netm
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetBroad, ipaddrbuf, sizeof( ipaddrbuf ) );
 #if defined(DEBUG) || defined(INFO)
-		printf( "BROADCAST %s = ", ipaddrbuf );fflush(stdout);
-		printf( "NERADDR %s | ", netAddress.c_str() );fflush(stdout);
-		printf( "0xffffffff ^ NETMASK %s\n", netmask.c_str() );fflush(stdout);
+		printf( "ipmsg::getBroadcastAddress Broadcast Address[%s]=", ipaddrbuf );
+		printf( "NetworkAddress[%s] | ", netAddress.c_str() );
+		printf( "0xffffffff ^ Netmask[%s]\n", netmask.c_str() );
+		fflush(stdout);
 #endif
 		ret = ipaddrbuf;
 	}
 #endif // ENABLE_IPV4
 #ifdef ENABLE_IPV6
 	if ( family == AF_INET6 ) {
-		//TODO
 		ret = "ff02::1";
 	}
 #endif // ENABLE_IPV6
@@ -1039,7 +1037,7 @@ ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmas
 #ifdef ENABLE_IPV6
 	if ( family == AF_INET6 ) {
 #ifdef DEBUG
-printf( "rawAddress => [%s]\n", rawAddress.c_str() );
+printf( "ipmsg::getNetworkAddress rawAddress => [%s]\n", rawAddress.c_str() );
 #endif
 		struct sockaddr_storage addr6;
 		if ( createSockAddrIn( &addr6, rawAddress, 0 ) == NULL ) {
@@ -1059,7 +1057,7 @@ printf( "rawAddress => [%s]\n", rawAddress.c_str() );
 			char ipaddrbuf[IP_ADDR_MAX_SIZE];
 			inet_ntop( family, &inetNetwork, ipaddrbuf, sizeof( ipaddrbuf ) );
 #ifdef DEBUG
-printf( "networkAddress => [%s]\n", ipaddrbuf );
+printf( "ipmsg::getMetworkAddress networkAddress => [%s]\n", ipaddrbuf );
 #endif
 			ret = ipaddrbuf;
 		}

@@ -237,13 +237,22 @@ AttachFileList::FindByFileId( int file_id )
 	IPMSG_FUNC_ENTER( "std::vector<AttachFile>::iterator AttachFileList::FindByFileId( int file_id )" );
 	Lock( "AttachFileList::FindByFileId()" );
 	std::vector<AttachFile>::iterator ret = end();
+#ifdef DEBUG
+	printf( "AttachFileList::FindByFileId file_id=%d\n", file_id );
+	fflush(stdout);
+#endif
 	for( std::vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
-		printf( "file_id  %d\n", file_id );fflush(stdout);
-		printf( "ixfile->FileId %d\n", ixfile->FileId() );fflush(stdout);
-		printf( "ixfile->FileName %s\n", ixfile->FileName().c_str() );fflush(stdout);
+		printf( "AttachFileList::FindByFileId Searching attach file list.\n" );
+		printf( "AttachFileList::FindByFileId FileId %d\n", ixfile->FileId() );
+		printf( "AttachFileList::FindByFileId FileName %s\n", ixfile->FileName().c_str() );
+		fflush(stdout);
 #endif
 		if ( file_id == ixfile->FileId() ) {
+#ifdef DEBUG
+			printf( "AttachFileList::FindByFileId File id was found\n" );
+			fflush(stdout);
+#endif
 			ret = ixfile;
 			break;
 		}
@@ -261,14 +270,7 @@ AttachFileList::FindByFileId( int file_id )
 AttachFile::AttachFile()
 {
 	IPMSG_FUNC_ENTER( "AttachFile::AttachFile()" );
-#ifdef DEBUG
-	printf("file_id before     == %d\n", file_id );fflush(stdout);
-#endif
 	_FileId = file_id++;
-#ifdef DEBUG
-	printf("AttachFile::FileId == %d\n", FileId() );fflush(stdout);
-	printf("file_id after      == %d\n", file_id );fflush(stdout);
-#endif
 	IPMSG_FUNC_EXIT;
 }
 
@@ -343,7 +345,7 @@ AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 		if ( dirstack[i] != "" ) {
 			retdir += dirstack[i] + ( dirstack[i].at(dirstack[i].size() - 1) == '/' ? "" : "/" );
 #ifdef DEBUG
-			printf("retdir = %s\n", retdir.c_str());fflush(stdout);
+			printf("AttachFile::CreateDirFullPath retdir = %s\n", retdir.c_str());fflush(stdout);
 #endif
 		}
 	}
