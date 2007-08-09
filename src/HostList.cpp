@@ -25,6 +25,7 @@ using namespace ipmsg;
 HostList::HostList()
 {
 	IPMSG_FUNC_ENTER( "HostList::HostList()" );
+	setIsAsking( false );
 	IpMsgMutexInit( "HostList::HostList()", &hostListMutex, NULL );
 	IPMSG_FUNC_EXIT;
 }
@@ -42,6 +43,7 @@ HostList::HostList( const HostList& other )
 	IpMsgMutexInit( "HostList::HostList(HostList&)", &hostListMutex, NULL );
 	Lock( "HostList::HostList(HostList&)" );
 	CopyFrom( other );
+	setIsAsking( false );
 	Unlock( "HostList::HostList(HostList&)" );
 	IPMSG_FUNC_EXIT;
 }
@@ -233,6 +235,10 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	fflush(stdout);
 #endif
 
+#if defined(INFO) || !defined(NDEBUG)
+	printf("HostList::AddHost Secondary NIC checking now.\n" );
+	fflush(stdout);
+#endif
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	std::string localhostName = agent->HostName();
 	std::vector<NetworkInterface> nics = agent->NICs;
@@ -260,17 +266,25 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 
 		if ( host.IpAddress() == nics[i].IpAddress() ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf("HostList::AddHost Host IP Address is match NIC IP Address\nIgnore this IP Address\n" );fflush(stdout);
+			printf("HostList::AddHost Host IP Address is match secondary NIC IP Address\nIgnore this IP Address\n" );fflush(stdout);
 			fflush(stdout);
 #endif
 			Unlock( "HostList::AddHost()" );
 			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
+#if defined(INFO) || !defined(NDEBUG)
+	printf("HostList::AddHost secondely NIC check OK.\n" );
+	printf("HostList::AddHost NIC's broadcast or network IP address checking now.\n" );
+	fflush(stdout);
+#endif
 	//IPアドレスがNICのブロードキャスト、ネットワークのアドレスと一致したら無視。（たぶんありえないケド。）
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("HostList::AddHost now host checking IpAddress=%s Network%s Broadcast=%s\n", host.IpAddress().c_str(), nics[i].NetworkAddress().c_str(), nics[i].BroadcastAddress().c_str() );
+		printf("HostList::AddHost now host checking IpAddress=%s Network%s Broadcast=%s\n",
+						host.IpAddress().c_str(),
+						nics[i].NetworkAddress().c_str(),
+						nics[i].BroadcastAddress().c_str() );
 		fflush(stdout);
 #endif
 		if ( host.IpAddress() == nics[i].NetworkAddress() ) {
@@ -291,6 +305,8 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
+	printf("HostList::AddHost NIC's broadcast or network IP address check OK.\n" );
+
 	printf("HostList::AddHost Host IpAddress=[%s] NIC[0] IP Address=[%s]\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );
 	printf("HostList::AddHost HostName=[%s] LocalhostName=[%s]\n", host.HostName().c_str(), localhostName.c_str() );
 	fflush(stdout);
@@ -335,8 +351,8 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 				is_found = true;
 				//IPv6をIPv4より優先する。
 #if defined(INFO) || !defined(NDEBUG)
-				printf("AddHost host.AddressFamily() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
-				printf("AddHost tmpHost.AddressFamily() %s %s\n", tmpHost->IpAddress().c_str(), tmpHost->AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+				printf("HostList::AddHost host.AddressFamily() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
+				printf("HostList::AddHost tmpHost.AddressFamily() %s %s\n", tmpHost->IpAddress().c_str(), tmpHost->AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
 #endif
 				if ( host.AddressFamily() == AF_INET6 && tmpHost->AddressFamily() == AF_INET ) {
 					*tmpHost = host;
@@ -657,14 +673,14 @@ HostListItem::Compare( const HostListItem& item ) const
 	if ( item.UserName()  == UserName() &&
 		 item.HostName()  == HostName() &&
 		 item.IpAddress() == IpAddress() ){
-		IPMSG_FUNC_RETURN( 0 );
+		IPMSG_FUNC_RETURN( CompareHardwareAddress( item ) );
 	}
 	if ( item.UserName()  > UserName() &&
 		 item.HostName()  > HostName() &&
 		 item.IpAddress() > IpAddress() ){
 		IPMSG_FUNC_RETURN( 1 );
 	}
-	IPMSG_FUNC_RETURN(  -1 );
+	IPMSG_FUNC_RETURN( -1 );
 }
 
 /**
@@ -679,12 +695,12 @@ HostListItem::CompareHardwareAddress( const HostListItem& item ) const
 {
 	IPMSG_FUNC_ENTER( "int HostListItem::CompareHardwareAddress( const HostListItem& item ) const" );
 	if ( item.HardwareAddress() == HardwareAddress() ){
-		IPMSG_FUNC_RETURN( Compare( item ) );
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	if ( item.HardwareAddress() > HardwareAddress() ){
 		IPMSG_FUNC_RETURN( 1 );
 	}
-	IPMSG_FUNC_RETURN(  -1 );
+	IPMSG_FUNC_RETURN( -1 );
 }
 
 /**
