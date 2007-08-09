@@ -203,14 +203,14 @@ HostListItem::IsLocalHost() const
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		if ( IpAddress() == nics[i].IpAddress() ){
 #if defined(INFO) || !defined(NDEBUG)
-			printf("This host item is localhost.\n");
+			printf("HostListItem::IsLocalHost This host item is localhost.\n");
 			fflush(stdout);
 #endif
 			IPMSG_FUNC_RETURN( true );
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
-	printf("This host item is not localhost.\n");
+	printf("HostListItem::IsLocalHost This host item is not localhost.\n");
 	fflush(stdout);
 #endif
 	IPMSG_FUNC_RETURN( false );

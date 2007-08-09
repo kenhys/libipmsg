@@ -2564,7 +2564,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 	if ( nextstart > 0 ) {
 		int nextBufLen = IpMsgIntToString( nextBuf, sizeof( nextBuf ), hostList.size() + 1 );
 #if defined(INFO) || !defined(NDEBUG)
-		printf("nextBufLen = %d\n", nextBufLen );fflush( stdout );
+		printf("IpMessengerAgentImpl::UdpRecvEventDelMsg nextBufLen = %d\n", nextBufLen );fflush( stdout );
 #endif
 		sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 											_LoginName, _HostName,
@@ -3036,13 +3036,13 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 		if ( strcmp(dent->d_name, "." ) != 0 && strcmp(dent->d_name, ".." ) != 0 ) {
 			std::string dir_name = dir + "/" + dent->d_name;
 #if defined(INFO) || !defined(NDEBUG)
-			printf( "dir[%s]", dir_name.c_str() );fflush( stdout );
+			printf( "IpMessengerAgentImpl::SendDirData dir[%s]", dir_name.c_str() );fflush( stdout );
 #endif
 			stat( dir_name.c_str(), &st );
 			files.push_back( dir_name );
 			if ( S_ISDIR( st.st_mode ) ){
 #if defined(INFO) || !defined(NDEBUG)
-				printf( "DIR\n" );fflush( stdout );
+				printf( "IpMessengerAgentImpl::SendDirData DIR\n" );fflush( stdout );
 #endif
 				if ( !SendDirData( sock, dent->d_name, dir_name, files ) ){
 					closedir( d );
@@ -3051,7 +3051,7 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 				}
 			} else {
 #if defined(INFO) || !defined(NDEBUG)
-				printf( "FILE\n" );fflush( stdout );
+				printf( "IpMessengerAgentImpl::SendDirData FILE\n" );fflush( stdout );
 #endif
 				int headBufLen = snprintf( headBuf, sizeof( headBuf ), "0000:%s:%llx:%lx:%lx=%lx:%lx=%lx:",
 																	converter->ConvertLocalToNetwork( dent->d_name ).c_str(),
@@ -3107,7 +3107,7 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 	if ( fd < 0 ) {
 		perror( "open" );
 #ifdef DEBUG
-		printf("FileName.c_str() [%s]\n", FileName.c_str() );fflush(stdout);
+		printf("IpMessengerAgentImpl::SendFile FileName.c_str() [%s]\n", FileName.c_str() );fflush(stdout);
 #endif
 		IPMSG_FUNC_RETURN( false );
 	}
@@ -3123,20 +3123,20 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 			struct stat statProgress;
 			if ( stat( realPathName, &statProgress ) != 0 ){
 #ifdef DEBUG
-				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
+				printf("IpMessengerAgentImpl::SendFile FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
 				close( fd );
 				IPMSG_FUNC_RETURN( false );
 			}
 			if ( IsFileChanged( mtime, size, statInit, statProgress ) ){
 #ifdef DEBUG
-				printf("FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
+				printf("IpMessengerAgentImpl::SendFile FileName.c_str() [%s]\nFile Changed.\n", FileName.c_str() );fflush(stdout);
 #endif
 				close( fd );
 				IPMSG_FUNC_RETURN( false );
 			}
 #ifdef DEBUG
-			printf("FileName.c_str() [%s]\nFile Unchanged.\n", FileName.c_str() );fflush(stdout);
+			printf("IpMessengerAgentImpl::SendFile FileName.c_str() [%s]\nFile Unchanged.\n", FileName.c_str() );fflush(stdout);
 #endif
 		}
 		transSize += readSize;
@@ -3194,7 +3194,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 	memset( file_list_tmp_buf, 0, alloc_size );
 	memcpy( file_list_tmp_buf,  &option[filelist_startpos] , alloc_size - 1 );
 #if defined(INFO) || !defined(NDEBUG)
-	printf("File List Buffer = [%s]\n", file_list_tmp_buf);fflush( stdout );
+	printf("IpMessengerAgentImpl::CreateAttachedFileList File List Buffer = [%s]\n", file_list_tmp_buf);fflush( stdout );
 #endif
 
 	IpMsgPrintBuf("CreateAttachedFileList:file_list_tmp_buf",  file_list_tmp_buf, alloc_size );
@@ -3210,14 +3210,14 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 		while( 1 ) {
 			AttachFile file;
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("AttachFile(-1)\n" );fflush(stdout);
+			printf("IpMessengerAgentImpl::CreateAttachedFileList AttachFile(-1)\n" );fflush(stdout);
 #endif
 			// FILE ID
 			if ( token != NULL && *token == '\a' ) eob = true;
 			if ( token == NULL || *token == '\a' ) break;
 			file.setFileId( strtoul( token, &ptrdmy, 10 ) );
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf( "file.FileId() %d token [%s]\n", file.FileId(), token );fflush(stdout);
+			printf( "IpMessengerAgentImpl::CreateAttachedFileList file.FileId() %d token [%s]\n", file.FileId(), token );fflush(stdout);
 #endif
 			// FILE NAME
 			file_list_tmp_ptr = nextpos;
@@ -3267,26 +3267,26 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 			}
 #if defined(DEBUG) || !defined(NDEBUG)
 			printf("\n\n");fflush(stdout);
-			printf("== FILE  ==============================>\n");fflush( stdout );
-			printf("FILE ID[%d]\n", file.FileId());fflush( stdout );
-			printf("FILE NAME[%s]\n", file.FileName().c_str());fflush( stdout );
-			printf("FILE SIZE[%lld]\n", file.FileSize());fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList == FILE  ==============================>\n");fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList FILE ID[%d]\n", file.FileId());fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList FILE NAME[%s]\n", file.FileName().c_str());fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList FILE SIZE[%lld]\n", file.FileSize());fflush( stdout );
 			time_t tt = file.MTime();
 			char dmybuf[100];
-			printf("MTIME[%s]\n", ctime_r( &tt, dmybuf ) );fflush( stdout );
-			printf("ATTR[%lu]\n", file.Attr() );fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList MTIME[%s]\n", ctime_r( &tt, dmybuf ) );fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList ATTR[%lu]\n", file.Attr() );fflush( stdout );
 			for( std::map<std::string, std::vector<unsigned long> >::iterator ixextattr = file.beginExtAttrs(); ixextattr != file.endExtAttrs(); ixextattr++){
-				printf("EXT ATTR[%s]==", ixextattr->first.c_str() );fflush( stdout );
+				printf("IpMessengerAgentImpl::CreateAttachedFileList EXT ATTR[%s]==", ixextattr->first.c_str() );fflush( stdout );
 				for( std::vector<unsigned long>::iterator ixextattrv = ixextattr->second.begin(); ixextattrv != ixextattr->second.end(); ixextattrv++){
 					printf("[%lu]", *ixextattrv );fflush( stdout );
 				}
 				printf("\n" );fflush( stdout );
 			}
-			printf("<= FILE  ===============================\n");fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList <= FILE  ===============================\n");fflush( stdout );
 #endif
 			// ADD FILELIST
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("AddFile()\n" );fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList AddFile()\n" );fflush( stdout );
 #endif
 			files.AddFile( file );
 			break;
@@ -3294,7 +3294,7 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 		// FILE ID(not 1st)
 		if ( token == NULL ){
 #if defined(DEBUG) || !defined(NDEBUG)
-			printf("File END,break;\n" );fflush( stdout );
+			printf("IpMessengerAgentImpl::CreateAttachedFileList File END,break;\n" );fflush( stdout );
 #endif
 			break;
 		}
@@ -3786,12 +3786,10 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	printf("IpMessengerAgentImpl::AddHostListFromPacket()\n" );fflush(stdout);
 #endif
 #if defined(INFO) || !defined(NDEBUG)
-	printf("===================================\n");fflush( stdout );
-	printf("AddHostListFromPacket\n");fflush( stdout );
-	printf("===================================\n");fflush( stdout );
+	printf("IpMessengerAgentImpl::AddHostListFromPacket ===================================\n");fflush( stdout );
 	struct sockaddr_storage tempAddr = packet.Addr();
 	IpMsgDumpPacket( packet, &tempAddr );
-	printf("===================================\n");fflush( stdout );
+	printf("IpMessengerAgentImpl::AddHostListFromPacket ===================================\n");fflush( stdout );
 #endif
 	AddDefaultHost();
 	// デフォルトのNIC(０番目)以外の自分自身のIPアドレスが登録依頼されたら無視。
@@ -3848,7 +3846,7 @@ IpMessengerAgentImpl::AddDefaultHost()
 		hostList.AddHost( myHost );
 		appearanceHostList.AddHost( myHost, false );
 #if defined(INFO) || !defined(NDEBUG)
-		printf("MyHost[%s] Add.[%s][%s]\n", HostAddress.c_str(), myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
+		printf("IpMessengerAgentImpl::AddDefaultHost MyHost[%s] Add.[%s][%s]\n", HostAddress.c_str(), myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
 #endif
 		IPMSG_FUNC_RETURN( 1 );
 	}
