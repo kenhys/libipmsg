@@ -1,3 +1,6 @@
+2007-08-11 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Change some debug messages.
+
 2007-08-10 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Change some debug messages.
 - Fix:Change IsAsking property's default value(true->false).
