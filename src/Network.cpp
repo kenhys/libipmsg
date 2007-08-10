@@ -210,7 +210,7 @@ ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, 
 		IPMSG_FUNC_RETURN( NULL );
 	}
 #ifdef DEBUG
-//	printf( "createSockAddrIn(addr=[%s] port=[%u] devname[%s])\n", rawAddress.c_str(), port, devname );fflush(stdout);
+//	printf( "ipmsg::createSockAddrIn(addr=[%s] port=[%u] devname[%s])\n", rawAddress.c_str(), port, devname );fflush(stdout);
 #endif
 	if ( addr != NULL ) {
 		struct addrinfo hints, *res;
@@ -531,14 +531,14 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 			snprintf( ipAddrBuf, sizeof( ipAddrBuf ), "%d.%d.%d.%d", ( int )p[0], ( int )p[1], ( int )p[2], ( int )p[3] ); 
 		} else {
 #endif
-			printf( "getnameinfo Error:%s\n", gai_strerror( err ) );
+			printf( "ipmsg::getSockAddrInRawAddress getnameinfo Error:%s\n", gai_strerror( err ) );
 #ifdef ENABLE_IPV4
 		}
 #endif
 #ifdef DEBUG
 /*
 	} else {
-		printf( "getnameinfo:IP addr %s\n", ipAddrBuf );
+		printf( "ipmsg::getSockAddrInRawAddress getnameinfo:IP addr %s\n", ipAddrBuf );
 */
 #endif
 	}
@@ -623,10 +623,10 @@ ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
 	IPMSG_FUNC_ENTER( "int ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )" );
 #if defined(SUPPORT_SENDFILE_LINUX_STYLE)
 	//Linux用
-	//printf("sendfile as sendfile syscall by linux\n");
+	//printf( "ipmsg::IpMsgSendFileBuffer sendfile as sendfile syscall by linux\n" );
 	IPMSG_FUNC_RETURN( sendfile( sock, ifd, NULL, size ) );
 #elif defined(SUPPORT_SENDFILE_BSD_STYLE)
-	//printf("sendfile as sendfile syscall by freebsd\n");
+	//printf( "ipmsg::IpMsgSendFileBuffer sendfile as sendfile syscall by freebsd\n" );
 	//FreeBSD用
 	IPMSG_FUNC_RETURN( sendfile( sock, ifd, NULL, size, NULL, NULL, 0 ) );
 /*
@@ -635,14 +635,14 @@ ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
 // TODO hp-ux support start from here.
 #if 0
 //#elif defined(SUPPORT_SENDFILE_HPUX_STYLE)
-	printf("sendfile as sendfile syscall by hp-ux\n");
+	printf( "ipmsg::IpMsgSendFileBuffer sendfile as sendfile syscall by hp-ux\n" );
 	//HP-UX用
 	IPMSG_FUNC_RETURN( sendfile( sock, ifd, NULL, size, NULL, 0 ) );
 #endif
 // TODO hp-ux support end.
 */
 #else
-	//printf("sendfile as read write\n");
+	//printf( "ipmsg::IpMsgSendFileBuffer sendfile as read/write implimentation\n" );
 	//デフォルト実装
 	char readbuf[8192];
 	int readSize = read( ifd, readbuf, sizeof( readbuf ) );
@@ -762,13 +762,13 @@ printf( "ipmsg::getNetworkInterfaceInfo using getifaddrs version\n" );fflush(std
 		}
 #if defined( ENABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET && ifap->ifa_addr->sa_family != AF_INET6 ) {
-//			printf( "ENABLE_IPV4 && ENABLE_IPV6\n" );
+//			printf( "ipmsg::getNetworkInterfaceInfo ENABLE_IPV4 && ENABLE_IPV6\n" );
 #elif defined( ENABLE_IPV4 ) && defined( DISABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET ) {
-//			printf( "ENABLE_IPV4 && DISABLE_IPV6\n" );
+//			printf( "ipmsg::getNetworkInterfaceInfo ENABLE_IPV4 && DISABLE_IPV6\n" );
 #elif defined( DISABLE_IPV4 ) && defined( ENABLE_IPV6 )
 		if ( ifap->ifa_addr->sa_family != AF_INET6 ) {
-//			printf( "DISABLE_IPV4 && ENABLE_IPV6\n" );
+//			printf( "ipmsg::getNetworkInterfaceInfo DISABLE_IPV4 && ENABLE_IPV6\n" );
 #endif // ENABLE_IPV6
 			continue;
 		}
@@ -899,7 +899,7 @@ ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int 
 		ni.setNetMask( rawNetMask );
 		nics.push_back( ni );
 #if defined(DEBUG) || !defined(NDEBUG)
-		printf( "NIC device=%s[IpAddress=%s][Port=%d][NetMask=%s][NetworkAddress=%s]\n",
+		printf( "ipmsg::getNetworkInterfaceInfoForIPv4 NIC device=%s[IpAddress=%s][Port=%d][NetMask=%s][NetworkAddress=%s]\n",
 						nics[nics.size() - 1].DeviceName().c_str(),
 						nics[nics.size()-1].IpAddress().c_str(),
 						nics[nics.size()-1].PortNo(),
@@ -988,9 +988,10 @@ ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netm
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetBroad, ipaddrbuf, sizeof( ipaddrbuf ) );
 #if defined(DEBUG) || defined(INFO)
-		printf( "ipmsg::getBroadcastAddress Broadcast Address[%s]=", ipaddrbuf );
-		printf( "NetworkAddress[%s] | ", netAddress.c_str() );
-		printf( "0xffffffff ^ Netmask[%s]\n", netmask.c_str() );
+		printf( "ipmsg::getBroadcastAddress Broadcast Address[%s]=NetworkAddress[%s] | 0xffffffff ^ Netmask[%s]\n",
+					ipaddrbuf,
+					netAddress.c_str(),
+					netmask.c_str() );
 		fflush(stdout);
 #endif
 		ret = ipaddrbuf;

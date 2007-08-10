@@ -1268,7 +1268,8 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )");
 #if defined(DEBUG)
-	printf("IpMessengerImpl::SendTcpPacket == SEND TCP ====================================>\n");fflush( stdout );
+	printf( "\n" );
+	printf("IpMessengerImpl::SendTcpPacket == SEND TCP START ==============================>\n");fflush( stdout );
 #endif
 	IpMsgPrintBuf( "IpMessengerImpl::SendTcpPacket Send TCP Buffer", buf, size );
 	int ret = 0;
@@ -1280,7 +1281,7 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 #endif
 	}
 #if defined(DEBUG)
-	printf("IpMessengerImpl::SendTcpPacket <= SEND TCP======================================\n");fflush( stdout );
+	printf("IpMessengerImpl::SendTcpPacket <= SEND TCP END =================================\n\n");fflush( stdout );
 #endif
 	IPMSG_FUNC_EXIT;
 }
@@ -1297,7 +1298,8 @@ IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendPacket( const unsigned long cmd, char *buf, int size, struct sockaddr_storage to_addr )");
 #if defined(DEBUG)
-	printf( "IpMessengerAgentImpl::SendPacket == SEND ============================================>\n");fflush( stdout );
+	printf( "\n" );
+	printf( "IpMessengerAgentImpl::SendPacket == SEND  START =====================================>\n");fflush( stdout );
 	printf( "IpMessengerAgentImpl::SendPacket Packet Command i[%s]To Address=[%s][Sock %d]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( to_addr ).c_str(), send_socket );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "IpMessengerImpl::SendUdpPacket Send UDP Buffer", buf, size );
@@ -1305,7 +1307,7 @@ IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd
 	UdpSendto( send_socket, &to_addr, buf, size );
 
 #if defined(DEBUG)
-	printf( "IpMessengerAgentImpl::SendPacket <= SEND =============================================\n");fflush( stdout );
+	printf( "IpMessengerAgentImpl::SendPacket <= SEND  END ========================================\n\n");fflush( stdout );
 #endif
 	IPMSG_FUNC_EXIT;
 }
@@ -1323,6 +1325,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int size )");
 #if defined(DEBUG)
+	printf( "\n" );
 	printf("IpMessengerAgentImpl::SendBroadcast == SEND BROADCAST START ==================>\n");fflush( stdout );
 	printf( "IpMessengerAgentImpl::SendBroadcast Command[%s]\n", GetCommandString( cmd ).c_str() );fflush( stdout );
 #endif
@@ -1346,7 +1349,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 		}
 	}
 #if defined(DEBUG)
-	printf("IpMessengerAgentImpl::SendBroadcast <= SEND BROADCAST END =====================\n");fflush( stdout );
+	printf("IpMessengerAgentImpl::SendBroadcast <= SEND BROADCAST END =====================\n\n");fflush( stdout );
 #endif
 	IPMSG_FUNC_EXIT;
 }

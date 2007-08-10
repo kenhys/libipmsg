@@ -56,10 +56,10 @@ IpMessengerAgentImpl::CryptoInit()
 	RsaMax = RSA_generate_key( RSA_KEY_LENGTH_MAXIMUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMax == NULL ) {
 		char errbuf[ERR_BUF_SIZE];
-		printf("in Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
+		printf("IpMessengerAgentImpl::CryptoInit In Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_2048;
-		printf("encryption extention enabled.(RSA2048)\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::CryptoInit Encryption extention enabled.(RSA2048)\n");fflush(stdout);
 	}
 #endif	//SUPPORT_RSA_2048
 	RsaMid = NULL;
@@ -67,10 +67,10 @@ IpMessengerAgentImpl::CryptoInit()
 	RsaMid = RSA_generate_key( RSA_KEY_LENGTH_MIDIUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMid == NULL ) {
 		char errbuf[ERR_BUF_SIZE];
-		printf("in Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
+		printf("IpMessengerAgentImpl::CryptoInit In Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_1024;
-		printf("encryption extention enabled.(RSA1024)\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::CryptoInit Encryption extention enabled.(RSA1024)\n");fflush(stdout);
 	}
 #endif	//SUPPORT_RSA_1024
 	RsaMin = NULL;
@@ -78,10 +78,10 @@ IpMessengerAgentImpl::CryptoInit()
 	RsaMin = RSA_generate_key( RSA_KEY_LENGTH_MINIMUM, ENCRYPT_PRIME, NULL, NULL );
 	if ( RsaMin == NULL ) {
 		char errbuf[ERR_BUF_SIZE];
-		printf("in Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
+		printf("IpMessengerAgentImpl::CryptoInit In Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_512;
-		printf("encryption extention enabled.(RSA512)\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::CryptoInit Encryption extention enabled.(RSA512)\n");fflush(stdout);
 	}
 #endif	//SUPPORT_RSA_512
 	if ( encryptionCapacity == 0UL ) {
@@ -174,9 +174,9 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	//暗号化出来ないので、平文で送信。
 	if ( pubKeyMethod == 0UL ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("encryptionCapacity(%lx)\n", encryptionCapacity );fflush(stdout);
-		printf("host.EncryptionCapacity()(%lx)\n", host.EncryptionCapacity() );fflush(stdout);
-		printf("pubKeyMethod == 0UL\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg encryptionCapacity(%lx)\n", encryptionCapacity );fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg host.EncryptionCapacity()(%lx)\n", host.EncryptionCapacity() );fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg pubKeyMethod == 0UL\n");fflush(stdout);
 #endif
 		IPMSG_FUNC_RETURN( false );
 	}
@@ -186,7 +186,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	if ( BN_hex2bn( &rsa->e, host.EncryptMethodHex().c_str() ) == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
 		char errbuf[ERR_BUF_SIZE];
-		printf( "BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
+		printf( "IpMessengerAgentImpl::EncryptMsg BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
 #endif
 		RSA_free( rsa );
 		IPMSG_FUNC_RETURN( false );
@@ -195,7 +195,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	if ( BN_hex2bn( &rsa->n, host.PubKeyHex().c_str() ) == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
 		char errbuf[ERR_BUF_SIZE];
-		printf( "BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
+		printf( "IpMessengerAgentImpl::EncryptMsg BN_bn2hex err=%s\n", ERR_error_string(ERR_get_error(), errbuf));fflush(stdout);
 #endif
 		RSA_free( rsa );
 		IPMSG_FUNC_RETURN( false );
@@ -262,7 +262,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	//暗号化出来ないので、平文で送信。
 	if ( shareKeyMethod == 0UL ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("shareKeyMethod == 0UL\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg shareKeyMethod == 0UL\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
 		IPMSG_FUNC_RETURN( false );
@@ -270,11 +270,11 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	int enc_key_size = RSA_size( rsa );
 	unsigned char *enc_key = (unsigned char *)calloc( enc_key_size + 1, 1 );
 #if defined(INFO) || !defined(NDEBUG)
-	printf( "enc_key_size(%d)\n", enc_key_size );fflush(stdout);
+	printf( "IpMessengerAgentImpl::EncryptMsg enc_key_size(%d)\n", enc_key_size );fflush(stdout);
 #endif
 	if ( enc_key == NULL ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("enc_key == NULL\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg enc_key == NULL\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
 		IPMSG_FUNC_RETURN( false );
@@ -283,7 +283,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	int enc_key_len = RSA_public_encrypt( key_bytes_size, sharekey, enc_key, rsa, RSA_PKCS1_PADDING );
 	if ( enc_key_len < 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("enc_key_len < 0\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg enc_key_len < 0\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
 		free( enc_key );
@@ -349,7 +349,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	char *enc_buf = (char *)calloc( optBufLen + key_bytes_size + 1, 1 );
 	if ( enc_buf == NULL ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("enc_buf == NULL\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg enc_buf == NULL\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
 		free( enc_key );
@@ -374,7 +374,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	char *out_buf = (char *)calloc( ob_len + 1, 1 );
 	if ( out_buf == NULL ){
 #if defined(INFO) || !defined(NDEBUG)
-		printf("out_buf == NULL\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg out_buf == NULL\n");fflush(stdout);
 #endif
 		RSA_free( rsa );
 		free( enc_key );
@@ -404,13 +404,13 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	free( out_buf );
 	if ( opt_size > *enc_optBufLen ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("TRUE!!\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::EncryptMsg Return value is true.\n");fflush(stdout);
 #endif
 		IPMSG_FUNC_RETURN( true );
 	}
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("FALSE!!\n");fflush(stdout);
+	printf("IpMessengerAgentImpl::EncryptMsg Return value is false.\n");fflush(stdout);
 #endif
 	IPMSG_FUNC_RETURN( false );
 #else	//HAVE_OPENSSL
@@ -524,7 +524,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	unsigned char *ek = (unsigned char *)calloc( ekey_len + 1, 1 );
 	if ( ek == NULL ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("calloc 1\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg calloc 1\n");fflush(stdout);
 #endif
 		perror("calloc");
 		IPMSG_FUNC_RETURN( false );
@@ -550,7 +550,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		key_bytes_size = 40/8;
 		shareKeyMethod = IPMSG_RC2_40;
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IPMSG_RC2_40\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg IPMSG_RC2_40\n");fflush(stdout);
 #endif
 	}
 #endif	//SUPPORT_RC2_40
@@ -561,7 +561,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		key_bytes_size = 128/8;
 		shareKeyMethod = IPMSG_RC2_128;
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IPMSG_RC2_128\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg IPMSG_RC2_128\n");fflush(stdout);
 #endif
 	}
 #endif	//SUPPORT_RC2_128
@@ -573,7 +573,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		key_bytes_size = 256/8;
 		shareKeyMethod = IPMSG_RC2_256;
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IPMSG_RC2_256\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg IPMSG_RC2_256\n");fflush(stdout);
 #endif
 	}
 #endif	//SUPPORT_RC2_256
@@ -588,7 +588,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		key_bytes_size = 128/8;
 		shareKeyMethod = IPMSG_BLOWFISH_128;
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IPMSG_BF_128\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg IPMSG_BF_128\n");fflush(stdout);
 #endif
 	}
 #endif	//SUPPORT_BLOWFISH_128
@@ -599,7 +599,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		key_bytes_size = 256/8;
 		shareKeyMethod = IPMSG_BLOWFISH_256;
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IPMSG_BF_256\n");fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg IPMSG_BF_256\n");fflush(stdout);
 #endif
 	}
 #endif	//SUPPORT_BLOWFISH_256
@@ -613,7 +613,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	unsigned char *emsg_buf = (unsigned char *)calloc( emsg.length() + 1, 1 );
 	if ( emsg_buf == NULL ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("calloc 2\n");fflush(stdout);
+		fprintf( stderr, "IpMessengerAgentImpl::DecryptMsg calloc 2\n" );fflush(stdout);
 #endif
 		perror("calloc");
 		free( file_info );
@@ -627,7 +627,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		emc[1] = emsg.at( i + 1 );
 		emc[2] = '\0';
 #if defined(INFO) || !defined(NDEBUG)
-		printf("%d:emc=[%s]", data_len, emc);fflush(stdout);
+		printf("IpMessengerAgentImpl::DecryptMsg %d:emc=[%s]", data_len, emc);fflush(stdout);
 #endif
 		emsg_buf[data_len] = (unsigned char)strtoul( (char *)emc, &dmyptr, 16 );
 #if defined(INFO) || !defined(NDEBUG)
