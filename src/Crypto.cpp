@@ -59,7 +59,7 @@ IpMessengerAgentImpl::CryptoInit()
 		printf("IpMessengerAgentImpl::CryptoInit In Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_2048;
-		printf("IpMessengerAgentImpl::CryptoInit Encryption extention enabled.(RSA2048)\n");fflush(stdout);
+		printf("Encryption extention enabled.(RSA2048)\n");fflush(stdout);
 	}
 #endif	//SUPPORT_RSA_2048
 	RsaMid = NULL;
@@ -70,7 +70,7 @@ IpMessengerAgentImpl::CryptoInit()
 		printf("IpMessengerAgentImpl::CryptoInit In Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_1024;
-		printf("IpMessengerAgentImpl::CryptoInit Encryption extention enabled.(RSA1024)\n");fflush(stdout);
+		printf("Encryption extention enabled.(RSA1024)\n");fflush(stdout);
 	}
 #endif	//SUPPORT_RSA_1024
 	RsaMin = NULL;
@@ -81,12 +81,12 @@ IpMessengerAgentImpl::CryptoInit()
 		printf("IpMessengerAgentImpl::CryptoInit In Encrypt: err=%s\n", ERR_error_string( ERR_get_error(), errbuf ) );fflush(stdout);
 	} else {
 		encryptionCapacity |= IPMSG_RSA_512;
-		printf("IpMessengerAgentImpl::CryptoInit Encryption extention enabled.(RSA512)\n");fflush(stdout);
+		printf("Encryption extention enabled.(RSA512)\n");fflush(stdout);
 	}
 #endif	//SUPPORT_RSA_512
 	if ( encryptionCapacity == 0UL ) {
 		//暗号化無効
-		printf("encryption extention disabled.\n");fflush(stdout);
+		printf("Encryption extention disabled.\n");fflush(stdout);
 	}
 #ifdef SUPPORT_RC2_40
 	encryptionCapacity |= IPMSG_RC2_40;
