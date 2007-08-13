@@ -1,3 +1,7 @@
+2007-08-13 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Rollback Compare method to 0.1.4.
+- Fix:Change method checking hardware addressin AddHost method.
+
 2007-08-11 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Change some debug messages.
 
