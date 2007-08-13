@@ -15,6 +15,7 @@
 using namespace ipmsg;
 
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
+#define NULL_HARDWARE_ADDRESS		"00:00:00:00:00:00"
 
 /**
  * コンストラクタ。
@@ -329,27 +330,57 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_RETURN( 0 );
 	}
+	//同一ホストがホストリストに存在するかを調べる。
 	std::vector<HostListItem>::iterator tmpHost;
-	for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
-		if ( isPermitSameHardwareAddress ) {
+	if ( isPermitSameHardwareAddress ) {
+		//同じハードウェアアドレスの存在を許す場合。
+		for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
+			//同じIPアドレスが見つかった。
 			if ( tmpHost->Equals( host ) ) {
 				is_found = true;
 				break;
 			}
-		} else {
+		}
+	} else {
+		//同じハードウェアアドレスの存在を許さない場合。
+		for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
+			//同じIPアドレスが見つかったら無視します。
+			if ( tmpHost->Equals( host ) ) {
+				//ハードウェアアドレスが空でないのに一致しない。
+				if ( host.HardwareAddress() != NULL_HARDWARE_ADDRESS && !tmpHost->EqualsHardwareAddress( host ) ) {
+					//警告メッセージを促す。
+					printf("Duplicate IP Address detected. IP Address [%s] was assgined to MAC Address [%s],[%s]\n",
+							host.IpAddress().c_str(),
+							host.HardwareAddress().c_str(),
+							tmpHost->HardwareAddress().c_str() );
+				}
+				//おかしなホストが登録されていたので入れ替える。
+				if ( host.HardwareAddress() != NULL_HARDWARE_ADDRESS && tmpHost->HardwareAddress() == NULL_HARDWARE_ADDRESS ) {
+#if defined(INFO) || !defined(NDEBUG)
+					printf("HostList::AddHost Storange host was entried....host list item[%s] host[%s]\n",
+									tmpHost->HardwareAddress().c_str(),
+									host.HardwareAddress().c_str() );
+					fflush(stdout);
+#endif
+					*tmpHost = host;
+				}
+				is_found = true;
+				break;
+			}
 #if defined(INFO) || !defined(NDEBUG)
 			printf("HostList::AddHost Searching hardware address...host[%s] host list item[%s]\n",
 							host.HardwareAddress().c_str(),
 							tmpHost->HardwareAddress().c_str() );
 			fflush(stdout);
 #endif
+			//違うIPアドレスでハードウェアアドレスが一致する場合は無視するのだが一致したホストリストの要素がIPv4で、今処理中のホストがIPv6なら。。。
 			if ( tmpHost->EqualsHardwareAddress( host ) ) {
 #if defined(INFO) || !defined(NDEBUG)
 				printf("HostList::AddHost Found same hardware address in this host list.(HWADDR %s)\n", host.HardwareAddress().c_str() );
 				fflush(stdout);
 #endif
 				is_found = true;
-				//IPv6をIPv4より優先する。
+				//IPv6をIPv4より優先する。（見つかったことにするけどIPv6のホストで置換する）
 #if defined(INFO) || !defined(NDEBUG)
 				printf("HostList::AddHost host.AddressFamily() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
 				printf("HostList::AddHost tmpHost.AddressFamily() %s %s\n", tmpHost->IpAddress().c_str(), tmpHost->AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
@@ -372,6 +403,12 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 #endif
 		items.push_back( host );
 		ret = 1;
+	} else {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("HostList::AddHost Host(%s[%s]) was not found.Nickname=[%s] GroupName=[%s]\n",
+					host.IpAddress().c_str(), host.HardwareAddress().c_str(), host.Nickname().c_str(), host.GroupName().c_str() );
+		fflush(stdout);
+#endif
 	}
 	if ( agent->GetSortHostListComparator() != NULL ){
 		if ( items.size() > 0 ) {
@@ -673,7 +710,7 @@ HostListItem::Compare( const HostListItem& item ) const
 	if ( item.UserName()  == UserName() &&
 		 item.HostName()  == HostName() &&
 		 item.IpAddress() == IpAddress() ){
-		IPMSG_FUNC_RETURN( CompareHardwareAddress( item ) );
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	if ( item.UserName()  > UserName() &&
 		 item.HostName()  > HostName() &&
