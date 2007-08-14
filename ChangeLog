@@ -1,3 +1,6 @@
+2007-08-15 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:SendMsg API's boolean value changes to class.
+
 2007-08-13 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Rollback Compare method to 0.1.4.
 - Fix:Change method checking hardware addressin AddHost method.
