@@ -740,11 +740,11 @@ IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode>
  * @param opt 送信オプション
  */
 bool
-IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt )
 {
-	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt )");
 	AttachFileList files;
-	IPMSG_FUNC_RETURN( SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL ) );
+	IPMSG_FUNC_RETURN( SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, isLogging, opt, false, 0UL ) );
 }
 
 /**
@@ -760,12 +760,12 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
  * @param opt 送信オプション
  */
 bool
-IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt )
 {
-	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt )");
 	AttachFileList files;
 	files.AddFile( file );
-	IPMSG_FUNC_RETURN( SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt, false, 0UL ) );
+	IPMSG_FUNC_RETURN( SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, isLogging, opt, false, 0UL ) );
 }
 
 /**
@@ -783,10 +783,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
  * @param PrevPacketNo リトライであれば前回のパケット番号
  */
 bool
-IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
-		
+IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
 {
-	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )");
+	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 	size_t optBufSize = GetMaxOptionBufferSize() + 1;
@@ -808,7 +807,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 	memcpy( optBuf, msg.c_str(), optBufLen );
 #ifdef HAVE_OPENSSL
 	//OpenSSLサポートが有効なら、暗号化
-	if ( isSecret ) {
+	if ( isSecret.IsSecret() ) {
 #if defined(DEBUG)
 		printf( "IpMessengerAgentImpl::SendMsg Send message specified by Secret Mode.\n" );
 		printf( "IpMessengerAgentImpl::SendMsg Target host's public key=[%s]\n", host.PubKeyHex().c_str() );
@@ -887,10 +886,10 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 #ifdef HAVE_OPENSSL
 										  ( isEncrypted ? IPMSG_ENCRYPTOPT : 0UL ) |
 #endif	//HAVE_OPENSSL
-										  ( IsNoLogging ? IPMSG_NOLOGOPT : 0UL ) |
-										  ( isSecret ? IPMSG_SECRETOPT : 0UL ) |
+										  ( !isLogging.IsLogging() ? IPMSG_NOLOGOPT : 0UL ) |
+										  ( isSecret.IsSecret() ? IPMSG_SECRETOPT : 0UL ) |
 										  ( _IsAbsence ? IPMSG_AUTORETOPT : 0UL ) |
-										  ( isLockPassword ? IPMSG_PASSWORDOPT : 0UL ) |
+										  ( isLockPassword.IsLockPassword() ? IPMSG_PASSWORDOPT : 0UL ) |
 										  ( files.size() > 0 ? IPMSG_FILEATTACHOPT : 0UL ) | opt,
 										  packetNo,
 										  _LoginName, _HostName,
@@ -909,13 +908,13 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, bool isSecret
 		message.setIsRetryMaxOver( false );
 		message.setRetryCount( 0 );
 		message.setIsConfirmed( false );
-		message.setIsPasswordLock( isLockPassword );
+		message.setIsPasswordLock( isLockPassword.IsLockPassword() );
 		message.setIsCrypted( isEncrypted );
 		message.setIsConfirmAnswered( false );
 		message.setHostCountAtSameTime( hostCountAtSameTime );
 		message.setOpt( opt );
-		message.setIsNoLogging( IsNoLogging );
-		message.setIsSecret( isSecret );
+		message.setIsNoLogging( !isLogging.IsLogging() );
+		message.setIsSecret( isSecret.IsSecret() );
 		message.setFiles( files );
 		message.setIsSent( false );
 		if ( SaveSentMessage() ){
@@ -1886,11 +1885,11 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 			ixmsg->setPrevTry( nowTime );
 			SendMsg( ixmsg->Host(),
 					 ixmsg->Message(),
-					 ixmsg->IsSecret(),
+					 Secret( ixmsg->IsSecret() ),
 					 ixmsg->Files(),
-					 ixmsg->IsPasswordLock(),
+					 LockPassword( ixmsg->IsPasswordLock() ),
 					 ixmsg->HostCountAtSameTime(),
-					 ixmsg->IsNoLogging(),
+					 Logging( !ixmsg->IsNoLogging() ),
 					 ixmsg->Opt(),
 					 true,
 					 ixmsg->PacketNo() );
@@ -2359,7 +2358,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 					break;
 				}
 			}
-			SendMsg( host, AbsenceDescription.c_str(), false, 1, true );
+			SendMsg( host, AbsenceDescription.c_str(), Secret::Off(), LockPassword::Off(), 1, Logging::Off() );
 		}
 	}
 
@@ -2369,7 +2368,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 			HostListItem host;
 			host.setIpAddress( getSockAddrInRawAddress( packet.Addr() ) );
 			host.setPortNo( ntohs( getSockAddrInPortNo( packet.Addr() ) ) );
-			SendMsg( host, DecryptErrorMessage.c_str(), false, 1, true, IPMSG_AUTORETOPT );
+			SendMsg( host, DecryptErrorMessage.c_str(), Secret::Off(), LockPassword::Off(), 1, Logging::Off(), IPMSG_AUTORETOPT );
 			optionMessage = "";
 			//暗号解除失敗による自動応答時はイベントを起こさない。
 			noRaiseEvent = true;

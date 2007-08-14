@@ -86,9 +86,9 @@ class IpMessengerAgentImpl {
 		void Logout();
 		HostList& GetHostList();
 		HostList& UpdateHostList( bool isRetry=false );
-		bool SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
-		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL );
-		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool noLogging=false, unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
+		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL, bool isRetry = false, unsigned long PrevPacketNo = 0UL );
 		void ResetAbsence();
 		void SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes );
 		std::vector<GroupItem> GetGroupList();

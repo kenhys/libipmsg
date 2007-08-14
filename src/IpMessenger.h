@@ -582,6 +582,30 @@ class IpMessengerEvent {
 
 class IpMessengerAgentImpl;
 
+class Secret {
+	public:
+		explicit Secret( bool isSecret ):_IsSecret( isSecret ){};
+		static Secret On() { return Secret( true ); };
+		static Secret Off() { return Secret( false ); };
+		IPMSG_READONLY_PROPERTY( bool, IsSecret );
+};
+
+class LockPassword {
+	public:
+		explicit LockPassword( bool isLockPassword ):_IsLockPassword( isLockPassword ){};
+		static LockPassword On() { return LockPassword( true ); };
+		static LockPassword Off() { return LockPassword( false ); };
+		IPMSG_READONLY_PROPERTY( bool, IsLockPassword );
+};
+
+class Logging {
+	public:
+		explicit Logging( bool isLogging ):_IsLogging( isLogging ){};
+		static Logging On() { return Logging( true ); };
+		static Logging Off() { return Logging( false ); };
+		IPMSG_READONLY_PROPERTY( bool, IsLogging );
+};
+
 /**
  * IP Messenger エージェントクラス
  **/
@@ -640,17 +664,17 @@ class IpMessengerAgent {
 		/**
 		 * メッセージ送信（添付無し）
 		 **/
-		bool SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（一つ添付）
 		 **/
-		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
 
 		/**
 		 * メッセージ送信（複数添付）
 		 **/
-		bool SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword=false, int hostCountAtSameTime=1, bool IsNoLogging=false, unsigned long opt=0UL );
+		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
 
 		/**
 		 * 不在解除

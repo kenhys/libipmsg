@@ -326,10 +326,10 @@ IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> abs
  * @param opt 送信オプション
  */
 bool
-IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )
 {
-	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
-	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsNoLogging, opt ) );
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, isLockPassword, hostCountAtSameTime, IsLogging, opt ) );
 }
 
 /**
@@ -344,10 +344,10 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, bo
  * @param opt 送信オプション
  */
 bool
-IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )
 {
-	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFile& file, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
-	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsNoLogging, opt ) );
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, file, isLockPassword, hostCountAtSameTime, IsLogging, opt ) );
 }
 
 /**
@@ -362,10 +362,10 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, At
  * @param opt 送信オプション
  */
 bool
-IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )
+IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )
 {
-	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, bool isSecret, AttachFileList& files, bool isLockPassword, int hostCountAtSameTime, bool IsNoLogging, unsigned long opt )");
-	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsNoLogging, opt ) );
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )");
+	IPMSG_FUNC_RETURN( ipmsgImpl->SendMsg( host, msg, isSecret, files, isLockPassword, hostCountAtSameTime, IsLogging, opt ) );
 }
 
 /**
