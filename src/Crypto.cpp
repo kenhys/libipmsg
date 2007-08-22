@@ -21,6 +21,15 @@ using namespace ipmsg;
 #define SUPPORT_RSA_1024
 #define SUPPORT_RC2_40
 #define SUPPORT_BLOWFISH_128
+#else	// WINCOMPAT
+#define SUPPORT_RSA_512
+#define SUPPORT_RSA_1024
+#define SUPPORT_RSA_2048
+#define SUPPORT_RC2_40
+#define SUPPORT_RC2_128
+#define SUPPORT_RC2_256
+#define SUPPORT_BLOWFISH_128
+#define SUPPORT_BLOWFISH_256
 #endif	// WINCOMPAT
 #endif	// HAVE_OPENSSL
 
