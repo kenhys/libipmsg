@@ -1,3 +1,8 @@
+2007-08-22 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:define WINCOMPAT else case.
+- Fix:IPMSG_GETLIST option(start position).
+- Fix:Next start position in IPMSG_ANSLIST.
+
 2007-08-15 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:SendMsg API's boolean value changes to class.
 
