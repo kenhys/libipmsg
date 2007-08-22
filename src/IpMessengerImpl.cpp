@@ -2509,7 +2509,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 #endif
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_GETLIST ),
 										_LoginName, _HostName,
-										NULL, 0,
+										"0", 1,
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( packet.UdpSocket(), IPMSG_GETLIST, sendBuf, sendBufLen, packet.Addr() );
 	IPMSG_FUNC_RETURN( 0 );
@@ -2564,7 +2564,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 									packet.Option().c_str(),
 									packet.Option().length() );
 	if ( nextstart > 0 ) {
-		int nextBufLen = IpMsgIntToString( nextBuf, sizeof( nextBuf ), hostList.size() + 1 );
+		int nextBufLen = IpMsgIntToString( nextBuf, sizeof( nextBuf ), nextstart + 1 );
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IpMessengerAgentImpl::UdpRecvEventDelMsg nextBufLen = %d\n", nextBufLen );fflush( stdout );
 #endif
