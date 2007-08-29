@@ -1,6 +1,12 @@
+libipmsg (0.1.5-1) unstable; urgency=low
+
+  * Minor bug fix release.
+
+ -- root <nikikuni@yahoo.co.jp>  Sun, 15 Jul 2007 15:41:51 +0900
+
 libipmsg (0.1.4-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release
 
  -- root <nikikuni@yahoo.co.jp>  Sun, 15 Jul 2007 15:41:51 +0900
 
