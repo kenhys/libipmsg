@@ -2772,7 +2772,10 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 	unsigned long packetNo = strtoul( packet.Option().c_str(), &dmyptr, 10 );
 	std::vector<SentMessage>::iterator sentMsg = sentMsgList.FindSentMessageByPacketNo( packetNo );
 	if ( sentMsg != sentMsgList.end() ) {
-		sentMsgList.erase(sentMsg);
+		std::vector<AttachFile>::iterator FoundFile = sentMsg->FindAttachFileByPacket( packet );
+		if ( FoundFile == sentMsg->Files().end() ){
+			sentMsg->Files().erase( FoundFile );
+		}
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
