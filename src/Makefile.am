@@ -23,4 +23,4 @@ libipmsginclude_HEADERS = IpMessenger.h
 #  既存のインターフェースを削除     7:0:0           libipmsg.so.7.0.0
 
 #0.1.5
-libipmsg_la_LDFLAGS = -version-info 1:5:1
+libipmsg_la_LDFLAGS = -version-info 1:6:1
