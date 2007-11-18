@@ -27,7 +27,7 @@ class IpMessengerNullEvent: public IpMessengerEvent {
 		 * ホストリストリフレッシュ後イベント
 		 * @param hostList ホストリスト
 		 */
-		virtual void RefreashHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
+		virtual void RefreshHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
 		/**
 		 * ホストリスト更新後イベント。イベントが発生したことを示すためprintを行う。
 		 * @param hostList ホストリスト
@@ -213,7 +213,7 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 IpMessengerAgentImpl::~IpMessengerAgentImpl()
 {
 	IPMSG_FUNC_ENTER("IpMessengerAgentImpl::~IpMessengerAgentImpl()");
-	if ( networkStarted ){
+	if ( IsNetworkStarted() ){
 		Logout();
 		StopNetwork();
 	}
@@ -256,8 +256,35 @@ IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 	NetworkInit( nics );
 	Logout();
 	// TODO 受信スレッド開始
-	networkStarted = true;
+	pthread_t t_id;
+
+	printf( "Thread create\n" );fflush(stdout);
+	if ( pthread_create( &t_id, NULL, ProcessPacketThread, NULL ) != 0 ){
+		perror("StartNetwork:pthread_create");
+		IPMSG_FUNC_EXIT;
+	}
+	_IsNetworkStarted = true;
+	printf( "Thread detach\n" );fflush(stdout);
+	if ( pthread_detach( t_id ) != 0 ){
+		perror("StartNetwork:pthread_detach");
+		IPMSG_FUNC_EXIT;
+	}
 	IPMSG_FUNC_EXIT;
+}
+
+void *
+ipmsg::ProcessPacketThread( void *param )
+{
+	long p = 0;
+	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
+	while( agent->IsNetworkStarted() ) {
+		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
+		agent->Process();
+		if ( usleep( 500000L ) != 0 ) {
+			printf( "usleep fail\n" );fflush(stdout);
+		}
+	}
+	return NULL;
 }
 
 /**
@@ -271,9 +298,9 @@ IpMessengerAgentImpl::StopNetwork()
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StopNetwork()");
 	// TODO 受信スレッド終了。＆待ち合わせ。
+	_IsNetworkStarted = false;
 	usleep( 1000000L );
 	NetworkEnd();
-	networkStarted = false;
 	IPMSG_FUNC_EXIT;
 }
 
@@ -305,7 +332,7 @@ void
 IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics )");
-	if ( networkStarted ) {
+	if ( IsNetworkStarted() ) {
 		Logout();
 		StopNetwork();
 	}
@@ -570,10 +597,12 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ENTRY, sendBuf, sendBufLen );
 	ResetAbsence();
-	RecvPacket();
+//	RecvPacket( false );
 	//0.05秒まつ。
 	usleep( 50000L );
-	RecvPacket();
+//	RecvPacket( false );
+	//0.1秒まつ。
+	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -595,7 +624,9 @@ IpMessengerAgentImpl::Logout()
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_EXIT, sendBuf, sendBufLen );
-	RecvPacket();
+//	RecvPacket( false );
+	//0.1秒まつ。
+	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -658,12 +689,12 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	SendBroadcast( IPMSG_BR_ISGETLIST2, sendBuf, sendBufLen );
 	//再入禁止(リトライ時はRecvPacketから呼ばれる)
 	if ( !isRetry ) {
-		int pcount = RecvPacket();
+//		int pcount = RecvPacket( false );
 		//自分以外のホストが見付からないか５回リトライする間繰り返す
 		for( int i = 0; i < 5; i++ ) {
 			//0.01秒まつ。
 			usleep( 10000L );
-			pcount = RecvPacket();
+//			pcount = RecvPacket( false );
 		}
 	}
 
@@ -681,7 +712,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	//イベントを挙げる
 	if ( event != NULL ) {
 		event->UpdateHostListAfter( appearanceHostList );
-		event->RefreashHostListAfter( appearanceHostList );
+		event->RefreshHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( appearanceHostList );
 }
@@ -801,7 +832,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 		IPMSG_FUNC_RETURN( false );
 	}
 
-	RecvPacket();
+//	RecvPacket( false );
+	//0.1秒まつ。
+	usleep( 100000L );
 
 	optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 	memcpy( optBuf, msg.c_str(), optBufLen );
@@ -1044,9 +1077,13 @@ std::string
 IpMessengerAgentImpl::GetInfo( HostListItem& host )
 {
 	IPMSG_FUNC_ENTER("std::string IpMessengerAgentImpl::GetInfo( HostListItem& host )");
-	RecvPacket();
+	//0.05秒まつ。
+	usleep( 50000L );
+//	RecvPacket( false );
 	for( int i = 0; i < 5; i++ ) {
-		RecvPacket();
+		//0.05秒まつ。
+		usleep( 50000L );
+//		RecvPacket( false );
 	}
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
@@ -1098,9 +1135,13 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 {
 	IPMSG_FUNC_ENTER("std::string IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )");
 	QueryAbsenceInfo( host );
-	RecvPacket();
+	//0.05秒まつ。
+	usleep( 50000L );
+//	RecvPacket( false );
 	for( int i = 0; i < 5; i++ ) {
-		RecvPacket();
+		//0.05秒まつ。
+		usleep( 50000L );
+//		RecvPacket( false );
 	}
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
 	if ( hostIt != hostList.end() ) {
@@ -1166,7 +1207,7 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 		SendPacket( -1, IPMSG_READMSG, sendBuf, sendBufLen, msg.MessagePacket().Addr() );
 	}
 	msg.setIsConfirmed( true );
-//	RecvPacket();
+//	RecvPacket( false );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -1654,7 +1695,7 @@ int
 IpMessengerAgentImpl::Process()
 {
 	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::Process()");
-	IPMSG_FUNC_RETURN( RecvPacket() );
+	IPMSG_FUNC_RETURN( RecvPacket( true ) );
 }
 
 /**
@@ -1668,7 +1709,7 @@ IpMessengerAgentImpl::Process()
  * @retval 受信パケット数
  */
 int
-IpMessengerAgentImpl::RecvPacket()
+IpMessengerAgentImpl::RecvPacket( bool isBlock )
 {
 	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::RecvPacket()");
 	char buf[MAX_UDPBUF];
@@ -1685,8 +1726,11 @@ IpMessengerAgentImpl::RecvPacket()
 
 		tv.tv_sec = SELECT_TIMEOUT_SEC;
 		tv.tv_usec = SELECT_TIMEOUT_USEC;
-		// TODO スレッド化する場合はブロッキングします。
-		selret = select( max_sd + 1, &fds, NULL, NULL, &tv );
+//		if ( isBlock ) {
+//			selret = select( max_sd + 1, &fds, NULL, NULL, NULL );
+//		} else {
+			selret = select( max_sd + 1, &fds, NULL, NULL, &tv );
+//		}
 		if ( selret == -1 ) {
 			//selectが割り込み発生で戻った場合は、無視します。
 			if ( errno == EINTR ){
@@ -1736,10 +1780,13 @@ IpMessengerAgentImpl::RecvPacket()
 	}
 	// TODO pack_que,PacketsForCheckingはdequeのほうが。。。？
 	//パケットを処理する。
+	printf("start RecvDoCommand\n");
 	while( !pack_que.empty() ) {
+		printf("do RecvDoCommand\n");
 		DoRecvCommand( pack_que.front() );
 		pack_que.erase( pack_que.begin() );
 	}
+	printf("end RecvDoCommand\n");
 
 	//一定以上前のチェック用のパケットベクタを消す。
 	PurgePacket( nowTime );
@@ -2074,7 +2121,7 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 		if ( it != appearanceHostList.end() && !it->IsLocalHost() && ret > 0 ) {
 			event->EntryAfter( *it );
 		}
-		event->RefreashHostListAfter( appearanceHostList );
+		event->RefreshHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2143,7 +2190,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 		if ( it != appearanceHostList.end() && ret > 0 ) {
 			event->AbsenceModeChangeAfter( *it );
 		}
-		event->RefreashHostListAfter( appearanceHostList );
+		event->RefreshHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2175,7 +2222,7 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 		if ( isFound ) {
 			event->ExitAfter( host );
 		}
-		event->RefreashHostListAfter( appearanceHostList );
+		event->RefreshHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2535,7 +2582,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 	GetPubKey( packet.Addr() );
 #endif
 	if ( event != NULL ) {
-		event->RefreashHostListAfter( appearanceHostList );
+		event->RefreshHostListAfter( appearanceHostList );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
