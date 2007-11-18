@@ -1,4 +1,5 @@
 2007-11-18 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:http://www.linuxsir.org/bbs/showthread.php?t=316266
 - Fix:Change API Name RefreashHostListAfter to RefreshHostListAfter.
 - Update:Change API Name NetworkStarted to IsNetworkStarted.
 - Update:Some RecvPacket call deleted.
