@@ -312,7 +312,7 @@ printf("RecievedMessage::DownloadFilePrivate saveFileNameFullPath[%s]\n", saveFi
 	int sendBufLen;
 	char optBuf[MAX_UDPBUF];
 	size_t optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%x:0", MessagePacket().PacketNo(), file.FileId() );
-	if ( optBufLen <= sizeof( optBuf ) ) {
+	if ( optBufLen > sizeof( optBuf ) ) {
 		IPMSG_FUNC_RETURN( false );
 	}
 	sendBufLen = agent->CreateNewPacketBuffer( IPMSG_GETFILEDATA,
