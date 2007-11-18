@@ -756,6 +756,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	tmp_len += tmp;
 	free( ek );
 	free( emsg_buf );
+	optBuf[tmp_len] = '\0';
 	
 	if ( file_info_len > 0 ){
 		IpMsgPrintBuf( "optBuf(1):", (char *)optBuf, tmp_len );

@@ -2423,7 +2423,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	}
 	RecievedMessage message;
 	message.setMessagePacket( packet );
-	message.setMessage( optionMessage );
+	message.setMessage( optionMessage.c_str() );
 	message.setRecieved( time( NULL ) );
 	message.setIsNoLogging( IPMSG_NOLOGOPT & packet.CommandOption() );
 	message.setIsSecret( IPMSG_SECRETOPT & packet.CommandOption() );
