@@ -1,3 +1,7 @@
+2007-11-19 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Recived messege including attach file information.
+- Fix:Download from localhost.
+
 2007-11-18 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:http://www.linuxsir.org/bbs/showthread.php?t=316266
 - Fix:Change API Name RefreashHostListAfter to RefreshHostListAfter.
