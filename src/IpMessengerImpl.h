@@ -44,6 +44,7 @@ const int IPMSG_DEFAULT_PORT=0x0979;
 
 namespace ipmsg {
 
+extern "C" void *ProcessPacketThread( void *param );
 extern "C" void *GetFileDataThread( void *param );
 extern "C" void *GetDirFilesThread( void *param );
 
@@ -68,6 +69,7 @@ class IpMessengerAgentImpl {
 
 		IPMSG_READONLY_PROPERTY( std::string, LoginName );
 		IPMSG_READONLY_PROPERTY( std::string, HostName );
+		IPMSG_READONLY_PROPERTY( bool, IsNetworkStarted );
 		IPMSG_PROPERTY( bool, IsDialup );
 		IPMSG_PROPERTY( bool, UseIPv6 );
 		IPMSG_PROPERTY( bool, AbortDownloadAtFileChanged );
@@ -131,7 +133,6 @@ class IpMessengerAgentImpl {
 		SentMessageList sentMsgList;
 		RecievedMessageList recvMsgList;
 		bool _IsAbsence;
-		bool networkStarted;
 		FileNameConverter *converter;
 		std::vector<AbsenceMode> absenceModeList;
 		std::string DecryptErrorMessage;
@@ -167,7 +168,7 @@ class IpMessengerAgentImpl {
 		void InitRecv( const std::vector<NetworkInterface>& nics );
 		int InitUdpRecv( struct sockaddr_storage addr, const char *devname );
 		int InitTcpRecv( struct sockaddr_storage addr, const char *devname );
-		int RecvPacket();
+		int RecvPacket( bool isBlock );
 		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *udp_socket );
 		bool RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket );
 		bool FindDuplicatePacket( const Packet &packet );
