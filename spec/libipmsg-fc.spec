@@ -1,6 +1,6 @@
 %define name libipmsg
-%define version 0.1.5
-%define release 0.fc6
+%define version 0.1.6
+%define release 0.fc8
 
 Summary: 	Ip Messenger Library
 Summary(ja):Ipメッセンジャーライブラリ
@@ -57,6 +57,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libipmsg.*a
 
 %changelog
+* Mon Nov 19 2007 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.6-0.fc8
+- New upstream release.
+
 * Wed Jul 25 2007 Kuninobu Niki <nikikuni@yahoo.co.jp> 0.1.4-0.fc6
 - New upstream release.
 
