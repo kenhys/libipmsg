@@ -1,3 +1,9 @@
+2007-11-18 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Change API Name RefreashHostListAfter to RefreshHostListAfter.
+- Update:Change API Name NetworkStarted to IsNetworkStarted.
+- Update:Some RecvPacket call deleted.
+- Update:Respond multithread.
+
 2007-08-30 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Support IPMSG_RELEASEFILE.
 
