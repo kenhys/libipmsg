@@ -467,7 +467,7 @@ class IpMessengerEvent {
 		 * ホストリストリフレッシュ後イベント
 		 * @param hostList ホストリスト
 		 */
-		virtual void RefreashHostListAfter( HostList& hostList )=0;
+		virtual void RefreshHostListAfter( HostList& hostList )=0;
 		/**
 		 * ホストリスト更新後イベント
 		 * @param hostList ホストリスト
