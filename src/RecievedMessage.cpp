@@ -321,7 +321,8 @@ printf("RecievedMessage::DownloadFilePrivate saveFileNameFullPath[%s]\n", saveFi
 												 sendBuf, sizeof( sendBuf ) );
 	agent->SendTcpPacket( sock, sendBuf, sendBufLen );
 	file.setIsDownloading( true );
-	int fd = open( saveFileNameFullPath.c_str(), O_WRONLY | O_CREAT );
+	int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+	int fd = open( saveFileNameFullPath.c_str(), O_WRONLY | O_CREAT, mode );
 	if ( fd < 0 ){
 		perror("open");
 		close( sock );
@@ -600,7 +601,8 @@ IpMsgPrintBuf( "RecievedMessage::DownloadDir DownloadDir:readbuf2", readbuf, rea
 			long long readSize = 0LL;
 			long long wroteSize = 0LL;
 			std::string FullPath = AttachFile::CreateDirFullPath( dir ) + f.FileName();
-			int fd = open( FullPath.c_str(), O_WRONLY | O_CREAT );
+			int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+			int fd = open( FullPath.c_str(), O_WRONLY | O_CREAT, mode );
 			if ( fd < 0 ){
 				perror("open");
 				info.setProcessing( false );
