@@ -258,13 +258,13 @@ IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 	// TODO 受信スレッド開始
 	pthread_t t_id;
 
-	printf( "Thread create\n" );fflush(stdout);
+//	printf( "Thread create\n" );fflush(stdout);
 	if ( pthread_create( &t_id, NULL, ProcessPacketThread, NULL ) != 0 ){
 		perror("StartNetwork:pthread_create");
 		IPMSG_FUNC_EXIT;
 	}
 	_IsNetworkStarted = true;
-	printf( "Thread detach\n" );fflush(stdout);
+//	printf( "Thread detach\n" );fflush(stdout);
 	if ( pthread_detach( t_id ) != 0 ){
 		perror("StartNetwork:pthread_detach");
 		IPMSG_FUNC_EXIT;
@@ -278,7 +278,7 @@ ipmsg::ProcessPacketThread( void *param )
 	long p = 0;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	while( agent->IsNetworkStarted() ) {
-		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
+//		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
 		agent->Process();
 		if ( usleep( 500000L ) != 0 ) {
 			printf( "usleep fail\n" );fflush(stdout);
@@ -1780,13 +1780,13 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	}
 	// TODO pack_que,PacketsForCheckingはdequeのほうが。。。？
 	//パケットを処理する。
-	printf("start RecvDoCommand\n");
+//	printf("start RecvDoCommand\n");
 	while( !pack_que.empty() ) {
-		printf("do RecvDoCommand\n");
+//		printf("do RecvDoCommand\n");
 		DoRecvCommand( pack_que.front() );
 		pack_que.erase( pack_que.begin() );
 	}
-	printf("end RecvDoCommand\n");
+//	printf("end RecvDoCommand\n");
 
 	//一定以上前のチェック用のパケットベクタを消す。
 	PurgePacket( nowTime );
