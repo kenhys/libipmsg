@@ -464,6 +464,14 @@ class AbsenceMode {
 class IpMessengerEvent {
 	public:
 		/**
+		 * 通知イベント開始前イベント(GUIスレッドのロック等を実装してください)
+		 */
+		virtual void EventBefore()=0;
+		/**
+		 * 通知イベント終了後イベント(GUIスレッドのアンロック等を実装してください)
+		 */
+		virtual void EventAfter()=0;
+		/**
 		 * ホストリストリフレッシュ後イベント
 		 * @param hostList ホストリスト
 		 */

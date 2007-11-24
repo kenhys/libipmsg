@@ -268,13 +268,19 @@ RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPat
 		ret = DownloadFilePrivate( NULL, file, saveFileNameFullPath, info, converter, data );
 	} else {
 		while( ret ) {
+			event->EventBefore();
 			event->DownloadStart( *this, file, info, data );
+			event->EventAfter();
 			if ( DownloadFilePrivate( event, file, saveFileNameFullPath, info, converter, data ) ) {
+				event->EventBefore();
 				event->DownloadEnd( *this, file, info, data );
+				event->EventAfter();
 				ret = true;
 				break;
 			} else {
+				event->EventBefore();
 				ret = event->DownloadError( *this, file, info, data );
+				event->EventAfter();
 			}
 		}
 	}
@@ -356,7 +362,9 @@ printf("RecievedMessage::DownloadFilePrivate saveFileNameFullPath[%s]\n", saveFi
 		info.setSize( readSize );
 		info.setTime( time( NULL ) - startTime );
 		if ( event != NULL ) {
+			event->EventBefore();
 			event->DownloadProcessing( *this, file, info, data );
+			event->EventAfter();
 		}
 #if defined(DEBUG)
 		printf( "RecievedMessage::DownloadFilePrivate read_len = %d\n", read_len );fflush(stdout);
@@ -391,7 +399,9 @@ printf("RecievedMessage::DownloadFilePrivate saveFileNameFullPath[%s]\n", saveFi
 	info.setFileCount( 1L );
 	info.setProcessing( false );
 	if ( event != NULL ) {
+		event->EventBefore();
 		event->DownloadProcessing( *this, file, info, data );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( true );
 }
@@ -424,13 +434,19 @@ RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::strin
 		ret = DownloadDirPrivate( NULL, file, saveName, saveBaseDir, info, converter, data );
 	} else {
 		while( ret ) {
+			event->EventBefore();
 			event->DownloadStart( *this, file, info, data );
+			event->EventAfter();
 			if ( DownloadDirPrivate( event, file, saveName, saveBaseDir, info, converter, data ) ) {
+				event->EventBefore();
 				event->DownloadEnd( *this, file, info, data );
+				event->EventAfter();
 				ret = true;
 				break;
 			} else {
+				event->EventBefore();
 				ret = event->DownloadError( *this, file, info, data );
+				event->EventAfter();
 			}
 		}
 	}
@@ -636,7 +652,9 @@ IpMsgPrintBuf( "RecievedMessage::DownloadDir readbuf3", readbuf, read_len );
 				info.setSize( totalReadSize );
 				info.setTime( time( NULL ) - startTime );
 				if ( event != NULL ) {
+					event->EventBefore();
 					event->DownloadProcessing( *this, file, info, data );
+					event->EventAfter();
 				}
 				memset( readbuf, 0, sizeof( readbuf ) );
 				read_len = recv( sock, readbuf, f.FileSize() - readSize > sizeof( readbuf ) ? sizeof( readbuf ) : f.FileSize() - readSize, 0 );
@@ -671,7 +689,9 @@ IpMsgPrintBuf( "RecievedMessage::DownloadDir readbuf3", readbuf, read_len );
 			info.setTime( time( NULL ) - startTime );
 			info.setFileCount( ++totalFileCount );
 			if ( event != NULL ) {
+				event->EventBefore();
 				event->DownloadProcessing( *this, file, info, data );
+				event->EventAfter();
 			}
 		} else if ( GET_FILETYPE( f.Attr() ) == IPMSG_FILE_RETPARENT ) {
 			dir.pop_back();
@@ -688,7 +708,9 @@ IpMsgPrintBuf( "RecievedMessage::DownloadDir readbuf3", readbuf, read_len );
 	info.setFileCount( totalFileCount );
 	info.setProcessing( false );
 	if ( event != NULL ) {
+		event->EventBefore();
 		event->DownloadProcessing( *this, file, info, data );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( true );
 }
