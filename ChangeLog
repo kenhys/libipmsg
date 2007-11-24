@@ -1,3 +1,9 @@
+2007-11-24 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add debug message.
+- Update:Add debug method.
+- Update:Add some events,EventBefore,EventAfter.for example usage,GUI Lock/Unlock events.
+- Fix:Absence mode initializing.
+
 2007-11-19 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Recived messege including attach file information.
 - Fix:Download from localhost.
