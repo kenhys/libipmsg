@@ -24,6 +24,14 @@ static int mutex_init_result = IpMsgMutexInit( "IpMessengerImpl::Global", &insta
 class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
 		/**
+		 * 通知イベント開始前イベント(GUIスレッドのロック等を実装してください)
+		 */
+		virtual void EventBefore(){};
+		/**
+		 * 通知イベント終了後イベント(GUIスレッドのアンロック等を実装してください)
+		 */
+		virtual void EventAfter(){};
+		/**
 		 * ホストリストリフレッシュ後イベント
 		 * @param hostList ホストリスト
 		 */
@@ -275,7 +283,7 @@ IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 void *
 ipmsg::ProcessPacketThread( void *param )
 {
-	long p = 0;
+//	long p = 0;
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	while( agent->IsNetworkStarted() ) {
 //		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
@@ -581,6 +589,8 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 
 	SendNoOperation();
 
+	_IsAbsence = false;
+	Logout();
 #if defined(DEBUG) || !defined(NDEBUG)
 	memset( sendBuf, 0, MAX_UDPBUF );
 #endif
@@ -711,8 +721,10 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 #endif
 	//イベントを挙げる
 	if ( event != NULL ) {
+		event->EventBefore();
 		event->UpdateHostListAfter( appearanceHostList );
 		event->RefreshHostListAfter( appearanceHostList );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( appearanceHostList );
 }
@@ -852,7 +864,9 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 			printf("IpMessengerAgentImpl::SendMsg Encryption failed.SendMsg was canceled.\n");
 			fflush(stdout);
 			if ( event != NULL && !isRetry ) {
+				event->EventBefore();
 				event->NotifySendEncryptionFail( host );
+				event->EventAfter();
 			}
 			free( optBuf );
 			IPMSG_FUNC_RETURN( false );
@@ -860,12 +874,15 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 			printf("IpMessengerAgentImpl::SendMsg Encryption failed.");
 			fflush(stdout);
 			if ( event != NULL && !isRetry ) {
+				event->EventBefore();
 				if ( !event->IsSendContinueOnEncryptionFail( host ) ) {
+					event->EventAfter();
 					printf("SendMsg was canceled.\n");
 					fflush(stdout);
 					free( optBuf );
 					IPMSG_FUNC_RETURN( false );
 				}
+				event->EventAfter();
 			}
 			printf("SendMsg try send no encryption message.\n");
 			fflush(stdout);
@@ -1951,7 +1968,9 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 				//リトライを続ける場合はTrueをセット。続けない場合はFalseをセット。
 				//（RetryMaxOver(メッセージはエラー)状態にすれば、継続しません）
 				//イベントの戻り値はtrue:継続、false:中断になります。
+				event->EventBefore();
 				ixmsg->setIsRetryMaxOver( !event->SendRetryError( *ixmsg ) );
+				event->EventAfter();
 			}
 			//イベントで継続を設定しない場合はリトライマックスオーバーしたらやめる。
 		}
@@ -1984,7 +2003,9 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 				if ( event != NULL ) {
 					//リトライを続ける場合はTrueをセット。続けない場合はFalseをセット。
 					//イベントの戻り値はtrue:継続、false:中断になります。
+					event->EventBefore();
 					hostList.setIsAsking( event->GetHostListRetryError() );
+					event->EventAfter();
 				}
 			}
 		}
@@ -2118,10 +2139,12 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 	int ret = AddHostListFromPacket( packet );
 	std::vector<HostListItem>::iterator it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( event != NULL ) {
+		event->EventBefore();
 		if ( it != appearanceHostList.end() && !it->IsLocalHost() && ret > 0 ) {
 			event->EntryAfter( *it );
 		}
 		event->RefreshHostListAfter( appearanceHostList );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2187,10 +2210,12 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 #endif
 	if ( event != NULL ){
 		it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+		event->EventBefore();
 		if ( it != appearanceHostList.end() && ret > 0 ) {
 			event->AbsenceModeChangeAfter( *it );
 		}
 		event->RefreshHostListAfter( appearanceHostList );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2219,10 +2244,12 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 	appearanceHostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( event != NULL ) {
+		event->EventBefore();
 		if ( isFound ) {
 			event->ExitAfter( host );
 		}
 		event->RefreshHostListAfter( appearanceHostList );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2246,7 +2273,9 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 		sentMsg->setRetryCount( 0 );
 		sentMsg->setIsRetryMaxOver( true );
 		if ( event != NULL ){
+			event->EventBefore();
 			event->SendAfter( *sentMsg );
+			event->EventAfter();
 		}
 	}
 
@@ -2288,7 +2317,9 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 	if ( sentMsg != sentMsgList.end() ) {
 		sentMsg->setIsConfirmed( true );
 		if ( event != NULL ) {
+			event->EventBefore();
 			event->OpenAfter( *sentMsg );
+			event->EventAfter();
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
@@ -2447,7 +2478,9 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	bool eventRet = false;
 	message.setFiles( files );
 	if ( !noRaiseEvent && event != NULL ) {
+		event->EventBefore();
 		eventRet = event->RecieveAfter( message );
+		event->EventAfter();
 	}
 	if ( SaveRecievedMessage() && !eventRet ){
 		recvMsgList.append( message );
@@ -2582,7 +2615,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 	GetPubKey( packet.Addr() );
 #endif
 	if ( event != NULL ) {
+		event->EventBefore();
 		event->RefreshHostListAfter( appearanceHostList );
+		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -2677,7 +2712,9 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 	if ( hostIt != appearanceHostList.end() ) {
 		hostIt->setVersion( packet.Option() );
 		if ( event != NULL ){
+			event->EventBefore();
 			event->VersionInfoRecieveAfter( *hostIt, packet.Option() );
+			event->EventAfter();
 		}
 	}
 	IPMSG_FUNC_RETURN( 0 );
@@ -2741,7 +2778,9 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 	if ( hostIt != hostList.end() ) {
 		hostIt->setAbsenceDescription( packet.Option() );
 		if ( event != NULL ){
+			event->EventBefore();
 			event->AbsenceDetailRecieveAfter( *hostIt, packet.Option() );
+			event->EventAfter();
 		}
 	}
 	IPMSG_FUNC_RETURN( 0 );
@@ -3647,6 +3686,9 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 							| ( IsAbsence() ? IPMSG_ABSENCEOPT : 0UL ) | ( IsDialup() ? IPMSG_DIALUPOPT : 0UL );
 #if defined(INFO) || !defined(NDEBUG)
 	printf( "IpMessengerAgentImpl::AddCommonCommandOption <<=================================================\n");fflush( stdout );
+	printf( "IpMessengerAgentImpl::AddCommonCommandOption encryptionCapacity=%lu\n", encryptionCapacity );fflush( stdout );
+	printf( "IpMessengerAgentImpl::AddCommonCommandOption IsAbsence=%s\n", IsAbsence() ? "true" : "false" );fflush( stdout );
+	printf( "IpMessengerAgentImpl::AddCommonCommandOption IsDialup=%s\n", IsDialup() ? "true" : "false" );fflush( stdout );
 	printf( "IpMessengerAgentImpl::AddCommonCommandOption Option=%lu\n", ret );fflush( stdout );
 	printf( "IpMessengerAgentImpl::AddCommonCommandOption =================================================>>\n");fflush( stdout );
 #endif
