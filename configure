@@ -2245,7 +2245,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=libipmsg
- VERSION=0.1.6
+ VERSION=0.1.7
 
 
 cat >>confdefs.h <<_ACEOF
