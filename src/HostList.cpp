@@ -410,6 +410,9 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		fflush(stdout);
 #endif
 	}
+#if defined(INFO) || !defined(NDEBUG)
+	IpMsgDumpHost( "HostList::AddList", host );
+#endif
 	if ( agent->GetSortHostListComparator() != NULL ){
 		if ( items.size() > 0 ) {
 			qsort( agent->GetSortHostListComparator(), 0, items.size() - 1 );
