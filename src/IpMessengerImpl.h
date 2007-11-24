@@ -298,12 +298,14 @@ void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
 void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr );
 std::string GetCommandString( unsigned  long cmd );
 void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
+void IpMsgDumpHost( const char *s, const ipmsg::HostListItem& host );
 void IpMsgDumpAddr( const struct sockaddr_storage *addr );
 #else
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )
 #define GetCommandString( cmd )
 #define IpMsgDumpHostList( s, hostList )
+#define IpMsgDumpHost( s, host )
 #define IpMsgDumpAddr( addr )
 #endif
 int IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr );

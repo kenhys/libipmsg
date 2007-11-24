@@ -175,7 +175,7 @@ ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 				"ipmsg::IpMsgDumpHostList AbsenceDescription[%s]\n" \
 				"ipmsg::IpMsgDumpHostList User[%s]\n" \
 				"ipmsg::IpMsgDumpHostList Host[%s]\n" \
-				"ipmsg::IpMsgDumpHostList CommandNo[%lu]\n" \
+				"ipmsg::IpMsgDumpHostList CommandNo[%lu][0x%08lx]\n" \
 				"ipmsg::IpMsgDumpHostList IpAddress[%s]\n" \
 				"ipmsg::IpMsgDumpHostList NickName[%s]\n" \
 				"ipmsg::IpMsgDumpHostList Group[%s]\n" \
@@ -184,23 +184,79 @@ ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 				"ipmsg::IpMsgDumpHostList PubKeyHex[%s]\n" \
 				"ipmsg::IpMsgDumpHostList EncryptMethodHex[%s]\n" \
 				"ipmsg::IpMsgDumpHostList PortNo[%lu]\n" \
+				"ipmsg::IpMsgDumpHostList IsFileAttachSupport[%s]\n" \
+				"ipmsg::IpMsgDumpHostList IsEncryptSupport[%s]\n" \
+				"ipmsg::IpMsgDumpHostList IsAbsence[%s]\n" \
 				"ipmsg::IpMsgDumpHostList ##########################################################\n",
 				ix->Version().c_str(),
 				ix->AbsenceDescription().c_str(),
 				ix->UserName().c_str(),
 				ix->HostName().c_str(),
 				ix->CommandNo(),
-				ix->IpAddress().c_str(),
+				ix->CommandNo(), ix->IpAddress().c_str(),
 				ix->Nickname().c_str(),
 				ix->GroupName().c_str(),
 				ix->EncodingName().c_str(),
 				ix->EncryptionCapacity(),
 				ix->PubKeyHex().c_str(),
 				ix->EncryptMethodHex().c_str(),
-				ix->PortNo() );fflush(stdout);
+				ix->PortNo(),
+				ix->IsFileAttachSupport() ? "true" : "false",
+				ix->IsEncryptSupport() ? "true" : "false",
+				ix->IsAbsence() ? "true" : "false" );
+		fflush(stdout);
 	}
 	printf( "ipmsg::IpMsgDumpHostList %s", foot );fflush(stdout);
 }
+
+void
+ipmsg::IpMsgDumpHost( const char *s, const ipmsg::HostListItem& host )
+{
+	char head[]="=======================================================>\n";
+	char foot[]="<=======================================================\n";
+
+	memcpy( head+2, s, strlen( s ) );
+	memcpy( foot+2, s, strlen( s ) );
+	printf( "\n\n" );fflush(stdout);
+	printf( "ipmsg::IpMsgDumpHost %s", head );
+	fflush(stdout);
+	printf( "ipmsg::IpMsgDumpHost Version[%s]\n" \
+			"ipmsg::IpMsgDumpHost AbsenceDescription[%s]\n" \
+			"ipmsg::IpMsgDumpHost User[%s]\n" \
+			"ipmsg::IpMsgDumpHost Host[%s]\n" \
+			"ipmsg::IpMsgDumpHost CommandNo[%lu][0x%08lx]\n" \
+			"ipmsg::IpMsgDumpHost IpAddress[%s]\n" \
+			"ipmsg::IpMsgDumpHost NickName[%s]\n" \
+			"ipmsg::IpMsgDumpHost Group[%s]\n" \
+			"ipmsg::IpMsgDumpHost Encoding[%s]\n" \
+			"ipmsg::IpMsgDumpHost EncryptionCapacity[%lu]\n" \
+			"ipmsg::IpMsgDumpHost PubKeyHex[%s]\n" \
+			"ipmsg::IpMsgDumpHost EncryptMethodHex[%s]\n" \
+			"ipmsg::IpMsgDumpHost PortNo[%lu]\n" \
+			"ipmsg::IpMsgDumpHost IsFileAttachSupport[%s]\n" \
+			"ipmsg::IpMsgDumpHost IsEncryptSupport[%s]\n" \
+			"ipmsg::IpMsgDumpHost IsAbsence[%s]\n",
+			host.Version().c_str(),
+			host.AbsenceDescription().c_str(),
+			host.UserName().c_str(),
+			host.HostName().c_str(),
+			host.CommandNo(), host.CommandNo(),
+			host.IpAddress().c_str(),
+			host.Nickname().c_str(),
+			host.GroupName().c_str(),
+			host.EncodingName().c_str(),
+			host.EncryptionCapacity(),
+			host.PubKeyHex().c_str(),
+			host.EncryptMethodHex().c_str(),
+			host.PortNo(),
+			host.IsFileAttachSupport() ? "true" : "false",
+			host.IsEncryptSupport() ? "true" : "false",
+			host.IsAbsence() ? "true" : "false" );
+	fflush(stdout);
+	printf( "ipmsg::IpMsgDumpHost %s", foot );
+	fflush(stdout);
+}
+
 void
 ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 {
