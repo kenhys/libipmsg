@@ -283,15 +283,22 @@ IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 void *
 ipmsg::ProcessPacketThread( void *param )
 {
-//	long p = 0;
+#ifdef DEBUG
+	long p = 0;
+#endif
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	while( agent->IsNetworkStarted() ) {
-//		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
+#ifdef DEBUG
+		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
+#endif
 		agent->Process();
 		if ( usleep( 500000L ) != 0 ) {
 			printf( "usleep fail\n" );fflush(stdout);
 		}
 	}
+#ifdef DEBUG
+	printf( "ProcessPacketThread END.\n" );fflush(stdout);
+#endif
 	return NULL;
 }
 
@@ -2978,6 +2985,13 @@ printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey appearanceHostList Set key 
 		hostIt->setEncryptMethodHex( meth );
 	}
 #endif
+	//イベントを挙げる
+	if ( event != NULL ) {
+		event->EventBefore();
+		event->UpdateHostListAfter( appearanceHostList );
+		event->RefreshHostListAfter( appearanceHostList );
+		event->EventAfter();
+	}
 	IPMSG_FUNC_RETURN( 0 );
 }
 
