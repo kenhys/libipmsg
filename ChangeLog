@@ -1,3 +1,7 @@
+2007-12-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Compile error with DEBUG option.
+- Update:Raise event on GetPubKey packet recieved.
+
 2007-11-24 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add debug message.
 - Update:Add debug method.
