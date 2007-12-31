@@ -1,3 +1,9 @@
+2007-12-31 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:Debug message typo.
+- Fix:No delete host before AddHost on ChangeAbsenceMode.
+- Update:Add APIs ClearSkulkHost,DeleteSkulkHost and AddSkulkHost.
+- Update:Add DEBUG messages on Raise events.
+
 2007-12-05 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Compile error with DEBUG option.
 - Update:Raise event on GetPubKey packet recieved.
