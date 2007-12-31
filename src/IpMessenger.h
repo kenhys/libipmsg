@@ -650,6 +650,21 @@ class IpMessengerAgent {
 		void AddBroadcastAddress( std::string addr );
 
 		/**
+		 * 特定のホストから隠れる場合、見えなくするホストアドレスのリストにアドレスを追加
+		 **/
+		void AddSkulkHost( HostListItem &host );
+
+		/**
+		 * 特定のホストから隠れる場合、見えなくするホストアドレスのリストからアドレスを削除
+		 **/
+		void DeleteSkulkHost( HostListItem &host );
+
+		/**
+		 * 特定のホストから隠れる場合、見えなくするホストアドレスのリストをクリア
+		 **/
+		void ClearSkulkHost();
+
+		/**
 		 * ログイン通知（参加通知）
 		 **/
 		void Login( std::string nickname, std::string groupName );

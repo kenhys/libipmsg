@@ -84,6 +84,10 @@ class IpMessengerAgentImpl {
 		void ClearBroadcastAddress();
 		void DeleteBroadcastAddress( std::string addr );
 		void AddBroadcastAddress( std::string addr );
+		void ClearSkulkHost();
+		void DeleteSkulkHost( HostListItem &host );
+		void AddSkulkHost( HostListItem &host );
+
 		void Login( std::string nickname, std::string groupName );
 		void Logout();
 		HostList& GetHostList();
@@ -149,6 +153,7 @@ class IpMessengerAgentImpl {
 		struct timeval tv;
 		fd_set rfds;
 		std::vector<struct sockaddr_storage> broadcastAddr;
+		std::vector<struct sockaddr_storage> skulkHostAddr;
 		std::vector<Packet> PacketsForChecking;
 		HostList appearanceHostList;
 		HostList hostList;
@@ -181,6 +186,8 @@ class IpMessengerAgentImpl {
 		void DoRecvCommand( const Packet& packet );
 		int SendNoOperation();
 		int SendAbsence();
+		void VisibleToHost( HostListItem &host );
+		void HideFromHost( HostListItem &host );
 		int UdpRecvEventNoOperation( const Packet& packet );
 		int UdpRecvEventBrEntry( const Packet& packet );
 		int UdpRecvEventBrExit( const Packet& packet );
@@ -212,6 +219,7 @@ class IpMessengerAgentImpl {
 		bool EncryptMsg( const HostListItem &host, unsigned char *optBuf, int optBufLen, int *encOptBufLen, int optSize );
 		bool DecryptMsg( const Packet &packet, std::string& msg );
 		std::vector<struct sockaddr_storage>::iterator FindBroadcastNetworkByAddress( std::string addr );
+		std::vector<struct sockaddr_storage>::iterator FindSkulkHostByAddress( std::string addr );
 		unsigned long AddCommonCommandOption( const unsigned long cmd );
 		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 

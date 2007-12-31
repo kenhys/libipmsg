@@ -404,6 +404,41 @@ IpMessengerAgent::AddBroadcastAddress( std::string addr )
 }
 
 /**
+ * 特定のホストから隠れる場合、見えなくするホストのリストをクリア
+ */
+void
+IpMessengerAgent::ClearSkulkHost()
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::ClearSkulkHost()");
+	ipmsgImpl->ClearSkulkHost();
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * 特定のホストから隠れる場合、見えなくするホストのリストからホストを削除
+ * @param host 登録済の見えなくする（隠れる）ホスト
+ */
+void
+IpMessengerAgent::DeleteSkulkHost( HostListItem &host )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::DeleteSkulkHost( HostListItem &host )");
+	ipmsgImpl->DeleteSkulkHost( host );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * 特定のホストから隠れる場合、見えなくするホストのリストにホストを追加
+ * @param host 登録する見えなくする（隠れる）ホスト
+ */
+void
+IpMessengerAgent::AddSkulkHost( HostListItem &host )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::AddSkulkHost( HostListItem &host )");
+	ipmsgImpl->AddSkulkHost( host );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
  * 対象ホストのバージョン情報を取得。
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
