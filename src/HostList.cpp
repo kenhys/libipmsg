@@ -405,7 +405,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		ret = 1;
 	} else {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("HostList::AddHost Host(%s[%s]) was not found.Nickname=[%s] GroupName=[%s]\n",
+		printf("HostList::AddHost Host(%s[%s]) was found,Not added. Nickname=[%s] GroupName=[%s]\n",
 					host.IpAddress().c_str(), host.HardwareAddress().c_str(), host.Nickname().c_str(), host.GroupName().c_str() );
 		fflush(stdout);
 #endif
