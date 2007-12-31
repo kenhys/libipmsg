@@ -648,6 +648,37 @@ IpMessengerAgentImpl::Logout()
 }
 
 /**
+ * ログアウト（特定のホスト向けに隠れるためのサービス脱退通知）。
+ * <ul>
+ * <li>BR_EXITを特定のホストに送る。</li>
+ * </ul>
+ */
+void
+IpMessengerAgentImpl::VisibleToHost( HostListItem &host )
+{
+}
+void
+IpMessengerAgentImpl::HideFromHost( HostListItem &host )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::HideFromHost()");
+	char sendBuf[MAX_UDPBUF];
+	int sendBufLen;
+	struct sockaddr_storage addr;
+
+	if ( createSockAddrIn( &addr, host.IpAddress(), host.PortNo() ) == NULL ) {
+		IPMSG_FUNC_EXIT;
+	}
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_EXIT ),
+										_LoginName, _HostName,
+										NULL, 0,
+										sendBuf, sizeof( sendBuf ) );
+	SendPacket( -1, IPMSG_BR_EXIT, sendBuf, sendBufLen, addr );
+	//0.1秒まつ。
+	usleep( 100000L );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
  * ホストリスト取得。
  * @retval エージェントが保持しているHostListオブジェクト
  */
@@ -729,8 +760,18 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	//イベントを挙げる
 	if ( event != NULL ) {
 		event->EventBefore();
+#if defined(DEBUG)
+		printf("UpdateHostListAfter before\n");
+#endif
 		event->UpdateHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("UpdateHostListAfter after\n");
+		printf("RefreshHostListAfter before\n");
+#endif
 		event->RefreshHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("RefreshHostListAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( appearanceHostList );
@@ -872,7 +913,13 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 			fflush(stdout);
 			if ( event != NULL && !isRetry ) {
 				event->EventBefore();
+#if defined(DEBUG)
+				printf("NotifySendEncryotionFail before\n");
+#endif
 				event->NotifySendEncryptionFail( host );
+#if defined(DEBUG)
+				printf("NotifySendEncryotionFail after\n");
+#endif
 				event->EventAfter();
 			}
 			free( optBuf );
@@ -882,13 +929,22 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 			fflush(stdout);
 			if ( event != NULL && !isRetry ) {
 				event->EventBefore();
+#if defined(DEBUG)
+				printf("IsSendContinueIbEncryptionFail before\n");
+#endif
 				if ( !event->IsSendContinueOnEncryptionFail( host ) ) {
 					event->EventAfter();
+#if defined(DEBUG)
+					printf("IsSendContinueIbEncryptionFail after\n");
+#endif
 					printf("SendMsg was canceled.\n");
 					fflush(stdout);
 					free( optBuf );
 					IPMSG_FUNC_RETURN( false );
 				}
+#if defined(DEBUG)
+				printf("IsSendContinueIbEncryptionFail after\n");
+#endif
 				event->EventAfter();
 			}
 			printf("SendMsg try send no encryption message.\n");
@@ -1059,6 +1115,93 @@ IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 		}
 	}
 	IPMSG_FUNC_RETURN( broadcastAddr.end() );
+}
+
+/**
+ * 登録済の隠れるホストをクリア
+ */
+void
+IpMessengerAgentImpl::ClearSkulkHost()
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::ClearSkulkHost()");
+	skulkHostAddr.clear();
+	if ( IsNetworkStarted() ) {
+		Login( Nickname, GroupName );
+	}
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * 登録済の隠れるホストを削除
+ * @param host 登録済の隠れるホスト
+ */
+void
+IpMessengerAgentImpl::DeleteSkulkHost( HostListItem &host )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DeleteSkulkHost( HostListItem &host )");
+	if ( IsNetworkStarted() ) {
+		std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
+		if ( hostIt != hostList.end() ) {
+			VisibleToHost( host );
+		}
+	}
+	std::vector<struct sockaddr_storage>::iterator net = FindSkulkHostByAddress( host.IpAddress() );
+	if ( net != skulkHostAddr.end() ) {
+#if defined(DEBUG)
+		struct sockaddr_storage netaddr = *net;
+		printf( "IpMessengerAgentImpl::DeleteSkulkHost Address=%s Port=%d\n", getSockAddrInRawAddress( netaddr ).c_str(), ntohs( getSockAddrInPortNo( netaddr ) ) );
+		fflush( stdout );
+#endif
+		skulkHostAddr.erase( net );
+		IPMSG_FUNC_EXIT;
+	}
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * 隠れるホストを登録
+ * @param host 登録するホスト
+ */
+void
+IpMessengerAgentImpl::AddSkulkHost( HostListItem &host )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddSkulkHost( HostListItem host )");
+	struct sockaddr_storage addAddr;
+	if ( createSockAddrIn( &addAddr, host.IpAddress(), host.PortNo() ) == NULL ) {
+		IPMSG_FUNC_EXIT;
+	}
+
+	std::string hideIp = getSockAddrInRawAddress( addAddr );
+	std::vector<struct sockaddr_storage>::iterator net = FindSkulkHostByAddress( hideIp );
+	if ( net != skulkHostAddr.end() ) {
+		IPMSG_FUNC_EXIT;
+	}
+#if defined(DEBUG)
+	printf( "IpMessengerAgentImpl::AddSkulkHost Address=%s Port=%d\n", getSockAddrInRawAddress( &addAddr ).c_str(), ntohs( getSockAddrInPortNo( addAddr ) ) );fflush( stdout );
+#endif
+	skulkHostAddr.push_back( addAddr );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * 登録済の隠れるホストのアドレスを検索し、該当するsockaddr_in構造体を返却する。
+ * @param addr 隠れるホストのアドレス文字列
+ * @retval sockaddr_in構造体
+ */
+std::vector<struct sockaddr_storage>::iterator
+IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )
+{
+	IPMSG_FUNC_ENTER("std::vector<struct sockaddr_storage>::iterator IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )");
+	struct sockaddr_storage ss;
+	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ) {
+		IPMSG_FUNC_RETURN( skulkHostAddr.end() );
+	}
+	for( std::vector<struct sockaddr_storage>::iterator ixaddr = skulkHostAddr.begin(); ixaddr != skulkHostAddr.end(); ixaddr++ ){
+		if ( isSameSockAddrIn( ss, *ixaddr ) ){
+			IPMSG_FUNC_RETURN( ixaddr );
+		}
+	}
+	IPMSG_FUNC_RETURN( skulkHostAddr.end() );
 }
 
 /**
@@ -1976,7 +2119,13 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 				//（RetryMaxOver(メッセージはエラー)状態にすれば、継続しません）
 				//イベントの戻り値はtrue:継続、false:中断になります。
 				event->EventBefore();
+#if defined(DEBUG)
+				printf("SendRetryError before\n");
+#endif
 				ixmsg->setIsRetryMaxOver( !event->SendRetryError( *ixmsg ) );
+#if defined(DEBUG)
+				printf("SendRetryError after\n");
+#endif
 				event->EventAfter();
 			}
 			//イベントで継続を設定しない場合はリトライマックスオーバーしたらやめる。
@@ -2011,7 +2160,13 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 					//リトライを続ける場合はTrueをセット。続けない場合はFalseをセット。
 					//イベントの戻り値はtrue:継続、false:中断になります。
 					event->EventBefore();
+#if defined(DEBUG)
+					printf("GetHostListRetryError before\n");
+#endif
 					hostList.setIsAsking( event->GetHostListRetryError() );
+#if defined(DEBUG)
+					printf("GetHostListRetryError after\n");
+#endif
 					event->EventAfter();
 				}
 			}
@@ -2148,9 +2303,21 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 	if ( event != NULL ) {
 		event->EventBefore();
 		if ( it != appearanceHostList.end() && !it->IsLocalHost() && ret > 0 ) {
+#if defined(DEBUG)
+			printf("EntryAfter before\n");
+#endif
 			event->EntryAfter( *it );
+#if defined(DEBUG)
+			printf("EntryAfter after\n");
+#endif
 		}
+#if defined(DEBUG)
+		printf("RefreshHostListAfter before\n");
+#endif
 		event->RefreshHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("RefreshHostListAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
@@ -2211,6 +2378,7 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 	std::vector<HostListItem>::iterator it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	hostList.AddHost( HostList::CreateHostListItemFromPacket( packet ) );
+	appearanceHostList.DeleteHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	int ret = appearanceHostList.AddHost( HostList::CreateHostListItemFromPacket( packet ), false );
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
@@ -2219,9 +2387,21 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 		it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 		event->EventBefore();
 		if ( it != appearanceHostList.end() && ret > 0 ) {
+#if defined(DEBUG)
+			printf("AbsenceModeChangeAfter before\n");
+#endif
 			event->AbsenceModeChangeAfter( *it );
+#if defined(DEBUG)
+			printf("AbsenceModeChangeAfter after\n");
+#endif
 		}
+#if defined(DEBUG)
+		printf("RefreshHostListAfter before\n");
+#endif
 		event->RefreshHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("RefreshHostListAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
@@ -2253,9 +2433,21 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 	if ( event != NULL ) {
 		event->EventBefore();
 		if ( isFound ) {
+#if defined(DEBUG)
+			printf("ExitAfter before\n");
+#endif
 			event->ExitAfter( host );
+#if defined(DEBUG)
+			printf("ExitAfter after\n");
+#endif
 		}
+#if defined(DEBUG)
+		printf("RefreshHostListAfter before\n");
+#endif
 		event->RefreshHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("RefreshHostListAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
@@ -2281,7 +2473,13 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 		sentMsg->setIsRetryMaxOver( true );
 		if ( event != NULL ){
 			event->EventBefore();
+#if defined(DEBUG)
+			printf("SendAfter before\n");
+#endif
 			event->SendAfter( *sentMsg );
+#if defined(DEBUG)
+			printf("SendAfter after\n");
+#endif
 			event->EventAfter();
 		}
 	}
@@ -2325,7 +2523,13 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 		sentMsg->setIsConfirmed( true );
 		if ( event != NULL ) {
 			event->EventBefore();
+#if defined(DEBUG)
+			printf("OpenAfter before\n");
+#endif
 			event->OpenAfter( *sentMsg );
+#if defined(DEBUG)
+			printf("OpenAfter after\n");
+#endif
 			event->EventAfter();
 		}
 	}
@@ -2486,7 +2690,13 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 	message.setFiles( files );
 	if ( !noRaiseEvent && event != NULL ) {
 		event->EventBefore();
+#if defined(DEBUG)
+		printf("RecieveAfter before\n");
+#endif
 		eventRet = event->RecieveAfter( message );
+#if defined(DEBUG)
+		printf("RecieveAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	if ( SaveRecievedMessage() && !eventRet ){
@@ -2623,7 +2833,13 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 #endif
 	if ( event != NULL ) {
 		event->EventBefore();
+#if defined(DEBUG)
+		printf("RefreshHostListAfter before\n");
+#endif
 		event->RefreshHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("RefreshHostListAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
@@ -2720,7 +2936,13 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 		hostIt->setVersion( packet.Option() );
 		if ( event != NULL ){
 			event->EventBefore();
+#if defined(DEBUG)
+			printf("VersionInfoRecieveAfter before\n");
+#endif
 			event->VersionInfoRecieveAfter( *hostIt, packet.Option() );
+#if defined(DEBUG)
+			printf("VersionInfoRecieveAfter after\n");
+#endif
 			event->EventAfter();
 		}
 	}
@@ -2786,7 +3008,13 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 		hostIt->setAbsenceDescription( packet.Option() );
 		if ( event != NULL ){
 			event->EventBefore();
+#if defined(DEBUG)
+			printf("AbsenceDetailRecieveAfter before\n");
+#endif
 			event->AbsenceDetailRecieveAfter( *hostIt, packet.Option() );
+#if defined(DEBUG)
+			printf("AbsenceDetailRecieveAfter after\n");
+#endif
 			event->EventAfter();
 		}
 	}
@@ -2988,8 +3216,18 @@ printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey appearanceHostList Set key 
 	//イベントを挙げる
 	if ( event != NULL ) {
 		event->EventBefore();
+#if defined(DEBUG)
+		printf("UpdateHostListAfter before\n");
+#endif
 		event->UpdateHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("UpdateHostListAfter after\n");
+		printf("RefreshHostListAfter before\n");
+#endif
 		event->RefreshHostListAfter( appearanceHostList );
+#if defined(DEBUG)
+		printf("RefreshHostListAfter after\n");
+#endif
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
