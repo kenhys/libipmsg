@@ -415,6 +415,18 @@ IpMessengerAgent::ClearSkulkHost()
 }
 
 /**
+ * 特定のホストから隠れる場合、見えなくするホストのリストからアドレスを削除
+ * @param host 登録済の見えなくする（隠れる）ホストアドレス
+ */
+void
+IpMessengerAgent::DeleteSkulkHostAddress( std::string addr )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::DeleteSkulkHostAddress( std::string addr )");
+	ipmsgImpl->DeleteSkulkHostAddress( addr );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
  * 特定のホストから隠れる場合、見えなくするホストのリストからホストを削除
  * @param host 登録済の見えなくする（隠れる）ホスト
  */
@@ -423,6 +435,18 @@ IpMessengerAgent::DeleteSkulkHost( HostListItem &host )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgent::DeleteSkulkHost( HostListItem &host )");
 	ipmsgImpl->DeleteSkulkHost( host );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
+ * 特定のホストから隠れる場合、見えなくするホストのリストにホストアドレスを追加
+ * @param host 登録する見えなくする（隠れる）ホストアドレス
+ */
+void
+IpMessengerAgent::AddSkulkHostAddress( std::string addr )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgent::AddSkulkHostAddress( std::string )");
+	ipmsgImpl->AddSkulkHostAddress( addr );
 	IPMSG_FUNC_EXIT;
 }
 
