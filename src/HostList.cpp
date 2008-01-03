@@ -246,6 +246,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//先頭のターゲットアドレスファミリのNICを探しプライマリ(自アドレス)として扱う為、その後ろから探すためのインデックスを求める。
 	int nicStartIndex = 1;
 	if ( !agent->haveIPv4Nic && !agent->haveIPv6Nic ) {
+			Unlock( "HostList::AddHost()" );
 			IPMSG_FUNC_RETURN( 0 );
 	} else if ( agent->haveIPv4Nic && agent->haveIPv6Nic && host.AddressFamily() == AF_INET6 ) {
 		//IPv4,IPv6の両刀使いならIPv6を優先。
@@ -446,11 +447,13 @@ HostList::DeleteHostByAddress( std::string addr )
 	Lock( "HostList::DeleteHostIpAddress()" );
 	struct sockaddr_storage ss;
 	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ){
+		Unlock( "HostList::DeleteHostByAddress()" );
 		IPMSG_FUNC_EXIT;
 	}
 	for( std::vector<HostListItem>::iterator ix = items.begin(); ix < items.end(); ix++ ){
 		struct sockaddr_storage ixss;
 		if ( createSockAddrIn( &ixss, ix->IpAddress(), 0 ) == NULL ){
+			Unlock( "HostList::DeleteHostByAddress()" );
 			IPMSG_FUNC_EXIT;
 		}
 		if ( isSameSockAddrIn( ss, ixss ) ){
@@ -594,11 +597,13 @@ HostList::FindHostByAddress( std::string addr )
 	std::vector<HostListItem>::iterator ret = end();
 	struct sockaddr_storage ss;
 	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ){
+		Unlock( "HostList::FindHostByAddress()" );
 		IPMSG_FUNC_RETURN( ret );
 	}
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 		struct sockaddr_storage ixss;
 		if ( createSockAddrIn( &ixss, ix->IpAddress(), 0 ) == NULL ){
+			Unlock( "HostList::FindHostByAddress()" );
 			IPMSG_FUNC_RETURN( ret );
 		}
 		if ( isSameSockAddrIn( ss, ixss ) ){
