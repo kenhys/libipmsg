@@ -614,6 +614,12 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ENTRY, sendBuf, sendBufLen );
 	ResetAbsence();
+#if 0
+	AAAAAAAAAAAAAAAAAAAAAAAAa
+	for(;;){
+		HideFromHost( host );
+	}
+#endif
 //	RecvPacket( false );
 	//0.05秒まつ。
 	usleep( 50000L );
@@ -648,26 +654,47 @@ IpMessengerAgentImpl::Logout()
 }
 
 /**
+ * ログイン（特定のホスト向けサービス参加通知）。
+ * <ul>
+ * <li>NOOPERATIONパケットを送信しネットワークが使用可能かどうかを確認した上でホストリストを取得。</li>
+ * <li>BR_ENTRYを特定のホストに送る。</li>
+ * <li>パケットを受信した上で、ホストリストを再度取得。</li>
+ * </ul>
+ */
+void
+IpMessengerAgentImpl::VisibleToAddr( struct sockaddr_storage &addr )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::VisibleToAddr( struct sockaddr_storage &addr )");
+	char sendBuf[MAX_UDPBUF];
+	int sendBufLen;
+
+#if defined(DEBUG) || !defined(NDEBUG)
+	memset( sendBuf, 0, MAX_UDPBUF );
+#endif
+	std::string optBuf = Nickname + '\0' + GroupName +'\0';
+	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ENTRY ),
+										_LoginName, _HostName,
+										optBuf.c_str(), optBuf.size(),
+										sendBuf, sizeof( sendBuf ) );
+	SendPacket( -1, IPMSG_BR_ENTRY, sendBuf, sendBufLen, addr );
+	//0.1秒まつ。
+	usleep( 100000L );
+	IPMSG_FUNC_EXIT;
+}
+
+/**
  * ログアウト（特定のホスト向けに隠れるためのサービス脱退通知）。
  * <ul>
  * <li>BR_EXITを特定のホストに送る。</li>
  * </ul>
  */
 void
-IpMessengerAgentImpl::VisibleToHost( HostListItem &host )
+IpMessengerAgentImpl::HideFromAddr( struct sockaddr_storage &addr )
 {
-}
-void
-IpMessengerAgentImpl::HideFromHost( HostListItem &host )
-{
-	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::HideFromHost()");
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::HideFromAddr( struct sockaddr_storage &addr )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
-	struct sockaddr_storage addr;
 
-	if ( createSockAddrIn( &addr, host.IpAddress(), host.PortNo() ) == NULL ) {
-		IPMSG_FUNC_EXIT;
-	}
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_EXIT ),
 										_LoginName, _HostName,
 										NULL, 0,
@@ -1124,7 +1151,7 @@ void
 IpMessengerAgentImpl::ClearSkulkHost()
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::ClearSkulkHost()");
-	skulkHostAddr.clear();
+	skulkHostList.clear();
 	if ( IsNetworkStarted() ) {
 		Login( Nickname, GroupName );
 	}
@@ -1136,23 +1163,41 @@ IpMessengerAgentImpl::ClearSkulkHost()
  * @param host 登録済の隠れるホスト
  */
 void
-IpMessengerAgentImpl::DeleteSkulkHost( HostListItem &host )
+IpMessengerAgentImpl::DeleteSkulkHostAddress( const std::string addr )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DeleteSkulkHostAddress( std::string addr )");
+	//すべてのホストアドレスから探す
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( addr );
+	if ( hostIt != hostList.end() ) {
+		//発見
+		DeleteSkulkHost( *hostIt );
+		IPMSG_FUNC_EXIT;
+	}
+	HostListItem host;
+	host.setIpAddress( addr );
+	host.setPortNo( DefaultPortNo() );
+	DeleteSkulkHost( host );
+	IPMSG_FUNC_EXIT;
+}
+
+void
+IpMessengerAgentImpl::DeleteSkulkHost( const HostListItem &host )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DeleteSkulkHost( HostListItem &host )");
-	if ( IsNetworkStarted() ) {
-		std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( host.IpAddress() );
-		if ( hostIt != hostList.end() ) {
-			VisibleToHost( host );
-		}
-	}
-	std::vector<struct sockaddr_storage>::iterator net = FindSkulkHostByAddress( host.IpAddress() );
-	if ( net != skulkHostAddr.end() ) {
+	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( host.IpAddress() );
+	if ( hi != skulkHostList.end() ) {
+		if ( IsNetworkStarted() ) {
+			struct sockaddr_storage addr;
+			if ( createSockAddrIn( &addr, hi->IpAddress(), hi->PortNo() ) == NULL ) {
+				IPMSG_FUNC_EXIT;
+			}
+			VisibleToAddr( addr );
 #if defined(DEBUG)
-		struct sockaddr_storage netaddr = *net;
-		printf( "IpMessengerAgentImpl::DeleteSkulkHost Address=%s Port=%d\n", getSockAddrInRawAddress( netaddr ).c_str(), ntohs( getSockAddrInPortNo( netaddr ) ) );
-		fflush( stdout );
+			printf( "IpMessengerAgentImpl::DeleteSkulkHost Address=%s Port=%d\n", getSockAddrInRawAddress( addr ).c_str(), ntohs( getSockAddrInPortNo( addr ) ) );
+			fflush( stdout );
 #endif
-		skulkHostAddr.erase( net );
+		}
+		skulkHostList.DeleteHostByAddress( host.IpAddress() );
 		IPMSG_FUNC_EXIT;
 	}
 	IPMSG_FUNC_EXIT;
@@ -1163,7 +1208,25 @@ IpMessengerAgentImpl::DeleteSkulkHost( HostListItem &host )
  * @param host 登録するホスト
  */
 void
-IpMessengerAgentImpl::AddSkulkHost( HostListItem &host )
+IpMessengerAgentImpl::AddSkulkHostAddress( const std::string addr )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddSkulkHostAddress( std::string addr )");
+	//すべてのホストアドレスから探す
+	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( addr );
+	if ( hostIt != hostList.end() ) {
+		//発見
+		AddSkulkHost( *hostIt );
+		IPMSG_FUNC_EXIT;
+	}
+	HostListItem host;
+	host.setIpAddress( addr );
+	host.setPortNo( DefaultPortNo() );
+	AddSkulkHost( host );
+	IPMSG_FUNC_EXIT;
+}
+
+void
+IpMessengerAgentImpl::AddSkulkHost( const HostListItem &host )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddSkulkHost( HostListItem host )");
 	struct sockaddr_storage addAddr;
@@ -1172,14 +1235,15 @@ IpMessengerAgentImpl::AddSkulkHost( HostListItem &host )
 	}
 
 	std::string hideIp = getSockAddrInRawAddress( addAddr );
-	std::vector<struct sockaddr_storage>::iterator net = FindSkulkHostByAddress( hideIp );
-	if ( net != skulkHostAddr.end() ) {
+	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( hideIp );
+	if ( hi != skulkHostList.end() ) {
 		IPMSG_FUNC_EXIT;
 	}
 #if defined(DEBUG)
 	printf( "IpMessengerAgentImpl::AddSkulkHost Address=%s Port=%d\n", getSockAddrInRawAddress( &addAddr ).c_str(), ntohs( getSockAddrInPortNo( addAddr ) ) );fflush( stdout );
 #endif
-	skulkHostAddr.push_back( addAddr );
+	HideFromAddr( addAddr );
+	skulkHostList.AddHost( host, true );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -1188,20 +1252,20 @@ IpMessengerAgentImpl::AddSkulkHost( HostListItem &host )
  * @param addr 隠れるホストのアドレス文字列
  * @retval sockaddr_in構造体
  */
-std::vector<struct sockaddr_storage>::iterator
+std::vector<HostListItem>::iterator
 IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )
 {
 	IPMSG_FUNC_ENTER("std::vector<struct sockaddr_storage>::iterator IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )");
 	struct sockaddr_storage ss;
 	if ( createSockAddrIn( &ss, addr, 0 ) == NULL ) {
-		IPMSG_FUNC_RETURN( skulkHostAddr.end() );
+		IPMSG_FUNC_RETURN( skulkHostList.end() );
 	}
-	for( std::vector<struct sockaddr_storage>::iterator ixaddr = skulkHostAddr.begin(); ixaddr != skulkHostAddr.end(); ixaddr++ ){
-		if ( isSameSockAddrIn( ss, *ixaddr ) ){
+	for( std::vector<HostListItem>::iterator ixaddr = skulkHostList.begin(); ixaddr != skulkHostList.end(); ixaddr++ ){
+		if ( addr == ixaddr->IpAddress() ){
 			IPMSG_FUNC_RETURN( ixaddr );
 		}
 	}
-	IPMSG_FUNC_RETURN( skulkHostAddr.end() );
+	IPMSG_FUNC_RETURN( skulkHostList.end() );
 }
 
 /**
