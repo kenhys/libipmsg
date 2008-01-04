@@ -614,12 +614,19 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ENTRY, sendBuf, sendBufLen );
 	ResetAbsence();
-#if 0
-	AAAAAAAAAAAAAAAAAAAAAAAAa
-	for(;;){
-		HideFromHost( host );
-	}
+
+//	skulkHostList.Lock("IpMessengerAfentImpl::Login");
+	std::vector<HostListItem>::iterator hi = skulkHostList.begin();
+	for( ; hi != skulkHostList.end(); hi++ ) {
+		struct sockaddr_storage addr;
+		if ( createSockAddrIn( &addr, hi->IpAddress(), hi->PortNo() ) != NULL ) {
+#if defined(INFO) || !defined(NDEBUG)
+			printf("IpMessengerAgentImpl::Login HideFromAddr\n");fflush( stdout );
 #endif
+			HideFromAddr( addr );
+		}
+	}
+//	skulkHostList.Unlock("IpMessengerAfentImpl::Login");
 //	RecvPacket( false );
 	//0.05秒まつ。
 	usleep( 50000L );
@@ -668,6 +675,10 @@ IpMessengerAgentImpl::VisibleToAddr( struct sockaddr_storage &addr )
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
+	if ( !IsNetworkStarted() ) {
+		IPMSG_FUNC_EXIT;
+	}
+
 #if defined(DEBUG) || !defined(NDEBUG)
 	memset( sendBuf, 0, MAX_UDPBUF );
 #endif
@@ -694,6 +705,10 @@ IpMessengerAgentImpl::HideFromAddr( struct sockaddr_storage &addr )
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::HideFromAddr( struct sockaddr_storage &addr )");
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
+
+	if ( !IsNetworkStarted() ) {
+		IPMSG_FUNC_EXIT;
+	}
 
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_EXIT ),
 										_LoginName, _HostName,
@@ -1160,7 +1175,7 @@ IpMessengerAgentImpl::ClearSkulkHost()
 
 /**
  * 登録済の隠れるホストを削除
- * @param host 登録済の隠れるホスト
+ * @param addr 登録済の隠れるホストのアドレス
  */
 void
 IpMessengerAgentImpl::DeleteSkulkHostAddress( const std::string addr )
@@ -1180,6 +1195,10 @@ IpMessengerAgentImpl::DeleteSkulkHostAddress( const std::string addr )
 	IPMSG_FUNC_EXIT;
 }
 
+/**
+ * 登録済の隠れるホストを削除
+ * @param host 登録済の隠れるホスト
+ */
 void
 IpMessengerAgentImpl::DeleteSkulkHost( const HostListItem &host )
 {
@@ -1205,7 +1224,7 @@ IpMessengerAgentImpl::DeleteSkulkHost( const HostListItem &host )
 
 /**
  * 隠れるホストを登録
- * @param host 登録するホスト
+ * @param addr 登録するホストのアドレス
  */
 void
 IpMessengerAgentImpl::AddSkulkHostAddress( const std::string addr )
@@ -1225,6 +1244,10 @@ IpMessengerAgentImpl::AddSkulkHostAddress( const std::string addr )
 	IPMSG_FUNC_EXIT;
 }
 
+/**
+ * 隠れるホストを登録
+ * @param host 登録するホスト
+ */
 void
 IpMessengerAgentImpl::AddSkulkHost( const HostListItem &host )
 {
@@ -1237,10 +1260,17 @@ IpMessengerAgentImpl::AddSkulkHost( const HostListItem &host )
 	std::string hideIp = getSockAddrInRawAddress( addAddr );
 	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( hideIp );
 	if ( hi != skulkHostList.end() ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IpMessengerAgentImpl::AddSkulkHost HideFromAddr\n");fflush( stdout );
+#endif
+		HideFromAddr( addAddr );
 		IPMSG_FUNC_EXIT;
 	}
 #if defined(DEBUG)
 	printf( "IpMessengerAgentImpl::AddSkulkHost Address=%s Port=%d\n", getSockAddrInRawAddress( &addAddr ).c_str(), ntohs( getSockAddrInPortNo( addAddr ) ) );fflush( stdout );
+#endif
+#if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::AddSkulkHost HideFromAddr\n");fflush( stdout );
 #endif
 	HideFromAddr( addAddr );
 	skulkHostList.AddHost( host, true );
@@ -1266,6 +1296,18 @@ IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )
 		}
 	}
 	IPMSG_FUNC_RETURN( skulkHostList.end() );
+}
+
+/**
+ * 登録済の隠れるホストのホストリストを返却する。
+ * @retval 隠れるホストリスト
+ */
+HostList
+IpMessengerAgentImpl::GetSkulkHost()
+{
+	IPMSG_FUNC_ENTER("HostList IpMessengerAgent::GetSkulkHost()");
+	HostList ret = skulkHostList;
+	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
@@ -2031,6 +2073,24 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	IPMSG_FUNC_RETURN( ret );
 }
 
+void
+IpMessengerAgentImpl::SkulkFromHost( const Packet &packet )
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SkulkHost( Packet packet )");
+	//隠れるホストにエントリーされていたら無視。
+	struct sockaddr_storage pAddr = packet.Addr();
+	std::string hideIp = getSockAddrInRawAddress( pAddr );
+	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( hideIp );
+	if ( hi != skulkHostList.end() ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IpMessengerAgentImpl::UdpRecvEventGetPubKey HideFromAddr\n");fflush( stdout );
+#endif
+		HideFromAddr( pAddr );
+		IPMSG_FUNC_EXIT;
+	}
+	IPMSG_FUNC_EXIT;
+}
+
 /**
  * TCPパケットを受信し、パケットオブジェクトを生成する。
  * @param fds FD_SET構造体
@@ -2280,6 +2340,7 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 		default:
 			fprintf(stderr, "PROTOCOL COMMAND MISS!!(CommandMode = 0x%08lx)\n", packet.CommandMode() );fflush(stderr);
 	}
+	SkulkFromHost( packet );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -2518,7 +2579,7 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_RECVMSG
+ * 電文受信イベント：RECVMSG
  * <ul>
  * <li>自分の送信済メッセージリストの該当メッセージに送信済フラグを立てる。</li>
  * </ul>
@@ -2555,7 +2616,7 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_READMSG
+ * 電文受信イベント：READMSG
  * <ul>
  * <li>READCHECKOPTが付いている場合、ANSREADMSGを投げる。</li>
  * <li>自分の送信済メッセージリストの該当メッセージに既読フラグを立てる。</li>
@@ -2604,7 +2665,7 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_DELMSG
+ * 電文受信イベント：DELMSG
  * <ul>
  * <li>自分の送信済メッセージリストの該当メッセージを削除。</li>
  * </ul>
@@ -2627,7 +2688,7 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_ANSREADMSG
+ * 電文受信イベント：ANSREADMSG
  * <ul>
  * <li>何もしない。</li>
  * </ul>
@@ -2644,7 +2705,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_SENDMSG
+ * 電文受信イベント：SENDMSG
  * <ul>
  * <li>BROADCASTOPT or AUTORETOPTなら自動応答しない。</li>
  * <li>SENDCHECKOPT付きならRECVMSGを投げる。</li>
@@ -2820,7 +2881,7 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_GETLIST
+ * 電文受信イベント：GETLIST
  * <ul>
  * <li>ANSLISTを投げる。</li>
  * </ul>
@@ -2851,7 +2912,7 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_OKGETLIST
+ * 電文受信イベント：OKGETLIST
  * <ul>
  * <li>GETLISTを投げる。</li>
  * </ul>
@@ -2877,7 +2938,7 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_ANSENTRY
+ * 電文受信イベント：ANSENTRY
  * <ul>
  * <li>パケットからホストリストにホストの情報を追加する。</li>
  * </ul>
@@ -2910,7 +2971,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_ANSLIST
+ * 電文受信イベント：ANSLIST
  * <ul>
  * <li>要求に応じたホストリストの部分をGETLISTに詰めて投げる。</li>
  * </ul>
@@ -2958,7 +3019,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_GETINFO
+ * 電文受信イベント：GETINFO
  * <ul>
  * <li>バージョン情報をSENDINFOに詰めて投げる。</li>
  * </ul>
@@ -2984,7 +3045,7 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_SENDINFO
+ * 電文受信イベント：SENDINFO
  * <ul>
  * <li>取得したバージョン情報をホストリストに更新する。</li>
  * </ul>
@@ -3014,7 +3075,7 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_GETABSENCEINFO
+ * 電文受信イベント：GETABSENCEINFO
  * <ul>
  * <li>不在詳細情報をSENDINFOに詰めて投げる。</li>
  * </ul>
@@ -3056,7 +3117,7 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 }
 
 /**
- * 電文受信イベント：BR_SENDABSENCEINFO
+ * 電文受信イベント：SENDABSENCEINFO
  * <ul>
  * <li>取得した不在詳細情報をホストリストに更新する。</li>
  * </ul>
@@ -3294,6 +3355,7 @@ printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey appearanceHostList Set key 
 #endif
 		event->EventAfter();
 	}
+
 	IPMSG_FUNC_RETURN( 0 );
 }
 
