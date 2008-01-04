@@ -675,6 +675,11 @@ class IpMessengerAgent {
 		void ClearSkulkHost();
 
 		/**
+		 * 特定のホストから隠れる場合、見えなくするホストアドレスのリストを返す
+		 **/
+		HostList GetSkulkHost();
+
+		/**
 		 * ログイン通知（参加通知）
 		 **/
 		void Login( std::string nickname, std::string groupName );

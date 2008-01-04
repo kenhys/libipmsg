@@ -463,6 +463,17 @@ IpMessengerAgent::AddSkulkHost( HostListItem &host )
 }
 
 /**
+ * 特定のホストから隠れる場合、見えなくするホストのリストを返す
+ * @retval 登録する見えなくする（隠れる）ホストリスト
+ */
+HostList
+IpMessengerAgent::GetSkulkHost()
+{
+	IPMSG_FUNC_ENTER("HostList IpMessengerAgent::GetSkulkHost()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->GetSkulkHost() );
+}
+
+/**
  * 対象ホストのバージョン情報を取得。
  * @param host 対象のホスト
  * @retval 対象ホストのバージョン情報
