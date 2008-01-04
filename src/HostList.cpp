@@ -76,7 +76,9 @@ HostList::operator=( const HostList& other )
 	IPMSG_FUNC_ENTER( "HostList& HostList::operator=( const HostList& other )" );
 	IpMsgMutexInit( "HostList::operator=(HostList&)", &hostListMutex, NULL );
 	Lock( "HostList::operator=(HostList&)" );
+	other.Lock( "HostList::operator=(HostList&)" );
 	CopyFrom( other );
+	other.Unlock( "HostList::operator=(HostList&)" );
 	Unlock( "HostList::operator=(HostList&)" );
 	IPMSG_FUNC_RETURN( *this );
 }
