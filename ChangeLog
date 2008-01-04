@@ -1,4 +1,12 @@
 2008-01-03 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Fix:HostList "operator=" was leak locking to other list.
+- Fix:Network start check leaked.
+- Fix:Comment typo.
+- Update:Add skulk hosts check with login.
+- Update:Add private API SkulkFromHost.
+- Update:Add API GetSkulkHost.
+
+2008-01-03 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:Unlock leak.
 - Update:Add APIs for IP Address string interface.
 - Update:Skulk host list was changes "vector<struct sockaddr_strage>" to ipmsg::HostList.
