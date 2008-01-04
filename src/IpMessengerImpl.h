@@ -89,6 +89,7 @@ class IpMessengerAgentImpl {
 		void AddSkulkHostAddress( const std::string addr );
 		void DeleteSkulkHost( const HostListItem &host );
 		void AddSkulkHost( const HostListItem &host );
+		HostList GetSkulkHost();
 
 		void Login( std::string nickname, std::string groupName );
 		void Logout();
@@ -179,6 +180,7 @@ class IpMessengerAgentImpl {
 		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *udp_socket );
 		bool RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket );
 		bool FindDuplicatePacket( const Packet &packet );
+		void SkulkFromHost( const Packet &packet );
 		void PurgePacket( time_t nowTime );
 		void CheckSendMsgRetry( time_t nowTime );
 		void CheckGetHostListRetry( time_t nowTime );
