@@ -602,12 +602,18 @@ HostList::FindHostByAddress( std::string addr )
 		Unlock( "HostList::FindHostByAddress()" );
 		IPMSG_FUNC_RETURN( ret );
 	}
+#if defined(INFO) || !defined(NDEBUG)
+	printf("FindHostByAddress->%s\n",addr.c_str());
+#endif
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
 		struct sockaddr_storage ixss;
 		if ( createSockAddrIn( &ixss, ix->IpAddress(), 0 ) == NULL ){
 			Unlock( "HostList::FindHostByAddress()" );
 			IPMSG_FUNC_RETURN( ret );
 		}
+#if defined(INFO) || !defined(NDEBUG)
+		printf("FindHostByAddress->%s(%s)\n",ix->HostName().c_str(),ix->IpAddress().c_str());
+#endif
 		if ( isSameSockAddrIn( ss, ixss ) ){
 			ret = ix;
 			break;
