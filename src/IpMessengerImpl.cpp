@@ -616,16 +616,6 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 	ResetAbsence();
 
 //	skulkHostList.Lock("IpMessengerAfentImpl::Login");
-	std::vector<HostListItem>::iterator hi = skulkHostList.begin();
-	for( ; hi != skulkHostList.end(); hi++ ) {
-		struct sockaddr_storage addr;
-		if ( createSockAddrIn( &addr, hi->IpAddress(), hi->PortNo() ) != NULL ) {
-#if defined(INFO) || !defined(NDEBUG)
-			printf("IpMessengerAgentImpl::Login HideFromAddr\n");fflush( stdout );
-#endif
-			HideFromAddr( addr );
-		}
-	}
 //	skulkHostList.Unlock("IpMessengerAfentImpl::Login");
 //	RecvPacket( false );
 	//0.05秒まつ。
@@ -693,6 +683,29 @@ IpMessengerAgentImpl::VisibleToAddr( struct sockaddr_storage &addr )
 	IPMSG_FUNC_EXIT;
 }
 
+void
+IpMessengerAgentImpl::HideFromAllAddr()
+{
+	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::HideFromAllAddr()");
+#if defined(INFO) || !defined(NDEBUG)
+	printf("Called IpMessengerAgentImpl::HideFromAllAddr\n");fflush( stdout );
+#endif
+	std::vector<HostListItem>::iterator hi = skulkHostList.begin();
+	for( ; hi != skulkHostList.end(); hi++ ) {
+		struct sockaddr_storage addr;
+		if ( createSockAddrIn( &addr, hi->IpAddress(), hi->PortNo() ) != NULL ) {
+#if defined(INFO) || !defined(NDEBUG)
+			printf("Call START IpMessengerAgentImpl::HideFromAddr\n");fflush( stdout );
+#endif
+			HideFromAddr( addr );
+#if defined(INFO) || !defined(NDEBUG)
+			printf("Call END   IpMessengerAgentImpl::HideFromAddr\n");fflush( stdout );
+#endif
+		}
+	}
+	IPMSG_FUNC_EXIT;
+}
+
 /**
  * ログアウト（特定のホスト向けに隠れるためのサービス脱退通知）。
  * <ul>
@@ -709,12 +722,29 @@ IpMessengerAgentImpl::HideFromAddr( struct sockaddr_storage &addr )
 	if ( !IsNetworkStarted() ) {
 		IPMSG_FUNC_EXIT;
 	}
+	if ( udp_sd.size() == 0 ) {
+		IPMSG_FUNC_EXIT;
+	}
 
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_EXIT ),
 										_LoginName, _HostName,
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
-	SendPacket( -1, IPMSG_BR_EXIT, sendBuf, sendBufLen, addr );
+	for( unsigned int i = 0; i <  udp_sd.size(); i++ ) {
+		std::map<int,NetworkInterface>::iterator sd_addr_item = sd_addr.find(udp_sd[i]);
+		if ( sd_addr_item == sd_addr.end() ) {
+			printf("NIC was not found.\n");
+			continue;
+		}
+		struct sockaddr_storage toaddr;
+		if ( createSockAddrIn( &toaddr, sd_addr_item->second.IpAddress(), sd_addr_item->second.PortNo() ) == NULL ) {
+			printf("NIC can't create sockaddr_storage.\n");
+			continue;
+		}
+		if ( isSameSockAddressFamily( addr, toaddr ) ) {
+			SendPacket( udp_sd[i], IPMSG_BR_EXIT, sendBuf, sendBufLen, addr );
+		}
+	}
 	//0.1秒まつ。
 	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
@@ -1616,8 +1646,16 @@ IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd
 	printf( "IpMessengerAgentImpl::SendPacket Packet Command i[%s]To Address=[%s][Sock %d]\n", GetCommandString( cmd ).c_str(), getSockAddrInRawAddress( to_addr ).c_str(), send_socket );fflush( stdout );
 #endif
 	IpMsgPrintBuf( "IpMessengerImpl::SendUdpPacket Send UDP Buffer", buf, size );
-
-	UdpSendto( send_socket, &to_addr, buf, size );
+	std::string hideIp = getSockAddrInRawAddress( to_addr );
+	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( hideIp );
+	if ( hi != skulkHostList.end() ) {
+		if ( cmd & IPMSG_BR_EXIT ) {
+			printf( "IpMessengerAgentImpl::SendPacket [this packet BR_EXIT packet]\n" );
+			UdpSendto( send_socket, &to_addr, buf, size );
+		}
+	} else {
+		UdpSendto( send_socket, &to_addr, buf, size );
+	}
 
 #if defined(DEBUG)
 	printf( "IpMessengerAgentImpl::SendPacket <= SEND  END ========================================\n\n");fflush( stdout );
@@ -1661,6 +1699,7 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 			UdpSendto( -1, &addr, buf, size );
 		}
 	}
+	HideFromAllAddr();
 #if defined(DEBUG)
 	printf("IpMessengerAgentImpl::SendBroadcast <= SEND BROADCAST END =====================\n\n");fflush( stdout );
 #endif
@@ -1743,6 +1782,11 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 	}
 	//送信ソケットが未確定の場合で、
 	if ( sock < 0 ) {
+		std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( getSockAddrInRawAddress( addr ) );
+		if ( hi != skulkHostList.end() ) {
+			//送信相手が隠れるホストなら、実りが少ないので何もせず、抜ける
+			IPMSG_FUNC_EXIT;
+		}
 		//同じアドレスファミリのデフォルトのソケットが見付からない場合、
 		if ( same_family_sock < 0 ) {
 			//ソケットの先頭のソケットを用いる。（エラーになる可能性有り）
@@ -2036,6 +2080,9 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 					continue;
 				}
 			}
+#if defined(INFO) || !defined(NDEBUG)
+			printf( "IpMessengerAgentImpl::RecvPacket sender = %s\n", getSockAddrInRawAddress( sender_addr ).c_str() );fflush( stdout );
+#endif
 			Packet packet = DismantlePacketBuffer( udp_socket >= 0 ? udp_socket : tcp_socket, buf, sz, sender_addr, nowTime );
 			packet.setUdpSocket( udp_socket );
 			packet.setTcpSocket( tcp_socket );
@@ -2053,13 +2100,14 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	}
 	// TODO pack_que,PacketsForCheckingはdequeのほうが。。。？
 	//パケットを処理する。
-//	printf("start RecvDoCommand\n");
+	printf("start RecvDoCommand\n");
 	while( !pack_que.empty() ) {
 //		printf("do RecvDoCommand\n");
+		printf( "IpMessengerAgentImpl::RecvPacket DoRecvCommand sender = %s\n", getSockAddrInRawAddress( pack_que.front().Addr() ).c_str() );fflush( stdout );
 		DoRecvCommand( pack_que.front() );
 		pack_que.erase( pack_que.begin() );
 	}
-//	printf("end RecvDoCommand\n");
+	printf("end RecvDoCommand\n");
 
 	//一定以上前のチェック用のパケットベクタを消す。
 	PurgePacket( nowTime );
@@ -2073,7 +2121,7 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	IPMSG_FUNC_RETURN( ret );
 }
 
-void
+bool
 IpMessengerAgentImpl::SkulkFromHost( const Packet &packet )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SkulkHost( Packet packet )");
@@ -2086,9 +2134,9 @@ IpMessengerAgentImpl::SkulkFromHost( const Packet &packet )
 		printf("IpMessengerAgentImpl::UdpRecvEventGetPubKey HideFromAddr\n");fflush( stdout );
 #endif
 		HideFromAddr( pAddr );
-		IPMSG_FUNC_EXIT;
+		IPMSG_FUNC_RETURN( true );
 	}
-	IPMSG_FUNC_EXIT;
+	IPMSG_FUNC_RETURN( false );
 }
 
 /**
@@ -2340,7 +2388,6 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 		default:
 			fprintf(stderr, "PROTOCOL COMMAND MISS!!(CommandMode = 0x%08lx)\n", packet.CommandMode() );fflush(stderr);
 	}
-	SkulkFromHost( packet );
 	IPMSG_FUNC_EXIT;
 }
 
@@ -2401,24 +2448,36 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::UdpRecvEventBrEntry\n");fflush( stdout );
 #endif
-	if ( _IsAbsence ) {
-		std::string AbsenceName = "";
-		for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
-			if ( i->EncodingName() == localEncoding ) {
-				AbsenceName = i->AbsenceName();
-				break;
-			}
-		}
-		optBuf = Nickname + "[" + AbsenceName + "]";
+	//隠れる対象のホストなら口をつぐむ。
+	std::vector<HostListItem>::iterator hostIt = skulkHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+	if ( hostIt != skulkHostList.end() ) {
+		//発見
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IpMessengerAgentImpl::UdpRecvEventBrEntry (%s) Skulk Host was found.(source packet=%lu)\n", getSockAddrInRawAddress( packet.Addr() ).c_str(), packet.PacketNo() );fflush( stdout );
+#endif
 	} else {
-		optBuf = Nickname;
+		if ( _IsAbsence ) {
+			std::string AbsenceName = "";
+			for( std::vector<AbsenceMode>::iterator i = absenceModeList.begin(); i != absenceModeList.end(); i++ ){
+				if ( i->EncodingName() == localEncoding ) {
+					AbsenceName = i->AbsenceName();
+					break;
+				}
+			}
+			optBuf = Nickname + "[" + AbsenceName + "]";
+		} else {
+			optBuf = Nickname;
+		}
+		optBuf += '\0' + GroupName;
+		sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSENTRY ),
+											_LoginName, _HostName,
+											optBuf.c_str(), optBuf.size(),
+											sendBuf, sizeof( sendBuf ) );
+		SendPacket( -1/*packet.UdpSocket()*/, IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IpMessengerAgentImpl::UdpRecvEventBrEntry (%s) Skulk Host was not found,Send ANSENTRY packet.(source packet=%lu)\n", getSockAddrInRawAddress( packet.Addr() ).c_str(), packet.PacketNo() );fflush( stdout );
+#endif
 	}
-	optBuf += '\0' + GroupName;
-	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_ANSENTRY ),
-										_LoginName, _HostName,
-										optBuf.c_str(), optBuf.size(),
-										sendBuf, sizeof( sendBuf ) );
-	SendPacket( -1/*packet.UdpSocket()*/, IPMSG_ANSENTRY, sendBuf, sendBufLen, packet.Addr() );
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
 #endif
@@ -2528,6 +2587,12 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 		printf("RefreshHostListAfter after\n");
 #endif
 		event->EventAfter();
+	}
+	//隠れる対象のホストなら口をつぐむ。
+	std::vector<HostListItem>::iterator hostIt = skulkHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
+	if ( hostIt != skulkHostList.end() ) {
+		//発見
+		IPMSG_FUNC_RETURN( 0 );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
@@ -3287,6 +3352,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 	//NNNNN=RSAモジュール
 	char *opt = (char *)calloc( packet.Option().length() + 1, 1 );
 	if ( opt == NULL ){
+		HideFromAllAddr();
 		IPMSG_FUNC_RETURN( 0 );
 	}
 	memcpy( opt, packet.Option().c_str(), packet.Option().length() );
@@ -3299,6 +3365,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		cap = strtoul( opt, &dmyptr, 16 );
 	} else {
 		free( opt );
+		HideFromAllAddr();
 		IPMSG_FUNC_RETURN( 0 );
 	}
 	token = nextpos;
@@ -3308,6 +3375,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		meth = token;
 	} else {
 		free( opt );
+		HideFromAllAddr();
 		IPMSG_FUNC_RETURN( 0 );
 	}
 	std::string pkey;
@@ -3315,6 +3383,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 		pkey = nextpos;
 	} else {
 		free( opt );
+		HideFromAllAddr();
 		IPMSG_FUNC_RETURN( 0 );
 	}
 	free( opt );
@@ -3355,7 +3424,7 @@ printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey appearanceHostList Set key 
 #endif
 		event->EventAfter();
 	}
-
+	HideFromAllAddr();
 	IPMSG_FUNC_RETURN( 0 );
 }
 
@@ -4217,11 +4286,17 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 	ret.setOption( std::string( nextpos, optLen ) );
 	free( packet_tmp_buf );
 
+#if defined(INFO) || !defined(NDEBUG)
+	printf("IpMessengerAgentImpl::DismantlePacketBuffer( host=%s[%d])\n", ret.HostName().c_str(), sd_address_family[sock] );fflush(stdout);
+#endif
 	//NAT環境でsenderアドレスは信用できないので。。。
 	//まずは見てくれのホストリストから検索する。
 	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
-	struct sockaddr_storage hostaddr;
+	struct sockaddr_storage hostaddr = sender;
 	if ( hostIt != appearanceHostList.end() ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IpMessengerAgentImpl::DismantlePacketBuffer( appearanceHostList.hostIt=%s[%lu])\n", hostIt->IpAddress().c_str(), hostIt->PortNo() );fflush(stdout);
+#endif
 		if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
 			IPMSG_FUNC_RETURN( ret );
 		}
@@ -4229,6 +4304,9 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 		//無ければ実際ののホストリストから検索する。
 		hostIt = hostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
 		if ( hostIt != hostList.end() ) {
+#if defined(INFO) || !defined(NDEBUG)
+			printf("IpMessengerAgentImpl::DismantlePacketBuffer( hostList.hostIt=%s[%lu])\n", hostIt->IpAddress().c_str(), hostIt->PortNo() );fflush(stdout);
+#endif
 			if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
 				IPMSG_FUNC_RETURN( ret );
 			}
