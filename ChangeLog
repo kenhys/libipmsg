@@ -1,3 +1,9 @@
+2008-01-29 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add local API isSameSockAddressFamily,HideFromAddr,HideFromAllAddr.
+- Update:Add DEBUG messages.
+- Update:Almost can hide.
+- FixMe:Host was show in a moment,when push update button in hide target host.
+
 2008-01-03 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Fix:HostList "operator=" was leak locking to other list.
 - Fix:Network start check leaked.
