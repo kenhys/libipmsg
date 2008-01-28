@@ -180,7 +180,7 @@ class IpMessengerAgentImpl {
 		bool RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *udp_socket );
 		bool RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket );
 		bool FindDuplicatePacket( const Packet &packet );
-		void SkulkFromHost( const Packet &packet );
+		bool SkulkFromHost( const Packet &packet );
 		void PurgePacket( time_t nowTime );
 		void CheckSendMsgRetry( time_t nowTime );
 		void CheckGetHostListRetry( time_t nowTime );
@@ -191,6 +191,7 @@ class IpMessengerAgentImpl {
 		int SendNoOperation();
 		int SendAbsence();
 		void VisibleToAddr( struct sockaddr_storage &addr );
+		void HideFromAllAddr();
 		void HideFromAddr( struct sockaddr_storage &addr );
 		int UdpRecvEventNoOperation( const Packet& packet );
 		int UdpRecvEventBrEntry( const Packet& packet );
@@ -294,6 +295,7 @@ std::string getAddressFamilyString( int family );
 std::string getLocalhostAddress( bool useIpv6, const std::vector<NetworkInterface>& nics );
 bool isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask );
 bool isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check );
+bool isSameSockAddressFamily( struct sockaddr_storage base, struct sockaddr_storage check );
 void getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo );
 #ifndef HAVE_GETIFADDR
 void getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo );
