@@ -580,6 +580,21 @@ ipmsg::getAddressFamilyString( int family )
 }
 
 /**
+ * 同じソケットファミリかを判定する。
+ * @param base ソケットアドレス。
+ * @param check ソケットアドレス。
+ * @retval true:同一。
+ * @retval false:同一でない。
+ */
+bool
+ipmsg::isSameSockAddressFamily( struct sockaddr_storage base, struct sockaddr_storage check )
+{
+	if ( base.ss_family == check.ss_family ) {
+		return true;
+	}
+	return false;
+}
+/**
  * 同じソケットアドレスかを判定する。
  * @param base ソケットアドレス。
  * @param check ソケットアドレス。
