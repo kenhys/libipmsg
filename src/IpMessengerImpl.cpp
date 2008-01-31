@@ -1650,7 +1650,9 @@ IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd
 	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( hideIp );
 	if ( hi != skulkHostList.end() ) {
 		if ( cmd & IPMSG_BR_EXIT ) {
+#if defined(DEBUG)
 			printf( "IpMessengerAgentImpl::SendPacket [this packet BR_EXIT packet]\n" );
+#endif
 			UdpSendto( send_socket, &to_addr, buf, size );
 		}
 	} else {
@@ -1866,7 +1868,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			sd_addr[sock] = nics[i];
 			sd_address_family[sock] = addr.ss_family;
 		} else {
-			printf( "IpMessgenrAgentImpl::InitRecv UDP Error[%s:%s]=%s\n",
+			printf( "IpMessgenrAgentImpl::InitRecv UDP for unicast Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
 							getAddressFamilyString( nics[i].AddressFamily() ).c_str(),
 							nics[i].IpAddress().c_str() );
@@ -1910,7 +1912,7 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 			sd_addr[sock] = nics[i];
 			sd_address_family[sock] = addr.ss_family;
 		} else {
-			printf( "IpMessgenrAgentImpl::InitRecv UDP Error[%s:%s]=%s\n",
+			printf( "IpMessgenrAgentImpl::InitRecv UDP for broadcast Error[%s:%s]=%s\n",
 							nics[i].DeviceName().c_str(),
 							getAddressFamilyString( nics[i].AddressFamily() ).c_str(),
 							nics[i].IpAddress().c_str() );
@@ -2100,14 +2102,20 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	}
 	// TODO pack_que,PacketsForCheckingはdequeのほうが。。。？
 	//パケットを処理する。
+#if defined(INFO) || !defined(NDEBUG)
 	printf("start RecvDoCommand\n");
+#endif
 	while( !pack_que.empty() ) {
 //		printf("do RecvDoCommand\n");
+#if defined(INFO) || !defined(NDEBUG)
 		printf( "IpMessengerAgentImpl::RecvPacket DoRecvCommand sender = %s\n", getSockAddrInRawAddress( pack_que.front().Addr() ).c_str() );fflush( stdout );
+#endif
 		DoRecvCommand( pack_que.front() );
 		pack_que.erase( pack_que.begin() );
 	}
+#if defined(INFO) || !defined(NDEBUG)
 	printf("end RecvDoCommand\n");
+#endif
 
 	//一定以上前のチェック用のパケットベクタを消す。
 	PurgePacket( nowTime );
@@ -4332,7 +4340,9 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 		}
 	}
 	ret.setAddr( hostaddr );
+#if defined(INFO) || !defined(NDEBUG)
 	printf( "IpMessengerAgentImpl::DismantlePacketBuffer sender3 = %s\n", getSockAddrInRawAddress( ret.Addr() ).c_str() );fflush( stdout );
+#endif
 	IPMSG_FUNC_RETURN( ret );
 }
 
