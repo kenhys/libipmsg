@@ -576,9 +576,18 @@ HostList::FindHostByHostName( std::string hostName, int addressFamily )
 	Lock( "HostList::FindHostByHostName()" );
 	std::vector<HostListItem>::iterator ret = end();
 
+#if defined(INFO) || !defined(NDEBUG)
+	printf("FindHostByName->%s(%d)\n",hostName.c_str(), addressFamily );
+#endif
 	for( std::vector<HostListItem>::iterator ix = begin(); ix < end(); ix++ ){
+#if defined(INFO) || !defined(NDEBUG)
+		printf("(FindHostByName->%s(%d))\n",ix->HostName().c_str(), ix->AddressFamily() );
+#endif
 		if ( ix->HostName() == hostName && addressFamily == ix->AddressFamily() ) {
 			ret = ix;
+#if defined(INFO) || !defined(NDEBUG)
+			printf("FindHostByName found.\n" );
+#endif
 			break;
 		}
 	}
@@ -615,6 +624,9 @@ HostList::FindHostByAddress( std::string addr )
 		printf("FindHostByAddress->%s(%s)\n",ix->HostName().c_str(),ix->IpAddress().c_str());
 #endif
 		if ( isSameSockAddrIn( ss, ixss ) ){
+#if defined(INFO) || !defined(NDEBUG)
+			printf("FindHostByAddress found.\n" );
+#endif
 			ret = ix;
 			break;
 		}
