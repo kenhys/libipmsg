@@ -4219,6 +4219,9 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::DismantlePacketBuffer()\n" );fflush(stdout);
 #endif
+#if defined(INFO) || !defined(NDEBUG)
+	printf( "IpMessengerAgentImpl::DismantlePacketBuffer sender1 = %s\n", getSockAddrInRawAddress( sender ).c_str() );fflush( stdout );
+#endif
 	Packet ret;
 	int alloc_size = size + 1;
 	char *packet_tmp_buf;
@@ -4287,30 +4290,39 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 	free( packet_tmp_buf );
 
 #if defined(INFO) || !defined(NDEBUG)
-	printf("IpMessengerAgentImpl::DismantlePacketBuffer( host=%s[%d])\n", ret.HostName().c_str(), sd_address_family[sock] );fflush(stdout);
+	printf( "IpMessengerAgentImpl::DismantlePacketBuffer sender2 = %s\n", getSockAddrInRawAddress( sender ).c_str() );fflush( stdout );
+	printf("IpMessengerAgentImpl::DismantlePacketBuffer( host=%s[%d]@sock=%d )\n", ret.HostName().c_str(), sd_address_family[sock], sock );fflush(stdout);
+	IpMsgDumpAddr( &sender );
 #endif
 	//NAT環境でsenderアドレスは信用できないので。。。
 	//まずは見てくれのホストリストから検索する。
-	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
+	//std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
+	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sender.ss_family );
 	struct sockaddr_storage hostaddr = sender;
 	if ( hostIt != appearanceHostList.end() ) {
 #if defined(INFO) || !defined(NDEBUG)
-		printf("IpMessengerAgentImpl::DismantlePacketBuffer( appearanceHostList.hostIt=%s[%lu])\n", hostIt->IpAddress().c_str(), hostIt->PortNo() );fflush(stdout);
+		printf("IpMessengerAgentImpl::DismantlePacketBuffer( appearanceHostList.hostIt=%s[%lu] )\n", hostIt->IpAddress().c_str(), hostIt->PortNo() );fflush(stdout);
 #endif
 		if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
+			ret.setAddr( sender );
 			IPMSG_FUNC_RETURN( ret );
 		}
 	} else {
 		//無ければ実際ののホストリストから検索する。
-		hostIt = hostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
+		//hostIt = hostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
+		hostIt = hostList.FindHostByHostName( ret.HostName(), sender.ss_family );
 		if ( hostIt != hostList.end() ) {
 #if defined(INFO) || !defined(NDEBUG)
-			printf("IpMessengerAgentImpl::DismantlePacketBuffer( hostList.hostIt=%s[%lu])\n", hostIt->IpAddress().c_str(), hostIt->PortNo() );fflush(stdout);
+			printf("IpMessengerAgentImpl::DismantlePacketBuffer( hostList.hostIt=%s[%lu] )\n", hostIt->IpAddress().c_str(), hostIt->PortNo() );fflush(stdout);
 #endif
 			if ( createSockAddrIn( &hostaddr, hostIt->IpAddress(), hostIt->PortNo() ) == NULL ) {
+				ret.setAddr( sender );
 				IPMSG_FUNC_RETURN( ret );
 			}
 		} else {
+#if defined(INFO) || !defined(NDEBUG)
+			printf("IpMessengerAgentImpl::DismantlePacketBuffer set sender\n" );fflush(stdout);
+#endif
 			hostaddr = sender;
 #if 0
 			if ( createSockAddrIn( &hostaddr, getSockAddrInRawAddress( sender ), ntohs( getSockAddrInPortNo( sender ) ) ) == NULL ) {
@@ -4320,6 +4332,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 		}
 	}
 	ret.setAddr( hostaddr );
+	printf( "IpMessengerAgentImpl::DismantlePacketBuffer sender3 = %s\n", getSockAddrInRawAddress( ret.Addr() ).c_str() );fflush( stdout );
 	IPMSG_FUNC_RETURN( ret );
 }
 
