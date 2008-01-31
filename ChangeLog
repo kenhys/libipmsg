@@ -1,3 +1,8 @@
+2008-02-01 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:Add DEBUG messages.
+- Fix:Using host name and sender address family on host list searching.
+- Fix:Set sender address on cannot convert sockaddr_storage structure.
+
 2008-01-29 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add local API isSameSockAddressFamily,HideFromAddr,HideFromAllAddr.
 - Update:Add DEBUG messages.
