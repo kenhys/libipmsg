@@ -35,3 +35,4 @@
 # enabling the deprecated old style info file command line format strings.
 # Be warned that these strings could be disabled in any new version of CVS.
 UseNewInfoFmtStrings=yes
+LockDir=/var/lock/cvs/libipmsg
