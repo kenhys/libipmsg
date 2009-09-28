@@ -1,6 +1,6 @@
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥é¥¤¥Ö¥é¥ê(UnixÍÑ)
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¥¯¥é¥¹¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(Unixç”¨)
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¯ãƒ©ã‚¹ã€‚
  */
   
 #ifdef HAVE_CONFIG_H
@@ -14,7 +14,7 @@
 using namespace ipmsg;
 
 /**
- * ¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  */
 RecievedMessage::RecievedMessage()
 {
@@ -23,8 +23,8 @@ RecievedMessage::RecievedMessage()
 }
 
 /**
- * ¥³¥Ô¡¼¥³¥ó¥¹¥È¥é¥¯¥¿¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 RecievedMessage::RecievedMessage( const RecievedMessage& other )
 {
@@ -34,9 +34,9 @@ RecievedMessage::RecievedMessage( const RecievedMessage& other )
 }
 
 /**
- * ÂåÆş±é»»»Ò¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¼«¥¤¥ó¥¹¥¿¥ó¥¹
+ * ä»£å…¥æ¼”ç®—å­ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval è‡ªã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
  */
 RecievedMessage&
 RecievedMessage::operator=( const RecievedMessage& other )
@@ -47,8 +47,8 @@ RecievedMessage::operator=( const RecievedMessage& other )
 }
 
 /**
- * ¥³¥Ô¡¼¥á¥½¥Ã¥É¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 RecievedMessage::CopyFrom( const RecievedMessage& other )
@@ -71,9 +71,9 @@ RecievedMessage::CopyFrom( const RecievedMessage& other )
 }
 
 /**
- * ¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÀ¸À®¡£</li>
+ * <li>å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç”Ÿæˆã€‚</li>
  * </ul>
  */
 RecievedMessageList::RecievedMessageList()
@@ -84,8 +84,8 @@ RecievedMessageList::RecievedMessageList()
 }
 
 /**
- * ¥³¥Ô¡¼¥³¥ó¥¹¥È¥é¥¯¥¿¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )
 {
@@ -98,9 +98,9 @@ RecievedMessageList::RecievedMessageList( const RecievedMessageList& other )
 }
 
 /**
- * ¥Ç¥¹¥È¥é¥¯¥¿¡£
+ * ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÇË´ş¡£</li>
+ * <li>å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç ´æ£„ã€‚</li>
  * </ul>
  */
 RecievedMessageList::~RecievedMessageList()
@@ -111,9 +111,9 @@ RecievedMessageList::~RecievedMessageList()
 }
 
 /**
- * ÂåÆş±é»»»Ò¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¼«¥¤¥ó¥¹¥¿¥ó¥¹
+ * ä»£å…¥æ¼”ç®—å­ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval è‡ªã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
  */
 RecievedMessageList&
 RecievedMessageList::operator=( const RecievedMessageList& other )
@@ -127,8 +127,8 @@ RecievedMessageList::operator=( const RecievedMessageList& other )
 }
 
 /**
- * ¥³¥Ô¡¼¥á¥½¥Ã¥É¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 RecievedMessageList::CopyFrom( const RecievedMessageList& other )
@@ -139,8 +139,8 @@ RecievedMessageList::CopyFrom( const RecievedMessageList& other )
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥í¥Ã¥¯
- * @param pos ¥í¥Ã¥¯¤·¤Æ¤¤¤ë°ÌÃÖ¤ò¼¨¤¹Ê¸»úÎó¡£
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯
+ * @param pos ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ä½ç½®ã‚’ç¤ºã™æ–‡å­—åˆ—ã€‚
  */
 void
 RecievedMessageList::Lock( const char *pos ) const
@@ -151,8 +151,8 @@ RecievedMessageList::Lock( const char *pos ) const
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥¢¥ó¥í¥Ã¥¯
- * @param pos ¥¢¥ó¥í¥Ã¥¯¤·¤Æ¤¤¤ë°ÌÃÖ¤ò¼¨¤¹Ê¸»úÎó¡£
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ã‚¢ãƒ³ãƒ­ãƒƒã‚¯
+ * @param pos ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ä½ç½®ã‚’ç¤ºã™æ–‡å­—åˆ—ã€‚
  */
 void
 RecievedMessageList::Unlock( const char *pos ) const
@@ -163,8 +163,8 @@ RecievedMessageList::Unlock( const char *pos ) const
 }
 
 /**
- * ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎÀèÆ¬¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤¹¡£
- * @retval ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎÀèÆ¬¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å…ˆé ­ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å…ˆé ­ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<RecievedMessage>::iterator
 RecievedMessageList::begin()
@@ -174,8 +174,8 @@ RecievedMessageList::begin()
 }
 
 /**
- * ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎËöÈø¡Ü£±¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤¹¡£
- * @retval ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎËöÈø¡Ü£±¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®æœ«å°¾ï¼‹ï¼‘ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®æœ«å°¾ï¼‹ï¼‘ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<RecievedMessage>::iterator
 RecievedMessageList::end()
@@ -185,9 +185,9 @@ RecievedMessageList::end()
 }
 
 /**
- * »ØÄê¤µ¤ì¤¿¥¤¥Æ¥ì¡¼¥¿¤Ç¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¤ò¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤«¤éºï½ü¤¹¤ë¡£
- * @param item ºï½üÂĞ¾İ¤Î¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
- * @retval ºï½ü¤µ¤ì¤¿¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¤Î¼¡¤ÎÍ×ÁÇ¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * æŒ‡å®šã•ã‚ŒãŸã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã§å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹ã€‚
+ * @param item å‰Šé™¤å¯¾è±¡ã®å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
+ * @retval å‰Šé™¤ã•ã‚ŒãŸå—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®æ¬¡ã®è¦ç´ ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<RecievedMessage>::iterator
 RecievedMessageList::erase( std::vector<RecievedMessage>::iterator item )
@@ -200,8 +200,8 @@ RecievedMessageList::erase( std::vector<RecievedMessage>::iterator item )
 }
 
 /**
- * ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Ë¥á¥Ã¥»¡¼¥¸¤òÄÉ²Ã¤¹¤ë¡£
- * @param item ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¡£
+ * å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¿½åŠ ã™ã‚‹ã€‚
+ * @param item å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã€‚
  */
 void
 RecievedMessageList::append( const RecievedMessage &item )
@@ -214,8 +214,8 @@ RecievedMessageList::append( const RecievedMessage &item )
 }
 
 /**
- * ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¸Ä¿ô¤òÊÖ¤¹¡£
- * @retval ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¸Ä¿ô¡£
+ * å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å€‹æ•°ã‚’è¿”ã™ã€‚
+ * @retval å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å€‹æ•°ã€‚
  */
 int
 RecievedMessageList::size() const
@@ -228,7 +228,7 @@ RecievedMessageList::size() const
 }
 
 /**
- * ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥¯¥ê¥¢¤¹¤ë¡£
+ * å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã€‚
  */
 void
 RecievedMessageList::clear()
@@ -241,9 +241,9 @@ RecievedMessageList::clear()
 }
 
 /**
- * ¥Õ¥¡¥¤¥ë¼õ¿®½èÍı¡£
+ * ãƒ•ã‚¡ã‚¤ãƒ«å—ä¿¡å‡¦ç†ã€‚
  * <ul>
- * <li>¥µ¡¼¥Ğ¤Ë¥Õ¥¡¥¤¥ë¼õ¿®Í×µá¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¡¢¥Õ¥¡¥¤¥ë¤ò¼õ¿®¤¹¤ë¡£</li>
+ * <li>ã‚µãƒ¼ãƒã«ãƒ•ã‚¡ã‚¤ãƒ«å—ä¿¡è¦æ±‚ãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ã€ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å—ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
  */
 bool
@@ -291,9 +291,9 @@ RecievedMessage::DownloadFile( AttachFile &file, std::string saveFileNameFullPat
 }
 
 /**
- * ¥Õ¥¡¥¤¥ë¼õ¿®½èÍı¡£¡ÊÈó¸ø³«¡Ë
+ * ãƒ•ã‚¡ã‚¤ãƒ«å—ä¿¡å‡¦ç†ã€‚ï¼ˆéå…¬é–‹ï¼‰
  * <ul>
- * <li>¥µ¡¼¥Ğ¤Ë¥Õ¥¡¥¤¥ë¼õ¿®Í×µá¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¡¢¥Õ¥¡¥¤¥ë¤ò¼õ¿®¤¹¤ë¡£</li>
+ * <li>ã‚µãƒ¼ãƒã«ãƒ•ã‚¡ã‚¤ãƒ«å—ä¿¡è¦æ±‚ãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ã€ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å—ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
  */
 bool
@@ -407,9 +407,9 @@ printf("RecievedMessage::DownloadFilePrivate saveFileNameFullPath[%s]\n", saveFi
 }
 
 /**
- * ¥Ç¥£¥ì¥¯¥È¥ê¼õ¿®½èÍı¡Ê¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¥ª¥×¥·¥ç¥óÉÕ¤­¡Ë¡£
+ * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå—ä¿¡å‡¦ç†ï¼ˆãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚ªãƒ—ã‚·ãƒ§ãƒ³ä»˜ãï¼‰ã€‚
  * <ul>
- * <li>¥µ¡¼¥Ğ¤Ë¥Ç¥£¥ì¥¯¥È¥ê¼õ¿®Í×µá¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¡¢¥Ç¥£¥ì¥¯¥È¥ê¤ò¼õ¿®¤¹¤ë¡£</li>
+ * <li>ã‚µãƒ¼ãƒã«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå—ä¿¡è¦æ±‚ãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ã€ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å—ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
  */
 bool
@@ -457,9 +457,9 @@ RecievedMessage::DownloadDir( AttachFile &file, std::string saveName, std::strin
 }
 
 /**
- * Àµµ¬²½¤µ¤ì¤¿¥Ç¥£¥ì¥¯¥È¥êÌ¾¤ò¼èÆÀ¤¹¤ë¡£
- * @param dirName Àµµ¬²½Á°¤Î¥Ç¥£¥ì¥¯¥È¥êÌ¾
- * @retval Àµµ¬²½¸å¤Î¥Ç¥£¥ì¥¯¥È¥êÌ¾
+ * æ­£è¦åŒ–ã•ã‚ŒãŸãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªåã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param dirName æ­£è¦åŒ–å‰ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå
+ * @retval æ­£è¦åŒ–å¾Œã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå
  */
 std::string
 RecievedMessage::GetFormalDir( std::string dirName )
@@ -472,14 +472,14 @@ RecievedMessage::GetFormalDir( std::string dirName )
 }
 
 /**
- * ÊİÂ¸¤¹¤ë¥Õ¥¡¥¤¥ëÌ¾¡Ê¤Ş¤¿¤Ï¥Ç¥£¥ì¥¯¥È¥êÌ¾¡Ë¤ò¼èÆÀ¤¹¤ë¡£
+ * ä¿å­˜ã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«åï¼ˆã¾ãŸã¯ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªåï¼‰ã‚’å–å¾—ã™ã‚‹ã€‚
  * <ul>
- * <li>ÊİÂ¸Àè¤Î¥Ç¥£¥ì¥¯¥È¥ê¡¢¥Õ¥¡¥¤¥ë¡Ê¤Ş¤¿¤Ï¥Ç¥£¥ì¥¯¥È¥ê¡ËÌ¾
- * ¡¡¡Ê¤³¤ì¤Ï¥×¥í¥È¥³¥ë¾å¡¢¥Õ¥¡¥¤¥ëÌ¾¤Î¤ß¤ÇÈô¤ó¤Ç¤¯¤ë°Ù¡Ë¤òÁÈ¤ß¹ç¤ï¤»¤Æ¥Õ¥ë¥Ñ¥¹¤òÆÀ¤ë¡£</li>
+ * <li>ä¿å­˜å…ˆã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€ãƒ•ã‚¡ã‚¤ãƒ«ï¼ˆã¾ãŸã¯ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªï¼‰å
+ * ã€€ï¼ˆã“ã‚Œã¯ãƒ—ãƒ­ãƒˆã‚³ãƒ«ä¸Šã€ãƒ•ã‚¡ã‚¤ãƒ«åã®ã¿ã§é£›ã‚“ã§ãã‚‹ç‚ºï¼‰ã‚’çµ„ã¿åˆã‚ã›ã¦ãƒ•ãƒ«ãƒ‘ã‚¹ã‚’å¾—ã‚‹ã€‚</li>
  * </ul>
- * @param saveName ÊİÂ¸¥Õ¥¡¥¤¥ë¡Ê¤Ş¤¿¤Ï¥Ç¥£¥ì¥¯¥È¥êÌ¾¡ËÌ¾
- * @param saveBaseDir ÊİÂ¸Àè¥Ç¥£¥ì¥¯¥È¥êÌ¾
- * @retval ÊİÂ¸¤¹¤ë¥Õ¥¡¥¤¥ë¡Ê¤Ş¤¿¤Ï¥Ç¥£¥ì¥¯¥È¥êÌ¾¡Ë
+ * @param saveName ä¿å­˜ãƒ•ã‚¡ã‚¤ãƒ«ï¼ˆã¾ãŸã¯ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªåï¼‰å
+ * @param saveBaseDir ä¿å­˜å…ˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå
+ * @retval ä¿å­˜ã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ï¼ˆã¾ãŸã¯ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªåï¼‰
  */
 std::string
 RecievedMessage::GetSaveDir( std::string saveName, std::string saveBaseDir )
@@ -489,9 +489,9 @@ RecievedMessage::GetSaveDir( std::string saveName, std::string saveBaseDir )
 }
 
 /**
- * ¥Ç¥£¥ì¥¯¥È¥ê¼õ¿®½èÍı¡Ê¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¥ª¥×¥·¥ç¥óÉÕ¤­¡Ë¡£¡ÊÈó¸ø³«¡Ë
+ * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå—ä¿¡å‡¦ç†ï¼ˆãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚ªãƒ—ã‚·ãƒ§ãƒ³ä»˜ãï¼‰ã€‚ï¼ˆéå…¬é–‹ï¼‰
  * <ul>
- * <li>¥µ¡¼¥Ğ¤Ë¥Ç¥£¥ì¥¯¥È¥ê¼õ¿®Í×µá¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¡¢¥Ç¥£¥ì¥¯¥È¥ê¤ò¼õ¿®¤¹¤ë¡£</li>
+ * <li>ã‚µãƒ¼ãƒã«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå—ä¿¡è¦æ±‚ãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ã€ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å—ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
  */
 bool

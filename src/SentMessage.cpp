@@ -1,6 +1,6 @@
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥é¥¤¥Ö¥é¥ê(UnixÍÑ)
- * Á÷¿®¥á¥Ã¥»¡¼¥¸¥¯¥é¥¹¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(Unixç”¨)
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¯ãƒ©ã‚¹ã€‚
  */
   
 #ifdef HAVE_CONFIG_H
@@ -13,11 +13,11 @@
 
 using namespace ipmsg;
 
-//¥á¥Ã¥»¡¼¥¸Á÷¿®¥ê¥È¥é¥¤ºÇÂç¿ô
+//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ãƒªãƒˆãƒ©ã‚¤æœ€å¤§æ•°
 #define SENDMSG_RETRY_MAX	5
 
 /**
- * ¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  */
 SentMessage::SentMessage()
 {
@@ -26,8 +26,8 @@ SentMessage::SentMessage()
 }
 
 /**
- * ¥³¥Ô¡¼¥³¥ó¥¹¥È¥é¥¯¥¿¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 SentMessage::SentMessage( const SentMessage& other )
 {
@@ -37,9 +37,9 @@ SentMessage::SentMessage( const SentMessage& other )
 }
 
 /**
- * ÂåÆş±é»»»Ò¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¼«¥¤¥ó¥¹¥¿¥ó¥¹
+ * ä»£å…¥æ¼”ç®—å­ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval è‡ªã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
  */
 SentMessage&
 SentMessage::operator=( const SentMessage& other )
@@ -50,8 +50,8 @@ SentMessage::operator=( const SentMessage& other )
 }
 
 /**
- * ¥³¥Ô¡¼¥á¥½¥Ã¥É¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 SentMessage::CopyFrom( const SentMessage& other )
@@ -79,9 +79,9 @@ SentMessage::CopyFrom( const SentMessage& other )
 }
 
 /**
- * ¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÀ¸À®¡£</li>
+ * <li>é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç”Ÿæˆã€‚</li>
  * </ul>
  */
 SentMessageList::SentMessageList()
@@ -92,8 +92,8 @@ SentMessageList::SentMessageList()
 }
 
 /**
- * ¥³¥Ô¡¼¥³¥ó¥¹¥È¥é¥¯¥¿¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 SentMessageList::SentMessageList( const SentMessageList& other )
 {
@@ -106,9 +106,9 @@ SentMessageList::SentMessageList( const SentMessageList& other )
 }
 
 /**
- * ¥Ç¥¹¥È¥é¥¯¥¿¡£
+ * ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÇË´ş¡£</li>
+ * <li>é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç ´æ£„ã€‚</li>
  * </ul>
  */
 SentMessageList::~SentMessageList()
@@ -119,9 +119,9 @@ SentMessageList::~SentMessageList()
 }
 
 /**
- * ÂåÆş±é»»»Ò¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¼«¥¤¥ó¥¹¥¿¥ó¥¹
+ * ä»£å…¥æ¼”ç®—å­ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval è‡ªã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
  */
 SentMessageList&
 SentMessageList::operator=( const SentMessageList& other )
@@ -135,8 +135,8 @@ SentMessageList::operator=( const SentMessageList& other )
 }
 
 /**
- * ¥³¥Ô¡¼¥á¥½¥Ã¥É¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 SentMessageList::CopyFrom( const SentMessageList& other )
@@ -147,8 +147,8 @@ SentMessageList::CopyFrom( const SentMessageList& other )
 }
 
 /**
- * Á÷¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥í¥Ã¥¯
- * @param pos ¥í¥Ã¥¯¤·¤Æ¤¤¤ë°ÌÃÖ¤ò¼¨¤¹Ê¸»úÎó¡£
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯
+ * @param pos ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ä½ç½®ã‚’ç¤ºã™æ–‡å­—åˆ—ã€‚
  */
 void
 SentMessageList::Lock( const char *pos ) const
@@ -159,8 +159,8 @@ SentMessageList::Lock( const char *pos ) const
 }
 
 /**
- * Á÷¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥¢¥ó¥í¥Ã¥¯
- * @param pos ¥¢¥ó¥í¥Ã¥¯¤·¤Æ¤¤¤ë°ÌÃÖ¤ò¼¨¤¹Ê¸»úÎó¡£
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ã‚¢ãƒ³ãƒ­ãƒƒã‚¯
+ * @param pos ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ä½ç½®ã‚’ç¤ºã™æ–‡å­—åˆ—ã€‚
  */
 void
 SentMessageList::Unlock( const char *pos ) const
@@ -171,8 +171,8 @@ SentMessageList::Unlock( const char *pos ) const
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎÀèÆ¬¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤¹¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎÀèÆ¬¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å…ˆé ­ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å…ˆé ­ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<SentMessage>::iterator
 SentMessageList::begin()
@@ -182,8 +182,8 @@ SentMessageList::begin()
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎËöÈø¡Ü£±¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤¹¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ÎËöÈø¡Ü£±¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®æœ«å°¾ï¼‹ï¼‘ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®æœ«å°¾ï¼‹ï¼‘ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<SentMessage>::iterator
 SentMessageList::end()
@@ -193,9 +193,9 @@ SentMessageList::end()
 }
 
 /**
- * »ØÄê¤µ¤ì¤¿¥¤¥Æ¥ì¡¼¥¿¤ÇÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤«¤éºï½ü¤¹¤ë¡£
- * @param item ºï½üÂĞ¾İ¤ÎÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
- * @retval ºï½ü¤µ¤ì¤¿Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤Î¼¡¤ÎÍ×ÁÇ¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * æŒ‡å®šã•ã‚ŒãŸã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã§é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹ã€‚
+ * @param item å‰Šé™¤å¯¾è±¡ã®é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
+ * @retval å‰Šé™¤ã•ã‚ŒãŸé€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®æ¬¡ã®è¦ç´ ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<SentMessage>::iterator
 SentMessageList::erase( std::vector<SentMessage>::iterator item )
@@ -208,8 +208,8 @@ SentMessageList::erase( std::vector<SentMessage>::iterator item )
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Ë¥á¥Ã¥»¡¼¥¸¤òÄÉ²Ã¤¹¤ë¡£
- * @param item Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¿½åŠ ã™ã‚‹ã€‚
+ * @param item é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã€‚
  */
 void
 SentMessageList::append( const SentMessage &item )
@@ -222,8 +222,8 @@ SentMessageList::append( const SentMessage &item )
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¸Ä¿ô¤òÊÖ¤¹¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¸Ä¿ô¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å€‹æ•°ã‚’è¿”ã™ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å€‹æ•°ã€‚
  */
 int
 SentMessageList::size() const
@@ -236,7 +236,7 @@ SentMessageList::size() const
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤ò¥¯¥ê¥¢¤¹¤ë¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã€‚
  */
 void
 SentMessageList::clear()
@@ -249,8 +249,8 @@ SentMessageList::clear()
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥İ¥¤¥ó¥¿¤òÊÖ¤¹¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥İ¥¤¥ó¥¿¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ãƒã‚¤ãƒ³ã‚¿ã€‚
  */
 std::vector<SentMessage> *
 SentMessageList::GetMessageList()
@@ -260,13 +260,13 @@ SentMessageList::GetMessageList()
 }
 
 /**
- * ¥Ñ¥±¥Ã¥È¤«¤éÅºÉÕ¥Õ¥¡¥¤¥ë¤ò¸¡º÷¤·¤Ş¤¹¡£
+ * ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
  * <ul>
- * <li>¥Ñ¥±¥Ã¥È¤«¤é¥Õ¥¡¥¤¥ëID¤òÃê½Ğ¤·¥Õ¥¡¥¤¥ëID¤ò´ğ¤ËÅºÉÕ¥Õ¥¡¥¤¥ë¤ò¸¡º÷¤·¡¢AttachFile¤Î¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤·¤Ş¤¹¡£</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰ãƒ•ã‚¡ã‚¤ãƒ«IDã‚’æŠ½å‡ºã—ãƒ•ã‚¡ã‚¤ãƒ«IDã‚’åŸºã«æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¤œç´¢ã—ã€AttachFileã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã—ã¾ã™ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
- * @retval AttachFile¤Î¥¤¥Æ¥ì¡¼¥¿
- * @retval ¸«ÉÕ¤«¤é¤Ê¤¤¾ì¹ç¡¢end()
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval AttachFileã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+ * @retval è¦‹ä»˜ã‹ã‚‰ãªã„å ´åˆã€end()
  */
 std::vector<AttachFile>::iterator
 SentMessage::FindAttachFileByPacket( const Packet& packet )
@@ -285,9 +285,9 @@ SentMessage::FindAttachFileByPacket( const Packet& packet )
 }
 
 /**
- * ¥ê¥È¥é¥¤¥Ş¥Ã¥¯¥¹¥ª¡¼¥Ğ¡¼¤«¤òÄ´¤Ù¤ë
- * @retval true:¥ê¥È¥é¥¤¥Ş¥Ã¥¯¥¹¥ª¡¼¥Ğ¡¼
- * @retval false:¥ª¡¼¥Ğ¡¼¤·¤Æ¤¤¤Ê¤¤
+ * ãƒªãƒˆãƒ©ã‚¤ãƒãƒƒã‚¯ã‚¹ã‚ªãƒ¼ãƒãƒ¼ã‹ã‚’èª¿ã¹ã‚‹
+ * @retval true:ãƒªãƒˆãƒ©ã‚¤ãƒãƒƒã‚¯ã‚¹ã‚ªãƒ¼ãƒãƒ¼
+ * @retval false:ã‚ªãƒ¼ãƒãƒ¼ã—ã¦ã„ãªã„
  */
 bool
 SentMessage::isRetryMaxOver() const
@@ -300,10 +300,10 @@ SentMessage::isRetryMaxOver() const
 }
 
 /**
- * ¥ê¥È¥é¥¤¤¬É¬Í×¤«¤òÄ´¤Ù¤ë
- * @param tryNow ¸½ºß»ş¹ï
- * @retval true:¥ê¥È¥é¥¤¤¬É¬Í×
- * @retval false:¥ê¥È¥é¥¤ÉÔÍ×
+ * ãƒªãƒˆãƒ©ã‚¤ãŒå¿…è¦ã‹ã‚’èª¿ã¹ã‚‹
+ * @param tryNow ç¾åœ¨æ™‚åˆ»
+ * @retval true:ãƒªãƒˆãƒ©ã‚¤ãŒå¿…è¦
+ * @retval false:ãƒªãƒˆãƒ©ã‚¤ä¸è¦
  */
 bool
 SentMessage::needSendRetry( time_t tryNow ) const
@@ -316,10 +316,10 @@ SentMessage::needSendRetry( time_t tryNow ) const
 }
 
 /**
- * ¥Ñ¥±¥Ã¥ÈNo¤ÇÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤«¤éÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤Î¥¤¥Æ¥ì¡¼¥¿¤ò¼èÆÀ¤¹¤ë¡£
- * @param PacketNo ¥Ñ¥±¥Ã¥ÈNo
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤Î¥¤¥Æ¥ì¡¼¥¿
- * @retval ¸«ÉÕ¤«¤é¤Ê¤¤¾ì¹çend()
+ * ãƒ‘ã‚±ãƒƒãƒˆNoã§é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‹ã‚‰é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param PacketNo ãƒ‘ã‚±ãƒƒãƒˆNo
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+ * @retval è¦‹ä»˜ã‹ã‚‰ãªã„å ´åˆend()
  */
 std::vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
@@ -338,13 +338,13 @@ SentMessageList::FindSentMessageByPacketNo( unsigned long PacketNo )
 }
 
 /**
- * ¥Ñ¥±¥Ã¥È¤«¤éÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤ò¸¡º÷¤·¤Ş¤¹¡£
+ * ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
  * <ul>
- * <li>¥Ñ¥±¥Ã¥È¤«¤é¥Ñ¥±¥Ã¥ÈNo¤òÃê½Ğ¤·¥Ñ¥±¥Ã¥ÈNo¤ò´ğ¤ËÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤ò¸¡º÷¤·¡¢SentMessage¤Î¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤·¤Ş¤¹¡£</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰ãƒ‘ã‚±ãƒƒãƒˆNoã‚’æŠ½å‡ºã—ãƒ‘ã‚±ãƒƒãƒˆNoã‚’åŸºã«é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’æ¤œç´¢ã—ã€SentMessageã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã—ã¾ã™ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
- * @retval SentMessage¤Î¥¤¥Æ¥ì¡¼¥¿
- * @retval ¸«ÉÕ¤«¤é¤Ê¤¤¾ì¹ç¡¢end()
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval SentMessageã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+ * @retval è¦‹ä»˜ã‹ã‚‰ãªã„å ´åˆã€end()
  */
 std::vector<SentMessage>::iterator
 SentMessageList::FindSentMessageByPacket( Packet packet )

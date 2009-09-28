@@ -44,11 +44,11 @@
 #endif // __HPUX__
 
 /**
- * ¥½¥±¥Ã¥È¤òÀ¸À®¤·¡¢¥Ğ¥¤¥ó¥É¤¹¤ë¡£
- * @param proto ¥×¥í¥È¥³¥ë(SOCK_STREAM, SOCK_DGRAM)¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @param devname ¥Ç¥Ğ¥¤¥¹Ì¾¡£
- * @retval ¥½¥±¥Ã¥È¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚’ç”Ÿæˆã—ã€ãƒã‚¤ãƒ³ãƒ‰ã™ã‚‹ã€‚
+ * @param proto ãƒ—ãƒ­ãƒˆã‚³ãƒ«(SOCK_STREAM, SOCK_DGRAM)ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param devname ãƒ‡ãƒã‚¤ã‚¹åã€‚
+ * @retval ã‚½ã‚±ãƒƒãƒˆã€‚
  */
 int
 ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname )
@@ -105,12 +105,12 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 
 
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤Ë¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤¹¤ë¡£
- * @param sock ¥½¥±¥Ã¥È¡£
- * @param buf Á÷¿®¥Ğ¥Ã¥Õ¥¡¡£
- * @param size Á÷¿®¥Ğ¥Ã¥Õ¥¡¤Î¥µ¥¤¥º¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤Î¥İ¥¤¥ó¥¿¡£
- * @retval sendto¤ÎÌá¤êÃÍ¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã«ãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã™ã‚‹ã€‚
+ * @param sock ã‚½ã‚±ãƒƒãƒˆã€‚
+ * @param buf é€ä¿¡ãƒãƒƒãƒ•ã‚¡ã€‚
+ * @param size é€ä¿¡ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚ºã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒã‚¤ãƒ³ã‚¿ã€‚
+ * @retval sendtoã®æˆ»ã‚Šå€¤ã€‚
  */
 int
 ipmsg::sendToSockAddrIn( int sock, const char *buf, const int size, const struct sockaddr_storage *addr )
@@ -153,10 +153,10 @@ ipmsg::getScopeId( struct sockaddr_storage *addr )
 }
 
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤¬¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¤«¤òÈ½Äê¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤Î¥İ¥¤¥ó¥¿¡£
- * @retval TRUE:¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¡£
- * @retval FALSE:¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¤ÇÌµ¤¤¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ãŒãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã‹ã‚’åˆ¤å®šã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒã‚¤ãƒ³ã‚¿ã€‚
+ * @retval TRUE:ãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã€‚
+ * @retval FALSE:ãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã§ç„¡ã„ã€‚
  */
 bool
 ipmsg::isLocalLoopbackAddress( struct sockaddr_storage *addr )
@@ -195,12 +195,12 @@ printf("ipmsg::isLocalLoopbackAddress [%s] is not localloopback\n", getSockAddrI
 }
 
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤òÀ¸À®¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤Î¥İ¥¤¥ó¥¿¡£
- * @param rawAddress IP¥¢¥É¥ì¥¹Ê¸»úÎó¡£
- * @param port ¥İ¡¼¥ÈÈÖ¹æ(¥Û¥¹¥È¥Ğ¥¤¥È¥ª¡¼¥À)¡£
- * @param devname ¥Ç¥Ğ¥¤¥¹Ì¾¡Ê¥Ç¥Õ¥©¥ë¥ÈNULL¡Ë
- * @retval ÀßÄêºÑ¤Îaddr¤Î¥¢¥É¥ì¥¹¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒã‚¤ãƒ³ã‚¿ã€‚
+ * @param rawAddress IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã€‚
+ * @param port ãƒãƒ¼ãƒˆç•ªå·(ãƒ›ã‚¹ãƒˆãƒã‚¤ãƒˆã‚ªãƒ¼ãƒ€)ã€‚
+ * @param devname ãƒ‡ãƒã‚¤ã‚¹åï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆNULLï¼‰
+ * @retval è¨­å®šæ¸ˆã®addrã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 struct sockaddr_storage *
 ipmsg::createSockAddrIn( struct sockaddr_storage *addr, std::string rawAddress, int port, const char *devname )
@@ -433,9 +433,9 @@ ipmsg::convertIpAddressToMacAddress( std::string ipAddress, const std::vector<Ne
 }
 
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤«¤é¥İ¡¼¥ÈÈÖ¹æ¤ò¼èÆÀ¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤Î¥İ¥¤¥ó¥¿¡£
- * @retval ¥İ¡¼¥ÈÈÖ¹æ¡Ê¥Í¥Ã¥È¥ï¡¼¥¯¥Ğ¥¤¥È¥ª¡¼¥À¡Ë¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰ãƒãƒ¼ãƒˆç•ªå·ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒã‚¤ãƒ³ã‚¿ã€‚
+ * @retval ãƒãƒ¼ãƒˆç•ªå·ï¼ˆãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãƒã‚¤ãƒˆã‚ªãƒ¼ãƒ€ï¼‰ã€‚
  */
 int
 ipmsg::getSockAddrInPortNo( const struct sockaddr_storage *addr )
@@ -445,9 +445,9 @@ ipmsg::getSockAddrInPortNo( const struct sockaddr_storage *addr )
 }
 
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤«¤é¥İ¡¼¥ÈÈÖ¹æ¤ò¼èÆÀ¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @retval ¥İ¡¼¥ÈÈÖ¹æ¡Ê¥Í¥Ã¥È¥ï¡¼¥¯¥Ğ¥¤¥È¥ª¡¼¥À¡Ë¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰ãƒãƒ¼ãƒˆç•ªå·ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @retval ãƒãƒ¼ãƒˆç•ªå·ï¼ˆãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãƒã‚¤ãƒˆã‚ªãƒ¼ãƒ€ï¼‰ã€‚
  */
 int
 ipmsg::getSockAddrInPortNo( const struct sockaddr_storage &addr )
@@ -494,9 +494,9 @@ ipmsg::getLocalhostAddress( bool useIPv6, const std::vector<NetworkInterface>& n
 	return HostAddress;
 }
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤«¤éIP¥¢¥É¥ì¥¹Ê¸»úÎó¤ò¼èÆÀ¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤Î¥İ¥¤¥ó¥¿¡£
- * @retval IP¥¢¥É¥ì¥¹Ê¸»úÎó¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒã‚¤ãƒ³ã‚¿ã€‚
+ * @retval IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã€‚
  */
 std::string
 ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage *addr )
@@ -506,9 +506,9 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage *addr )
 }
 
 /**
- * ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤«¤éIP¥¢¥É¥ì¥¹Ê¸»úÎó¤ò¼èÆÀ¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @retval IP¥¢¥É¥ì¥¹Ê¸»úÎó¡£
+ * ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @retval IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã€‚
  */
 std::string
 ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
@@ -546,9 +546,9 @@ ipmsg::getSockAddrInRawAddress( const struct sockaddr_storage &addr )
 }
 
 /**
- * ¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥êÊ¸»úÎó¤ò¼èÆÀ¤¹¤ë¡£
- * @param addr ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @retval ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹Ê¸»úÎó¡£
+ * ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªæ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param addr ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @retval ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã€‚
  */
 std::string
 ipmsg::getSockAddrInAddressFamilyString( const struct sockaddr_storage &addr )
@@ -558,9 +558,9 @@ ipmsg::getSockAddrInAddressFamilyString( const struct sockaddr_storage &addr )
 }
 
 /**
- * ¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥êÊ¸»úÎó¤ò¼èÆÀ¤¹¤ë¡£
- * @param family ¥½¥±¥Ã¥È¥Õ¥¡¥ß¥ê¡£
- * @retval ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹Ê¸»úÎó¡£
+ * ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªæ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param family ã‚½ã‚±ãƒƒãƒˆãƒ•ã‚¡ãƒŸãƒªã€‚
+ * @retval ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã€‚
  */
 std::string
 ipmsg::getAddressFamilyString( int family )
@@ -580,11 +580,11 @@ ipmsg::getAddressFamilyString( int family )
 }
 
 /**
- * Æ±¤¸¥½¥±¥Ã¥È¥Õ¥¡¥ß¥ê¤«¤òÈ½Äê¤¹¤ë¡£
- * @param base ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @param check ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @retval true:Æ±°ì¡£
- * @retval false:Æ±°ì¤Ç¤Ê¤¤¡£
+ * åŒã˜ã‚½ã‚±ãƒƒãƒˆãƒ•ã‚¡ãƒŸãƒªã‹ã‚’åˆ¤å®šã™ã‚‹ã€‚
+ * @param base ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param check ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @retval true:åŒä¸€ã€‚
+ * @retval false:åŒä¸€ã§ãªã„ã€‚
  */
 bool
 ipmsg::isSameSockAddressFamily( struct sockaddr_storage base, struct sockaddr_storage check )
@@ -595,11 +595,11 @@ ipmsg::isSameSockAddressFamily( struct sockaddr_storage base, struct sockaddr_st
 	return false;
 }
 /**
- * Æ±¤¸¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¤«¤òÈ½Äê¤¹¤ë¡£
- * @param base ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @param check ¥½¥±¥Ã¥È¥¢¥É¥ì¥¹¡£
- * @retval true:Æ±°ì¡£
- * @retval false:Æ±°ì¤Ç¤Ê¤¤¡£
+ * åŒã˜ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚’åˆ¤å®šã™ã‚‹ã€‚
+ * @param base ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param check ã‚½ã‚±ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @retval true:åŒä¸€ã€‚
+ * @retval false:åŒä¸€ã§ãªã„ã€‚
  */
 bool
 ipmsg::isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage check )
@@ -626,10 +626,10 @@ ipmsg::isSameSockAddrIn( struct sockaddr_storage base, struct sockaddr_storage c
 }
 
 /**
- * ¥Õ¥¡¥¤¥ë¥Ğ¥Ã¥Õ¥¡Á÷¿®¥á¥½¥Ã¥É¡£
+ * ãƒ•ã‚¡ã‚¤ãƒ«ãƒãƒƒãƒ•ã‚¡é€ä¿¡ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
  * <ul>
- * <li>sendfile¤¬¥µ¥İ¡¼¥È¤µ¤ì¤Æ¤¤¤ë¥×¥é¥Ã¥È¥Õ¥©¡¼¥à¤Ç¤Ïsendfile¥·¥¹¥Æ¥à¥³¡¼¥ë¤ò»È¤Ã¤Æ¹âÂ®²½¡£¥±¡¼¥¹¥Ğ¥¤¥±¡¼¥¹¤À¤¬¼ÂÁõ¤Ë¤è¤Ã¤Æ¤Ï¥¼¥í¥³¥Ô¡¼¤Ë¤Ê¤ë¡£<br>
- * ¤Ç¤â¡¢¥Æ¥¹¥È¤¬½ĞÍè¤Ş¤»¤ó¤Í¤§¡£¤È¤ê¤¢¤¨¤º¡¢hp-ux¤Ï¥Ç¥Õ¥©¥ë¥È¤Îread/write¼ÂÁõ¤ò»È¤¦¤Î¤ÇÃÙ¤¤¡£Linux¤Ç¤Ï4-5MB¤Î¥Õ¥¡¥¤¥ë¤À¤È2ÇÜ°ã¤¦¤³¤È¤â¤¢¤ë</li>
+ * <li>sendfileãŒã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚‹ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã§ã¯sendfileã‚·ã‚¹ãƒ†ãƒ ã‚³ãƒ¼ãƒ«ã‚’ä½¿ã£ã¦é«˜é€ŸåŒ–ã€‚ã‚±ãƒ¼ã‚¹ãƒã‚¤ã‚±ãƒ¼ã‚¹ã ãŒå®Ÿè£…ã«ã‚ˆã£ã¦ã¯ã‚¼ãƒ­ã‚³ãƒ”ãƒ¼ã«ãªã‚‹ã€‚<br>
+ * ã§ã‚‚ã€ãƒ†ã‚¹ãƒˆãŒå‡ºæ¥ã¾ã›ã‚“ã­ã‡ã€‚ã¨ã‚Šã‚ãˆãšã€hp-uxã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®read/writeå®Ÿè£…ã‚’ä½¿ã†ã®ã§é…ã„ã€‚Linuxã§ã¯4-5MBã®ãƒ•ã‚¡ã‚¤ãƒ«ã ã¨2å€é•ã†ã“ã¨ã‚‚ã‚ã‚‹</li>
  * </ul>
  */
 int
@@ -637,12 +637,12 @@ ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
 {
 	IPMSG_FUNC_ENTER( "int ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )" );
 #if defined(SUPPORT_SENDFILE_LINUX_STYLE)
-	//LinuxÍÑ
+	//Linuxç”¨
 	//printf( "ipmsg::IpMsgSendFileBuffer sendfile as sendfile syscall by linux\n" );
 	IPMSG_FUNC_RETURN( sendfile( sock, ifd, NULL, size ) );
 #elif defined(SUPPORT_SENDFILE_BSD_STYLE)
 	//printf( "ipmsg::IpMsgSendFileBuffer sendfile as sendfile syscall by freebsd\n" );
-	//FreeBSDÍÑ
+	//FreeBSDç”¨
 	IPMSG_FUNC_RETURN( sendfile( sock, ifd, NULL, size, NULL, NULL, 0 ) );
 /*
 // TODO solaris support start from here.
@@ -651,14 +651,14 @@ ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
 #if 0
 //#elif defined(SUPPORT_SENDFILE_HPUX_STYLE)
 	printf( "ipmsg::IpMsgSendFileBuffer sendfile as sendfile syscall by hp-ux\n" );
-	//HP-UXÍÑ
+	//HP-UXç”¨
 	IPMSG_FUNC_RETURN( sendfile( sock, ifd, NULL, size, NULL, 0 ) );
 #endif
 // TODO hp-ux support end.
 */
 #else
 	//printf( "ipmsg::IpMsgSendFileBuffer sendfile as read/write implimentation\n" );
-	//¥Ç¥Õ¥©¥ë¥È¼ÂÁõ
+	//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå®Ÿè£…
 	char readbuf[8192];
 	int readSize = read( ifd, readbuf, sizeof( readbuf ) );
 	if ( readSize > 0 ){
@@ -669,15 +669,15 @@ ipmsg::IpMsgSendFileBuffer( int ifd, int sock, int size )
 }
 
 /**
- * Æ±¤¸¥Í¥Ã¥È¥ï¡¼¥¯¤ËÂ°¤·¤Æ¤¤¤ë¤«¤òÈ½Äê¤¹¤ë¥á¥½¥Ã¥É¡£
+ * åŒã˜ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã«å±ã—ã¦ã„ã‚‹ã‹ã‚’åˆ¤å®šã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
  * <ul>
- * <li>¥¢¥É¥ì¥¹¤¬NIC¤ÈÆ±¤¸¥Í¥Ã¥È¥ï¡¼¥¯¤ËÂ°¤·¤Æ¤¤¤ë¤«¤òÈ½Äê¡£
+ * <li>ã‚¢ãƒ‰ãƒ¬ã‚¹ãŒNICã¨åŒã˜ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã«å±ã—ã¦ã„ã‚‹ã‹ã‚’åˆ¤å®šã€‚
  * </ul>
- * @param addr È½Äê¤¹¤ëIP¥¢¥É¥ì¥¹¡£
- * @param ifnetaddr NIC¤Î¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¡£
- * @param netmask ¥Í¥Ã¥È¥Ş¥¹¥¯¡£
- * @retval true:Æ±¤¸¥Í¥Ã¥È¥ï¡¼¥¯¡£
- * @retval false:°ã¤¦¥Í¥Ã¥È¥ï¡¼¥¯¡£
+ * @param addr åˆ¤å®šã™ã‚‹IPã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param ifnetaddr NICã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param netmask ãƒãƒƒãƒˆãƒã‚¹ã‚¯ã€‚
+ * @retval true:åŒã˜ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã€‚
+ * @retval false:é•ã†ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã€‚
  */
 bool
 ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr, std::string netmask )
@@ -745,16 +745,16 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 
 #ifdef HAVE_GETIFADDRS
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î¾ğÊó¤ò¼èÆÀ¤¹¤ë¡£
- * @param AddressFamily ¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¥«¡¼¥É¤Î¾ğÊó¡£
- * @param defaultPort ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param AddressFamily ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒª
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚«ãƒ¼ãƒ‰ã®æƒ…å ±ã€‚
+ * @param defaultPort ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
  */
 void
 ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
 {
 	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
-// getifaddrs¤ò»È¤¦¼ÂÁõ¤âÍÑ°Õ¡£¤½¤ÎÊı¤¬¹Ôµ·¤¬ÎÉ¤¤¡£
+// getifaddrsã‚’ä½¿ã†å®Ÿè£…ã‚‚ç”¨æ„ã€‚ãã®æ–¹ãŒè¡Œå„€ãŒè‰¯ã„ã€‚
 #if defined(DEBUG) || !defined(NDEBUG)
 printf( "ipmsg::getNetworkInterfaceInfo using getifaddrs version\n" );fflush(stdout);
 #endif
@@ -844,11 +844,11 @@ createSockAddrIn( &test, ni.IpAddress(), ni.PortNo(), ni.DeviceName().c_str() );
 }
 #else
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î¾ğÊó¤ò¼èÆÀ¤¹¤ë¡£
- * @param AddressFamily ¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¥«¡¼¥É¤Î¾ğÊó¡£
- * @param defaultPort ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
- * ¢¨getifaddrs¤¬Í­¤ë¾ì¹ç¤Ï»ÈÍÑ¤·¤Ê¤¤¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param AddressFamily ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒª
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚«ãƒ¼ãƒ‰ã®æƒ…å ±ã€‚
+ * @param defaultPort ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
+ * â€»getifaddrsãŒæœ‰ã‚‹å ´åˆã¯ä½¿ç”¨ã—ãªã„ã€‚
  */
 void
 ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
@@ -866,22 +866,22 @@ ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv
 }
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î¾ğÊó¤ò¼èÆÀ¤¹¤ë¡£(IPv4ÀìÍÑ)
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¥«¡¼¥É¤Î¾ğÊó¡£
- * @param defaultPort ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
- * ¢¨getifaddrs¤¬Í­¤ë¾ì¹ç¤Ï»ÈÍÑ¤·¤Ê¤¤¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚(IPv4å°‚ç”¨)
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚«ãƒ¼ãƒ‰ã®æƒ…å ±ã€‚
+ * @param defaultPort ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
+ * â€»getifaddrsãŒæœ‰ã‚‹å ´åˆã¯ä½¿ç”¨ã—ãªã„ã€‚
  */
 void
 ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo )
 {
 	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int defaultPortNo )" );
 #ifdef ENABLE_IPV4
-	/* ¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¤ò¤Î¤¾¤¯Á´¤Æ¤ÎIP¥¢¥É¥ì¥¹¤¬ÂĞ¾İ */
-	/* Á´¤Æ¤ÎNIC¤ò¼èÆÀ¤¹¤ë(¤è¤ê°Ü¿¢À­¤¬¹â¤¤ÊıË¡) */
+	/* ãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã‚’ã®ããå…¨ã¦ã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒå¯¾è±¡ */
+	/* å…¨ã¦ã®NICã‚’å–å¾—ã™ã‚‹(ã‚ˆã‚Šç§»æ¤æ€§ãŒé«˜ã„æ–¹æ³•) */
 	std::string localLoopbackAddress = "127.0.0.1";
 	std::string anyAddress = "0.0.0.0";
 	std::string broadcastAddress = "255.255.255.255";
-	//¾ğÊó¼èÆÀ¤Î¤¿¤á¤Î¥½¥±¥Ã¥È¤òºîÀ®
+	//æƒ…å ±å–å¾—ã®ãŸã‚ã®ã‚½ã‚±ãƒƒãƒˆã‚’ä½œæˆ
 	int fd;
 	fd = socket( AF_INET, SOCK_DGRAM, 0 );
 
@@ -923,17 +923,17 @@ ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int 
 #endif
 	}
 	if_freenameindex( p0 );
-	//¾ğÊó¼èÆÀ¤Î¤¿¤á¤Î¥½¥±¥Ã¥È¤òÊÄ¤¸¤ë¡£
+	//æƒ…å ±å–å¾—ã®ãŸã‚ã®ã‚½ã‚±ãƒƒãƒˆã‚’é–‰ã˜ã‚‹ã€‚
 	close(fd);
 #endif // ENABLE_IPV4
 	IPMSG_FUNC_EXIT;
 }
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î¾ğÊó¤ò¼èÆÀ¤¹¤ë¡£(IPv6ÀìÍÑ)
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¥«¡¼¥É¤Î¾ğÊó¡£
- * @param defaultPort ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
- * ¢¨getifaddrs¤¬Í­¤ë¾ì¹ç¤Ï»ÈÍÑ¤·¤Ê¤¤¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚(IPv6å°‚ç”¨)
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚«ãƒ¼ãƒ‰ã®æƒ…å ±ã€‚
+ * @param defaultPort ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
+ * â€»getifaddrsãŒæœ‰ã‚‹å ´åˆã¯ä½¿ç”¨ã—ãªã„ã€‚
  */
 void
 ipmsg::getNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int defaultPortNo )
@@ -957,7 +957,7 @@ ipmsg::getNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
 			snprintf( ipaddrbuf, sizeof( ipaddrbuf ), "%s:%s:%s:%s:%s:%s:%s:%s",
 					v6addr[0], v6addr[1], v6addr[2], v6addr[3],
 					v6addr[4], v6addr[5], v6addr[6], v6addr[7] );
-			//¥¢¥É¥ì¥¹¤òºÇÅ¬²½
+			//ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æœ€é©åŒ–
 			struct sockaddr_storage ss;
 			memset( &ss, 0, sizeof( ss ) );
 			ss.ss_family = AF_INET6;
@@ -982,10 +982,10 @@ ipmsg::getNetworkInterfaceInfoForIPv6( std::vector<NetworkInterface>& nics, int 
 #endif
 
 /**
- * ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤ò¼èÆÀ¤¹¤ë¡£
- * @param netAddress ¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¡£
- * @param netmask ¥Í¥Ã¥È¥Ş¥¹¥¯¡£
- * @retval ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¡£
+ * ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param netAddress ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param netmask ãƒãƒƒãƒˆãƒã‚¹ã‚¯ã€‚
+ * @retval ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 std::string
 ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netmask )
@@ -1021,11 +1021,11 @@ ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netm
 }
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¤ò¼èÆÀ¤¹¤ë¡£
- * @param family ¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê
- * @param rawAddress IP¥¢¥É¥ì¥¹¡£
- * @param netmask ¥Í¥Ã¥È¥Ş¥¹¥¯¡£
- * @retval ¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param family ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒª
+ * @param rawAddress IPã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param netmask ãƒãƒƒãƒˆãƒã‚¹ã‚¯ã€‚
+ * @retval ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 std::string
 ipmsg::getNetworkAddress( int family, std::string rawAddress, std::string netmask )

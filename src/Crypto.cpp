@@ -1,6 +1,6 @@
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥é¥¤¥Ö¥é¥ê(UnixÍÑ)
- * IP¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î°Å¹æ´ØÏ¢¥á¥½¥Ã¥É·²¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(Unixç”¨)
+ * IPãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®æš—å·é–¢é€£ãƒ¡ã‚½ãƒƒãƒ‰ç¾¤ã€‚
  */
 
 #ifdef HAVE_CONFIG_H
@@ -37,20 +37,20 @@ using namespace ipmsg;
 #include <openssl/evp.h>
 #endif	// HAVE_OPENSSL
 
-//°Å¹æ²½¥­¡¼(RSA)¤Î¥Ó¥Ã¥È¿ô(ºÇ¼å)
+//æš—å·åŒ–ã‚­ãƒ¼(RSA)ã®ãƒ“ãƒƒãƒˆæ•°(æœ€å¼±)
 #define RSA_KEY_LENGTH_MINIMUM	512
-//°Å¹æ²½¥­¡¼(RSA)¤Î¥Ó¥Ã¥È¿ô(¤Ş¤¡¤Ş¤¡)
+//æš—å·åŒ–ã‚­ãƒ¼(RSA)ã®ãƒ“ãƒƒãƒˆæ•°(ã¾ãã¾ã)
 #define RSA_KEY_LENGTH_MIDIUM	1024
-//°Å¹æ²½¥­¡¼(RSA)¤Î¥Ó¥Ã¥È¿ô(ºÇ¶¯)
+//æš—å·åŒ–ã‚­ãƒ¼(RSA)ã®ãƒ“ãƒƒãƒˆæ•°(æœ€å¼·)
 #define RSA_KEY_LENGTH_MAXIMUM	2048
 
-//RSA¥­¡¼À¸À®»ş¤Ë»ÈÍÑ¤¹¤ëÁÇ¿ô
+//RSAã‚­ãƒ¼ç”Ÿæˆæ™‚ã«ä½¿ç”¨ã™ã‚‹ç´ æ•°
 #define ENCRYPT_PRIME			65537
 
 #define ERR_BUF_SIZE	1024
 /**
- * °Å¹æ´ØÏ¢¤Î½é´ü²½¡£
- * Ãí¡§¤³¤Î¥á¥½¥Ã¥É¤Ï¥¹¥ì¥Ã¥É¥»¡¼¥Õ¤Ç¤Ê¤¤¡£
+ * æš—å·é–¢é€£ã®åˆæœŸåŒ–ã€‚
+ * æ³¨ï¼šã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ã§ãªã„ã€‚
  */
 void
 IpMessengerAgentImpl::CryptoInit()
@@ -94,7 +94,7 @@ IpMessengerAgentImpl::CryptoInit()
 	}
 #endif	//SUPPORT_RSA_512
 	if ( encryptionCapacity == 0UL ) {
-		//°Å¹æ²½Ìµ¸ú
+		//æš—å·åŒ–ç„¡åŠ¹
 		printf("Encryption extention disabled.\n");fflush(stdout);
 	}
 #ifdef SUPPORT_RC2_40
@@ -120,8 +120,8 @@ IpMessengerAgentImpl::CryptoInit()
 }
 
 /**
- * °Å¹æ´ØÏ¢¤Î½ª´ü²½¡£
- * Ãí¡§¤³¤Î¥á¥½¥Ã¥É¤Ï¥¹¥ì¥Ã¥É¥»¡¼¥Õ¤Ç¤Ê¤¤¡£
+ * æš—å·é–¢é€£ã®çµ‚æœŸåŒ–ã€‚
+ * æ³¨ï¼šã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ã§ãªã„ã€‚
  */
 void
 IpMessengerAgentImpl::CryptoEnd()
@@ -143,14 +143,14 @@ IpMessengerAgentImpl::CryptoEnd()
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸°Å¹æ²½¡£
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param optBuf ¥Ñ¥±¥Ã¥È¥ª¥×¥·¥ç¥óÉô¤Î¥Ğ¥Ã¥Õ¥¡¤Î¥¢¥É¥ì¥¹
- * @param optBufLen ¥Ñ¥±¥Ã¥È¥ª¥×¥·¥ç¥óÉô¤Î¥Ğ¥Ã¥Õ¥¡¤Î¸½ºß¤ÎÍ­¸ú¥Ç¡¼¥¿Ä¹
- * @param enc_optBufLen °Å¹æ²½ºÑ¤Î¥Ñ¥±¥Ã¥È¥ª¥×¥·¥ç¥óÉô¤Î¥Ğ¥Ã¥Õ¥¡¤ÎÍ­¸ú¥Ç¡¼¥¿Ä¹¤Î¥¢¥É¥ì¥¹
- * @param opt_size ¥Ñ¥±¥Ã¥È¥ª¥×¥·¥ç¥óÉô¤Î¥Ğ¥Ã¥Õ¥¡¤Î¥µ¥¤¥º
- * @retval true:Éü¹æ²½À®¸ù
- * @retval false:Éü¹æ²½¼ºÇÔ
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸æš—å·åŒ–ã€‚
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param optBuf ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ã®ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param optBufLen ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ã®ãƒãƒƒãƒ•ã‚¡ã®ç¾åœ¨ã®æœ‰åŠ¹ãƒ‡ãƒ¼ã‚¿é•·
+ * @param enc_optBufLen æš—å·åŒ–æ¸ˆã®ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ã®ãƒãƒƒãƒ•ã‚¡ã®æœ‰åŠ¹ãƒ‡ãƒ¼ã‚¿é•·ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param opt_size ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ã®ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚º
+ * @retval true:å¾©å·åŒ–æˆåŠŸ
+ * @retval false:å¾©å·åŒ–å¤±æ•—
  */
 bool
 IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBuf, int optBufLen, int *enc_optBufLen, int opt_size )
@@ -160,7 +160,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	unsigned long pubKeyMethod = 0UL;
 	unsigned char iv[EVP_MAX_IV_LENGTH];
 
-	//EVP¤ÎSeal·Ï¤Î¸ø³«¸°°Å¹æ¤Î°Å¹æ²½API¤Ï»È¤¤¤Ë¤¯¤¤¤Î¤Ç¡¢¼«Ê¬¤ÇEncrypt·Ï¡¢RSA·Ï¤ÎAPI¤Ç¼ÂÁõ¤·¤Ş¤¹¡£
+	//EVPã®Sealç³»ã®å…¬é–‹éµæš—å·ã®æš—å·åŒ–APIã¯ä½¿ã„ã«ãã„ã®ã§ã€è‡ªåˆ†ã§Encryptç³»ã€RSAç³»ã®APIã§å®Ÿè£…ã—ã¾ã™ã€‚
 #ifndef WINCOMPAT
 #ifdef SUPPORT_RSA_2048
 	if ( pubKeyMethod == 0UL && encryptionCapacity & IPMSG_RSA_2048 && host.EncryptionCapacity() & IPMSG_RSA_2048 ) {
@@ -180,7 +180,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		pubKeyMethod = IPMSG_RSA_512;
 	}
 #endif	//SUPPORT_RSA_512
-	//°Å¹æ²½½ĞÍè¤Ê¤¤¤Î¤Ç¡¢Ê¿Ê¸¤ÇÁ÷¿®¡£
+	//æš—å·åŒ–å‡ºæ¥ãªã„ã®ã§ã€å¹³æ–‡ã§é€ä¿¡ã€‚
 	if ( pubKeyMethod == 0UL ) {
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IpMessengerAgentImpl::EncryptMsg encryptionCapacity(%lx)\n", encryptionCapacity );fflush(stdout);
@@ -268,7 +268,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		RAND_bytes( sharekey, key_bytes_size );
 	}
 #endif	//SUPPORT_RC2_40
-	//°Å¹æ²½½ĞÍè¤Ê¤¤¤Î¤Ç¡¢Ê¿Ê¸¤ÇÁ÷¿®¡£
+	//æš—å·åŒ–å‡ºæ¥ãªã„ã®ã§ã€å¹³æ–‡ã§é€ä¿¡ã€‚
 	if ( shareKeyMethod == 0UL ) {
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IpMessengerAgentImpl::EncryptMsg shareKeyMethod == 0UL\n");fflush(stdout);
@@ -288,7 +288,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		RSA_free( rsa );
 		IPMSG_FUNC_RETURN( false );
 	}
-	//¶¦ÄÌ¸°¤òRSA¸ø³«¸°¤Ç°Å¹æ²½¡£
+	//å…±é€šéµã‚’RSAå…¬é–‹éµã§æš—å·åŒ–ã€‚
 	int enc_key_len = RSA_public_encrypt( key_bytes_size, sharekey, enc_key, rsa, RSA_PKCS1_PADDING );
 	if ( enc_key_len < 0 ) {
 #if defined(INFO) || !defined(NDEBUG)
@@ -298,7 +298,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		free( enc_key );
 		IPMSG_FUNC_RETURN( false );
 	}
-	//¶¦ÄÌ¸°¤ÇËÜÊ¸¤ò°Å¹æ²½¡£
+	//å…±é€šéµã§æœ¬æ–‡ã‚’æš—å·åŒ–ã€‚
 	EVP_CIPHER_CTX ctx;
 	EVP_CIPHER_CTX_init( &ctx );
 	int seal_init_ret = 0;
@@ -309,7 +309,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	if ( shareKeyMethod == IPMSG_RC2_40 ) {
 #endif	//WINCOMPAT
 		seal_init_ret = EVP_EncryptInit( &ctx, EVP_rc2_40_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_RC2_40
@@ -318,7 +318,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #ifdef SUPPORT_RC2_128
 	if ( shareKeyMethod == IPMSG_RC2_128 ) {
 		seal_init_ret = EVP_EncryptInit( &ctx, EVP_rc2_64_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_RC2_128
@@ -328,7 +328,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #ifdef SUPPORT_RC2_256
 	if( shareKeyMethod == IPMSG_RC2_256 ) {
 		seal_init_ret = EVP_EncryptInit( &ctx, EVP_rc2_64_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_RC2_256
@@ -341,7 +341,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	if ( shareKeyMethod == IPMSG_BLOWFISH_128 ) {
 #endif	//WINCOMPAT
 		seal_init_ret = EVP_EncryptInit( &ctx, EVP_bf_cbc(), NULL, NULL );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_BLOWFISH_128
@@ -350,7 +350,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #ifdef SUPPORT_BLOWFISH_256
 	if ( shareKeyMethod == IPMSG_BLOWFISH_256 ) {
 		seal_init_ret = EVP_EncryptInit( &ctx, EVP_bf_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_BLOWFISH_256
@@ -367,7 +367,7 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	int ol;
 	int o_len = 0;
 	int ret;
-	// ¥Ğ¥Ã¥Õ¥¡¤¬½ª¤ï¤ë¤Ş¤Ç·«¤êÊÖ¤¹¡£
+	// ãƒãƒƒãƒ•ã‚¡ãŒçµ‚ã‚ã‚‹ã¾ã§ç¹°ã‚Šè¿”ã™ã€‚
 	for( int i = 0; i < optBufLen / key_bytes_size; i++ ){
 		ret = EVP_EncryptUpdate( &ctx, (unsigned char*)&enc_buf[o_len], &ol, &optBuf[o_len], key_bytes_size );
 		o_len += ol;
@@ -428,10 +428,10 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Éü¹æ²½¡£
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È¡Ê»²¾È¡Ë
- * @retval true:Éü¹æ²½À®¸ù
- * @retval false:Éü¹æ²½¼ºÇÔ
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å¾©å·åŒ–ã€‚
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆå‚ç…§ï¼‰
+ * @retval true:å¾©å·åŒ–æˆåŠŸ
+ * @retval false:å¾©å·åŒ–å¤±æ•—
  */
 bool
 IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
@@ -521,11 +521,11 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		rsa = RsaMin;
 	}
 #endif	//SUPPORT_RSA_512
-	//°Å¹æ²½¤µ¤ì¤Æ¤¤¤Ê¤¤¡©
+	//æš—å·åŒ–ã•ã‚Œã¦ã„ãªã„ï¼Ÿ
 	if ( pubKeyMethod == 0UL ) {
 		IPMSG_FUNC_RETURN( false );
 	}
-	//¥Ñ¥Ç¥£¥ó¥°¤ò´Ş¤à¥µ¥¤¥º
+	//ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°ã‚’å«ã‚€ã‚µã‚¤ã‚º
 	int ekey_len = ekey.length() / 2;
 	if ( ekey_len % rsa_bits > 0 ) {
 		ekey_len = ( ( ekey.length() / 2 ) / rsa_bits ) * ( rsa_bits + 1 );
@@ -613,7 +613,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 	}
 #endif	//SUPPORT_BLOWFISH_256
 #endif	//WINCOMPAT
-	//°Å¹æ²½¤µ¤ì¤Æ¤¤¤Ê¤¤¡©
+	//æš—å·åŒ–ã•ã‚Œã¦ã„ãªã„ï¼Ÿ
 	if ( shareKeyMethod == 0UL ) {
 		free( file_info );
 		free( ek );
@@ -662,7 +662,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( emsg_buf );
 			IPMSG_FUNC_RETURN( false );
 		}
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
 	}
 #endif	//SUPPORT_RC2_40
@@ -677,7 +677,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( emsg_buf );
 			IPMSG_FUNC_RETURN( false );
 		}
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
 	}
 #endif	//SUPPORT_RC2_128
@@ -693,7 +693,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( emsg_buf );
 			IPMSG_FUNC_RETURN( false );
 		}
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
 	}
 #endif	//SUPPORT_RC2_256
@@ -712,7 +712,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( emsg_buf );
 			IPMSG_FUNC_RETURN( false );
 		}
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
 	}
 #endif//SUPPORT_BLOWFISH_128
@@ -727,7 +727,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			free( emsg_buf );
 			IPMSG_FUNC_RETURN( false );
 		}
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//¸°Ä¹¤ÎÀßÄê
+		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//éµé•·ã®è¨­å®š
 		open_init_ret = EVP_OpenInit( &ctx, NULL, ek, ekl, iv, &pubkey );
 	}
 #endif	//SUPPORT_BLOWFISH_256
@@ -775,9 +775,9 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 }
 
 /**
- * ºÇÅ¬¤ÊRSA¥ª¥Ö¥¸¥§¥¯¥È¤òÁªÂò¤·¤ÆÊÖµÑ¤¹¤ë¡£
- * @param cap ¼«Ê¬¤Î°Å¹æ²½Ç½ÎÏ¤ò¼¨¤¹¥Õ¥é¥°¡£
- * @retval °Å¹æ²½¤Ë»ÈÍÑ¤¹¤ëRSA¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * æœ€é©ãªRSAã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’é¸æŠã—ã¦è¿”å´ã™ã‚‹ã€‚
+ * @param cap è‡ªåˆ†ã®æš—å·åŒ–èƒ½åŠ›ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°ã€‚
+ * @retval æš—å·åŒ–ã«ä½¿ç”¨ã™ã‚‹RSAã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 RSA *
 IpMessengerAgentImpl::GetOptimizedRsa( unsigned long cap )

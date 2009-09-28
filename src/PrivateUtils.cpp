@@ -57,11 +57,11 @@ ipmsg::IpMsgCallTraceExit( const char* funcname )
 #if defined(DEBUG) || defined(INFO)
 
 /**
- * ¥Ğ¥Ã¥Õ¥¡¤ò¥×¥ê¥ó¥È¤¹¤ë¡£
- * ¡¦¡Ê"\x01\x01\x42\x1b"¤Î¾ì¹ç¡¢"(\01 2times)A(\1b)"¤ÈÉ½¼¨¤¹¤ë¡Ë
- * @param bufname ¥Ğ¥Ã¥Õ¥¡¥¿¥¤¥È¥ë
- * @param buf ¥Ğ¥Ã¥Õ¥¡
- * @param size ¥Ğ¥Ã¥Õ¥¡¥µ¥¤¥º
+ * ãƒãƒƒãƒ•ã‚¡ã‚’ãƒ—ãƒªãƒ³ãƒˆã™ã‚‹ã€‚
+ * ãƒ»ï¼ˆ"\x01\x01\x42\x1b"ã®å ´åˆã€"(\01 2times)A(\1b)"ã¨è¡¨ç¤ºã™ã‚‹ï¼‰
+ * @param bufname ãƒãƒƒãƒ•ã‚¡ã‚¿ã‚¤ãƒˆãƒ«
+ * @param buf ãƒãƒƒãƒ•ã‚¡
+ * @param size ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚º
  */
 void
 ipmsg::IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
@@ -98,9 +98,9 @@ ipmsg::IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 }
 
 /**
- * ¥³¥Ş¥ó¥ÉÊ¸»úÎó¤òÊÖ¤¹¡£
- * @param cmd ¥³¥Ş¥ó¥É
- * @retval ¥³¥Ş¥ó¥ÉÊ¸»úÎó
+ * ã‚³ãƒãƒ³ãƒ‰æ–‡å­—åˆ—ã‚’è¿”ã™ã€‚
+ * @param cmd ã‚³ãƒãƒ³ãƒ‰
+ * @retval ã‚³ãƒãƒ³ãƒ‰æ–‡å­—åˆ—
  */
 std::string
 ipmsg::GetCommandString( unsigned long cmd )
@@ -135,9 +135,9 @@ ipmsg::GetCommandString( unsigned long cmd )
 }
 
 /**
- * ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È¤ò¥À¥ó¥×¤¹¤ë¡£
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
- * @param sender_addr Á÷¿®¸µIP¥¢¥É¥ì¥¹
+ * ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒ€ãƒ³ãƒ—ã™ã‚‹ã€‚
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @param sender_addr é€ä¿¡å…ƒIPã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr ){
@@ -156,9 +156,9 @@ ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_ad
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ò¥À¥ó¥×¤¹¤ë¡£
- * @param s ¥Ø¥Ã¥À¡¼¡¿¥Õ¥Ã¥¿¥¿¥¤¥È¥ëÊ¸»úÎó
- * @param hostList ¥Û¥¹¥È¥ê¥¹¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ€ãƒ³ãƒ—ã™ã‚‹ã€‚
+ * @param s ãƒ˜ãƒƒãƒ€ãƒ¼ï¼ãƒ•ãƒƒã‚¿ã‚¿ã‚¤ãƒˆãƒ«æ–‡å­—åˆ—
+ * @param hostList ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
@@ -291,11 +291,11 @@ ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 #endif
 
 /**
- * »ä²ÈÈÇ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹½é´ü²½
- * @param pos ¥×¥ê¥ó¥È¤¹¤ëÊ¸»úÎó
- * @param mutex ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤Î¥¢¥É¥ì¥¹
- * @param mutexattr ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤ÎÂ°À­
- * @retval pthread_mutex_init¤ÎÌá¤êÃÍ
+ * ç§å®¶ç‰ˆãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹åˆæœŸåŒ–
+ * @param pos ãƒ—ãƒªãƒ³ãƒˆã™ã‚‹æ–‡å­—åˆ—
+ * @param mutex ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param mutexattr ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã®å±æ€§
+ * @retval pthread_mutex_initã®æˆ»ã‚Šå€¤
  */
 int
 ipmsg::IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexattr )
@@ -315,10 +315,10 @@ ipmsg::IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mu
 }
 
 /**
- * »ä²ÈÈÇ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¥í¥Ã¥¯
- * @param pos ¥×¥ê¥ó¥È¤¹¤ëÊ¸»úÎó
- * @param mutex ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤Î¥¢¥É¥ì¥¹
- * @retval pthread_mutex_lock¤ÎÌá¤êÃÍ
+ * ç§å®¶ç‰ˆãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ãƒ­ãƒƒã‚¯
+ * @param pos ãƒ—ãƒªãƒ³ãƒˆã™ã‚‹æ–‡å­—åˆ—
+ * @param mutex ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @retval pthread_mutex_lockã®æˆ»ã‚Šå€¤
  */
 int
 ipmsg::IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
@@ -338,10 +338,10 @@ ipmsg::IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 }
 
 /**
- * »ä²ÈÈÇ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¥¢¥ó¥í¥Ã¥¯
- * @param pos ¥×¥ê¥ó¥È¤¹¤ëÊ¸»úÎó
- * @param mutex ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤Î¥¢¥É¥ì¥¹
- * @retval pthread_mutex_unlock¤ÎÌá¤êÃÍ
+ * ç§å®¶ç‰ˆãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚¢ãƒ³ãƒ­ãƒƒã‚¯
+ * @param pos ãƒ—ãƒªãƒ³ãƒˆã™ã‚‹æ–‡å­—åˆ—
+ * @param mutex ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @retval pthread_mutex_unlockã®æˆ»ã‚Šå€¤
  */
 int
 ipmsg::IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
@@ -361,10 +361,10 @@ ipmsg::IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 }
 
 /**
- * »ä²ÈÈÇ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹ÇË´ş
- * @param pos ¥×¥ê¥ó¥È¤¹¤ëÊ¸»úÎó
- * @param mutex ¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤Î¥¢¥É¥ì¥¹
- * @retval pthread_mutex_destroy¤ÎÌá¤êÃÍ
+ * ç§å®¶ç‰ˆãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ç ´æ£„
+ * @param pos ãƒ—ãƒªãƒ³ãƒˆã™ã‚‹æ–‡å­—åˆ—
+ * @param mutex ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @retval pthread_mutex_destroyã®æˆ»ã‚Šå€¤
  */
 int
 ipmsg::IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
@@ -384,11 +384,11 @@ ipmsg::IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 }
 
 /**
- * »ä²ÈÈÇitoa
- * @param buf ½ñ¤­¹ş¤à¥Ğ¥Ã¥Õ¥¡
- * @param bufsize ½ñ¤­¹ş¤à¥Ğ¥Ã¥Õ¥¡¤ÎºÇÂçÄ¹
- * @param val ½ñ¤­¹ş¤àÃÍ
- * @retval ÊÑ´¹¤·¤¿Ä¹¤µ(½ñ¹ş¤Ç¥Ğ¥Ã¥Õ¥¡Ä¹¤òÄ¶¤¨¤¿¾ì¹ç¤Ï¥Ğ¥Ã¥Õ¥¡Ä¹)
+ * ç§å®¶ç‰ˆitoa
+ * @param buf æ›¸ãè¾¼ã‚€ãƒãƒƒãƒ•ã‚¡
+ * @param bufsize æ›¸ãè¾¼ã‚€ãƒãƒƒãƒ•ã‚¡ã®æœ€å¤§é•·
+ * @param val æ›¸ãè¾¼ã‚€å€¤
+ * @retval å¤‰æ›ã—ãŸé•·ã•(æ›¸è¾¼ã§ãƒãƒƒãƒ•ã‚¡é•·ã‚’è¶…ãˆãŸå ´åˆã¯ãƒãƒƒãƒ•ã‚¡é•·)
  */
 int
 ipmsg::IpMsgIntToString( char *buf, ssize_t bufsize, int val )
@@ -402,11 +402,11 @@ ipmsg::IpMsgIntToString( char *buf, ssize_t bufsize, int val )
 }
 
 /**
- * »ä²ÈÈÇ(unsigned)ltoa
- * @param buf ½ñ¤­¹ş¤à¥Ğ¥Ã¥Õ¥¡
- * @param bufsize ½ñ¤­¹ş¤à¥Ğ¥Ã¥Õ¥¡¤ÎºÇÂçÄ¹
- * @param val ½ñ¤­¹ş¤àÃÍ
- * @retval ÊÑ´¹¤·¤¿Ä¹¤µ(½ñ¹ş¤Ç¥Ğ¥Ã¥Õ¥¡Ä¹¤òÄ¶¤¨¤¿¾ì¹ç¤Ï¥Ğ¥Ã¥Õ¥¡Ä¹)
+ * ç§å®¶ç‰ˆ(unsigned)ltoa
+ * @param buf æ›¸ãè¾¼ã‚€ãƒãƒƒãƒ•ã‚¡
+ * @param bufsize æ›¸ãè¾¼ã‚€ãƒãƒƒãƒ•ã‚¡ã®æœ€å¤§é•·
+ * @param val æ›¸ãè¾¼ã‚€å€¤
+ * @retval å¤‰æ›ã—ãŸé•·ã•(æ›¸è¾¼ã§ãƒãƒƒãƒ•ã‚¡é•·ã‚’è¶…ãˆãŸå ´åˆã¯ãƒãƒƒãƒ•ã‚¡é•·)
  */
 int
 ipmsg::IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
@@ -420,10 +420,10 @@ ipmsg::IpMsgULongToString( char *buf, ssize_t bufsize, unsigned long val )
 }
 
 /**
- * uchar¤òhexÊ¸»úÎó¤ËÊÑ´¹¡£
- * @param buf ½ñ¤­¹ş¤à¥Ğ¥Ã¥Õ¥¡
- * @param val ½ñ¤­¹ş¤àÃÍ
- * @retval ÊÑ´¹¤·¤¿Ä¹¤µ(½ñ¹ş¤Ç¥Ğ¥Ã¥Õ¥¡Ä¹¤òÄ¶¤¨¤¿¾ì¹ç¤Ï¥Ğ¥Ã¥Õ¥¡Ä¹)
+ * ucharã‚’hexæ–‡å­—åˆ—ã«å¤‰æ›ã€‚
+ * @param buf æ›¸ãè¾¼ã‚€ãƒãƒƒãƒ•ã‚¡
+ * @param val æ›¸ãè¾¼ã‚€å€¤
+ * @retval å¤‰æ›ã—ãŸé•·ã•(æ›¸è¾¼ã§ãƒãƒƒãƒ•ã‚¡é•·ã‚’è¶…ãˆãŸå ´åˆã¯ãƒãƒƒãƒ•ã‚¡é•·)
  */
 int
 ipmsg::IpMsgUCharToHexString( char buf[3], const unsigned char val )
@@ -529,7 +529,7 @@ ipmsg::IpMsgGetHostName()
 {
 	char hostbuf[IPMSG_HOST_NAME_MAX];
 
-	//¤Ê¤ë¤Ù¤¯API¤Ç¼èÆÀ¤¹¤ë¡£½ĞÍè¤Ê¤±¤ì¤Ğ¡¢localhost¤òÀßÄê¡£
+	//ãªã‚‹ã¹ãAPIã§å–å¾—ã™ã‚‹ã€‚å‡ºæ¥ãªã‘ã‚Œã°ã€localhostã‚’è¨­å®šã€‚
 	memset( hostbuf, 0, sizeof( hostbuf ) );
 	if ( gethostname( hostbuf, sizeof( hostbuf ) ) == 0 ){
 		return std::string( hostbuf );
@@ -542,7 +542,7 @@ ipmsg::IpMsgGetLoginName( uid_t uid )
 	struct passwd login;
 	char buf[IPMSG_GETPW_R_SIZE_MAX];
 	struct passwd *pw;
-	//¤Ê¤ë¤Ù¤¯API¤Ç¼èÆÀ¤¹¤ë¡£½ĞÍè¤Ê¤±¤ì¤Ğ¡¢uid¤òÀßÄê¡£
+	//ãªã‚‹ã¹ãAPIã§å–å¾—ã™ã‚‹ã€‚å‡ºæ¥ãªã‘ã‚Œã°ã€uidã‚’è¨­å®šã€‚
 	if ( getpwuid_r( uid, &login, buf, sizeof( buf ), &pw ) == 0 ) {
 		return std::string(login.pw_name);
 	}

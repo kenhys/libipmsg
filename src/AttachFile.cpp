@@ -1,6 +1,6 @@
 /**
- * IP есе├е╗еєе╕еуещеде╓ещеъ(Unix═╤)
- * ┼║╔╒е╒ебедеыепеще╣бг
+ * IP уГбуГГуВ╗уГ│уВ╕уГгуГйуВдуГЦуГйуГк(UnixчФи)
+ * ц╖╗ф╗ШуГХуВбуВдуГлуВпуГйуВ╣уАВ
  */
  
 #ifdef HAVE_CONFIG_H
@@ -16,9 +16,9 @@ using namespace ipmsg;
 static int file_id = 0;
 
 /**
- * е│еєе╣е╚ещепе┐бг
+ * уВ│уГ│уВ╣уГИуГйуВпуВ┐уАВ
  * <ul>
- * <li>е╒ебедеыеъе╣е╚дЄеэе├епд╣дыд┐дсд╬е▀ехб╝е╞е├епе╣дЄ└╕└обг</li>
+ * <li>уГХуВбуВдуГлуГкуВ╣уГИуВТуГнуГГуВпуБЩуВЛуБЯуВБуБоуГЯуГеуГ╝уГЖуГГуВпуВ╣уВТчФЯцИРуАВ</li>
  * </ul>
  */
 AttachFileList::AttachFileList()
@@ -29,11 +29,11 @@ AttachFileList::AttachFileList()
 }
 
 /**
- * е│е╘б╝е│еєе╣е╚ещепе┐бг
+ * уВ│уГФуГ╝уВ│уГ│уВ╣уГИуГйуВпуВ┐уАВ
  * <ul>
- * <li>е╒ебедеыеъе╣е╚дЄеэе├епд╣дыд┐дсд╬е▀ехб╝е╞е├епе╣дЄ└╕└обг</li>
+ * <li>уГХуВбуВдуГлуГкуВ╣уГИуВТуГнуГГуВпуБЩуВЛуБЯуВБуБоуГЯуГеуГ╝уГЖуГГуВпуВ╣уВТчФЯцИРуАВ</li>
  * </ul>
- * @param other е│е╘б╝╕╡д╬еке╓е╕езепе╚
+ * @param other уВ│уГФуГ╝хЕГуБоуВкуГЦуВ╕уВзуВпуГИ
  */
 AttachFileList::AttachFileList( const AttachFileList& other )
 {
@@ -46,12 +46,12 @@ AttachFileList::AttachFileList( const AttachFileList& other )
 }
 
 /**
- * ┬х╞■▒щ╗╗╗╥бг
+ * ф╗гхЕец╝ФчоЧхнРуАВ
  * <ul>
- * <li>е╒ебедеыеъе╣е╚дЄеэе├епд╣дыд┐дсд╬е▀ехб╝е╞е├епе╣дЄ└╕└обг</li>
+ * <li>уГХуВбуВдуГлуГкуВ╣уГИуВТуГнуГГуВпуБЩуВЛуБЯуВБуБоуГЯуГеуГ╝уГЖуГГуВпуВ╣уВТчФЯцИРуАВ</li>
  * </ul>
- * @param other е│е╘б╝╕╡д╬еке╓е╕езепе╚
- * @retval ╝леке╓е╕езепе╚д╬едеєе╣е┐еєе╣
+ * @param other уВ│уГФуГ╝хЕГуБоуВкуГЦуВ╕уВзуВпуГИ
+ * @retval шЗкуВкуГЦуВ╕уВзуВпуГИуБоуВдуГ│уВ╣уВ┐уГ│уВ╣
  */
 AttachFileList&
 AttachFileList::operator=( const AttachFileList& other )
@@ -65,8 +65,8 @@ AttachFileList::operator=( const AttachFileList& other )
 }
 
 /**
- * е│е╘б╝есе╜е├е╔бг
- * @param other е│е╘б╝╕╡д╬еке╓е╕езепе╚
+ * уВ│уГФуГ╝уГбуВ╜уГГуГЙуАВ
+ * @param other уВ│уГФуГ╝хЕГуБоуВкуГЦуВ╕уВзуВпуГИ
  */
 void
 AttachFileList::CopyFrom( const AttachFileList& other )
@@ -77,9 +77,9 @@ AttachFileList::CopyFrom( const AttachFileList& other )
 }
 
 /**
- * е╟е╣е╚ещепе┐бг
+ * уГЗуВ╣уГИуГйуВпуВ┐уАВ
  * <ul>
- * <li>е╒ебедеыеъе╣е╚дЄеэе├епд╣дыд┐дсд╬е▀ехб╝е╞е├епе╣дЄ╟╦┤■бг</li>
+ * <li>уГХуВбуВдуГлуГкуВ╣уГИуВТуГнуГГуВпуБЩуВЛуБЯуВБуБоуГЯуГеуГ╝уГЖуГГуВпуВ╣уВТча┤цгДуАВ</li>
  * </ul>
  */
 AttachFileList::~AttachFileList()
@@ -90,8 +90,8 @@ AttachFileList::~AttachFileList()
 }
 
 /**
- * е╒ебедеыеъе╣е╚дЄеэе├еп
- * @param pos еэе├епд╖д╞ддды░╠├╓дЄ╝ид╣╩╕╗·╬єбг
+ * уГХуВбуВдуГлуГкуВ╣уГИуВТуГнуГГуВп
+ * @param pos уГнуГГуВпуБЧуБжуБДуВЛф╜Нч╜оуВТчд║уБЩцЦЗхнЧхИЧуАВ
  */
 void
 AttachFileList::Lock( const char *pos ) const
@@ -102,8 +102,8 @@ AttachFileList::Lock( const char *pos ) const
 }
 
 /**
- * е╒ебедеыеъе╣е╚дЄевеєеэе├еп
- * @param pos евеєеэе├епд╖д╞ддды░╠├╓дЄ╝ид╣╩╕╗·╬єбг
+ * уГХуВбуВдуГлуГкуВ╣уГИуВТуВвуГ│уГнуГГуВп
+ * @param pos уВвуГ│уГнуГГуВпуБЧуБжуБДуВЛф╜Нч╜оуВТчд║уБЩцЦЗхнЧхИЧуАВ
  */
 void
 AttachFileList::Unlock( const char *pos ) const
@@ -114,8 +114,8 @@ AttachFileList::Unlock( const char *pos ) const
 }
 
 /**
- * е╒ебедеыдЄ░ь═ўд╦─╔▓├д╖д▐д╣бг
- * @param file ─╔▓├д╣ды┼║╔╒е╒ебедеыеке╓е╕езепе╚
+ * уГХуВбуВдуГлуВТф╕АшжзуБлш┐╜хКауБЧуБ╛уБЩуАВ
+ * @param file ш┐╜хКауБЩуВЛц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИ
  */
 void
 AttachFileList::AddFile( const AttachFile& file )
@@ -128,7 +128,7 @@ AttachFileList::AddFile( const AttachFile& file )
 }
 
 /**
- * е╒ебедеы░ь═ўд╬└ш╞мдЄ╗╪д╣еде╞еьб╝е┐дЄ╩╓д╖д▐д╣бг
+ * уГХуВбуВдуГлф╕АшжзуБохЕИщануВТцМЗуБЩуВдуГЖуГмуГ╝уВ┐уВТш┐ФуБЧуБ╛уБЩуАВ
  */
 std::vector<AttachFile>::iterator
 AttachFileList::begin()
@@ -138,7 +138,7 @@ AttachFileList::begin()
 }
 
 /**
- * е╒ебедеы░ь═ўд╬╜к├╝д╬░ьд─╕х╩¤дЄ╗╪д╣еде╞еьб╝е┐дЄ╩╓д╖д▐д╣бг
+ * уГХуВбуВдуГлф╕АшжзуБоч╡ВчлпуБоф╕АуБдх╛МцЦ╣уВТцМЗуБЩуВдуГЖуГмуГ╝уВ┐уВТш┐ФуБЧуБ╛уБЩуАВ
  */
 std::vector<AttachFile>::iterator
 AttachFileList::end()
@@ -148,8 +148,8 @@ AttachFileList::end()
 }
 
 /**
- * е╒ебедеыдЄ░ь═ўд╦┬╕║▀д╣ды┼║╔╒е╒ебедеыд╬╕─┐ЇдЄ╩╓д╖д▐д╣бг
- * @retval ┼║╔╒е╒ебедеыеке╓е╕езепе╚д╬╕─┐Їбг
+ * уГХуВбуВдуГлуВТф╕АшжзуБлхнШхЬиуБЩуВЛц╖╗ф╗ШуГХуВбуВдуГлуБохАЛцХ░уВТш┐ФуБЧуБ╛уБЩуАВ
+ * @retval ц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИуБохАЛцХ░уАВ
  */
 int
 AttachFileList::size() const
@@ -162,7 +162,7 @@ AttachFileList::size() const
 }
 
 /**
- * е╒ебедеыдЄ░ь═ўдЄепеъевд╖д▐д╣бг
+ * уГХуВбуВдуГлуВТф╕АшжзуВТуВпуГкуВвуБЧуБ╛уБЩуАВ
  */
 void
 AttachFileList::clear()
@@ -175,8 +175,8 @@ AttachFileList::clear()
 }
 
 /**
- * е╒ебедеыдЄ░ь═ўдлдщ┼║╔╒е╒ебедеыдЄ║я╜№д╖д▐д╣бг
- * @param item ║я╜№д╣ды┼║╔╒е╒ебедеыеке╓е╕езепе╚
+ * уГХуВбуВдуГлуВТф╕АшжзуБЛуВЙц╖╗ф╗ШуГХуВбуВдуГлуВТхЙКщЩдуБЧуБ╛уБЩуАВ
+ * @param item хЙКщЩдуБЩуВЛц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИ
  */
 std::vector<AttachFile>::iterator
 AttachFileList::erase( std::vector<AttachFile>::iterator item )
@@ -189,8 +189,8 @@ AttachFileList::erase( std::vector<AttachFile>::iterator item )
 }
 
 /**
- * е╒ебедеыдЄ░ь═ўдлдщ┼║╔╒е╒ебедеыдЄ║я╜№д╖д▐д╣бг
- * @param item ║я╜№д╣ды┼║╔╒е╒ебедеыеке╓е╕езепе╚
+ * уГХуВбуВдуГлуВТф╕АшжзуБЛуВЙц╖╗ф╗ШуГХуВбуВдуГлуВТхЙКщЩдуБЧуБ╛уБЩуАВ
+ * @param item хЙКщЩдуБЩуВЛц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИ
  */
 std::vector<AttachFile>::iterator
 AttachFileList::erase( const AttachFile& item )
@@ -204,10 +204,10 @@ AttachFileList::erase( const AttachFile& item )
 }
 
 /**
- * ┼║╔╒е╒ебедеы░ь═ўдлдще╒еые╤е╣д╟╕б║ў
- * @param fullPath ╕б║ў┬╨╛▌д╬е╒еые╤е╣
- * @retval ╕л╔╒длд├д┐AttachFileд╬еде╞еьб╝е┐
- * @retval ╕л╔╒длдщд╩дд╛ь╣чend()
+ * ц╖╗ф╗ШуГХуВбуВдуГлф╕АшжзуБЛуВЙуГХуГлуГСуВ╣уБзцдЬч┤в
+ * @param fullPath цдЬч┤вхп╛ш▒буБоуГХуГлуГСуВ╣
+ * @retval шжЛф╗ШуБЛуБгуБЯAttachFileуБоуВдуГЖуГмуГ╝уВ┐
+ * @retval шжЛф╗ШуБЛуВЙуБкуБДха┤хРИend()
  */
 std::vector<AttachFile>::iterator
 AttachFileList::FindByFullPath( const std::string& fullPath )
@@ -226,10 +226,10 @@ AttachFileList::FindByFullPath( const std::string& fullPath )
 }
 
 /**
- * ┼║╔╒е╒ебедеы░ь═ўдлдще╒ебедеыIDдЄ┤Ёд╦╕б║ўд╖░ь├╫д╣дыеке╓е╕езепе╚д╬еде╞еьб╝е┐дЄ╩╓д╣бг
- * @param file_id ┼║╔╒е╒ебедеыд╬е╒ебедеыID
- * @retval ┼║╔╒е╒ебедеыеке╓е╕езепе╚д╪д╬еде╞еьб╝е┐
- * @retval ┬╕║▀д╖д╩дд╛ь╣чбвend()
+ * ц╖╗ф╗ШуГХуВбуВдуГлф╕АшжзуБЛуВЙуГХуВбуВдуГлIDуВТхЯ║уБлцдЬч┤вуБЧф╕АшЗ┤уБЩуВЛуВкуГЦуВ╕уВзуВпуГИуБоуВдуГЖуГмуГ╝уВ┐уВТш┐ФуБЩуАВ
+ * @param file_id ц╖╗ф╗ШуГХуВбуВдуГлуБоуГХуВбуВдуГлID
+ * @retval ц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИуБ╕уБоуВдуГЖуГмуГ╝уВ┐
+ * @retval хнШхЬиуБЧуБкуБДха┤хРИуАБend()
  */
 std::vector<AttachFile>::iterator
 AttachFileList::FindByFileId( int file_id )
@@ -262,9 +262,9 @@ AttachFileList::FindByFileId( int file_id )
 }
 
 /**
- * ┼║╔╒е╒ебедеые│еєе╣е╚ещепе┐
+ * ц╖╗ф╗ШуГХуВбуВдуГлуВ│уГ│уВ╣уГИуГйуВпуВ┐
  * <ul>
- * <li>file_id+1д╟е╒ебедеыidдЄ╜щ┤№▓╜бг</li>
+ * <li>file_id+1уБзуГХуВбуВдуГлidуВТхИЭцЬЯхМЦуАВ</li>
  * </ul>
  */
 AttachFile::AttachFile()
@@ -275,7 +275,7 @@ AttachFile::AttachFile()
 }
 
 /**
- * ┼║╔╒е╒ебедеы╛Ё╩є╝ш╞└
+ * ц╖╗ф╗ШуГХуВбуВдуГлцГЕха▒хПЦх╛Ч
  */
 void
 AttachFile::GetLocalFileInfo()
@@ -308,9 +308,9 @@ AttachFile::GetLocalFileInfo()
 }
 
 /**
- * ┼║╔╒е╒ебедеыдм░ь╚╠е╒ебедеыдлд╔дждлдЄ╚╜─ъбг
- * @retval true:░ь╚╠е╒ебедеы
- * @retval false:░ь╚╠е╒ебедеыд╟д╩дд
+ * ц╖╗ф╗ШуГХуВбуВдуГлуБМф╕АшИмуГХуВбуВдуГлуБЛуБйуБЖуБЛуВТхИдхоЪуАВ
+ * @retval true:ф╕АшИмуГХуВбуВдуГл
+ * @retval false:ф╕АшИмуГХуВбуВдуГлуБзуБкуБД
  */
 bool
 AttachFile::IsRegularFile() const
@@ -320,9 +320,9 @@ AttachFile::IsRegularFile() const
 }
 
 /**
- * ┼║╔╒е╒ебедеыдме╟егеьепе╚еъдлд╔дждлдЄ╚╜─ъбг
- * @retval true:е╟егеьепе╚еъ
- * @retval false:е╟егеьепе╚еъд╟д╩дд
+ * ц╖╗ф╗ШуГХуВбуВдуГлуБМуГЗуВгуГмуВпуГИуГкуБЛуБйуБЖуБЛуВТхИдхоЪуАВ
+ * @retval true:уГЗуВгуГмуВпуГИуГк
+ * @retval false:уГЗуВгуГмуВпуГИуГкуБзуБкуБД
  */
 bool
 AttachFile::IsDirectory() const
@@ -332,9 +332,9 @@ AttachFile::IsDirectory() const
 }
 
 /**
- * е╟егеьепе╚еъе╣е┐е├епдлдще╒еые╤е╣дЄ└╕└од╣дыбг
- * @param dirstack е╟егеьепе╚еъе╣е┐е├еп
- * @retval е╒еые╤е╣
+ * уГЗуВгуГмуВпуГИуГкуВ╣уВ┐уГГуВпуБЛуВЙуГХуГлуГСуВ╣уВТчФЯцИРуБЩуВЛуАВ
+ * @param dirstack уГЗуВгуГмуВпуГИуГкуВ╣уВ┐уГГуВп
+ * @retval уГХуГлуГСуВ╣
  */
 std::string
 AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
@@ -353,10 +353,10 @@ AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 }
 
 /**
- * е╟егеьепе╚еъ═╫╡с┼┼╩╕д╬▒■┼·длдще╟егеьепе╚еъ╣╜┬де╪е├е└дЄ▓Є└╧д╖бв┼║╔╒е╒ебедеыеке╓е╕езепе╚дЄ└╕└од╣дыбг
- * @param buf е╨е├е╒еб
- * @param conv е╒ебедеы╠╛е│еєе╨б╝е┐
- * @retval ┼║╔╒е╒ебедеыеке╓е╕езепе╚
+ * уГЗуВгуГмуВпуГИуГкшжБц▒ВщЫ╗цЦЗуБох┐ЬчнФуБЛуВЙуГЗуВгуГмуВпуГИуГкцзЛщАауГШуГГуГАуВТшзгцЮРуБЧуАБц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИуВТчФЯцИРуБЩуВЛуАВ
+ * @param buf уГРуГГуГХуВб
+ * @param conv уГХуВбуВдуГлхРНуВ│уГ│уГРуГ╝уВ┐
+ * @retval ц╖╗ф╗ШуГХуВбуВдуГлуВкуГЦуВ╕уВзуВпуГИ
  */
 AttachFile
 AttachFile::AnalyzeHeader( char *buf, FileNameConverter *conv )

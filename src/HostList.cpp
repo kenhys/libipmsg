@@ -1,6 +1,6 @@
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥é¥¤¥Ö¥é¥ê(UnixÍÑ)
- * ¥Û¥¹¥È¥ê¥¹¥È¥¯¥é¥¹¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(Unixç”¨)
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¯ãƒ©ã‚¹ã€‚
  */
   
 #ifdef HAVE_CONFIG_H
@@ -18,9 +18,9 @@ using namespace ipmsg;
 #define NULL_HARDWARE_ADDRESS		"00:00:00:00:00:00"
 
 /**
- * ¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>¥Û¥¹¥È¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÀ¸À®¡£</li>
+ * <li>ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç”Ÿæˆã€‚</li>
  * </ul>
  */
 HostList::HostList()
@@ -32,11 +32,11 @@ HostList::HostList()
 }
 
 /**
- * ¥³¥Ô¡¼¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>¥Û¥¹¥È¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÀ¸À®¡£</li>
+ * <li>ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç”Ÿæˆã€‚</li>
  * </ul>
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 HostList::HostList( const HostList& other )
 {
@@ -50,9 +50,9 @@ HostList::HostList( const HostList& other )
 }
 
 /**
- * ¥Ç¥¹¥È¥é¥¯¥¿¡£
+ * ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>¥Û¥¹¥È¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÇË´ş¡£</li>
+ * <li>ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç ´æ£„ã€‚</li>
  * </ul>
  */
 HostList::~HostList()
@@ -63,12 +63,12 @@ HostList::~HostList()
 }
 
 /**
- * ÂåÆş±é»»»Ò¡£
+ * ä»£å…¥æ¼”ç®—å­ã€‚
  * <ul>
- * <li>¥Û¥¹¥È¥ê¥¹¥È¤ò¥í¥Ã¥¯¤¹¤ë¤¿¤á¤Î¥ß¥å¡¼¥Æ¥Ã¥¯¥¹¤òÀ¸À®¡£</li>
+ * <li>ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ãŸã‚ã®ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã‚’ç”Ÿæˆã€‚</li>
  * </ul>
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¼«¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¤¥ó¥¹¥¿¥ó¥¹
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval è‡ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
  */
 HostList&
 HostList::operator=( const HostList& other )
@@ -84,8 +84,8 @@ HostList::operator=( const HostList& other )
 }
 
 /**
- * ¥³¥Ô¡¼¥á¥½¥Ã¥É¡£
- * @param other ¥³¥Ô¡¼¸µ¤Î¥ª¥Ö¥¸¥§¥¯¥È
+ * ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
+ * @param other ã‚³ãƒ”ãƒ¼å…ƒã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 HostList::CopyFrom( const HostList& other )
@@ -96,8 +96,8 @@ HostList::CopyFrom( const HostList& other )
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ò¥í¥Ã¥¯
- * @param pos ¥í¥Ã¥¯¤·¤Æ¤¤¤ë°ÌÃÖ¤ò¼¨¤¹Ê¸»úÎó¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ­ãƒƒã‚¯
+ * @param pos ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ä½ç½®ã‚’ç¤ºã™æ–‡å­—åˆ—ã€‚
  */
 void
 HostList::Lock( const char *pos ) const
@@ -108,8 +108,8 @@ HostList::Lock( const char *pos ) const
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ò¥¢¥ó¥í¥Ã¥¯
- * @param pos ¥¢¥ó¥í¥Ã¥¯¤·¤Æ¤¤¤ë°ÌÃÖ¤ò¼¨¤¹Ê¸»úÎó¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ã‚¢ãƒ³ãƒ­ãƒƒã‚¯
+ * @param pos ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ä½ç½®ã‚’ç¤ºã™æ–‡å­—åˆ—ã€‚
  */
 void
 HostList::Unlock( const char *pos ) const
@@ -120,8 +120,8 @@ HostList::Unlock( const char *pos ) const
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ÎÀèÆ¬¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤¹¡£
- * @retval ¥Û¥¹¥È¥ê¥¹¥È¤ÎÀèÆ¬¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®å…ˆé ­ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®å…ˆé ­ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<HostListItem>::iterator
 HostList::begin()
@@ -131,8 +131,8 @@ HostList::begin()
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ÎËöÈø¡Ü£±¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¤òÊÖ¤¹¡£
- * @retval ¥Û¥¹¥È¥ê¥¹¥È¤ÎËöÈø¡Ü£±¤ò¼¨¤¹¥¤¥Æ¥ì¡¼¥¿¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®æœ«å°¾ï¼‹ï¼‘ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’è¿”ã™ã€‚
+ * @retval ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®æœ«å°¾ï¼‹ï¼‘ã‚’ç¤ºã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã€‚
  */
 std::vector<HostListItem>::iterator
 HostList::end()
@@ -142,8 +142,8 @@ HostList::end()
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤Î¸Ä¿ô¤òÊÖ¤¹¡£
- * @retval ¥Û¥¹¥È¥ê¥¹¥È¤Î¸Ä¿ô¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®å€‹æ•°ã‚’è¿”ã™ã€‚
+ * @retval ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®å€‹æ•°ã€‚
  */
 int
 HostList::size() const
@@ -156,7 +156,7 @@ HostList::size() const
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ò¥¯¥ê¥¢¤¹¤ë¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã€‚
  */
 void
 HostList::clear()
@@ -169,7 +169,7 @@ HostList::clear()
 }
 
 /**
- * ¥Ğ¡¼¥¸¥ç¥ó¾ğÊóÌä¤¤¹ç¤ï¤»¤ò¹Ô¤¦¡£
+ * ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±å•ã„åˆã‚ã›ã‚’è¡Œã†ã€‚
  */
 void
 HostListItem::QueryVersionInfo()
@@ -181,7 +181,7 @@ HostListItem::QueryVersionInfo()
 }
 
 /**
- * ÉÔºßÀâÌÀÊ¸»úÎóÌä¤¤¹ç¤ï¤»¤ò¹Ô¤¦¡£
+ * ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—å•ã„åˆã‚ã›ã‚’è¡Œã†ã€‚
  */
 void
 HostListItem::QueryAbsenceInfo()
@@ -193,9 +193,9 @@ HostListItem::QueryAbsenceInfo()
 }
 
 /**
- * IP¥¢¥É¥ì¥¹¤ò¸µ¤Ë¥í¡¼¥«¥ë¥Û¥¹¥È¤«¤É¤¦¤«¤òµá¤á¤ë¡£
- * @retval true:¥í¡¼¥«¥ë¥Û¥¹¥È
- * @retval false:¥í¡¼¥«¥ë¥Û¥¹¥È¤Ç¤Ï¤Ê¤¤
+ * IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å…ƒã«ãƒ­ãƒ¼ã‚«ãƒ«ãƒ›ã‚¹ãƒˆã‹ã©ã†ã‹ã‚’æ±‚ã‚ã‚‹ã€‚
+ * @retval true:ãƒ­ãƒ¼ã‚«ãƒ«ãƒ›ã‚¹ãƒˆ
+ * @retval false:ãƒ­ãƒ¼ã‚«ãƒ«ãƒ›ã‚¹ãƒˆã§ã¯ãªã„
  */
 bool
 HostListItem::IsLocalHost() const
@@ -220,9 +220,9 @@ HostListItem::IsLocalHost() const
 }
 
 /**
- * ¥Û¥¹¥È¾ğÊó¤ò¥Û¥¹¥È¥ê¥¹¥È¤ËÄÉ²Ã¤¹¤ë¡£
- * @param host ¥Û¥¹¥È¾ğÊó
- * @retval ÅĞÏ¿¤·¤¿·ï¿ô
+ * ãƒ›ã‚¹ãƒˆæƒ…å ±ã‚’ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«è¿½åŠ ã™ã‚‹ã€‚
+ * @param host ãƒ›ã‚¹ãƒˆæƒ…å ±
+ * @retval ç™»éŒ²ã—ãŸä»¶æ•°
  */
 int
 HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
@@ -245,13 +245,13 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
 	std::string localhostName = agent->HostName();
 	std::vector<NetworkInterface> nics = agent->NICs;
-	//ÀèÆ¬¤Î¥¿¡¼¥²¥Ã¥È¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê¤ÎNIC¤òÃµ¤·¥×¥é¥¤¥Ş¥ê(¼«¥¢¥É¥ì¥¹)¤È¤·¤Æ°·¤¦°Ù¡¢¤½¤Î¸å¤í¤«¤éÃµ¤¹¤¿¤á¤Î¥¤¥ó¥Ç¥Ã¥¯¥¹¤òµá¤á¤ë¡£
+	//å…ˆé ­ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªã®NICã‚’æ¢ã—ãƒ—ãƒ©ã‚¤ãƒãƒª(è‡ªã‚¢ãƒ‰ãƒ¬ã‚¹)ã¨ã—ã¦æ‰±ã†ç‚ºã€ãã®å¾Œã‚ã‹ã‚‰æ¢ã™ãŸã‚ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ±‚ã‚ã‚‹ã€‚
 	int nicStartIndex = 1;
 	if ( !agent->haveIPv4Nic && !agent->haveIPv6Nic ) {
 			Unlock( "HostList::AddHost()" );
 			IPMSG_FUNC_RETURN( 0 );
 	} else if ( agent->haveIPv4Nic && agent->haveIPv6Nic && host.AddressFamily() == AF_INET6 ) {
-		//IPv4,IPv6¤ÎÎ¾Åá»È¤¤¤Ê¤éIPv6¤òÍ¥Àè¡£
+		//IPv4,IPv6ã®ä¸¡åˆ€ä½¿ã„ãªã‚‰IPv6ã‚’å„ªå…ˆã€‚
 		for( unsigned int i = 0; i < nics.size(); i++ ){
 			if ( nics[i].AddressFamily() == AF_INET6 ) {
 				nicStartIndex = i + 1;
@@ -261,7 +261,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	} else {
 		nicStartIndex = 1;
 	}
-	//Ãµ¤·¤¿¥¤¥ó¥Ç¥Ã¥¯¥¹°ÌÃÖ¤«¤é¥¹¥¿¡¼¥È
+	//æ¢ã—ãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã‹ã‚‰ã‚¹ã‚¿ãƒ¼ãƒˆ
 	for( unsigned int i = nicStartIndex; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("HostList::AddHost now host checking IpAddress=%s NIC[%d] IpAddress=%s\n", host.IpAddress().c_str(), i, nics[i].IpAddress().c_str() );
@@ -282,7 +282,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	printf("HostList::AddHost NIC's broadcast or network IP address checking now.\n" );
 	fflush(stdout);
 #endif
-	//IP¥¢¥É¥ì¥¹¤¬NIC¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¡¢¥Í¥Ã¥È¥ï¡¼¥¯¤Î¥¢¥É¥ì¥¹¤È°ìÃ×¤·¤¿¤éÌµ»ë¡£¡Ê¤¿¤Ö¤ó¤¢¤ê¤¨¤Ê¤¤¥±¥É¡£¡Ë
+	//IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒNICã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã€ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ä¸€è‡´ã—ãŸã‚‰ç„¡è¦–ã€‚ï¼ˆãŸã¶ã‚“ã‚ã‚Šãˆãªã„ã‚±ãƒ‰ã€‚ï¼‰
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("HostList::AddHost now host checking IpAddress=%s Network%s Broadcast=%s\n",
@@ -315,7 +315,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	printf("HostList::AddHost HostName=[%s] LocalhostName=[%s]\n", host.HostName().c_str(), localhostName.c_str() );
 	fflush(stdout);
 #endif
-	//IP¥¢¥É¥ì¥¹¤¬¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¥¢¥É¥ì¥¹¤È°ìÃ×¤·¤¿¤éÌµ»ë¡£
+	//IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ä¸€è‡´ã—ãŸã‚‰ç„¡è¦–ã€‚
 	if ( host.IpAddress() == "127.0.0.1" || host.IpAddress() == "::1" ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("HostList::AddHost Ignore this host item.Because host IP Address is local loopback.\n" );
@@ -324,7 +324,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_RETURN( 0 );
 	}
-	//IP¥¢¥É¥ì¥¹¤¬NIC¤ÎIP¥¢¥É¥ì¥¹¤È°ìÃ×¤¹¤ë¤Î¤Ë¥í¡¼¥«¥ë¥Û¥¹¥ÈÌ¾¤È°ìÃ×¤·¤Ê¤±¤ì¤ĞÌµ»ë¡£
+	//IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒNICã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ä¸€è‡´ã™ã‚‹ã®ã«ãƒ­ãƒ¼ã‚«ãƒ«ãƒ›ã‚¹ãƒˆåã¨ä¸€è‡´ã—ãªã‘ã‚Œã°ç„¡è¦–ã€‚
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
 #if defined(INFO) || !defined(NDEBUG)
 		printf("HostList::AddHost Ignore this host item.Because host IPAddress and NIC[0]'s IP Address is match,but not same hostname.\n" );
@@ -333,31 +333,31 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		Unlock( "HostList::AddHost()" );
 		IPMSG_FUNC_RETURN( 0 );
 	}
-	//Æ±°ì¥Û¥¹¥È¤¬¥Û¥¹¥È¥ê¥¹¥È¤ËÂ¸ºß¤¹¤ë¤«¤òÄ´¤Ù¤ë¡£
+	//åŒä¸€ãƒ›ã‚¹ãƒˆãŒãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«å­˜åœ¨ã™ã‚‹ã‹ã‚’èª¿ã¹ã‚‹ã€‚
 	std::vector<HostListItem>::iterator tmpHost;
 	if ( isPermitSameHardwareAddress ) {
-		//Æ±¤¸¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤ÎÂ¸ºß¤òµö¤¹¾ì¹ç¡£
+		//åŒã˜ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ã®å­˜åœ¨ã‚’è¨±ã™å ´åˆã€‚
 		for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
-			//Æ±¤¸IP¥¢¥É¥ì¥¹¤¬¸«¤Ä¤«¤Ã¤¿¡£
+			//åŒã˜IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒè¦‹ã¤ã‹ã£ãŸã€‚
 			if ( tmpHost->Equals( host ) ) {
 				is_found = true;
 				break;
 			}
 		}
 	} else {
-		//Æ±¤¸¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤ÎÂ¸ºß¤òµö¤µ¤Ê¤¤¾ì¹ç¡£
+		//åŒã˜ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ã®å­˜åœ¨ã‚’è¨±ã•ãªã„å ´åˆã€‚
 		for( tmpHost = items.begin(); tmpHost != items.end(); tmpHost++ ){
-			//Æ±¤¸IP¥¢¥É¥ì¥¹¤¬¸«¤Ä¤«¤Ã¤¿¤éÌµ»ë¤·¤Ş¤¹¡£
+			//åŒã˜IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒè¦‹ã¤ã‹ã£ãŸã‚‰ç„¡è¦–ã—ã¾ã™ã€‚
 			if ( tmpHost->Equals( host ) ) {
-				//¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤¬¶õ¤Ç¤Ê¤¤¤Î¤Ë°ìÃ×¤·¤Ê¤¤¡£
+				//ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ãŒç©ºã§ãªã„ã®ã«ä¸€è‡´ã—ãªã„ã€‚
 				if ( host.HardwareAddress() != NULL_HARDWARE_ADDRESS && !tmpHost->EqualsHardwareAddress( host ) ) {
-					//·Ù¹ğ¥á¥Ã¥»¡¼¥¸¤òÂ¥¤¹¡£
+					//è­¦å‘Šãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿ƒã™ã€‚
 					printf("Duplicate IP Address detected. IP Address [%s] was assgined to MAC Address [%s],[%s]\n",
 							host.IpAddress().c_str(),
 							host.HardwareAddress().c_str(),
 							tmpHost->HardwareAddress().c_str() );
 				}
-				//¤ª¤«¤·¤Ê¥Û¥¹¥È¤¬ÅĞÏ¿¤µ¤ì¤Æ¤¤¤¿¤Î¤ÇÆş¤ìÂØ¤¨¤ë¡£
+				//ãŠã‹ã—ãªãƒ›ã‚¹ãƒˆãŒç™»éŒ²ã•ã‚Œã¦ã„ãŸã®ã§å…¥ã‚Œæ›¿ãˆã‚‹ã€‚
 				if ( host.HardwareAddress() != NULL_HARDWARE_ADDRESS && tmpHost->HardwareAddress() == NULL_HARDWARE_ADDRESS ) {
 #if defined(INFO) || !defined(NDEBUG)
 					printf("HostList::AddHost Storange host was entried....host list item[%s] host[%s]\n",
@@ -376,14 +376,14 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 							tmpHost->HardwareAddress().c_str() );
 			fflush(stdout);
 #endif
-			//°ã¤¦IP¥¢¥É¥ì¥¹¤Ç¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤¬°ìÃ×¤¹¤ë¾ì¹ç¤ÏÌµ»ë¤¹¤ë¤Î¤À¤¬°ìÃ×¤·¤¿¥Û¥¹¥È¥ê¥¹¥È¤ÎÍ×ÁÇ¤¬IPv4¤Ç¡¢º£½èÍıÃæ¤Î¥Û¥¹¥È¤¬IPv6¤Ê¤é¡£¡£¡£
+			//é•ã†IPã‚¢ãƒ‰ãƒ¬ã‚¹ã§ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ãŒä¸€è‡´ã™ã‚‹å ´åˆã¯ç„¡è¦–ã™ã‚‹ã®ã ãŒä¸€è‡´ã—ãŸãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®è¦ç´ ãŒIPv4ã§ã€ä»Šå‡¦ç†ä¸­ã®ãƒ›ã‚¹ãƒˆãŒIPv6ãªã‚‰ã€‚ã€‚ã€‚
 			if ( tmpHost->EqualsHardwareAddress( host ) ) {
 #if defined(INFO) || !defined(NDEBUG)
 				printf("HostList::AddHost Found same hardware address in this host list.(HWADDR %s)\n", host.HardwareAddress().c_str() );
 				fflush(stdout);
 #endif
 				is_found = true;
-				//IPv6¤òIPv4¤è¤êÍ¥Àè¤¹¤ë¡£¡Ê¸«¤Ä¤«¤Ã¤¿¤³¤È¤Ë¤¹¤ë¤±¤ÉIPv6¤Î¥Û¥¹¥È¤ÇÃÖ´¹¤¹¤ë¡Ë
+				//IPv6ã‚’IPv4ã‚ˆã‚Šå„ªå…ˆã™ã‚‹ã€‚ï¼ˆè¦‹ã¤ã‹ã£ãŸã“ã¨ã«ã™ã‚‹ã‘ã©IPv6ã®ãƒ›ã‚¹ãƒˆã§ç½®æ›ã™ã‚‹ï¼‰
 #if defined(INFO) || !defined(NDEBUG)
 				printf("HostList::AddHost host.AddressFamily() %s %s\n", host.IpAddress().c_str(), host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
 				printf("HostList::AddHost tmpHost.AddressFamily() %s %s\n", tmpHost->IpAddress().c_str(), tmpHost->AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
@@ -426,8 +426,8 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 }
 
 /**
- * ¥Û¥¹¥È¾ğÊó¤ò¥Û¥¹¥È¥ê¥¹¥È¤«¤éºï½ü¤¹¤ë¡£
- * @param it ¥Û¥¹¥È¾ğÊó¤Î¥¤¥Æ¥ì¡¼¥¿
+ * ãƒ›ã‚¹ãƒˆæƒ…å ±ã‚’ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹ã€‚
+ * @param it ãƒ›ã‚¹ãƒˆæƒ…å ±ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
  */
 void
 HostList::Delete( std::vector<HostListItem>::iterator &it )
@@ -439,8 +439,8 @@ HostList::Delete( std::vector<HostListItem>::iterator &it )
 	IPMSG_FUNC_EXIT;
 }
 /**
- * ¥Û¥¹¥È¾ğÊó¤ò¥Û¥¹¥È¥ê¥¹¥È¤«¤éºï½ü¤¹¤ë¡£
- * @param hostname ¥Û¥¹¥ÈÌ¾
+ * ãƒ›ã‚¹ãƒˆæƒ…å ±ã‚’ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹ã€‚
+ * @param hostname ãƒ›ã‚¹ãƒˆå
  */
 void
 HostList::DeleteHostByAddress( std::string addr )
@@ -468,10 +468,10 @@ HostList::DeleteHostByAddress( std::string addr )
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥ÈÁ÷¿®ÍÑÊ¸»úÎó¤òºîÀ®¤¹¤ë¡£
- * @param start ³«»Ï°ÌÃÖ
- * @param addr Á÷¿®Àè¤Î¥¢¥É¥ì¥¹
- * @retval ¥Û¥¹¥È¥ê¥¹¥ÈÁ÷¿®ÍÑÊ¸»úÎó¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆé€ä¿¡ç”¨æ–‡å­—åˆ—ã‚’ä½œæˆã™ã‚‹ã€‚
+ * @param start é–‹å§‹ä½ç½®
+ * @param addr é€ä¿¡å…ˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @retval ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆé€ä¿¡ç”¨æ–‡å­—åˆ—ã€‚
  */
 std::string
 HostList::ToString( int start, const struct sockaddr_storage *addr )
@@ -480,14 +480,14 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 	Lock( "HostList::ToString" );
 	char buf[MAX_UDPBUF];
 	std::string ret;
-	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize() - 12 /* 12 ¤Ï "12345\a12345\a"*/;
+	unsigned int maxLength= IpMessengerAgentImpl::GetInstance()->GetMaxOptionBufferSize() - 12 /* 12 ã¯ "12345\a12345\a"*/;
 
 	ret = "";
 	int hostCount = 0;
 	for( unsigned int i = start ; i < items.size(); i++ ){
 		HostListItem item = items.at( i );
-		//¼«Ê¬¤ÎIP¥¢¥É¥ì¥¹¤òÊÖ¤¹¾ì¹ç¤ÇÂ¾¤Î¥Í¥Ã¥È¥ï¡¼¥¯¸ş¤±¤Î¥¢¥É¥ì¥¹¤ò»ı¤Ã¤Æ¤¤¤ë¾ì¹ç¤Ë¡¢
-		//¤½¤Á¤é¤Î¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î¥¢¥É¥ì¥¹¤òÊÖ¤¹¡£
+		//è‡ªåˆ†ã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿”ã™å ´åˆã§ä»–ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯å‘ã‘ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æŒã£ã¦ã„ã‚‹å ´åˆã«ã€
+		//ãã¡ã‚‰ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿”ã™ã€‚
 		size_t len = 0;
 		if ( item.IsLocalHost() ) {
 			IpMessengerAgentImpl *agent = IpMessengerAgentImpl::GetInstance();
@@ -539,9 +539,9 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 }
 
 /**
- * ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È¤«¤é¥Û¥¹¥È¥ê¥¹¥È¥¢¥¤¥Æ¥à¤òÀ¸À®¤¹¤ë¡£
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¥Û¥¹¥È¥ê¥¹¥È¥¢¥¤¥Æ¥à
+ * ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ 
  */
 HostListItem
 HostList::CreateHostListItemFromPacket( const Packet& packet )
@@ -565,8 +565,8 @@ HostList::CreateHostListItemFromPacket( const Packet& packet )
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤ò¥Û¥¹¥ÈÌ¾¤Ç¸¡º÷¤·¡¢³ºÅö¤¹¤ëHostListItem¤òÊÖµÑ¤¹¤ë¡£
- * @param hostName ¥Û¥¹¥ÈÌ¾
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’ãƒ›ã‚¹ãƒˆåã§æ¤œç´¢ã—ã€è©²å½“ã™ã‚‹HostListItemã‚’è¿”å´ã™ã‚‹ã€‚
+ * @param hostName ãƒ›ã‚¹ãƒˆå
  * @retval HostListItem
  */
 std::vector<HostListItem>::iterator
@@ -596,8 +596,8 @@ HostList::FindHostByHostName( std::string hostName, int addressFamily )
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤òIP¥¢¥É¥ì¥¹¤Ç¸¡º÷¤·¡¢³ºÅö¤¹¤ëHostListItem¤òÊÖµÑ¤¹¤ë¡£
- * @param addr IP¥¢¥É¥ì¥¹Ê¸»úÎó
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’IPã‚¢ãƒ‰ãƒ¬ã‚¹ã§æ¤œç´¢ã—ã€è©²å½“ã™ã‚‹HostListItemã‚’è¿”å´ã™ã‚‹ã€‚
+ * @param addr IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—
  * @retval HostListItem
  */
 std::vector<HostListItem>::iterator
@@ -636,8 +636,8 @@ HostList::FindHostByAddress( std::string addr )
 }
 
 /**
- * IP¥¢¥É¥ì¥¹¤Î¥»¥Ã¥¿¡¼
- * @param IP¥¢¥É¥ì¥¹
+ * IPã‚¢ãƒ‰ãƒ¬ã‚¹ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param IPã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 HostListItem::setIpAddress( const std::string val )
@@ -652,8 +652,8 @@ HostListItem::setIpAddress( const std::string val )
 }
 
 /**
- * IP¥¢¥É¥ì¥¹¤Î¥²¥Ã¥¿¡¼
- * @retval IP¥¢¥É¥ì¥¹
+ * IPã‚¢ãƒ‰ãƒ¬ã‚¹ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval IPã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 std::string
 HostListItem::IpAddress() const
@@ -663,9 +663,9 @@ HostListItem::IpAddress() const
 }
 
 /**
- * ¥Û¥¹¥È¤¬¥Õ¥¡¥¤¥ëÅºÉÕ¤ò¥µ¥İ¡¼¥È¤·¤Æ¤¤¤ë¤«¡©
- * @retval true:¥µ¥İ¡¼¥È
- * @retval false:¥µ¥İ¡¼¥È¤·¤Ê¤¤
+ * ãƒ›ã‚¹ãƒˆãŒãƒ•ã‚¡ã‚¤ãƒ«æ·»ä»˜ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ã‚‹ã‹ï¼Ÿ
+ * @retval true:ã‚µãƒãƒ¼ãƒˆ
+ * @retval false:ã‚µãƒãƒ¼ãƒˆã—ãªã„
  */
 bool
 HostListItem::IsFileAttachSupport() const
@@ -675,9 +675,9 @@ HostListItem::IsFileAttachSupport() const
 }
 
 /**
- * ¥Û¥¹¥È¤¬°Å¹æ¤ò¥µ¥İ¡¼¥È¤·¤Æ¤¤¤ë¤«¡©
- * @retval true:¥µ¥İ¡¼¥È
- * @retval false:¥µ¥İ¡¼¥È¤·¤Ê¤¤
+ * ãƒ›ã‚¹ãƒˆãŒæš—å·ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ã‚‹ã‹ï¼Ÿ
+ * @retval true:ã‚µãƒãƒ¼ãƒˆ
+ * @retval false:ã‚µãƒãƒ¼ãƒˆã—ãªã„
  */
 bool
 HostListItem::IsEncryptSupport() const
@@ -687,9 +687,9 @@ HostListItem::IsEncryptSupport() const
 }
 
 /**
- * ¥Û¥¹¥È¤¬º£¡¢ÉÔºß¤«¡©
- * @retval true:ÉÔºß
- * @retval false:ÉÔºß¤Ç¤Ê¤¤
+ * ãƒ›ã‚¹ãƒˆãŒä»Šã€ä¸åœ¨ã‹ï¼Ÿ
+ * @retval true:ä¸åœ¨
+ * @retval false:ä¸åœ¨ã§ãªã„
  */
 bool
 HostListItem::IsAbsence() const
@@ -699,10 +699,10 @@ HostListItem::IsAbsence() const
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¥¢¥¤¥Æ¥à¥ª¥Ö¥¸¥§¥¯¥È¤¬¼«Ê¬¤È°ìÃ×¤¹¤ë¤«¤òÊÖ¤¹¡£
- * @param item ¥Û¥¹¥È¥ê¥¹¥È¥¢¥¤¥Æ¥à
- * @retval true:°ìÃ×
- * @retval false:°ìÃ×¤·¤Ê¤¤
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè‡ªåˆ†ã¨ä¸€è‡´ã™ã‚‹ã‹ã‚’è¿”ã™ã€‚
+ * @param item ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ 
+ * @retval true:ä¸€è‡´
+ * @retval false:ä¸€è‡´ã—ãªã„
  */
 bool
 HostListItem::Equals( const HostListItem& item ) const
@@ -712,10 +712,10 @@ HostListItem::Equals( const HostListItem& item ) const
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¥¢¥¤¥Æ¥à¥ª¥Ö¥¸¥§¥¯¥È¤Î¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤¬¼«Ê¬¤È°ìÃ×¤¹¤ë¤«¤òÊÖ¤¹¡£
- * @param item ¥Û¥¹¥È¥ê¥¹¥È¥¢¥¤¥Æ¥à
- * @retval true:°ìÃ×
- * @retval false:°ìÃ×¤·¤Ê¤¤
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ãŒè‡ªåˆ†ã¨ä¸€è‡´ã™ã‚‹ã‹ã‚’è¿”ã™ã€‚
+ * @param item ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ 
+ * @retval true:ä¸€è‡´
+ * @retval false:ä¸€è‡´ã—ãªã„
  */
 bool
 HostListItem::EqualsHardwareAddress( const HostListItem& item ) const
@@ -725,11 +725,11 @@ HostListItem::EqualsHardwareAddress( const HostListItem& item ) const
 }
 
 /**
- * Èæ³Ó¡£
- * @param item ¥Û¥¹¥È¾ğÊó1
- * @retval -n:*this¤¬Âç¤­¤¤
- * @retval 0:item¤È*this¤¬Åù¤·¤¤
- * @retval +n:item¤¬Âç¤­¤¤
+ * æ¯”è¼ƒã€‚
+ * @param item ãƒ›ã‚¹ãƒˆæƒ…å ±1
+ * @retval -n:*thisãŒå¤§ãã„
+ * @retval 0:itemã¨*thisãŒç­‰ã—ã„
+ * @retval +n:itemãŒå¤§ãã„
  */
 int
 HostListItem::Compare( const HostListItem& item ) const
@@ -749,11 +749,11 @@ HostListItem::Compare( const HostListItem& item ) const
 }
 
 /**
- * ¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤Ç¤ÎÈæ³Ó¡£
- * @param item ¥Û¥¹¥È¾ğÊó1
- * @retval -n:*this¤¬Âç¤­¤¤
- * @retval 0:item¤È*this¤¬Åù¤·¤¤
- * @retval +n:item¤¬Âç¤­¤¤
+ * ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ã§ã®æ¯”è¼ƒã€‚
+ * @param item ãƒ›ã‚¹ãƒˆæƒ…å ±1
+ * @retval -n:*thisãŒå¤§ãã„
+ * @retval 0:itemã¨*thisãŒç­‰ã—ã„
+ * @retval +n:itemãŒå¤§ãã„
  */
 int
 HostListItem::CompareHardwareAddress( const HostListItem& item ) const
@@ -769,19 +769,19 @@ HostListItem::CompareHardwareAddress( const HostListItem& item ) const
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤òÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥½¡¼¥È½ç½ø¤Ë±è¤Ã¤Æ¥½¡¼¥È¤·¤Ş¤¹¡£
- * @param comparator Èæ³Ó¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’æ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚½ãƒ¼ãƒˆé †åºã«æ²¿ã£ã¦ã‚½ãƒ¼ãƒˆã—ã¾ã™ã€‚
+ * @param comparator æ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 HostList::qsort( HostListComparator *comparator, int left, int right )
 {
 	IPMSG_FUNC_ENTER( "void HostList::qsort( HostListComparator *comparator, int left, int right )" );
-	//ÈÏ°Ï¤Î³«»Ï¡¢½ªÎ»°ÌÃÖ
+	//ç¯„å›²ã®é–‹å§‹ã€çµ‚äº†ä½ç½®
 	int i = left, j = right;
 
-	//´ğ½àÃÍ
+	//åŸºæº–å€¤
 	std::vector<HostListItem>::iterator pivot = items.begin() + ( ( left + right ) / 2 );
-	//¥¯¥¤¥Ã¥¯¥½¡¼¥È
+	//ã‚¯ã‚¤ãƒƒã‚¯ã‚½ãƒ¼ãƒˆ
 	while( true ){
 		while( comparator->compare( items.begin() + i, pivot ) < 0 ) i++;
 		while( comparator->compare( pivot, items.begin() + j ) < 0 ) j--;
@@ -792,18 +792,18 @@ HostList::qsort( HostListComparator *comparator, int left, int right )
 		i++;
 		j--;
 	}
-	if ( left < i - 1 ) {	//´ğ½àÃÍ¤Îº¸¤Ë£²¸Ä°Ê¾åÍ×ÁÇ¤¬¤¢¤ì¤Ğº¸¤ÎÇÛÎó¤ò¥½¡¼¥È¤¹¤ë¡£
+	if ( left < i - 1 ) {	//åŸºæº–å€¤ã®å·¦ã«ï¼’å€‹ä»¥ä¸Šè¦ç´ ãŒã‚ã‚Œã°å·¦ã®é…åˆ—ã‚’ã‚½ãƒ¼ãƒˆã™ã‚‹ã€‚
 		qsort( comparator, left, i - 1 );
 	}
-	if ( j + 1 < right ) {	//´ğ½àÃÍ¤Î±¦¤Ë£²¸Ä°Ê¾åÍ×ÁÇ¤¬¤¢¤ì¤Ğ±¦¤ÎÇÛÎó¤ò¥½¡¼¥È¤¹¤ë¡£
+	if ( j + 1 < right ) {	//åŸºæº–å€¤ã®å³ã«ï¼’å€‹ä»¥ä¸Šè¦ç´ ãŒã‚ã‚Œã°å³ã®é…åˆ—ã‚’ã‚½ãƒ¼ãƒˆã™ã‚‹ã€‚
 		qsort( comparator, j + 1, right );
 	}
 	IPMSG_FUNC_EXIT;
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¤òÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥½¡¼¥È½ç½ø¤Ë±è¤Ã¤Æ¥½¡¼¥È¤·¤Ş¤¹¡£
- * @param comparator Èæ³Ó¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’æ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚½ãƒ¼ãƒˆé †åºã«æ²¿ã£ã¦ã‚½ãƒ¼ãƒˆã—ã¾ã™ã€‚
+ * @param comparator æ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 HostList::sort( HostListComparator *comparator )
@@ -818,12 +818,12 @@ HostList::sort( HostListComparator *comparator )
 class IpMsgGetGroupListComparator: public HostListComparator{
 	public:
 		/**
-		 * ¥°¥ë¡¼¥×Ì¾¤È¥¨¥ó¥³¡¼¥Ç¥£¥ó¥°Ì¾¤ÇÈæ³Ó¡£
-		 * @param host1 ¥Û¥¹¥È¾ğÊó1
-		 * @param host2 ¥Û¥¹¥È¾ğÊó2
-		 * @retval -n:host1¤¬Âç¤­¤¤
-		 * @retval 0:host1¤Èhost2¤¬Åù¤·¤¤
-		 * @retval +n:host2¤¬Âç¤­¤¤
+		 * ã‚°ãƒ«ãƒ¼ãƒ—åã¨ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°åã§æ¯”è¼ƒã€‚
+		 * @param host1 ãƒ›ã‚¹ãƒˆæƒ…å ±1
+		 * @param host2 ãƒ›ã‚¹ãƒˆæƒ…å ±2
+		 * @retval -n:host1ãŒå¤§ãã„
+		 * @retval 0:host1ã¨host2ãŒç­‰ã—ã„
+		 * @retval +n:host2ãŒå¤§ãã„
 		 */
 		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 ){
 			if ( host1->GroupName() < host2->GroupName() ) {
@@ -842,8 +842,8 @@ class IpMsgGetGroupListComparator: public HostListComparator{
 };
 
 /**
- * Êİ»ıÃæ¤Î¥Û¥¹¥È¥ê¥¹¥È¤«¤é¥°¥ë¡¼¥×¥ê¥¹¥È¤ò¼èÆÀ¤¹¤ë¡£
- * @retval ¥°¥ë¡¼¥×¥ê¥¹¥È
+ * ä¿æŒä¸­ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰ã‚°ãƒ«ãƒ¼ãƒ—ãƒªã‚¹ãƒˆã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval ã‚°ãƒ«ãƒ¼ãƒ—ãƒªã‚¹ãƒˆ
  */
 std::vector<GroupItem>
 HostList::GetGroupList()
