@@ -1,6 +1,6 @@
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥é¥¤¥Ö¥é¥ê(UnixÍÑ)
- * IP¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(Unixç”¨)
+ * IPãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã€‚
  */
 
 #ifdef HAVE_CONFIG_H
@@ -23,9 +23,9 @@ IpMessengerEvent::~IpMessengerEvent()
 	IPMSG_FUNC_EXIT;
 };
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤ò¼èÆÀ¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
  * <ul>
- * <li>Singleton¥Ñ¥¿¡¼¥ó¤òºÎÍÑ¤·¤Æ¤¤¤ë¤Î¤Ç¡¢¥Û¥¹¥ÈÍ£°ì¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤Ç¤Ê¤±¤ì¤Ğ¤Ê¤é¤Ê¤¤¡£</li>
+ * <li>Singletonãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’æ¡ç”¨ã—ã¦ã„ã‚‹ã®ã§ã€ãƒ›ã‚¹ãƒˆå”¯ä¸€ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚</li>
  * </ul>
  */
 IpMessengerAgent *
@@ -42,10 +42,10 @@ IpMessengerAgent::GetInstance()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤ò²òÊü¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’è§£æ”¾ã™ã‚‹ã€‚
  * <ul>
- * <li>¤³¤Î¥á¥½¥Ã¥É¤ò»È¤Ã¤Æ¥ª¥Ö¥¸¥§¥¯¥È¤ò²òÊü¤·¤Ê¤±¤ì¤Ğ¤Ê¤é¤Ê¤¤¡£</li>
- * <li>¥é¥¤¥Ö¥é¥ê¤òÄÌ¤¸¤Ê¤¤¤ÇÄ¾ÀÜdelete¤µ¤ì¤¿¾ì¹ç¤Ï¤½¤Î¸å¤ÎÆ°ºî¤Ë¤Ä¤¤¤Æ´ØÃÎ¤·¤Ê¤¤¡£</li>
+ * <li>ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è§£æ”¾ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚</li>
+ * <li>ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’é€šã˜ãªã„ã§ç›´æ¥deleteã•ã‚ŒãŸå ´åˆã¯ãã®å¾Œã®å‹•ä½œã«ã¤ã„ã¦é–¢çŸ¥ã—ãªã„ã€‚</li>
  * </ul>
  */
 void
@@ -64,7 +64,7 @@ IpMessengerAgent::Release()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥³¥ó¥¹¥È¥é¥¯¥¿¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  */
 IpMessengerAgent::IpMessengerAgent()
 {
@@ -84,7 +84,7 @@ IpMessengerAgent::IpMessengerAgent()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Ç¥¹¥È¥é¥¯¥¿¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  */
 IpMessengerAgent::~IpMessengerAgent()
 {
@@ -94,9 +94,9 @@ IpMessengerAgent::~IpMessengerAgent()
 }
 
 /**
- * NIC¤ò»ØÄê¤»¤º¤ËIP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òµ¯Æ°¤¹¤ë¡£
+ * NICã‚’æŒ‡å®šã›ãšã«IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’èµ·å‹•ã™ã‚‹ã€‚
  * <ul>
- * <li>Á´¤Æ¤ÎNIC¤ËÂĞ¤·¤Æ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È¤Ç¥Í¥Ã¥È¥ï¡¼¥¯¤òµ¯Æ°¤¹¤ë¡£</li>
+ * <li>å…¨ã¦ã®NICã«å¯¾ã—ã¦ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆã§ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’èµ·å‹•ã™ã‚‹ã€‚</li>
  * </ul>
  */
 void
@@ -108,8 +108,8 @@ IpMessengerAgent::StartNetwork()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òµ¯Æ°¤¹¤ë¡£
- * @parem nics µ¯Æ°»ş¤ËÂĞ¾İ¤È¤¹¤ëNIC¤Î¥Ù¥¯¥¿¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’èµ·å‹•ã™ã‚‹ã€‚
+ * @parem nics èµ·å‹•æ™‚ã«å¯¾è±¡ã¨ã™ã‚‹NICã®ãƒ™ã‚¯ã‚¿ã€‚
  */
 void
 IpMessengerAgent::StartNetwork( const std::vector<NetworkInterface>& nics )
@@ -120,7 +120,7 @@ IpMessengerAgent::StartNetwork( const std::vector<NetworkInterface>& nics )
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òÄä»ß¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’åœæ­¢ã™ã‚‹ã€‚
  */
 void
 IpMessengerAgent::StopNetwork()
@@ -131,9 +131,9 @@ IpMessengerAgent::StopNetwork()
 }
 
 /**
- * NIC¤ò»ØÄê¤»¤º¤ËIP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òºÆµ¯Æ°¤¹¤ë¡£
+ * NICã‚’æŒ‡å®šã›ãšã«IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’å†èµ·å‹•ã™ã‚‹ã€‚
  * <ul>
- * <li>Á´¤Æ¤ÎNIC¤ËÂĞ¤·¤Æ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È¤Ç¥Í¥Ã¥È¥ï¡¼¥¯¤òµ¯Æ°¤¹¤ë¡£</li>
+ * <li>å…¨ã¦ã®NICã«å¯¾ã—ã¦ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆã§ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’èµ·å‹•ã™ã‚‹ã€‚</li>
  * </ul>
  */
 void
@@ -145,8 +145,8 @@ IpMessengerAgent::RestartNetwork()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òºÆµ¯Æ°¤¹¤ë¡£
- * @parem nics µ¯Æ°»ş¤ËÂĞ¾İ¤È¤¹¤ëNIC¤Î¥Ù¥¯¥¿¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’å†èµ·å‹•ã™ã‚‹ã€‚
+ * @parem nics èµ·å‹•æ™‚ã«å¯¾è±¡ã¨ã™ã‚‹NICã®ãƒ™ã‚¯ã‚¿ã€‚
  */
 void
 IpMessengerAgent::RestartNetwork( const std::vector<NetworkInterface>& nics )
@@ -157,8 +157,8 @@ IpMessengerAgent::RestartNetwork( const std::vector<NetworkInterface>& nics )
 }
 
 /**
- * ¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤Î¥²¥Ã¥¿¡¼¡£
- * @retval ¥³¥ó¥Ğ¡¼¥¿¤Î¥¢¥É¥ì¥¹¡£
+ * ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚²ãƒƒã‚¿ãƒ¼ã€‚
+ * @retval ã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 FileNameConverter *
 IpMessengerAgent::GetFileNameConverter() const
@@ -168,8 +168,8 @@ IpMessengerAgent::GetFileNameConverter() const
 }
 
 /**
- * ¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤Î¥»¥Ã¥¿¡¼¡£
- * @param conv ¥³¥ó¥Ğ¡¼¥¿¤Î¥¢¥É¥ì¥¹¡£¼«Æ°Åª¤Ëºï½ü¤µ¤ì¤ë¤Î¤Ç¡¢¥¹¥¿¥Ã¥¯¾å¤ËºîÀ®¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¥Ò¡¼¥×¾å¤ËºîÀ®¤¹¤ë¤³¤È¡£
+ * ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚»ãƒƒã‚¿ãƒ¼ã€‚
+ * @param conv ã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚è‡ªå‹•çš„ã«å‰Šé™¤ã•ã‚Œã‚‹ã®ã§ã€ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã«ä½œæˆã—ã¦ã¯ãªã‚‰ãªã„ã€‚ãƒ’ãƒ¼ãƒ—ä¸Šã«ä½œæˆã™ã‚‹ã“ã¨ã€‚
  */
 void
 IpMessengerAgent::SetFileNameConverter( const FileNameConverter *conv )
@@ -180,8 +180,8 @@ IpMessengerAgent::SetFileNameConverter( const FileNameConverter *conv )
 }
 
 /**
- * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥²¥Ã¥¿¡¼¡£
- * @retval ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£
+ * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚²ãƒƒã‚¿ãƒ¼ã€‚
+ * @retval ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 HostListComparator *
 IpMessengerAgent::GetSortHostListComparator() const
@@ -191,8 +191,8 @@ IpMessengerAgent::GetSortHostListComparator() const
 }; 
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥»¥Ã¥¿¡¼¡£
- * @param comparator ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£¼«Æ°Åª¤Ëºï½ü¤µ¤ì¤ë¤Î¤Ç¡¢¥¹¥¿¥Ã¥¯¾å¤ËºîÀ®¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¥Ò¡¼¥×¾å¤ËºîÀ®¤¹¤ë¤³¤È¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚»ãƒƒã‚¿ãƒ¼ã€‚
+ * @param comparator ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚è‡ªå‹•çš„ã«å‰Šé™¤ã•ã‚Œã‚‹ã®ã§ã€ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã«ä½œæˆã—ã¦ã¯ãªã‚‰ãªã„ã€‚ãƒ’ãƒ¼ãƒ—ä¸Šã«ä½œæˆã™ã‚‹ã“ã¨ã€‚
  */
 void
 IpMessengerAgent::SetSortHostListComparator( const HostListComparator *comparator )
@@ -203,8 +203,8 @@ IpMessengerAgent::SetSortHostListComparator( const HostListComparator *comparato
 }
 
 /**
- * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥²¥Ã¥¿¡¼¡£
- * @retval ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£
+ * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚²ãƒƒã‚¿ãƒ¼ã€‚
+ * @retval ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 IpMessengerEvent *
 IpMessengerAgent::GetEventObject() const
@@ -214,8 +214,8 @@ IpMessengerAgent::GetEventObject() const
 }; 
 
 /**
- * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥»¥Ã¥¿¡¼¡£
- * @param evt ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£¼«Æ°Åª¤Ëºï½ü¤µ¤ì¤ë¤Î¤Ç¡¢¥¹¥¿¥Ã¥¯¾å¤ËºîÀ®¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¥Ò¡¼¥×¾å¤ËºîÀ®¤¹¤ë¤³¤È¡£
+ * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚»ãƒƒã‚¿ãƒ¼ã€‚
+ * @param evt ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚è‡ªå‹•çš„ã«å‰Šé™¤ã•ã‚Œã‚‹ã®ã§ã€ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã«ä½œæˆã—ã¦ã¯ãªã‚‰ãªã„ã€‚ãƒ’ãƒ¼ãƒ—ä¸Šã«ä½œæˆã™ã‚‹ã“ã¨ã€‚
  */
 void
 IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
@@ -226,8 +226,8 @@ IpMessengerAgent::SetEventObject( const IpMessengerEvent *evt )
 }
 
 /**
- * NIC¤Î¾ğÊó¤ò¼èÆÀ¤¹¤ë¡£
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î°ìÍ÷
+ * NICã®æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®ä¸€è¦§
  */
 void
 IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 )
@@ -238,7 +238,7 @@ IpMessengerAgent::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, 
 }
 
 /**
- * ¥í¥°¥¤¥ó¡Ê¥µ¡¼¥Ó¥¹»²²ÃÄÌÃÎ¡Ë¡£
+ * ãƒ­ã‚°ã‚¤ãƒ³ï¼ˆã‚µãƒ¼ãƒ“ã‚¹å‚åŠ é€šçŸ¥ï¼‰ã€‚
  */
 void
 IpMessengerAgent::Login( std::string nickname, std::string groupName )
@@ -249,7 +249,7 @@ IpMessengerAgent::Login( std::string nickname, std::string groupName )
 }
 
 /**
- * ¥í¥°¥¢¥¦¥È¡Ê¥µ¡¼¥Ó¥¹Ã¦ÂàÄÌÃÎ¡Ë¡£
+ * ãƒ­ã‚°ã‚¢ã‚¦ãƒˆï¼ˆã‚µãƒ¼ãƒ“ã‚¹è„±é€€é€šçŸ¥ï¼‰ã€‚
  */
 void
 IpMessengerAgent::Logout()
@@ -260,8 +260,8 @@ IpMessengerAgent::Logout()
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¡£
- * @retval ¥¨¡¼¥¸¥§¥ó¥È¤¬Êİ»ı¤·¤Æ¤¤¤ëHostList¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ã€‚
+ * @retval ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆãŒä¿æŒã—ã¦ã„ã‚‹HostListã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 HostList&
 IpMessengerAgent::GetHostList()
@@ -271,8 +271,8 @@ IpMessengerAgent::GetHostList()
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¹¹¿·¼èÆÀ¡£
- * @retval ¼èÆÀ¤·¤¿HostList¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ›´æ–°å–å¾—ã€‚
+ * @retval å–å¾—ã—ãŸHostListã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 HostList&
 IpMessengerAgent::UpdateHostList()
@@ -282,8 +282,8 @@ IpMessengerAgent::UpdateHostList()
 }
 
 /**
- * ÉÔºß¥â¡¼¥É¤«¤É¤¦¤«¤òÈ½Äê¡£
- * @retval ÀßÄêºÑ¤ÎÉÔºß¥â¡¼¥É¤òÊÖ¤¹¡£
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‹ã©ã†ã‹ã‚’åˆ¤å®šã€‚
+ * @retval è¨­å®šæ¸ˆã®ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚’è¿”ã™ã€‚
  */
 bool
 IpMessengerAgent::IsAbsence() const
@@ -292,7 +292,7 @@ IpMessengerAgent::IsAbsence() const
 	IPMSG_FUNC_RETURN( ipmsgImpl->IsAbsence() );
 }
 /**
- * ÉÔºß¥â¡¼¥É¤ò¥¯¥ê¥¢¤¹¤ë¡£
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã€‚
  */
 void
 IpMessengerAgent::ResetAbsence()
@@ -303,9 +303,9 @@ IpMessengerAgent::ResetAbsence()
 }
 
 /**
- * ÉÔºß¥â¡¼¥É¤òÀßÄê¤¹¤ë¡£
- * @param encoding ¥í¡¼¥«¥ë¥¨¥ó¥³¡¼¥Ç¥£¥ó¥°
- * @param absenceModes AbsenceMode¥ª¥Ö¥¸¥§¥¯¥È¤Î¥Ù¥¯¥¿¡Ê¼«Æ°±şÅú»ş¤ËÊ£¿ô¥¨¥ó¥³¡¼¥Ç¥£¥ó¥°ÂĞ±ş¤¹¤ë¤¿¤á¡Ë
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚’è¨­å®šã™ã‚‹ã€‚
+ * @param encoding ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°
+ * @param absenceModes AbsenceModeã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ™ã‚¯ã‚¿ï¼ˆè‡ªå‹•å¿œç­”æ™‚ã«è¤‡æ•°ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°å¯¾å¿œã™ã‚‹ãŸã‚ï¼‰
  */
 void
 IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )
@@ -316,14 +316,14 @@ IpMessengerAgent::SetAbsence( std::string encoding, std::vector<AbsenceMode> abs
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡£
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
- * @param isSecret Éõ½ñ¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param isLockPassword ¾û¤Ä¤­¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param hostCountAtSameTime Æ±»şÁ÷¿®¥Û¥¹¥È¿ô
- * @param IsNoLogging ¥í¥°¤Ë»Ä¤µ¤Ê¤¤¡Ê¤³¤È¤ò¿ä¾©¡Ë
- * @param opt Á÷¿®¥ª¥×¥·¥ç¥ó
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã€‚
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+ * @param isSecret å°æ›¸ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param isLockPassword éŒ ã¤ãã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param hostCountAtSameTime åŒæ™‚é€ä¿¡ãƒ›ã‚¹ãƒˆæ•°
+ * @param IsNoLogging ãƒ­ã‚°ã«æ®‹ã•ãªã„ï¼ˆã“ã¨ã‚’æ¨å¥¨ï¼‰
+ * @param opt é€ä¿¡ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  */
 bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )
@@ -333,15 +333,15 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isS
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡£
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
- * @param isSecret Éõ½ñ¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
- * @param isLockPassword ¾û¤Ä¤­¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param hostCountAtSameTime Æ±»şÁ÷¿®¥Û¥¹¥È¿ô
- * @param IsNoLogging ¥í¥°¤Ë»Ä¤µ¤Ê¤¤¡Ê¤³¤È¤ò¿ä¾©¡Ë
- * @param opt Á÷¿®¥ª¥×¥·¥ç¥ó
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã€‚
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+ * @param isSecret å°æ›¸ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+ * @param isLockPassword éŒ ã¤ãã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param hostCountAtSameTime åŒæ™‚é€ä¿¡ãƒ›ã‚¹ãƒˆæ•°
+ * @param IsNoLogging ãƒ­ã‚°ã«æ®‹ã•ãªã„ï¼ˆã“ã¨ã‚’æ¨å¥¨ï¼‰
+ * @param opt é€ä¿¡ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  */
 bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )
@@ -351,15 +351,15 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isS
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡£
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
- * @param isSecret Éõ½ñ¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param files ÅºÉÕ¥Õ¥¡¥¤¥ë·²
- * @param isLockPassword ¾û¤Ä¤­¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param hostCountAtSameTime Æ±»şÁ÷¿®¥Û¥¹¥È¿ô
- * @param IsNoLogging ¥í¥°¤Ë»Ä¤µ¤Ê¤¤¡Ê¤³¤È¤ò¿ä¾©¡Ë
- * @param opt Á÷¿®¥ª¥×¥·¥ç¥ó
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã€‚
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+ * @param isSecret å°æ›¸ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param files æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ç¾¤
+ * @param isLockPassword éŒ ã¤ãã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param hostCountAtSameTime åŒæ™‚é€ä¿¡ãƒ›ã‚¹ãƒˆæ•°
+ * @param IsNoLogging ãƒ­ã‚°ã«æ®‹ã•ãªã„ï¼ˆã“ã¨ã‚’æ¨å¥¨ï¼‰
+ * @param opt é€ä¿¡ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  */
 bool
 IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &IsLogging, unsigned long opt )
@@ -369,7 +369,7 @@ IpMessengerAgent::SendMsg( HostListItem host, std::string msg, const Secret &isS
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òÁ´¤Æ¥¯¥ê¥¢
+ * ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å…¨ã¦ã‚¯ãƒªã‚¢
  */
 void
 IpMessengerAgent::ClearBroadcastAddress()
@@ -380,8 +380,8 @@ IpMessengerAgent::ClearBroadcastAddress()
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òºï½ü
- * @param addr ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹
+ * ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å‰Šé™¤
+ * @param addr ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgent::DeleteBroadcastAddress( std::string addr )
@@ -392,8 +392,8 @@ IpMessengerAgent::DeleteBroadcastAddress( std::string addr )
 }
 
 /**
- * ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òÅĞÏ¿
- * @param addr ÅĞÏ¿¤¹¤ë¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹
+ * ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’ç™»éŒ²
+ * @param addr ç™»éŒ²ã™ã‚‹ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgent::AddBroadcastAddress( std::string addr )
@@ -404,7 +404,7 @@ IpMessengerAgent::AddBroadcastAddress( std::string addr )
 }
 
 /**
- * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¤Î¥ê¥¹¥È¤ò¥¯¥ê¥¢
+ * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
  */
 void
 IpMessengerAgent::ClearSkulkHost()
@@ -415,8 +415,8 @@ IpMessengerAgent::ClearSkulkHost()
 }
 
 /**
- * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¤Î¥ê¥¹¥È¤«¤é¥¢¥É¥ì¥¹¤òºï½ü
- * @param host ÅĞÏ¿ºÑ¤Î¸«¤¨¤Ê¤¯¤¹¤ë¡Ê±£¤ì¤ë¡Ë¥Û¥¹¥È¥¢¥É¥ì¥¹
+ * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã‹ã‚‰ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å‰Šé™¤
+ * @param host ç™»éŒ²æ¸ˆã®è¦‹ãˆãªãã™ã‚‹ï¼ˆéš ã‚Œã‚‹ï¼‰ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgent::DeleteSkulkHostAddress( std::string addr )
@@ -427,8 +427,8 @@ IpMessengerAgent::DeleteSkulkHostAddress( std::string addr )
 }
 
 /**
- * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¤Î¥ê¥¹¥È¤«¤é¥Û¥¹¥È¤òºï½ü
- * @param host ÅĞÏ¿ºÑ¤Î¸«¤¨¤Ê¤¯¤¹¤ë¡Ê±£¤ì¤ë¡Ë¥Û¥¹¥È
+ * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã‹ã‚‰ãƒ›ã‚¹ãƒˆã‚’å‰Šé™¤
+ * @param host ç™»éŒ²æ¸ˆã®è¦‹ãˆãªãã™ã‚‹ï¼ˆéš ã‚Œã‚‹ï¼‰ãƒ›ã‚¹ãƒˆ
  */
 void
 IpMessengerAgent::DeleteSkulkHost( HostListItem &host )
@@ -439,8 +439,8 @@ IpMessengerAgent::DeleteSkulkHost( HostListItem &host )
 }
 
 /**
- * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¤Î¥ê¥¹¥È¤Ë¥Û¥¹¥È¥¢¥É¥ì¥¹¤òÄÉ²Ã
- * @param host ÅĞÏ¿¤¹¤ë¸«¤¨¤Ê¤¯¤¹¤ë¡Ê±£¤ì¤ë¡Ë¥Û¥¹¥È¥¢¥É¥ì¥¹
+ * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã«ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿½åŠ 
+ * @param host ç™»éŒ²ã™ã‚‹è¦‹ãˆãªãã™ã‚‹ï¼ˆéš ã‚Œã‚‹ï¼‰ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgent::AddSkulkHostAddress( std::string addr )
@@ -451,8 +451,8 @@ IpMessengerAgent::AddSkulkHostAddress( std::string addr )
 }
 
 /**
- * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¤Î¥ê¥¹¥È¤Ë¥Û¥¹¥È¤òÄÉ²Ã
- * @param host ÅĞÏ¿¤¹¤ë¸«¤¨¤Ê¤¯¤¹¤ë¡Ê±£¤ì¤ë¡Ë¥Û¥¹¥È
+ * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã«ãƒ›ã‚¹ãƒˆã‚’è¿½åŠ 
+ * @param host ç™»éŒ²ã™ã‚‹è¦‹ãˆãªãã™ã‚‹ï¼ˆéš ã‚Œã‚‹ï¼‰ãƒ›ã‚¹ãƒˆ
  */
 void
 IpMessengerAgent::AddSkulkHost( HostListItem &host )
@@ -463,8 +463,8 @@ IpMessengerAgent::AddSkulkHost( HostListItem &host )
 }
 
 /**
- * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¤Î¥ê¥¹¥È¤òÊÖ¤¹
- * @retval ÅĞÏ¿¤¹¤ë¸«¤¨¤Ê¤¯¤¹¤ë¡Ê±£¤ì¤ë¡Ë¥Û¥¹¥È¥ê¥¹¥È
+ * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã‚’è¿”ã™
+ * @retval ç™»éŒ²ã™ã‚‹è¦‹ãˆãªãã™ã‚‹ï¼ˆéš ã‚Œã‚‹ï¼‰ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆ
  */
 HostList
 IpMessengerAgent::GetSkulkHost()
@@ -474,9 +474,9 @@ IpMessengerAgent::GetSkulkHost()
 }
 
 /**
- * ÂĞ¾İ¥Û¥¹¥È¤Î¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤ò¼èÆÀ¡£
- * @param host ÂĞ¾İ¤Î¥Û¥¹¥È
- * @retval ÂĞ¾İ¥Û¥¹¥È¤Î¥Ğ¡¼¥¸¥ç¥ó¾ğÊó
+ * å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’å–å¾—ã€‚
+ * @param host å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆ
+ * @retval å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±
  */
 std::string
 IpMessengerAgent::GetInfo( HostListItem& host )
@@ -486,9 +486,9 @@ IpMessengerAgent::GetInfo( HostListItem& host )
 }
 
 /**
- * ÂĞ¾İ¥Û¥¹¥È¤ÎÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó¤ò¼èÆÀ¡£
- * @param host ÂĞ¾İ¤Î¥Û¥¹¥È
- * @retval ÂĞ¾İ¥Û¥¹¥È¤ÎÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó
+ * å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±ã‚’å–å¾—ã€‚
+ * @param host å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆ
+ * @retval å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±
  */
 std::string
 IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
@@ -498,8 +498,8 @@ IpMessengerAgent::GetAbsenceInfo( HostListItem& host )
 }
 
 /**
- * Êİ»ıÃæ¤Î¥Û¥¹¥È¥ê¥¹¥È¤«¤é¥°¥ë¡¼¥×¥ê¥¹¥È¤ò¼èÆÀ¤¹¤ë¡£
- * @retval ¥°¥ë¡¼¥×¥ê¥¹¥È
+ * ä¿æŒä¸­ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰ã‚°ãƒ«ãƒ¼ãƒ—ãƒªã‚¹ãƒˆã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval ã‚°ãƒ«ãƒ¼ãƒ—ãƒªã‚¹ãƒˆ
  */
 std::vector<GroupItem>
 IpMessengerAgent::GetGroupList()
@@ -509,8 +509,8 @@ IpMessengerAgent::GetGroupList()
 }
 
 /**
- * Á÷¿®¸µ¤Ë¥á¥Ã¥»¡¼¥¸¤òºï½ü¤·¤¿¤³¤È¤òÄÌÃÎ¤¹¤ë¡£
- * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * é€ä¿¡å…ƒã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å‰Šé™¤ã—ãŸã“ã¨ã‚’é€šçŸ¥ã™ã‚‹ã€‚
+ * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 void
 IpMessengerAgent::DeleteNotify( RecievedMessage msg )
@@ -521,8 +521,8 @@ IpMessengerAgent::DeleteNotify( RecievedMessage msg )
 }
 
 /**
- * Á÷¿®¸µ¤Ë¥á¥Ã¥»¡¼¥¸¤ò³«Éõ¤·¤¿¤³¤È¤òÄÌÃÎ¤¹¤ë¡£
- * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * é€ä¿¡å…ƒã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é–‹å°ã—ãŸã“ã¨ã‚’é€šçŸ¥ã™ã‚‹ã€‚
+ * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 void
 IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
@@ -533,8 +533,8 @@ IpMessengerAgent::ConfirmMessage( RecievedMessage &msg )
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Ë³«Éõ¤µ¤ì¤¿¤³¤È¤ò¥Ş¡¼¥¯¤¹¤ë¡£
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã«é–‹å°ã•ã‚ŒãŸã“ã¨ã‚’ãƒãƒ¼ã‚¯ã™ã‚‹ã€‚
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 void
 IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )
@@ -547,8 +547,8 @@ IpMessengerAgent::AcceptConfirmNotify( SentMessage msg )
 // private methods start here
 
 /**
- * ¼õ¿®½èÍı¡Ê¥æ¡¼¥¶¸ş¤±¡Ë¡£
- * Ãí¡§¤³¤Î¥á¥½¥Ã¥É¤Ï¥¹¥ì¥Ã¥É¥»¡¼¥Õ¤Ç¤Ê¤¤¡£
+ * å—ä¿¡å‡¦ç†ï¼ˆãƒ¦ãƒ¼ã‚¶å‘ã‘ï¼‰ã€‚
+ * æ³¨ï¼šã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ã§ãªã„ã€‚
  */
 int
 IpMessengerAgent::Process()
@@ -558,8 +558,8 @@ IpMessengerAgent::Process()
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤Î¸Ä¿ô¤ò¼èÆÀ¤¹¤ë¡£
- * @retval ¼õ¿®¥á¥Ã¥»¡¼¥¸¤Î¸Ä¿ô
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å€‹æ•°ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å€‹æ•°
  */
 int
 IpMessengerAgent::GetRecievedMessageCount()
@@ -569,8 +569,8 @@ IpMessengerAgent::GetRecievedMessageCount()
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤ò°ì¸Ä¼è¤ê½Ğ¤·¡¢¼õ¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤«¤éºï½ü¤¹¤ë¡£
- * @retval ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¸€å€‹å–ã‚Šå‡ºã—ã€å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹ã€‚
+ * @retval å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 RecievedMessage
 IpMessengerAgent::PopRecievedMessage()
@@ -580,8 +580,8 @@ IpMessengerAgent::PopRecievedMessage()
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥İ¥¤¥ó¥¿¤ò¼èÆÀ¤¹¤ë¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥İ¥¤¥ó¥¿¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ãƒã‚¤ãƒ³ã‚¿ã€‚
  */
 SentMessageList *
 IpMessengerAgent::GetSentMessages()
@@ -591,8 +591,8 @@ IpMessengerAgent::GetSentMessages()
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥³¥Ô¡¼¤ò¼èÆÀ¤¹¤ë¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥³¥Ô¡¼¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ã‚³ãƒ”ãƒ¼ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ã‚³ãƒ”ãƒ¼ã€‚
  */
 SentMessageList
 IpMessengerAgent::CloneSentMessages() const
@@ -602,8 +602,8 @@ IpMessengerAgent::CloneSentMessages() const
 }
 
 /**
- * ¥í¥°¥¤¥óÌ¾¤Î¥²¥Ã¥¿¡¼
- * @retval ¥í¥°¥¤¥óÌ¾
+ * ãƒ­ã‚°ã‚¤ãƒ³åã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval ãƒ­ã‚°ã‚¤ãƒ³å
  */
 std::string
 IpMessengerAgent::LoginName() const
@@ -613,8 +613,8 @@ IpMessengerAgent::LoginName() const
 }
 
 /**
- * ¥Û¥¹¥ÈÌ¾¤Î¥²¥Ã¥¿¡¼
- * @retval ¥Û¥¹¥ÈÌ¾
+ * ãƒ›ã‚¹ãƒˆåã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval ãƒ›ã‚¹ãƒˆå
  */
 std::string
 IpMessengerAgent::HostName() const
@@ -624,8 +624,8 @@ IpMessengerAgent::HostName() const
 }
 
 /**
- * ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È¤Î¥²¥Ã¥¿¡¼
- * @retval ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
+ * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
  */
 int
 IpMessengerAgent::DefaultPortNo() const
@@ -635,8 +635,8 @@ IpMessengerAgent::DefaultPortNo() const
 }
 
 /**
- * ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È¤Î¥»¥Ã¥¿¡¼
- * @param defaultPortNo ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
+ * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param defaultPortNo ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
  */
 void
 IpMessengerAgent::setDefaultPortNo( const int defaultPortNo )
@@ -647,8 +647,8 @@ IpMessengerAgent::setDefaultPortNo( const int defaultPortNo )
 }
 
 /**
- * ¥À¥¤¥ä¥ë¥¢¥Ã¥×¤Î¥²¥Ã¥¿¡¼
- * @retval ¥À¥¤¥ä¥ë¥¢¥Ã¥×
+ * ãƒ€ã‚¤ãƒ¤ãƒ«ã‚¢ãƒƒãƒ—ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval ãƒ€ã‚¤ãƒ¤ãƒ«ã‚¢ãƒƒãƒ—
  */
 bool
 IpMessengerAgent::IsDialup() const
@@ -658,8 +658,8 @@ IpMessengerAgent::IsDialup() const
 }
 
 /**
- * ¥À¥¤¥ä¥ë¥¢¥Ã¥×¤Î¥»¥Ã¥¿¡¼
- * @param isDialup ¥À¥¤¥ä¥ë¥¢¥Ã¥×
+ * ãƒ€ã‚¤ãƒ¤ãƒ«ã‚¢ãƒƒãƒ—ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param isDialup ãƒ€ã‚¤ãƒ¤ãƒ«ã‚¢ãƒƒãƒ—
  */
 void
 IpMessengerAgent::setIsDialup( const bool isDialup )
@@ -670,8 +670,8 @@ IpMessengerAgent::setIsDialup( const bool isDialup )
 }
 
 /**
- * ¥À¥¦¥ó¥í¡¼¥É»ş¤Ë¥Õ¥¡¥¤¥ë¤¬ÊÑ¹¹¤µ¤ì¤¿¾ì¹ç¤Ë¶Ø»ß¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥²¥Ã¥¿¡¼
- * @retval ¥À¥¦¥ó¥í¡¼¥É»ş¤Ë¥Õ¥¡¥¤¥ë¤¬ÊÑ¹¹¤µ¤ì¤¿¾ì¹ç¤Ë¶Ø»ß¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æ™‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ãŒå¤‰æ›´ã•ã‚ŒãŸå ´åˆã«ç¦æ­¢ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æ™‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ãŒå¤‰æ›´ã•ã‚ŒãŸå ´åˆã«ç¦æ­¢ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 bool
 IpMessengerAgent::AbortDownloadAtFileChanged() const
@@ -681,8 +681,8 @@ IpMessengerAgent::AbortDownloadAtFileChanged() const
 }
 
 /**
- * ¥À¥¦¥ó¥í¡¼¥É»ş¤Ë¥Õ¥¡¥¤¥ë¤¬ÊÑ¹¹¤µ¤ì¤¿¾ì¹ç¤Ë¶Ø»ß¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥»¥Ã¥¿¡¼
- * @param isAbort ¥À¥¦¥ó¥í¡¼¥É»ş¤Ë¥Õ¥¡¥¤¥ë¤¬ÊÑ¹¹¤µ¤ì¤¿¾ì¹ç¤Ë¶Ø»ß¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æ™‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ãŒå¤‰æ›´ã•ã‚ŒãŸå ´åˆã«ç¦æ­¢ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param isAbort ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æ™‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ãŒå¤‰æ›´ã•ã‚ŒãŸå ´åˆã«ç¦æ­¢ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 void
 IpMessengerAgent::setAbortDownloadAtFileChanged( const bool isAbort )
@@ -693,8 +693,8 @@ IpMessengerAgent::setAbortDownloadAtFileChanged( const bool isAbort )
 }
 
 /**
- * Á÷¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥²¥Ã¥¿¡¼
- * @retval Á÷¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 bool
 IpMessengerAgent::SaveSentMessage() const
@@ -704,8 +704,8 @@ IpMessengerAgent::SaveSentMessage() const
 }
 
 /**
- * Á÷¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥»¥Ã¥¿¡¼
- * @param isSave Á÷¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param isSave é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 void
 IpMessengerAgent::setSaveSentMessage( const bool isSave )
@@ -716,8 +716,8 @@ IpMessengerAgent::setSaveSentMessage( const bool isSave )
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥²¥Ã¥¿¡¼
- * @retval ¼õ¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 bool
 IpMessengerAgent::SaveRecievedMessage() const
@@ -727,8 +727,8 @@ IpMessengerAgent::SaveRecievedMessage() const
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥»¥Ã¥¿¡¼
- * @param isSave ¼õ¿®¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸¤¹¤ë¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param isSave å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 void
 IpMessengerAgent::setSaveRecievedMessage( const bool isSave )
@@ -739,8 +739,8 @@ IpMessengerAgent::setSaveRecievedMessage( const bool isSave )
 }
 
 /**
- * °Å¹æ²½¤Ë¼ºÇÔ¤·¤¿¤é¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®¤·¤Ê¤¤¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥²¥Ã¥¿¡¼
- * @retval °Å¹æ²½¤Ë¼ºÇÔ¤·¤¿¤é¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®¤·¤Ê¤¤¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * æš—å·åŒ–ã«å¤±æ•—ã—ãŸã‚‰ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡ã—ãªã„ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval æš—å·åŒ–ã«å¤±æ•—ã—ãŸã‚‰ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡ã—ãªã„ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 bool
 IpMessengerAgent::NoSendMessageOnEncryptionFailed() const
@@ -750,8 +750,8 @@ IpMessengerAgent::NoSendMessageOnEncryptionFailed() const
 }
 
 /**
- * °Å¹æ²½¤Ë¼ºÇÔ¤·¤¿¤é¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®¤·¤Ê¤¤¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥»¥Ã¥¿¡¼
- * @param isNoSend °Å¹æ²½¤Ë¼ºÇÔ¤·¤¿¤é¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®¤·¤Ê¤¤¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * æš—å·åŒ–ã«å¤±æ•—ã—ãŸã‚‰ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡ã—ãªã„ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param isNoSend æš—å·åŒ–ã«å¤±æ•—ã—ãŸã‚‰ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡ã—ãªã„ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 void
 IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )
@@ -761,8 +761,8 @@ IpMessengerAgent::setNoSendMessageOnEncryptionFailed( const bool isNoSend )
 }
 
 /**
- * IPv6¤ò»È¤¦¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥²¥Ã¥¿¡¼
- * @retval IPv6¤ò»È¤¦¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * IPv6ã‚’ä½¿ã†ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚²ãƒƒã‚¿ãƒ¼
+ * @retval IPv6ã‚’ä½¿ã†ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 bool
 IpMessengerAgent::UseIPv6() const
@@ -772,8 +772,8 @@ IpMessengerAgent::UseIPv6() const
 }
 
 /**
- * IPv6¤ò»È¤¦¤«¤É¤¦¤«¤Î¥Õ¥é¥°¤Î¥»¥Ã¥¿¡¼
- * @param useIPv6 IPv6¤ò»È¤¦¤«¤É¤¦¤«¤Î¥Õ¥é¥°
+ * IPv6ã‚’ä½¿ã†ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒã‚¿ãƒ¼
+ * @param useIPv6 IPv6ã‚’ä½¿ã†ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
  */
 void
 IpMessengerAgent::setUseIPv6( const bool useIPv6 )
@@ -788,9 +788,9 @@ IpMessengerAgent::setUseIPv6( const bool useIPv6 )
 }
 
 /**
- * IPv6¤ò¥µ¥İ¡¼¥È¤·¤Æ¤¤¤ë¤«¥Ó¥ë¥É¥ª¥×¥·¥ç¥ó¤ò¼èÆÀ¤¹¤ë¡£
- * @retval true:IPv6¤ò¥µ¥İ¡¼¥È
- * @retval false:IPv6¤ò¥µ¥İ¡¼¥È¤·¤Æ¤¤¤Ê¤¤¡£
+ * IPv6ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ã‚‹ã‹ãƒ“ãƒ«ãƒ‰ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval true:IPv6ã‚’ã‚µãƒãƒ¼ãƒˆ
+ * @retval false:IPv6ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ãªã„ã€‚
  */
 bool
 IpMessengerAgent::isSupportIPv6()
@@ -803,9 +803,9 @@ IpMessengerAgent::isSupportIPv6()
 }
 
 /**
- * IPv4¤ò¥µ¥İ¡¼¥È¤·¤Æ¤¤¤ë¤«¥Ó¥ë¥É¥ª¥×¥·¥ç¥ó¤ò¼èÆÀ¤¹¤ë¡£
- * @retval true:IPv4¤ò¥µ¥İ¡¼¥È
- * @retval false:IPv4¤ò¥µ¥İ¡¼¥È¤·¤Æ¤¤¤Ê¤¤¡£
+ * IPv4ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ã‚‹ã‹ãƒ“ãƒ«ãƒ‰ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval true:IPv4ã‚’ã‚µãƒãƒ¼ãƒˆ
+ * @retval false:IPv4ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ãªã„ã€‚
  */
 bool
 IpMessengerAgent::isSupportIPv4()
@@ -818,8 +818,8 @@ IpMessengerAgent::isSupportIPv4()
 }
 
 /**
- * ¥À¥¦¥ó¥í¡¼¥ÉÂ®ÅÙ¤ò»»½Ğ¤¹¤ë¡£
- * @retval ¥À¥¦¥ó¥í¡¼¥ÉÂ®ÅÙ¡Ê¥Ğ¥¤¥È¡¿ÉÃ¡Ë¡£
+ * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰é€Ÿåº¦ã‚’ç®—å‡ºã™ã‚‹ã€‚
+ * @retval ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰é€Ÿåº¦ï¼ˆãƒã‚¤ãƒˆï¼ç§’ï¼‰ã€‚
  */
 long double
 DownloadInfo::getSpeed()
@@ -829,8 +829,8 @@ DownloadInfo::getSpeed()
 }
 
 /**
- * ¥À¥¦¥ó¥í¡¼¥ÉÂ®ÅÙÊ¸»úÎó¤òÀ¸À®¤¹¤ë¡£
- * @retval ¥À¥¦¥ó¥í¡¼¥ÉÂ®ÅÙÊ¸»úÎó¡ÊÃ±°Ì¡¿ÉÃ¡Ë¡£Îã:1 B/sec, 2.00KB/sec, 3.00 MB/sec, 4.00 GB/sec, 5.00 TB/sec
+ * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰é€Ÿåº¦æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @retval ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰é€Ÿåº¦æ–‡å­—åˆ—ï¼ˆå˜ä½ï¼ç§’ï¼‰ã€‚ä¾‹:1 B/sec, 2.00KB/sec, 3.00 MB/sec, 4.00 GB/sec, 5.00 TB/sec
  */
 std::string
 DownloadInfo::getSpeedString()
@@ -840,8 +840,8 @@ DownloadInfo::getSpeedString()
 }
 
 /**
- * ÍÆÎÌÊ¸»úÎó¤òÀ¸À®¤¹¤ë¡£
- * @retval ÍÆÎÌÊ¸»úÎó¡ÊÃ±°Ì¡Ë¡£Îã:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
+ * å®¹é‡æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @retval å®¹é‡æ–‡å­—åˆ—ï¼ˆå˜ä½ï¼‰ã€‚ä¾‹:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
  */
 std::string
 DownloadInfo::getSizeString()
@@ -857,8 +857,8 @@ DownloadInfo::getSizeString()
 #define IPMSG_SIZE_TB	(long double)(1024 * IPMSG_SIZE_GB)
 
 /**
- * ÍÆÎÌÊ¸»úÎó¤òÀ¸À®¤¹¤ë¡£
- * @retval ÍÆÎÌÊ¸»úÎó¡ÊÃ±°Ì¡Ë¡£Îã:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
+ * å®¹é‡æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @retval å®¹é‡æ–‡å­—åˆ—ï¼ˆå˜ä½ï¼‰ã€‚ä¾‹:1 B, 2.00KB, 3.00 MB, 4.00 GB, 5.00 TB
  */
 std::string
 DownloadInfo::getUnitSizeString( long long size )
@@ -884,8 +884,8 @@ DownloadInfo::getUnitSizeString( long long size )
 }
 
 /**
- * ¥Ç¥Ğ¥¤¥¹Ì¾¤òÀßÄê¤·¡¢¥Ï¡¼¥É¥¦¥§¥¢¥¢¥É¥ì¥¹¤ò¼èÆÀ¤¹¤ë¡£
- * @param val ¥Ç¥Ğ¥¤¥¹Ì¾¡£
+ * ãƒ‡ãƒã‚¤ã‚¹åã‚’è¨­å®šã—ã€ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @param val ãƒ‡ãƒã‚¤ã‚¹åã€‚
  */
 void
 NetworkInterface::setDeviceName( const std::string val )
@@ -897,8 +897,8 @@ NetworkInterface::setDeviceName( const std::string val )
 }
 
 /**
- * IP¥¢¥É¥ì¥¹¤òÀßÄê¤·¡¢¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¡¢¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òºÆ·×»»¤¹¤ë¡£
- * @param val IP¥¢¥É¥ì¥¹Ê¸»úÎó¡£
+ * IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¨­å®šã—ã€ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã€ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å†è¨ˆç®—ã™ã‚‹ã€‚
+ * @param val IPã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—ã€‚
  */
 void
 NetworkInterface::setIpAddress( const std::string val )
@@ -910,8 +910,8 @@ NetworkInterface::setIpAddress( const std::string val )
 }
 
 /**
- * ¥Í¥Ã¥È¥Ş¥¹¥¯¤òÀßÄê¤·¡¢¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¡¢¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òºÆ·×»»¤¹¤ë¡£
- * @param val ¥Í¥Ã¥È¥Ş¥¹¥¯Ê¸»úÎó¡£
+ * ãƒãƒƒãƒˆãƒã‚¹ã‚¯ã‚’è¨­å®šã—ã€ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã€ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å†è¨ˆç®—ã™ã‚‹ã€‚
+ * @param val ãƒãƒƒãƒˆãƒã‚¹ã‚¯æ–‡å­—åˆ—ã€‚
  */
 void
 NetworkInterface::setNetMask( const std::string val )
@@ -923,7 +923,7 @@ NetworkInterface::setNetMask( const std::string val )
 }
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¢¥É¥ì¥¹¡¢¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤ò·×»»¤¹¤ë¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã€ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¨ˆç®—ã™ã‚‹ã€‚
  */
 void
 NetworkInterface::recalc()

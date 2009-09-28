@@ -1,6 +1,6 @@
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥é¥¤¥Ö¥é¥ê(UnixÍÑ)<br/>
- * IP¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(Unixç”¨)<br/>
+ * IPãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã€‚
  */
 
 #ifdef HAVE_CONFIG_H
@@ -19,135 +19,160 @@ static pthread_mutex_t instanceMutex;
 static int mutex_init_result = IpMsgMutexInit( "IpMessengerImpl::Global", &instanceMutex, NULL );
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¤¥Ù¥ó¥È¥¯¥é¥¹¤Î¥Ç¥Õ¥©¥ë¥È¼ÂÁõ¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¤ãƒ™ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå®Ÿè£…ã€‚
  */
 class IpMessengerNullEvent: public IpMessengerEvent {
 	public:
 		/**
-		 * ÄÌÃÎ¥¤¥Ù¥ó¥È³«»ÏÁ°¥¤¥Ù¥ó¥È(GUI¥¹¥ì¥Ã¥É¤Î¥í¥Ã¥¯Åù¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤)
+		 * é€šçŸ¥ã‚¤ãƒ™ãƒ³ãƒˆé–‹å§‹å‰ã‚¤ãƒ™ãƒ³ãƒˆ(GUIã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ­ãƒƒã‚¯ç­‰ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„)
 		 */
 		virtual void EventBefore(){};
 		/**
-		 * ÄÌÃÎ¥¤¥Ù¥ó¥È½ªÎ»¸å¥¤¥Ù¥ó¥È(GUI¥¹¥ì¥Ã¥É¤Î¥¢¥ó¥í¥Ã¥¯Åù¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤)
+		 * é€šçŸ¥ã‚¤ãƒ™ãƒ³ãƒˆçµ‚äº†å¾Œã‚¤ãƒ™ãƒ³ãƒˆ(GUIã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ç­‰ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„)
 		 */
 		virtual void EventAfter(){};
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¥ê¥Õ¥ì¥Ã¥·¥å¸å¥¤¥Ù¥ó¥È
-		 * @param hostList ¥Û¥¹¥È¥ê¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆãƒªãƒ•ãƒ¬ãƒƒã‚·ãƒ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param hostList ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆ
 		 */
-		virtual void RefreshHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
+		virtual void RefreshHostListAfter( HostList& hostList ){ printf("RefreshHostListAfter\n"); };
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¹¹¿·¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param hostList ¥Û¥¹¥È¥ê¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ›´æ–°å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param hostList ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆ
 		 */
 		virtual void UpdateHostListAfter( HostList& hostList ){ printf("UpdateHostListAfter\n"); };
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¥ê¥È¥é¥¤¥¨¥é¡¼¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @retval true:¥ê¥È¥é¥¤¤¹¤ë
-		 * @retval false:¥ê¥È¥é¥¤¤·¤Ê¤¤
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ãƒªãƒˆãƒ©ã‚¤ã‚¨ãƒ©ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @retval true:ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹
+		 * @retval false:ãƒªãƒˆãƒ©ã‚¤ã—ãªã„
 		 */
 		virtual bool GetHostListRetryError(){ printf("GetHostListRetryError\n");return false; };
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸¼õ¿®¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @retval true:½èÍı¤·¤Æ¥á¥Ã¥»¡¼¥¸¤ÎÊİÂ¸¤¬ÉÔÍ×
-		 * @retval false:¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @retval true:å‡¦ç†ã—ã¦ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ä¿å­˜ãŒä¸è¦
+		 * @retval false:ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜
 		 */
 		virtual bool RecieveAfter( RecievedMessage& msg ){ printf("RecieveAfter\n");return false; };
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 		 */
 		virtual void SendAfter( SentMessage& msg ){ printf("SendAfter\n"); };
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¥ê¥È¥é¥¤¥¨¥é¡¼¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
-		 * @retval true:¥ê¥È¥é¥¤¤¹¤ë
-		 * @retval false:¥ê¥È¥é¥¤¤·¤Ê¤¤
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ãƒªãƒˆãƒ©ã‚¤ã‚¨ãƒ©ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @retval true:ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹
+		 * @retval false:ãƒªãƒˆãƒ©ã‚¤ã—ãªã„
 		 */
 		virtual bool SendRetryError( SentMessage& msg ){ printf("SendRetryError\n");return false; };
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸°Å¹æ²½¼ºÇÔÄÌÃÎ¥¤¥Ù¥ó¥È¡£
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸æš—å·åŒ–å¤±æ•—é€šçŸ¥ã‚¤ãƒ™ãƒ³ãƒˆã€‚
 		 */
 		virtual void NotifySendEncryptionFail( HostListItem& host ){ printf("NotifySendEncryptionFail\n"); };
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸°Å¹æ²½¼ºÇÔ¥¤¥Ù¥ó¥È¡£
-		 * @retval true:°Å¹æ²½¤»¤º¤ËÁ÷¿®¤¹¤ë
-		 * @retval false:¼ºÇÔ¤µ¤»¤ë
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸æš—å·åŒ–å¤±æ•—ã‚¤ãƒ™ãƒ³ãƒˆã€‚
+		 * @retval true:æš—å·åŒ–ã›ãšã«é€ä¿¡ã™ã‚‹
+		 * @retval false:å¤±æ•—ã•ã›ã‚‹
 		 */
 		virtual bool IsSendContinueOnEncryptionFail( HostListItem& host ){ printf("IsSendContinueOnEncryptionFail\n"); return false; };
 		/**
-		 * ³«ÉõÄÌÃÎ¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
+		 * é–‹å°é€šçŸ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 		 */
 		virtual void OpenAfter( SentMessage& msg ){ printf("OpenAfter\n"); };
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É³«»Ï¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰é–‹å§‹ã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 		 */
 		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadStart\n"); };
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É½èÍıÃæ¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰å‡¦ç†ä¸­ã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 		 */
 		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadProcessing\n"); };
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É½ªÎ»¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰çµ‚äº†ã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 		 */
 		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadEnd\n"); };
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É¥¨¥é¡¼¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
-		 * @retval true:¥ê¥È¥é¥¤¤¹¤ë
-		 * @retval false:¥ê¥È¥é¥¤¤·¤Ê¤¤
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã‚¨ãƒ©ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+		 * @retval true:ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹
+		 * @retval false:ãƒªãƒˆãƒ©ã‚¤ã—ãªã„
 		 */
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data ){ printf("DownloadError\n"); return false; };
 		/**
-		 * ¥Û¥¹¥È¤Î»²²ÃÄÌÃÎ¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param hostList ¥Û¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆã®å‚åŠ é€šçŸ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param hostList ãƒ›ã‚¹ãƒˆ
 		 */
 		virtual void EntryAfter( HostListItem& host ){ printf("EntryAfter\n"); };
 		/**
-		 * ¥Û¥¹¥È¤ÎÃ¦ÂàÄÌÃÎ¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param hostList ¥Û¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆã®è„±é€€é€šçŸ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param hostList ãƒ›ã‚¹ãƒˆ
 		 */
 		virtual void ExitAfter( HostListItem& host ){ printf("ExitAfter\n"); };
 		/**
-		 * ÉÔºß¥â¡¼¥É¹¹¿·¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param hostList ¥Û¥¹¥È
+		 * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰æ›´æ–°å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param hostList ãƒ›ã‚¹ãƒˆ
 		 */
 		virtual void AbsenceModeChangeAfter( HostListItem& host ){ printf("AbsenceModeChangeAfter\n"); };
 		/**
-		 * ¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¼õ¿®¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param host ¥Û¥¹¥È
-		 * @param version ¥Ğ¡¼¥¸¥ç¥ó
+		 * ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 * @param version ãƒãƒ¼ã‚¸ãƒ§ãƒ³
 		 */
 		virtual void VersionInfoRecieveAfter( HostListItem &host, std::string version ){ printf("VersionInfoRecieveAfter\n"); };
 		/**
-		 * ÉÔºß¾ÜºÙ¾ğÊó¼õ¿®¸å¥¤¥Ù¥ó¥È¡£¥¤¥Ù¥ó¥È¤¬È¯À¸¤·¤¿¤³¤È¤ò¼¨¤¹¤¿¤áprint¤ò¹Ô¤¦¡£
-		 * @param host ¥Û¥¹¥È
-		 * @param absenceDetail ÉÔºß¾ÜºÙ¾ğÊó
+		 * ä¸åœ¨è©³ç´°æƒ…å ±å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸã“ã¨ã‚’ç¤ºã™ãŸã‚printã‚’è¡Œã†ã€‚
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 * @param absenceDetail ä¸åœ¨è©³ç´°æƒ…å ±
 		 */
 		virtual void AbsenceDetailRecieveAfter( HostListItem &host, std::string absenceDetail ){ printf("AbsenceDetailRecieveAfter\n"); };
+		/**
+		 * ãƒ›ã‚¹ãƒˆã®å‚åŠ é€šçŸ¥é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventBrEntryAfter( HostListItem& host ){ printf("EventBrEntryAfter\n"); };
+		/**
+		 * ãƒ›ã‚¹ãƒˆã®å‚åŠ é€šçŸ¥å¿œç­”é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventAnsEntryAfter( HostListItem& host ){ printf("EventAnsEntryAfter\n"); };
+		/**
+		 * ãƒ›ã‚¹ãƒˆã®è„±é€€é€šçŸ¥é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventBrExitAfter( HostListItem& host ){ printf("EventBrExitAfter\n"); };
+		/**
+		 * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰æ›´æ–°é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param hostList ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventBrAbsenceAfter( HostListItem& host ){ printf("EventBrAbsenceAfter\n"); };
+		/**
+		 * å…¬å…±éµå¿œç­”é€šçŸ¥é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventAnsPubKeyAfter( HostListItem& host ){ printf("EventAnsPubKeyAfter\n"); };
 };
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤ò¼èÆÀ¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
  * <ul>
- * <li>Singleton¥Ñ¥¿¡¼¥ó¤òºÎÍÑ¤·¤Æ¤¤¤ë¤Î¤Ç¡¢¥Û¥¹¥ÈÍ£°ì¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤Ç¤Ê¤±¤ì¤Ğ¤Ê¤é¤Ê¤¤¡£</li>
+ * <li>Singletonãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’æ¡ç”¨ã—ã¦ã„ã‚‹ã®ã§ã€ãƒ›ã‚¹ãƒˆå”¯ä¸€ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚</li>
  * </ul>
  */
 IpMessengerAgentImpl *
@@ -164,10 +189,10 @@ IpMessengerAgentImpl::GetInstance()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤ò²òÊü¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’è§£æ”¾ã™ã‚‹ã€‚
  * <ul>
- * <li>¤³¤Î¥á¥½¥Ã¥É¤ò»È¤Ã¤Æ¥ª¥Ö¥¸¥§¥¯¥È¤ò²òÊü¤·¤Ê¤±¤ì¤Ğ¤Ê¤é¤Ê¤¤¡£</li>
- * <li>¥é¥¤¥Ö¥é¥ê¤òÄÌ¤¸¤Ê¤¤¤ÇÄ¾ÀÜdelete¤µ¤ì¤¿¾ì¹ç¤Ï¤½¤Î¸å¤ÎÆ°ºî¤Ë¤Ä¤¤¤Æ´ØÃÎ¤·¤Ê¤¤¡£</li>
+ * <li>ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è§£æ”¾ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚</li>
+ * <li>ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’é€šã˜ãªã„ã§ç›´æ¥deleteã•ã‚ŒãŸå ´åˆã¯ãã®å¾Œã®å‹•ä½œã«ã¤ã„ã¦é–¢çŸ¥ã—ãªã„ã€‚</li>
  * </ul>
  */
 void
@@ -186,12 +211,12 @@ IpMessengerAgentImpl::Release()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥³¥ó¥¹¥È¥é¥¯¥¿¡£<br/>
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚<br/>
  * <ul>
- * <li>°Å¹æ²½¥µ¥İ¡¼¥È¤¬Í­¸ú¤Ê¾ì¹ç¡¢¥í¡¼¥«¥ë¥Û¥¹¥È¤ÎRSA¸ø³«¸°¤ÎÀ¸À®¤ò¹Ô¤¦¡£</li>
- * <li>¥Ñ¥±¥Ã¥ÈNo¤Ë»ÈÍÑ¤¹¤ëÍğ¿ô¥·¡¼¥É¤ò»ş¹ï¤Ç½é´ü²½¤¹¤ë¡£</li>
- * <li>¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤ò½é´ü¥»¥Ã¥È¥¢¥Ã¥×¤¹¤ë¡£¡ÊÊÑ´¹¤ò¹Ô¤ï¤Ê¤¤NullConverter¤¬¥Ç¥Õ¥©¥ë¥È¡Ë</li>
- * <li>¥Í¥Ã¥È¥ï¡¼¥¯¤Î½é´ü²½¡£
+ * <li>æš—å·åŒ–ã‚µãƒãƒ¼ãƒˆãŒæœ‰åŠ¹ãªå ´åˆã€ãƒ­ãƒ¼ã‚«ãƒ«ãƒ›ã‚¹ãƒˆã®RSAå…¬é–‹éµã®ç”Ÿæˆã‚’è¡Œã†ã€‚</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆNoã«ä½¿ç”¨ã™ã‚‹ä¹±æ•°ã‚·ãƒ¼ãƒ‰ã‚’æ™‚åˆ»ã§åˆæœŸåŒ–ã™ã‚‹ã€‚</li>
+ * <li>ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚’åˆæœŸã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã™ã‚‹ã€‚ï¼ˆå¤‰æ›ã‚’è¡Œã‚ãªã„NullConverterãŒãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼‰</li>
+ * <li>ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®åˆæœŸåŒ–ã€‚
  * </ul>
  */
 IpMessengerAgentImpl::IpMessengerAgentImpl()
@@ -210,12 +235,12 @@ IpMessengerAgentImpl::IpMessengerAgentImpl()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Ç¥¹¥È¥é¥¯¥¿¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
  * <ul>
- * <li>¤Ş¤º¡¢¥í¥°¥¢¥¦¥È¡£</li>
- * <li>°Å¹æ²½¥µ¥İ¡¼¥È¤¬Í­¸ú¤Ê¾ì¹ç¡¢¥í¡¼¥«¥ë¥Û¥¹¥È¤ÎRSA¸ø³«¸°¤ÎÇË´ş¤ò¹Ô¤¦¡£</li>
- * <li>³ä¤êÅö¤ÆºÑ¤Î¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤òºï½ü¤¹¤ë¡£</li>
- * <li>¥½¥±¥Ã¥È¤Î¥¯¥í¡¼¥º¡£
+ * <li>ã¾ãšã€ãƒ­ã‚°ã‚¢ã‚¦ãƒˆã€‚</li>
+ * <li>æš—å·åŒ–ã‚µãƒãƒ¼ãƒˆãŒæœ‰åŠ¹ãªå ´åˆã€ãƒ­ãƒ¼ã‚«ãƒ«ãƒ›ã‚¹ãƒˆã®RSAå…¬é–‹éµã®ç ´æ£„ã‚’è¡Œã†ã€‚</li>
+ * <li>å‰²ã‚Šå½“ã¦æ¸ˆã®ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚’å‰Šé™¤ã™ã‚‹ã€‚</li>
+ * <li>ã‚½ã‚±ãƒƒãƒˆã®ã‚¯ãƒ­ãƒ¼ã‚ºã€‚
  * </ul>
  */
 IpMessengerAgentImpl::~IpMessengerAgentImpl()
@@ -233,9 +258,9 @@ IpMessengerAgentImpl::~IpMessengerAgentImpl()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òµ¯Æ°¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’èµ·å‹•ã™ã‚‹ã€‚
  * <ul>
- * <li>NIC¤ò»ØÄê¤·¤Ê¤¤¤Ç¥Í¥Ã¥È¥ï¡¼¥¯³«»Ï(Á´¤Æ¤ÎNIC¡¢¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È¤Çµ¯Æ°)¡£</li>
+ * <li>NICã‚’æŒ‡å®šã—ãªã„ã§ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯é–‹å§‹(å…¨ã¦ã®NICã€ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆã§èµ·å‹•)ã€‚</li>
  * </ul>
  */
 void
@@ -248,11 +273,11 @@ IpMessengerAgentImpl::StartNetwork()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òµ¯Æ°¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’èµ·å‹•ã™ã‚‹ã€‚
  * <ul>
- * <li>¥Í¥Ã¥È¥ï¡¼¥¯½é´ü²½¡£</li>
- * <li>¥Í¥Ã¥È¥ï¡¼¥¯¤Ë¤´¤ß¤È¤·¤Æ¥Û¥¹¥È¾ğÊó¤¬»Ä¤Ã¤Æ¤¤¤ë¤³¤È¤ò¹ÍÎ¸¤·¤Æ°ìÃ¶¥í¥°¥¢¥¦¥È¡£</li>
- * <li>³«»Ï¸å¥í¥°¥¤¥ó¤¹¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹¡£</li>
+ * <li>ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯åˆæœŸåŒ–ã€‚</li>
+ * <li>ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã«ã”ã¿ã¨ã—ã¦ãƒ›ã‚¹ãƒˆæƒ…å ±ãŒæ®‹ã£ã¦ã„ã‚‹ã“ã¨ã‚’è€ƒæ…®ã—ã¦ä¸€æ—¦ãƒ­ã‚°ã‚¢ã‚¦ãƒˆã€‚</li>
+ * <li>é–‹å§‹å¾Œãƒ­ã‚°ã‚¤ãƒ³ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚</li>
  * </ul>
  */
 void
@@ -263,7 +288,7 @@ IpMessengerAgentImpl::StartNetwork( const std::vector<NetworkInterface>& nics )
 	IpMessengerAgentImpl::GetNetworkInterfaceInfo( NICs, UseIPv6(), DefaultPortNo() );
 	NetworkInit( nics );
 	Logout();
-	// TODO ¼õ¿®¥¹¥ì¥Ã¥É³«»Ï
+	// TODO å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰é–‹å§‹
 	pthread_t t_id;
 
 //	printf( "Thread create\n" );fflush(stdout);
@@ -292,6 +317,9 @@ ipmsg::ProcessPacketThread( void *param )
 		printf( "ProcessPacketThread(p=%ld)\n", ++p );fflush(stdout);
 #endif
 		agent->Process();
+#ifdef DEBUG
+		printf( "agent->Process(p=%ld)\n", p );fflush(stdout);
+#endif
 		if ( usleep( 500000L ) != 0 ) {
 			printf( "usleep fail\n" );fflush(stdout);
 		}
@@ -303,16 +331,16 @@ ipmsg::ProcessPacketThread( void *param )
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤ò½ªÎ»¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’çµ‚äº†ã™ã‚‹ã€‚
  * <ul>
- * <li>¥Í¥Ã¥È¥ï¡¼¥¯½ª´ü²½¡£</li>
+ * <li>ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯çµ‚æœŸåŒ–ã€‚</li>
  * </ul>
  */
 void
 IpMessengerAgentImpl::StopNetwork()
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::StopNetwork()");
-	// TODO ¼õ¿®¥¹¥ì¥Ã¥É½ªÎ»¡£¡õÂÔ¤Á¹ç¤ï¤»¡£
+	// TODO å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰çµ‚äº†ã€‚ï¼†å¾…ã¡åˆã‚ã›ã€‚
 	_IsNetworkStarted = false;
 	usleep( 1000000L );
 	NetworkEnd();
@@ -320,9 +348,9 @@ IpMessengerAgentImpl::StopNetwork()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òºÆµ¯Æ°¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’å†èµ·å‹•ã™ã‚‹ã€‚
  * <ul>
- * <li>NIC¤ò»ØÄê¤·¤Ê¤¤¤Ç¥Í¥Ã¥È¥ï¡¼¥¯ºÆµ¯Æ°(Á´¤Æ¤ÎNIC¡¢¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥ÈºÆµ¯Æ°)¡£</li>
+ * <li>NICã‚’æŒ‡å®šã—ãªã„ã§ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯å†èµ·å‹•(å…¨ã¦ã®NICã€ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆå†èµ·å‹•)ã€‚</li>
  * </ul>
  */
 void
@@ -335,12 +363,12 @@ IpMessengerAgentImpl::RestartNetwork()
 }
 
 /**
- * IP ¥á¥Ã¥»¥ó¥¸¥ã¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹¤Î¥Í¥Ã¥È¥ï¡¼¥¯¤òºÆµ¯Æ°¤¹¤ë¡£
+ * IP ãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’å†èµ·å‹•ã™ã‚‹ã€‚
  * <ul>
- * <li>¤Ş¤º¡¢¥í¥°¥¢¥¦¥È¡£</li>
- * <li>¥Í¥Ã¥È¥ï¡¼¥¯½ª´ü²½¡£</li>
- * <li>¥Í¥Ã¥È¥ï¡¼¥¯½é´ü²½¡£</li>
- * <li>ºÆÅÙ¥í¥°¥¤¥ó¡£</li>
+ * <li>ã¾ãšã€ãƒ­ã‚°ã‚¢ã‚¦ãƒˆã€‚</li>
+ * <li>ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯çµ‚æœŸåŒ–ã€‚</li>
+ * <li>ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯åˆæœŸåŒ–ã€‚</li>
+ * <li>å†åº¦ãƒ­ã‚°ã‚¤ãƒ³ã€‚</li>
  * </ul>
  */
 void
@@ -357,8 +385,8 @@ IpMessengerAgentImpl::RestartNetwork( const std::vector<NetworkInterface>& nics 
 }
 
 /**
- * ¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤Î¥²¥Ã¥¿¡¼¡£<br>
- * @retval ¥³¥ó¥Ğ¡¼¥¿¤Î¥¢¥É¥ì¥¹¡£
+ * ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚²ãƒƒã‚¿ãƒ¼ã€‚<br>
+ * @retval ã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 FileNameConverter *
 IpMessengerAgentImpl::GetFileNameConverter() const
@@ -368,12 +396,12 @@ IpMessengerAgentImpl::GetFileNameConverter() const
 }
 
 /**
- * ¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤Î¥»¥Ã¥¿¡¼¡£<br>
+ * ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚»ãƒƒã‚¿ãƒ¼ã€‚<br>
  * <ul>
- * <li>³ä¤êÅö¤ÆºÑ¤Î¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¤òºï½ü¤¹¤ë¡£</li>
- * <li>¿·¤·¤¤¥³¥ó¥Ğ¡¼¥¿¤Î³ä¤êÅö¤Æ¡£</li>
+ * <li>å‰²ã‚Šå½“ã¦æ¸ˆã®ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚’å‰Šé™¤ã™ã‚‹ã€‚</li>
+ * <li>æ–°ã—ã„ã‚³ãƒ³ãƒãƒ¼ã‚¿ã®å‰²ã‚Šå½“ã¦ã€‚</li>
  * </ul>
- * @param conv ¥³¥ó¥Ğ¡¼¥¿¤Î¥¢¥É¥ì¥¹¡£¼«Æ°Åª¤Ëºï½ü¤µ¤ì¤ë¤Î¤Ç¡¢¥¹¥¿¥Ã¥¯¾å¤ËºîÀ®¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¥Ò¡¼¥×¾å¤ËºîÀ®¤¹¤ë¤³¤È¡£
+ * @param conv ã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚è‡ªå‹•çš„ã«å‰Šé™¤ã•ã‚Œã‚‹ã®ã§ã€ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã«ä½œæˆã—ã¦ã¯ãªã‚‰ãªã„ã€‚ãƒ’ãƒ¼ãƒ—ä¸Šã«ä½œæˆã™ã‚‹ã“ã¨ã€‚
  */
 void
 IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )
@@ -382,7 +410,7 @@ IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )
 	if ( conv == NULL ){
 		IPMSG_FUNC_EXIT;
 	}
-	//¼«¸ÊÂåÆş¤ò¹ÍÎ¸
+	//è‡ªå·±ä»£å…¥ã‚’è€ƒæ…®
 	if ( conv == converter ){
 		IPMSG_FUNC_EXIT;
 	}
@@ -392,8 +420,8 @@ IpMessengerAgentImpl::SetFileNameConverter( const FileNameConverter *conv )
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥²¥Ã¥¿¡¼¡£
- * @retval ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚²ãƒƒã‚¿ãƒ¼ã€‚
+ * @retval ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 HostListComparator *
 IpMessengerAgentImpl::GetSortHostListComparator() const
@@ -403,12 +431,12 @@ IpMessengerAgentImpl::GetSortHostListComparator() const
 }; 
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥»¥Ã¥¿¡¼¡£
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚»ãƒƒã‚¿ãƒ¼ã€‚
  * <ul>
- * <li>³ä¤êÅö¤ÆºÑ¤Î¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤òºï½ü¤¹¤ë¡£</li>
- * <li>¿·¤·¤¤¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î³ä¤êÅö¤Æ¡£</li>
+ * <li>å‰²ã‚Šå½“ã¦æ¸ˆã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‰Šé™¤ã™ã‚‹ã€‚</li>
+ * <li>æ–°ã—ã„ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‰²ã‚Šå½“ã¦ã€‚</li>
  * </ul>
- * @param comparator ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£¼«Æ°Åª¤Ëºï½ü¤µ¤ì¤ë¤Î¤Ç¡¢¥¹¥¿¥Ã¥¯¾å¤ËºîÀ®¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¥Ò¡¼¥×¾å¤ËºîÀ®¤¹¤ë¤³¤È¡£
+ * @param comparator ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚è‡ªå‹•çš„ã«å‰Šé™¤ã•ã‚Œã‚‹ã®ã§ã€ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã«ä½œæˆã—ã¦ã¯ãªã‚‰ãªã„ã€‚ãƒ’ãƒ¼ãƒ—ä¸Šã«ä½œæˆã™ã‚‹ã“ã¨ã€‚
  */
 void
 IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *comparator )
@@ -417,7 +445,7 @@ IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *compa
 	if ( comparator == NULL ){
 		IPMSG_FUNC_EXIT;
 	}
-	//¼«¸ÊÂåÆş¤ò¹ÍÎ¸
+	//è‡ªå·±ä»£å…¥ã‚’è€ƒæ…®
 	if ( comparator == compare ){
 		IPMSG_FUNC_EXIT;
 	}
@@ -427,8 +455,8 @@ IpMessengerAgentImpl::SetSortHostListComparator( const HostListComparator *compa
 }
 
 /**
- * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥²¥Ã¥¿¡¼¡£
- * @retval ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£
+ * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚²ãƒƒã‚¿ãƒ¼ã€‚
+ * @retval ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
  */
 IpMessengerEvent *
 IpMessengerAgentImpl::GetEventObject() const
@@ -438,12 +466,12 @@ IpMessengerAgentImpl::GetEventObject() const
 }; 
 
 /**
- * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥»¥Ã¥¿¡¼¡£
+ * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚»ãƒƒã‚¿ãƒ¼ã€‚
  * <ul>
- * <li>³ä¤êÅö¤ÆºÑ¤Î¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤òºï½ü¤¹¤ë¡£</li>
- * <li>¿·¤·¤¤¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î³ä¤êÅö¤Æ¡£</li>
+ * <li>å‰²ã‚Šå½“ã¦æ¸ˆã®ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‰Šé™¤ã™ã‚‹ã€‚</li>
+ * <li>æ–°ã—ã„ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‰²ã‚Šå½“ã¦ã€‚</li>
  * </ul>
- * @param evt ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¥¢¥É¥ì¥¹¡£¼«Æ°Åª¤Ëºï½ü¤µ¤ì¤ë¤Î¤Ç¡¢¥¹¥¿¥Ã¥¯¾å¤ËºîÀ®¤·¤Æ¤Ï¤Ê¤é¤Ê¤¤¡£¥Ò¡¼¥×¾å¤ËºîÀ®¤¹¤ë¤³¤È¡£
+ * @param evt ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚è‡ªå‹•çš„ã«å‰Šé™¤ã•ã‚Œã‚‹ã®ã§ã€ã‚¹ã‚¿ãƒƒã‚¯ä¸Šã«ä½œæˆã—ã¦ã¯ãªã‚‰ãªã„ã€‚ãƒ’ãƒ¼ãƒ—ä¸Šã«ä½œæˆã™ã‚‹ã“ã¨ã€‚
  */
 void
 IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
@@ -452,7 +480,7 @@ IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
 	if ( evt == NULL ){
 		IPMSG_FUNC_EXIT;
 	}
-	//¼«¸ÊÂåÆş¤ò¹ÍÎ¸
+	//è‡ªå·±ä»£å…¥ã‚’è€ƒæ…®
 	if ( evt == event ){
 		IPMSG_FUNC_EXIT;
 	}
@@ -462,11 +490,11 @@ IpMessengerAgentImpl::SetEventObject( const IpMessengerEvent *evt )
 }
 
 /**
- * NIC¤Î¾ğÊó¤ò¼èÆÀ¤¹¤ë¡£
+ * NICã®æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚
  * <ul>
- * <li>»ÈÍÑ¤¹¤ë¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¥¤¥¹¤ÎIP¥¢¥É¥ì¥¹¤òµá¤á¤ë¡£¡Ê¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¤ò¤Î¤¾¤¯Á´¤Æ¤ÎNIC¡Ë</li>
+ * <li>ä½¿ç”¨ã™ã‚‹ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ±‚ã‚ã‚‹ã€‚ï¼ˆãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã‚’ã®ããå…¨ã¦ã®NICï¼‰</li>
  * </ul>
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î°ìÍ÷
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®ä¸€è¦§
  */
 void
 IpMessengerAgentImpl::GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )
@@ -480,10 +508,10 @@ printf("IpMessengerAgentImpl::GetNetworkInterfaceInfo useIPv6=%s\n", useIPv6 ? "
 }
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯´ØÏ¢¤Î½é´ü²½¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯é–¢é€£ã®åˆæœŸåŒ–ã€‚
  * <ul>
- * <li>´Ä¶­ÊÑ¿ô¤«¤é¥Û¥¹¥ÈÌ¾¤ò¼èÆÀ¡£¡Ê½ĞÍè¤Ê¤±¤ì¤Ğlocalhost¸ÇÄê¡Ë</li>
- * <li>´Ä¶­ÊÑ¿ô¤«¤é¥æ¡¼¥¶Ì¾¤ò¼èÆÀ¡£¡Ê½ĞÍè¤Ê¤±¤ì¤Ğuid¡Ë</li>
+ * <li>ç’°å¢ƒå¤‰æ•°ã‹ã‚‰ãƒ›ã‚¹ãƒˆåã‚’å–å¾—ã€‚ï¼ˆå‡ºæ¥ãªã‘ã‚Œã°localhostå›ºå®šï¼‰</li>
+ * <li>ç’°å¢ƒå¤‰æ•°ã‹ã‚‰ãƒ¦ãƒ¼ã‚¶åã‚’å–å¾—ã€‚ï¼ˆå‡ºæ¥ãªã‘ã‚Œã°uidï¼‰</li>
  * </ul>
  */
 void
@@ -557,9 +585,9 @@ IpMessengerAgentImpl::NetworkInit( const std::vector<NetworkInterface>& nics )
 }
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯´ØÏ¢¤Î½é´ü²½¡£
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯é–¢é€£ã®åˆæœŸåŒ–ã€‚
  * <ul>
- * <li>Á´¤Æ¤Î¥½¥±¥Ã¥È¤òÊÄ¤¸¤ë¡£</li>
+ * <li>å…¨ã¦ã®ã‚½ã‚±ãƒƒãƒˆã‚’é–‰ã˜ã‚‹ã€‚</li>
  * </ul>
  */
 void
@@ -580,11 +608,11 @@ IpMessengerAgentImpl::NetworkEnd()
 }
 
 /**
- * ¥í¥°¥¤¥ó¡Ê¥µ¡¼¥Ó¥¹»²²ÃÄÌÃÎ¡Ë¡£
+ * ãƒ­ã‚°ã‚¤ãƒ³ï¼ˆã‚µãƒ¼ãƒ“ã‚¹å‚åŠ é€šçŸ¥ï¼‰ã€‚
  * <ul>
- * <li>NOOPERATION¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¥Í¥Ã¥È¥ï¡¼¥¯¤¬»ÈÍÑ²ÄÇ½¤«¤É¤¦¤«¤ò³ÎÇ§¤·¤¿¾å¤Ç¥Û¥¹¥È¥ê¥¹¥È¤ò¼èÆÀ¡£</li>
- * <li>BR_ENTRY¤ò¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¡£</li>
- * <li>¥Ñ¥±¥Ã¥È¤ò¼õ¿®¤·¤¿¾å¤Ç¡¢¥Û¥¹¥È¥ê¥¹¥È¤òºÆÅÙ¼èÆÀ¡£</li>
+ * <li>NOOPERATIONãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãŒä½¿ç”¨å¯èƒ½ã‹ã©ã†ã‹ã‚’ç¢ºèªã—ãŸä¸Šã§ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’å–å¾—ã€‚</li>
+ * <li>BR_ENTRYã‚’ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã€‚</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã‚’å—ä¿¡ã—ãŸä¸Šã§ã€ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’å†åº¦å–å¾—ã€‚</li>
  * </ul>
  */
 void
@@ -618,18 +646,18 @@ IpMessengerAgentImpl::Login( std::string nickname, std::string groupName )
 //	skulkHostList.Lock("IpMessengerAfentImpl::Login");
 //	skulkHostList.Unlock("IpMessengerAfentImpl::Login");
 //	RecvPacket( false );
-	//0.05ÉÃ¤Ş¤Ä¡£
+	//0.05ç§’ã¾ã¤ã€‚
 	usleep( 50000L );
 //	RecvPacket( false );
-	//0.1ÉÃ¤Ş¤Ä¡£
+	//0.1ç§’ã¾ã¤ã€‚
 	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
 }
 
 /**
- * ¥í¥°¥¢¥¦¥È¡Ê¥µ¡¼¥Ó¥¹Ã¦ÂàÄÌÃÎ¡Ë¡£
+ * ãƒ­ã‚°ã‚¢ã‚¦ãƒˆï¼ˆã‚µãƒ¼ãƒ“ã‚¹è„±é€€é€šçŸ¥ï¼‰ã€‚
  * <ul>
- * <li>BR_EXIT¤ò¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¡£</li>
+ * <li>BR_EXITã‚’ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã€‚</li>
  * </ul>
  */
 void
@@ -645,17 +673,17 @@ IpMessengerAgentImpl::Logout()
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_EXIT, sendBuf, sendBufLen );
 //	RecvPacket( false );
-	//0.1ÉÃ¤Ş¤Ä¡£
+	//0.1ç§’ã¾ã¤ã€‚
 	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
 }
 
 /**
- * ¥í¥°¥¤¥ó¡ÊÆÃÄê¤Î¥Û¥¹¥È¸ş¤±¥µ¡¼¥Ó¥¹»²²ÃÄÌÃÎ¡Ë¡£
+ * ãƒ­ã‚°ã‚¤ãƒ³ï¼ˆç‰¹å®šã®ãƒ›ã‚¹ãƒˆå‘ã‘ã‚µãƒ¼ãƒ“ã‚¹å‚åŠ é€šçŸ¥ï¼‰ã€‚
  * <ul>
- * <li>NOOPERATION¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¥Í¥Ã¥È¥ï¡¼¥¯¤¬»ÈÍÑ²ÄÇ½¤«¤É¤¦¤«¤ò³ÎÇ§¤·¤¿¾å¤Ç¥Û¥¹¥È¥ê¥¹¥È¤ò¼èÆÀ¡£</li>
- * <li>BR_ENTRY¤òÆÃÄê¤Î¥Û¥¹¥È¤ËÁ÷¤ë¡£</li>
- * <li>¥Ñ¥±¥Ã¥È¤ò¼õ¿®¤·¤¿¾å¤Ç¡¢¥Û¥¹¥È¥ê¥¹¥È¤òºÆÅÙ¼èÆÀ¡£</li>
+ * <li>NOOPERATIONãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãŒä½¿ç”¨å¯èƒ½ã‹ã©ã†ã‹ã‚’ç¢ºèªã—ãŸä¸Šã§ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’å–å¾—ã€‚</li>
+ * <li>BR_ENTRYã‚’ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã«é€ã‚‹ã€‚</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã‚’å—ä¿¡ã—ãŸä¸Šã§ã€ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’å†åº¦å–å¾—ã€‚</li>
  * </ul>
  */
 void
@@ -678,7 +706,7 @@ IpMessengerAgentImpl::VisibleToAddr( struct sockaddr_storage &addr )
 										optBuf.c_str(), optBuf.size(),
 										sendBuf, sizeof( sendBuf ) );
 	SendPacket( -1, IPMSG_BR_ENTRY, sendBuf, sendBufLen, addr );
-	//0.1ÉÃ¤Ş¤Ä¡£
+	//0.1ç§’ã¾ã¤ã€‚
 	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
 }
@@ -707,9 +735,9 @@ IpMessengerAgentImpl::HideFromAllAddr()
 }
 
 /**
- * ¥í¥°¥¢¥¦¥È¡ÊÆÃÄê¤Î¥Û¥¹¥È¸ş¤±¤Ë±£¤ì¤ë¤¿¤á¤Î¥µ¡¼¥Ó¥¹Ã¦ÂàÄÌÃÎ¡Ë¡£
+ * ãƒ­ã‚°ã‚¢ã‚¦ãƒˆï¼ˆç‰¹å®šã®ãƒ›ã‚¹ãƒˆå‘ã‘ã«éš ã‚Œã‚‹ãŸã‚ã®ã‚µãƒ¼ãƒ“ã‚¹è„±é€€é€šçŸ¥ï¼‰ã€‚
  * <ul>
- * <li>BR_EXIT¤òÆÃÄê¤Î¥Û¥¹¥È¤ËÁ÷¤ë¡£</li>
+ * <li>BR_EXITã‚’ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã«é€ã‚‹ã€‚</li>
  * </ul>
  */
 void
@@ -745,14 +773,14 @@ IpMessengerAgentImpl::HideFromAddr( struct sockaddr_storage &addr )
 			SendPacket( udp_sd[i], IPMSG_BR_EXIT, sendBuf, sendBufLen, addr );
 		}
 	}
-	//0.1ÉÃ¤Ş¤Ä¡£
+	//0.1ç§’ã¾ã¤ã€‚
 	usleep( 100000L );
 	IPMSG_FUNC_EXIT;
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¡£
- * @retval ¥¨¡¼¥¸¥§¥ó¥È¤¬Êİ»ı¤·¤Æ¤¤¤ëHostList¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ã€‚
+ * @retval ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆãŒä¿æŒã—ã¦ã„ã‚‹HostListã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 HostList&
 IpMessengerAgentImpl::GetHostList()
@@ -762,16 +790,16 @@ IpMessengerAgentImpl::GetHostList()
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¹¹¿·¼èÆÀ¡£<br>
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ›´æ–°å–å¾—ã€‚<br>
  * <ul>
- * <li>BR_ISGETLIST2¤ò¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¡£</li>
- * <li>Â¾¤Î¥á¥½¥Ã¥É¡ÊANSLIST¼õ¿®¡Ë¤Ë¤Æ¼èÆÀ¤¹¤ë¤Ş¤ÇÂÔµ¡¡£¡Ê¸Ş²ó¤Ş¤Ç¡Ë</li>
+ * <li>BR_ISGETLIST2ã‚’ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã€‚</li>
+ * <li>ä»–ã®ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆANSLISTå—ä¿¡ï¼‰ã«ã¦å–å¾—ã™ã‚‹ã¾ã§å¾…æ©Ÿã€‚ï¼ˆäº”å›ã¾ã§ï¼‰</li>
  * </ul>
  * <ul>
- * <li>¥Û¥¹¥È¥ê¥¹¥È¤Î¹½ÃÛ¤ÏANSLIST¼õ¿®»ş¤Ë¹Ô¤ï¤ì¤ë¤Î¤Ç¡¢¤³¤Î¥á¥½¥Ã¥É¤Ç¤Ï¤Ò¤¿¤¹¤éÂÔµ¡¡£</li>
- * <li>¥Û¥¹¥È¥ê¥¹¥È¤ÏANSLIST¼õ¿®»ş¤ËÄÉ²Ã¡¿¹¹¿·¤µ¤ì¤ë¤³¤È¤¬¤¢¤ë¤Î¤Ç¾ï¤ËÆ±¤¸¥Û¥¹¥È¥ê¥¹¥È¤òÊÖ¤¹¤È¤Ï¸Â¤é¤Ê¤¤¡£</li>
+ * <li>ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®æ§‹ç¯‰ã¯ANSLISTå—ä¿¡æ™‚ã«è¡Œã‚ã‚Œã‚‹ã®ã§ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã§ã¯ã²ãŸã™ã‚‰å¾…æ©Ÿã€‚</li>
+ * <li>ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã¯ANSLISTå—ä¿¡æ™‚ã«è¿½åŠ ï¼æ›´æ–°ã•ã‚Œã‚‹ã“ã¨ãŒã‚ã‚‹ã®ã§å¸¸ã«åŒã˜ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’è¿”ã™ã¨ã¯é™ã‚‰ãªã„ã€‚</li>
  * </ul>
- * @retval ¼èÆÀ¤·¤¿HostList¥ª¥Ö¥¸¥§¥¯¥È
+ * @retval å–å¾—ã—ãŸHostListã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 HostList&
 IpMessengerAgentImpl::UpdateHostList( bool isRetry )
@@ -780,7 +808,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 	char sendBuf[MAX_UDPBUF];
 	int sendBufLen;
 
-	//¥ê¥È¥é¥¤Ãæ¤«¤É¤¦¤«¡©
+	//ãƒªãƒˆãƒ©ã‚¤ä¸­ã‹ã©ã†ã‹ï¼Ÿ
 	if ( !isRetry && !hostList.IsAsking() ) {
 #if defined(DEBUG)
 		printf("IpMessengerAgentImpl::UpdateHost HostList backup now.\n");
@@ -793,26 +821,27 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 		fflush( stdout );
 #endif
 	}
-	//Ìä¹ç¤»Ãæ¤Ë¾õÂÖ¤òÀßÄê
+	//å•åˆã›ä¸­ã«çŠ¶æ…‹ã‚’è¨­å®š
 	hostList.setIsAsking( true );
 	if ( !isRetry ) {
 		hostList.setAskStartTime( time( NULL ) );
 		hostList.setPrevTry( hostList.AskStartTime() );
 		hostList.setRetryCount( 0 );
 	}
-	AddDefaultHost();
+	HostListItem host;
+	AddDefaultHost( host );
 
 	sendBufLen = CreateNewPacketBuffer( AddCommonCommandOption( IPMSG_BR_ISGETLIST2 ),
 										_LoginName, _HostName,
 										NULL, 0,
 										sendBuf, sizeof( sendBuf ) );
 	SendBroadcast( IPMSG_BR_ISGETLIST2, sendBuf, sendBufLen );
-	//ºÆÆş¶Ø»ß(¥ê¥È¥é¥¤»ş¤ÏRecvPacket¤«¤é¸Æ¤Ğ¤ì¤ë)
+	//å†å…¥ç¦æ­¢(ãƒªãƒˆãƒ©ã‚¤æ™‚ã¯RecvPacketã‹ã‚‰å‘¼ã°ã‚Œã‚‹)
 	if ( !isRetry ) {
 //		int pcount = RecvPacket( false );
-		//¼«Ê¬°Ê³°¤Î¥Û¥¹¥È¤¬¸«ÉÕ¤«¤é¤Ê¤¤¤«£µ²ó¥ê¥È¥é¥¤¤¹¤ë´Ö·«¤êÊÖ¤¹
+		//è‡ªåˆ†ä»¥å¤–ã®ãƒ›ã‚¹ãƒˆãŒè¦‹ä»˜ã‹ã‚‰ãªã„ã‹ï¼•å›ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹é–“ç¹°ã‚Šè¿”ã™
 		for( int i = 0; i < 5; i++ ) {
-			//0.01ÉÃ¤Ş¤Ä¡£
+			//0.01ç§’ã¾ã¤ã€‚
 			usleep( 10000L );
 //			pcount = RecvPacket( false );
 		}
@@ -821,7 +850,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 #if defined(DEBUG)
 	IpMsgDumpHostList( " M Y   H O S T L I S T ( BEFORE SORT ) ", hostList );
 #endif
-	//¥½¡¼¥È
+	//ã‚½ãƒ¼ãƒˆ
 	if ( compare != NULL ) {
 		hostList.sort( compare );
 		appearanceHostList.sort( compare );
@@ -829,7 +858,7 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 #if defined(DEBUG)
 	IpMsgDumpHostList( " M Y   H O S T L I S T ( AFTER SORT ) ", hostList );
 #endif
-	//¥¤¥Ù¥ó¥È¤òµó¤²¤ë
+	//ã‚¤ãƒ™ãƒ³ãƒˆã‚’æŒ™ã’ã‚‹
 	if ( event != NULL ) {
 		event->EventBefore();
 #if defined(DEBUG)
@@ -840,7 +869,11 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 		printf("UpdateHostListAfter after\n");
 		printf("RefreshHostListAfter before\n");
 #endif
+printf("IpMessengerImpl::UpdateHostList::RefreshHostListAfter call before\n");
+fflush(stdout);
 		event->RefreshHostListAfter( appearanceHostList );
+printf("IpMessengerImpl::UpdateHostList::RefreshHostListAfter call after\n");
+fflush(stdout);
 #if defined(DEBUG)
 		printf("RefreshHostListAfter after\n");
 #endif
@@ -850,8 +883,8 @@ IpMessengerAgentImpl::UpdateHostList( bool isRetry )
 }
 
 /**
- * ÉÔºß¥â¡¼¥É¤«¤É¤¦¤«¤òÈ½Äê¡£
- * @retval ÀßÄêºÑ¤ÎÉÔºß¥â¡¼¥É¤òÊÖ¤¹¡£
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‹ã©ã†ã‹ã‚’åˆ¤å®šã€‚
+ * @retval è¨­å®šæ¸ˆã®ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚’è¿”ã™ã€‚
  */
 bool
 IpMessengerAgentImpl::IsAbsence() const
@@ -860,7 +893,7 @@ IpMessengerAgentImpl::IsAbsence() const
 	IPMSG_FUNC_RETURN( _IsAbsence );
 }
 /**
- * ÉÔºß¥â¡¼¥É¤ò¥¯¥ê¥¢¤¹¤ë¡£
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã€‚
  */
 void
 IpMessengerAgentImpl::ResetAbsence()
@@ -875,9 +908,9 @@ IpMessengerAgentImpl::ResetAbsence()
 }
 
 /**
- * ÉÔºß¥â¡¼¥É¤òÀßÄê¤¹¤ë¡£
- * @param encoding ¥í¡¼¥«¥ë¥¨¥ó¥³¡¼¥Ç¥£¥ó¥°
- * @param absenceModes AbsenceMode¥ª¥Ö¥¸¥§¥¯¥È¤Î¥Ù¥¯¥¿¡Ê¼«Æ°±şÅú»ş¤ËÊ£¿ô¥¨¥ó¥³¡¼¥Ç¥£¥ó¥°ÂĞ±ş¤¹¤ë¤¿¤á¡Ë
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚’è¨­å®šã™ã‚‹ã€‚
+ * @param encoding ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°
+ * @param absenceModes AbsenceModeã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ™ã‚¯ã‚¿ï¼ˆè‡ªå‹•å¿œç­”æ™‚ã«è¤‡æ•°ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°å¯¾å¿œã™ã‚‹ãŸã‚ï¼‰
  */
 void
 IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes )
@@ -892,15 +925,15 @@ IpMessengerAgentImpl::SetAbsence( std::string encoding, std::vector<AbsenceMode>
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡£
- * @param message À¸À®¤µ¤ì¤¿¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È(Output)
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
- * @param isSecret Éõ½ñ¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param isLockPassword ¾û¤Ä¤­¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param hostCountAtSameTime Æ±»şÁ÷¿®¥Û¥¹¥È¿ô
- * @param IsNoLogging ¥í¥°¤Ëµ­Ï¿¤·¤Ê¤¤¡Ê¤³¤È¤ò¿ä¾©¡Ë
- * @param opt Á÷¿®¥ª¥×¥·¥ç¥ó
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã€‚
+ * @param message ç”Ÿæˆã•ã‚ŒãŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(Output)
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+ * @param isSecret å°æ›¸ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param isLockPassword éŒ ã¤ãã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param hostCountAtSameTime åŒæ™‚é€ä¿¡ãƒ›ã‚¹ãƒˆæ•°
+ * @param IsNoLogging ãƒ­ã‚°ã«è¨˜éŒ²ã—ãªã„ï¼ˆã“ã¨ã‚’æ¨å¥¨ï¼‰
+ * @param opt é€ä¿¡ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  */
 bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt )
@@ -911,16 +944,16 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡£
- * @param message À¸À®¤µ¤ì¤¿¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È(Output)
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
- * @param isSecret Éõ½ñ¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
- * @param isLockPassword ¾û¤Ä¤­¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param hostCountAtSameTime Æ±»şÁ÷¿®¥Û¥¹¥È¿ô
- * @param IsNoLogging ¥í¥°¤Ëµ­Ï¿¤·¤Ê¤¤¡Ê¤³¤È¤ò¿ä¾©¡Ë
- * @param opt Á÷¿®¥ª¥×¥·¥ç¥ó
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã€‚
+ * @param message ç”Ÿæˆã•ã‚ŒãŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(Output)
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+ * @param isSecret å°æ›¸ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+ * @param isLockPassword éŒ ã¤ãã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param hostCountAtSameTime åŒæ™‚é€ä¿¡ãƒ›ã‚¹ãƒˆæ•°
+ * @param IsNoLogging ãƒ­ã‚°ã«è¨˜éŒ²ã—ãªã„ï¼ˆã“ã¨ã‚’æ¨å¥¨ï¼‰
+ * @param opt é€ä¿¡ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  */
 bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt )
@@ -932,18 +965,18 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡£
- * @param message À¸À®¤µ¤ì¤¿¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È(Output)
- * @param host Á÷¿®Àè¥Û¥¹¥È
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
- * @param isSecret Éõ½ñ¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param files ÅºÉÕ¥Õ¥¡¥¤¥ë·²
- * @param isLockPassword ¾û¤Ä¤­¤«¤É¤¦¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param hostCountAtSameTime Æ±»şÁ÷¿®¥Û¥¹¥È¿ô
- * @param IsNoLogging ¥í¥°¤Ëµ­Ï¿¤·¤Ê¤¤¡Ê¤³¤È¤ò¿ä¾©¡Ë
- * @param opt Á÷¿®¥ª¥×¥·¥ç¥ó
- * @param isRetry °ÅÌÛ¤Î¥ê¥È¥é¥¤¤Ë¤è¤ëÁ÷¿®Í×µá¤«¤ò¼¨¤¹¥Õ¥é¥°
- * @param PrevPacketNo ¥ê¥È¥é¥¤¤Ç¤¢¤ì¤ĞÁ°²ó¤Î¥Ñ¥±¥Ã¥ÈÈÖ¹æ
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã€‚
+ * @param message ç”Ÿæˆã•ã‚ŒãŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(Output)
+ * @param host é€ä¿¡å…ˆãƒ›ã‚¹ãƒˆ
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+ * @param isSecret å°æ›¸ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param files æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ç¾¤
+ * @param isLockPassword éŒ ã¤ãã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param hostCountAtSameTime åŒæ™‚é€ä¿¡ãƒ›ã‚¹ãƒˆæ•°
+ * @param IsNoLogging ãƒ­ã‚°ã«è¨˜éŒ²ã—ãªã„ï¼ˆã“ã¨ã‚’æ¨å¥¨ï¼‰
+ * @param opt é€ä¿¡ã‚ªãƒ—ã‚·ãƒ§ãƒ³
+ * @param isRetry æš—é»™ã®ãƒªãƒˆãƒ©ã‚¤ã«ã‚ˆã‚‹é€ä¿¡è¦æ±‚ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°
+ * @param PrevPacketNo ãƒªãƒˆãƒ©ã‚¤ã§ã‚ã‚Œã°å‰å›ã®ãƒ‘ã‚±ãƒƒãƒˆç•ªå·
  */
 bool
 IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword, int hostCountAtSameTime, const Logging &isLogging, unsigned long opt, bool isRetry, unsigned long PrevPacketNo )
@@ -965,13 +998,13 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 	}
 
 //	RecvPacket( false );
-	//0.1ÉÃ¤Ş¤Ä¡£
+	//0.1ç§’ã¾ã¤ã€‚
 	usleep( 100000L );
 
 	optBufLen = optBufSize < msg.size() ? optBufSize : msg.size();
 	memcpy( optBuf, msg.c_str(), optBufLen );
 #ifdef HAVE_OPENSSL
-	//OpenSSL¥µ¥İ¡¼¥È¤¬Í­¸ú¤Ê¤é¡¢°Å¹æ²½
+	//OpenSSLã‚µãƒãƒ¼ãƒˆãŒæœ‰åŠ¹ãªã‚‰ã€æš—å·åŒ–
 	if ( isSecret.IsSecret() ) {
 #if defined(DEBUG)
 		printf( "IpMessengerAgentImpl::SendMsg Send message specified by Secret Mode.\n" );
@@ -1036,14 +1069,14 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 	int fileBufLen = 0;
 	char fileBuf[MAX_UDPBUF];
 
-	//¥Õ¥¡¥¤¥ë¤òÅºÉÕ
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ·»ä»˜
 	for( std::vector<AttachFile>::iterator ixfile = files.begin(); ixfile != files.end(); ixfile++ ) {
 		ixfile->GetLocalFileInfo();
 		std::string filename = converter->ConvertLocalToNetwork( ixfile->FileName() );
 		size_t wsize = snprintf( &fileBuf[ fileBufLen ], sizeof( fileBuf ) - fileBufLen - 1,
 							"%d:%s:%llx:%lx:%lx:\a",
 							ixfile->FileId(), filename.c_str(), ixfile->FileSize(), (unsigned long)ixfile->MTime(), ixfile->Attr() );
-		//ÅºÉÕ¥Õ¥¡¥¤¥ë¤ÎÁí¿ô¤¬Á÷¿®¥Ğ¥Ã¥Õ¥¡¤òÄ¶¤¨¤¿¤Ş¤¿¤Ïsprintf¤¬½ñ¤­¤­¤é¤Ê¤«¤Ã¤¿¡£
+		//æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ã®ç·æ•°ãŒé€ä¿¡ãƒãƒƒãƒ•ã‚¡ã‚’è¶…ãˆãŸã¾ãŸã¯sprintfãŒæ›¸ããã‚‰ãªã‹ã£ãŸã€‚
 		if ( optBufLen + fileBufLen + wsize - 1 > MAX_UDPBUF || wsize >= sizeof( fileBuf ) - fileBufLen - 1 ) {
 #if defined(DEBUG)
 			printf( "IpMessengerAgentImpl::SendMsg Attachment file's attribute buffer was overflow.\n" );
@@ -1064,7 +1097,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 
 	IpMsgPrintBuf( "optBuf2:", optBuf, optBufLen );
 
-	//¥ê¥È¥é¥¤»ş¤Ï°ÊÁ°¤Î¥Ğ¥±¥Ã¥ÈNo¤ò»ÈÍÑ¤¹¤ë¡£
+	//ãƒªãƒˆãƒ©ã‚¤æ™‚ã¯ä»¥å‰ã®ãƒã‚±ãƒƒãƒˆNoã‚’ä½¿ç”¨ã™ã‚‹ã€‚
 	unsigned long packetNo = (isRetry && PrevPacketNo != 0UL ? PrevPacketNo : random() );
 
 	sendBufLen = CreateNewPacketBuffer( IPMSG_SENDMSG | IPMSG_SENDCHECKOPT |
@@ -1112,7 +1145,7 @@ IpMessengerAgentImpl::SendMsg( HostListItem host, std::string msg, const Secret 
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤ò¥¯¥ê¥¢
+ * ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’ã‚¯ãƒªã‚¢
  */
 void
 IpMessengerAgentImpl::ClearBroadcastAddress()
@@ -1123,8 +1156,8 @@ IpMessengerAgentImpl::ClearBroadcastAddress()
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òºï½ü
- * @param addr ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹
+ * ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å‰Šé™¤
+ * @param addr ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )
@@ -1144,8 +1177,8 @@ IpMessengerAgentImpl::DeleteBroadcastAddress( std::string addr )
 }
 
 /**
- * ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤òÅĞÏ¿
- * @param addr ÅĞÏ¿¤¹¤ë¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹
+ * ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’ç™»éŒ²
+ * @param addr ç™»éŒ²ã™ã‚‹ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )
@@ -1169,9 +1202,9 @@ IpMessengerAgentImpl::AddBroadcastAddress( std::string addr )
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤ò¸¡º÷¤·¡¢³ºÅö¤¹¤ësockaddr_in¹½Â¤ÂÎ¤òÊÖµÑ¤¹¤ë¡£
- * @param addr ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹Ê¸»úÎó
- * @retval sockaddr_in¹½Â¤ÂÎ
+ * ç™»éŒ²æ¸ˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ¤œç´¢ã—ã€è©²å½“ã™ã‚‹sockaddr_inæ§‹é€ ä½“ã‚’è¿”å´ã™ã‚‹ã€‚
+ * @param addr ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—
+ * @retval sockaddr_inæ§‹é€ ä½“
  */
 std::vector<struct sockaddr_storage>::iterator
 IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
@@ -1190,7 +1223,7 @@ IpMessengerAgentImpl::FindBroadcastNetworkByAddress( std::string addr )
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È¤ò¥¯¥ê¥¢
+ * ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
  */
 void
 IpMessengerAgentImpl::ClearSkulkHost()
@@ -1204,17 +1237,17 @@ IpMessengerAgentImpl::ClearSkulkHost()
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È¤òºï½ü
- * @param addr ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È¤Î¥¢¥É¥ì¥¹
+ * ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã‚’å‰Šé™¤
+ * @param addr ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgentImpl::DeleteSkulkHostAddress( const std::string addr )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::DeleteSkulkHostAddress( std::string addr )");
-	//¤¹¤Ù¤Æ¤Î¥Û¥¹¥È¥¢¥É¥ì¥¹¤«¤éÃµ¤¹
+	//ã™ã¹ã¦ã®ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰æ¢ã™
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( addr );
 	if ( hostIt != hostList.end() ) {
-		//È¯¸«
+		//ç™ºè¦‹
 		DeleteSkulkHost( *hostIt );
 		IPMSG_FUNC_EXIT;
 	}
@@ -1226,8 +1259,8 @@ IpMessengerAgentImpl::DeleteSkulkHostAddress( const std::string addr )
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È¤òºï½ü
- * @param host ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È
+ * ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã‚’å‰Šé™¤
+ * @param host ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆ
  */
 void
 IpMessengerAgentImpl::DeleteSkulkHost( const HostListItem &host )
@@ -1253,17 +1286,17 @@ IpMessengerAgentImpl::DeleteSkulkHost( const HostListItem &host )
 }
 
 /**
- * ±£¤ì¤ë¥Û¥¹¥È¤òÅĞÏ¿
- * @param addr ÅĞÏ¿¤¹¤ë¥Û¥¹¥È¤Î¥¢¥É¥ì¥¹
+ * éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã‚’ç™»éŒ²
+ * @param addr ç™»éŒ²ã™ã‚‹ãƒ›ã‚¹ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgentImpl::AddSkulkHostAddress( const std::string addr )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddSkulkHostAddress( std::string addr )");
-	//¤¹¤Ù¤Æ¤Î¥Û¥¹¥È¥¢¥É¥ì¥¹¤«¤éÃµ¤¹
+	//ã™ã¹ã¦ã®ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰æ¢ã™
 	std::vector<HostListItem>::iterator hostIt = hostList.FindHostByAddress( addr );
 	if ( hostIt != hostList.end() ) {
-		//È¯¸«
+		//ç™ºè¦‹
 		AddSkulkHost( *hostIt );
 		IPMSG_FUNC_EXIT;
 	}
@@ -1275,8 +1308,8 @@ IpMessengerAgentImpl::AddSkulkHostAddress( const std::string addr )
 }
 
 /**
- * ±£¤ì¤ë¥Û¥¹¥È¤òÅĞÏ¿
- * @param host ÅĞÏ¿¤¹¤ë¥Û¥¹¥È
+ * éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã‚’ç™»éŒ²
+ * @param host ç™»éŒ²ã™ã‚‹ãƒ›ã‚¹ãƒˆ
  */
 void
 IpMessengerAgentImpl::AddSkulkHost( const HostListItem &host )
@@ -1308,9 +1341,9 @@ IpMessengerAgentImpl::AddSkulkHost( const HostListItem &host )
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È¤Î¥¢¥É¥ì¥¹¤ò¸¡º÷¤·¡¢³ºÅö¤¹¤ësockaddr_in¹½Â¤ÂÎ¤òÊÖµÑ¤¹¤ë¡£
- * @param addr ±£¤ì¤ë¥Û¥¹¥È¤Î¥¢¥É¥ì¥¹Ê¸»úÎó
- * @retval sockaddr_in¹½Â¤ÂÎ
+ * ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ¤œç´¢ã—ã€è©²å½“ã™ã‚‹sockaddr_inæ§‹é€ ä½“ã‚’è¿”å´ã™ã‚‹ã€‚
+ * @param addr éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹æ–‡å­—åˆ—
+ * @retval sockaddr_inæ§‹é€ ä½“
  */
 std::vector<HostListItem>::iterator
 IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )
@@ -1329,8 +1362,8 @@ IpMessengerAgentImpl::FindSkulkHostByAddress( std::string addr )
 }
 
 /**
- * ÅĞÏ¿ºÑ¤Î±£¤ì¤ë¥Û¥¹¥È¤Î¥Û¥¹¥È¥ê¥¹¥È¤òÊÖµÑ¤¹¤ë¡£
- * @retval ±£¤ì¤ë¥Û¥¹¥È¥ê¥¹¥È
+ * ç™»éŒ²æ¸ˆã®éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’è¿”å´ã™ã‚‹ã€‚
+ * @retval éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆ
  */
 HostList
 IpMessengerAgentImpl::GetSkulkHost()
@@ -1341,11 +1374,11 @@ IpMessengerAgentImpl::GetSkulkHost()
 }
 
 /**
- * ÂĞ¾İ¥Û¥¹¥È¤Î¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤òÌä¤¤¹ç¤ï¤»¤ë¡£
+ * å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’å•ã„åˆã‚ã›ã‚‹ã€‚
  * <ul>
- * <li>GETINFO¥Ñ¥±¥Ã¥È¤òÁ÷¿®¡£</li>
+ * <li>GETINFOãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã€‚</li>
  * </ul>
- * @param host ÂĞ¾İ¤Î¥Û¥¹¥È
+ * @param host å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆ
  */
 void
 IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
@@ -1366,25 +1399,25 @@ IpMessengerAgentImpl::QueryVersionInfo( HostListItem& host )
 }
 
 /**
- * ÂĞ¾İ¥Û¥¹¥È¤Î¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤ò¼èÆÀ¡£
+ * å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’å–å¾—ã€‚
  * <ul>
- * <li>¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤òÌä¤¤¹ç¤ï¤»¤ë¡£</li>
- * <li>Â¾¤Î¥á¥½¥Ã¥É¡ÊANSINFO¼õ¿®¡Ë¤Ë¤Æ¼èÆÀ¤¹¤ë¤Ş¤ÇÂÔµ¡¡£¡Ê¸Ş²ó¤Ş¤Ç¡Ë</li>
- * <li>IP¥¢¥É¥ì¥¹¤Ç¥Ş¥Ã¥Á¥ó¥°¤·¤ÆANSINFO¤Ç¹¹¿·¤µ¤ì¤¿¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤òÊÖ¤¹¡£</li>
- * <li>ÂÔ¤Á¹ç¤ï¤»¤ò¹Ô¤¤¤Ş¤¹¡£»ş´Ö¤¬¤«¤«¤ë¾ì¹ç¤¬¤¢¤ê¤Ş¤¹¡£Query·Ï¤ÎAPI¤Ç¥¤¥Ù¥ó¥È¤ò½¦¤¦¤³¤È¤ò¿ä¾©¡£¤³¤Î¥á¥½¥Ã¥É¤«¤é¤âÆ±¤¸¥¤¥Ù¥ó¥È¤òÈ¯¹Ô¤·¤Ş¤¹¡£</li>
+ * <li>ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’å•ã„åˆã‚ã›ã‚‹ã€‚</li>
+ * <li>ä»–ã®ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆANSINFOå—ä¿¡ï¼‰ã«ã¦å–å¾—ã™ã‚‹ã¾ã§å¾…æ©Ÿã€‚ï¼ˆäº”å›ã¾ã§ï¼‰</li>
+ * <li>IPã‚¢ãƒ‰ãƒ¬ã‚¹ã§ãƒãƒƒãƒãƒ³ã‚°ã—ã¦ANSINFOã§æ›´æ–°ã•ã‚ŒãŸãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’è¿”ã™ã€‚</li>
+ * <li>å¾…ã¡åˆã‚ã›ã‚’è¡Œã„ã¾ã™ã€‚æ™‚é–“ãŒã‹ã‹ã‚‹å ´åˆãŒã‚ã‚Šã¾ã™ã€‚Queryç³»ã®APIã§ã‚¤ãƒ™ãƒ³ãƒˆã‚’æ‹¾ã†ã“ã¨ã‚’æ¨å¥¨ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‹ã‚‰ã‚‚åŒã˜ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç™ºè¡Œã—ã¾ã™ã€‚</li>
  * </ul>
- * @param host ÂĞ¾İ¤Î¥Û¥¹¥È
- * @retval ÂĞ¾İ¥Û¥¹¥È¤Î¥Ğ¡¼¥¸¥ç¥ó¾ğÊó
+ * @param host å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆ
+ * @retval å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±
  */
 std::string
 IpMessengerAgentImpl::GetInfo( HostListItem& host )
 {
 	IPMSG_FUNC_ENTER("std::string IpMessengerAgentImpl::GetInfo( HostListItem& host )");
-	//0.05ÉÃ¤Ş¤Ä¡£
+	//0.05ç§’ã¾ã¤ã€‚
 	usleep( 50000L );
 //	RecvPacket( false );
 	for( int i = 0; i < 5; i++ ) {
-		//0.05ÉÃ¤Ş¤Ä¡£
+		//0.05ç§’ã¾ã¤ã€‚
 		usleep( 50000L );
 //		RecvPacket( false );
 	}
@@ -1396,11 +1429,11 @@ IpMessengerAgentImpl::GetInfo( HostListItem& host )
 }
 
 /**
- * ÂĞ¾İ¥Û¥¹¥È¤ÎÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó¤òÌä¤¤¹ç¤ï¤»¤ë¡£
+ * å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±ã‚’å•ã„åˆã‚ã›ã‚‹ã€‚
  * <ul>
- * <li>GETABSENCEINFO¥Ñ¥±¥Ã¥È¤òÁ÷¿®¡£</li>
+ * <li>GETABSENCEINFOãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã€‚</li>
  * </ul>
- * @param host ÂĞ¾İ¤Î¥Û¥¹¥È
+ * @param host å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆ
  */
 void
 IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
@@ -1423,26 +1456,26 @@ IpMessengerAgentImpl::QueryAbsenceInfo( HostListItem& host )
 }
 
 /**
- * ÂĞ¾İ¥Û¥¹¥È¤ÎÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó¤ò¼èÆÀ¡£
+ * å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±ã‚’å–å¾—ã€‚
  * <ul>
- * <li>ÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó¤òÌä¤¤¹ç¤ï¤»¤ë¡£</li>
- * <li>Â¾¤Î¥á¥½¥Ã¥É¡ÊANSABSENCEINFO¼õ¿®¡Ë¤Ë¤Æ¼èÆÀ¤¹¤ë¤Ş¤ÇÂÔµ¡¡£¡Ê¸Ş²ó¤Ş¤Ç¡Ë</li>
- * <li>IP¥¢¥É¥ì¥¹¤Ç¥Ş¥Ã¥Á¥ó¥°¤·¤ÆANSABSENCEINFO¤Ç¹¹¿·¤µ¤ì¤¿ÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó¤òÊÖ¤¹¡£</li>
- * <li>ÂÔ¤Á¹ç¤ï¤»¤ò¹Ô¤¤¤Ş¤¹¡£»ş´Ö¤¬¤«¤«¤ë¾ì¹ç¤¬¤¢¤ê¤Ş¤¹¡£Query·Ï¤ÎAPI¤Ç¥¤¥Ù¥ó¥È¤ò½¦¤¦¤³¤È¤ò¿ä¾©¡£¤³¤Î¥á¥½¥Ã¥É¤«¤é¤âÆ±¤¸¥¤¥Ù¥ó¥È¤òÈ¯¹Ô¤·¤Ş¤¹¡£</li>
+ * <li>ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±ã‚’å•ã„åˆã‚ã›ã‚‹ã€‚</li>
+ * <li>ä»–ã®ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆANSABSENCEINFOå—ä¿¡ï¼‰ã«ã¦å–å¾—ã™ã‚‹ã¾ã§å¾…æ©Ÿã€‚ï¼ˆäº”å›ã¾ã§ï¼‰</li>
+ * <li>IPã‚¢ãƒ‰ãƒ¬ã‚¹ã§ãƒãƒƒãƒãƒ³ã‚°ã—ã¦ANSABSENCEINFOã§æ›´æ–°ã•ã‚ŒãŸä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±ã‚’è¿”ã™ã€‚</li>
+ * <li>å¾…ã¡åˆã‚ã›ã‚’è¡Œã„ã¾ã™ã€‚æ™‚é–“ãŒã‹ã‹ã‚‹å ´åˆãŒã‚ã‚Šã¾ã™ã€‚Queryç³»ã®APIã§ã‚¤ãƒ™ãƒ³ãƒˆã‚’æ‹¾ã†ã“ã¨ã‚’æ¨å¥¨ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‹ã‚‰ã‚‚åŒã˜ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç™ºè¡Œã—ã¾ã™ã€‚</li>
  * </ul>
- * @param host ÂĞ¾İ¤Î¥Û¥¹¥È
- * @retval ÂĞ¾İ¥Û¥¹¥È¤ÎÉÔºßÀâÌÀÊ¸»úÎó¾ğÊó
+ * @param host å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆ
+ * @retval å¯¾è±¡ãƒ›ã‚¹ãƒˆã®ä¸åœ¨èª¬æ˜æ–‡å­—åˆ—æƒ…å ±
  */
 std::string
 IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 {
 	IPMSG_FUNC_ENTER("std::string IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )");
 	QueryAbsenceInfo( host );
-	//0.05ÉÃ¤Ş¤Ä¡£
+	//0.05ç§’ã¾ã¤ã€‚
 	usleep( 50000L );
 //	RecvPacket( false );
 	for( int i = 0; i < 5; i++ ) {
-		//0.05ÉÃ¤Ş¤Ä¡£
+		//0.05ç§’ã¾ã¤ã€‚
 		usleep( 50000L );
 //		RecvPacket( false );
 	}
@@ -1454,8 +1487,8 @@ IpMessengerAgentImpl::GetAbsenceInfo( HostListItem& host )
 }
 
 /**
- * Êİ»ıÃæ¤Î¥Û¥¹¥È¥ê¥¹¥È¤«¤é¥°¥ë¡¼¥×¥ê¥¹¥È¤ò¼èÆÀ¤¹¤ë¡£
- * @retval ¥°¥ë¡¼¥×¥ê¥¹¥È
+ * ä¿æŒä¸­ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰ã‚°ãƒ«ãƒ¼ãƒ—ãƒªã‚¹ãƒˆã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval ã‚°ãƒ«ãƒ¼ãƒ—ãƒªã‚¹ãƒˆ
  */
 std::vector<GroupItem>
 IpMessengerAgentImpl::GetGroupList()
@@ -1465,8 +1498,8 @@ IpMessengerAgentImpl::GetGroupList()
 }
 
 /**
- * Á÷¿®¸µ¤Ë¥á¥Ã¥»¡¼¥¸¤òºï½ü¤·¤¿¤³¤È¤òÄÌÃÎ¤¹¤ë¡£
- * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * é€ä¿¡å…ƒã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å‰Šé™¤ã—ãŸã“ã¨ã‚’é€šçŸ¥ã™ã‚‹ã€‚
+ * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 void
 IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
@@ -1489,8 +1522,8 @@ IpMessengerAgentImpl::DeleteNotify( RecievedMessage msg )
 }
 
 /**
- * Á÷¿®¸µ¤Ë¥á¥Ã¥»¡¼¥¸¤ò³«Éõ¤·¤¿¤³¤È¤òÄÌÃÎ¤¹¤ë¡£
- * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * é€ä¿¡å…ƒã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é–‹å°ã—ãŸã“ã¨ã‚’é€šçŸ¥ã™ã‚‹ã€‚
+ * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 void
 IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
@@ -1515,8 +1548,8 @@ IpMessengerAgentImpl::ConfirmMessage( RecievedMessage &msg )
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Ë³«Éõ¤µ¤ì¤¿¤³¤È¤ò¥Ş¡¼¥¯¤¹¤ë¡£
- * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã«é–‹å°ã•ã‚ŒãŸã“ã¨ã‚’ãƒãƒ¼ã‚¯ã™ã‚‹ã€‚
+ * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 void
 IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
@@ -1532,9 +1565,9 @@ IpMessengerAgentImpl::AcceptConfirmNotify( SentMessage msg )
 // private methods start here
 
 /**
- * Á÷¿®½é´ü²½
+ * é€ä¿¡åˆæœŸåŒ–
  * <ul>
- * <li>¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¹½Â¤ÂÎ¤Î½é´ü²½¡Ü¥ê¥¹¥È¤Ë²¡¤·¹ş¤à¡£</li>
+ * <li>ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹æ§‹é€ ä½“ã®åˆæœŸåŒ–ï¼‹ãƒªã‚¹ãƒˆã«æŠ¼ã—è¾¼ã‚€ã€‚</li>
  * </ul>
  */
 void
@@ -1601,10 +1634,10 @@ IpMessengerAgentImpl::InitSend( const std::vector<NetworkInterface>& nics )
 }
 
 /**
- * TCP¥Ñ¥±¥Ã¥È¤ÎÁ÷¿®¤ò¹Ô¤¦¡£
- * @param sd ¥½¥±¥Ã¥È¥Ç¥£¥¹¥¯¥ê¥×¥¿
- * @param buf ¥Ğ¥Ã¥Õ¥¡
- * @param size ¥Ğ¥Ã¥Õ¥¡¥µ¥¤¥º
+ * TCPãƒ‘ã‚±ãƒƒãƒˆã®é€ä¿¡ã‚’è¡Œã†ã€‚
+ * @param sd ã‚½ã‚±ãƒƒãƒˆãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿
+ * @param buf ãƒãƒƒãƒ•ã‚¡
+ * @param size ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚º
  */
 void
 IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
@@ -1630,11 +1663,11 @@ IpMessengerAgentImpl::SendTcpPacket( int sd, char *buf, int size )
 }
 
 /**
- * UDP¥Ñ¥±¥Ã¥È¤ÎÁ÷¿®¤ò¹Ô¤¦¡£
- * @param send_socket Á÷¿®¥½¥±¥Ã¥È¡£
- * @param buf ¥Ğ¥Ã¥Õ¥¡
- * @param size ¥Ğ¥Ã¥Õ¥¡¥µ¥¤¥º
- * @param to_addr Á÷¿®Àè¤ÎIP¥¢¥É¥ì¥¹
+ * UDPãƒ‘ã‚±ãƒƒãƒˆã®é€ä¿¡ã‚’è¡Œã†ã€‚
+ * @param send_socket é€ä¿¡ã‚½ã‚±ãƒƒãƒˆã€‚
+ * @param buf ãƒãƒƒãƒ•ã‚¡
+ * @param size ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚º
+ * @param to_addr é€ä¿¡å…ˆã®IPã‚¢ãƒ‰ãƒ¬ã‚¹
  */
 void
 IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd, char *buf, int size, struct sockaddr_storage to_addr )
@@ -1666,12 +1699,12 @@ IpMessengerAgentImpl::SendPacket( const int send_socket, const unsigned long cmd
 }
 
 /**
- * UDP¥Ñ¥±¥Ã¥È¤Î¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¤ò¹Ô¤¦¡£
+ * UDPãƒ‘ã‚±ãƒƒãƒˆã®ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚’è¡Œã†ã€‚
  * <ul>
- * <li>¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¥ê¥¹¥È¤ËÅĞÏ¿ºÑ¤Î¥¢¥É¥ì¥¹¤ËÁ´¤ÆÁ÷¿®¤¹¤ë¡£</li>
+ * <li>ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ãƒªã‚¹ãƒˆã«ç™»éŒ²æ¸ˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã«å…¨ã¦é€ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
- * @param buf ¥Ğ¥Ã¥Õ¥¡
- * @param size ¥Ğ¥Ã¥Õ¥¡¥µ¥¤¥º
+ * @param buf ãƒãƒƒãƒ•ã‚¡
+ * @param size ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚º
  */
 void
 IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int size )
@@ -1709,17 +1742,17 @@ IpMessengerAgentImpl::SendBroadcast( const unsigned long cmd, char *buf, int siz
 }
 
 /**
- * ¥½¥±¥Ã¥È¤Ë¥Ğ¥¤¥ó¥É¤µ¤ì¤¿¥Í¥Ã¥È¥ï¡¼¥¯¤ËÂĞ¤·¤ÆÆ±°ì¥Í¥Ã¥È¥ï¡¼¥¯¤ËÂ°¤·¤Æ¤¤¤ì¤Ğ¡¢¤½¤ÎNIC¤«¤éÅÅÊ¸Á÷¿®¤ò¹Ô¤¦¤³¤È¤òÊİ¾Ú¤¹¤ësendto¡£
- * @param send_socket Á÷¿®¥½¥±¥Ã¥È¡£0Ì¤Ëş¤Ï¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¡£¡Ê¥½¥±¥Ã¥È¤Ï¼«Æ°ÁªÂò¡Ë¡£
- * @param addr Á÷¿®Àè¤Î¥¢¥É¥ì¥¹¡£
- * @param buf ¥Ğ¥Ã¥Õ¥¡
- * @param size ¥Ğ¥Ã¥Õ¥¡¥µ¥¤¥º
+ * ã‚½ã‚±ãƒƒãƒˆã«ãƒã‚¤ãƒ³ãƒ‰ã•ã‚ŒãŸãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã«å¯¾ã—ã¦åŒä¸€ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã«å±ã—ã¦ã„ã‚Œã°ã€ãã®NICã‹ã‚‰é›»æ–‡é€ä¿¡ã‚’è¡Œã†ã“ã¨ã‚’ä¿è¨¼ã™ã‚‹sendtoã€‚
+ * @param send_socket é€ä¿¡ã‚½ã‚±ãƒƒãƒˆã€‚0æœªæº€ã¯ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã€‚ï¼ˆã‚½ã‚±ãƒƒãƒˆã¯è‡ªå‹•é¸æŠï¼‰ã€‚
+ * @param addr é€ä¿¡å…ˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã€‚
+ * @param buf ãƒãƒƒãƒ•ã‚¡
+ * @param size ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚º
  */
 void
 IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage *addr, char *buf, int size )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::UdpSendto( const struct sockaddr_storage *addr, char *buf, int size )");
-	//Á÷¿®¥½¥±¥Ã¥È¤ò»ØÄê¤µ¤ì¤¿¾ì¹ç¡£
+	//é€ä¿¡ã‚½ã‚±ãƒƒãƒˆã‚’æŒ‡å®šã•ã‚ŒãŸå ´åˆã€‚
 	if ( send_socket >= 0 ){
 		int ret = sendToSockAddrIn( send_socket, buf, size + 1, addr );
 		if ( ret <= 0 ) {
@@ -1731,7 +1764,7 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 		}
 		IPMSG_FUNC_EXIT;
 	}
-	//send_socket < 0 ¤Ï¥Ö¥í¡¼¥É¥­¥ã¥¹¥È
+	//send_socket < 0 ã¯ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆ
 	if ( udp_sd.size() == 0 ) {
 		IPMSG_FUNC_EXIT;
 	}
@@ -1773,7 +1806,7 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 #endif
 			break;
 		}
-		//Æ±¤¸¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê¤Î¥½¥±¥Ã¥È¤ò¥Ç¥Õ¥©¥ë¥È¤È¤·¤ÆÍÑ¤¤¤ë¡£
+		//åŒã˜ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªã®ã‚½ã‚±ãƒƒãƒˆã‚’ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¨ã—ã¦ç”¨ã„ã‚‹ã€‚
 		if ( same_family_sock < 0 && addr->ss_family == i->second.AddressFamily() ) {
 			same_family_sock = i->first;
 			scope = if_nametoindex( i->second.DeviceName().c_str() );
@@ -1782,22 +1815,22 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 #endif
 		}
 	}
-	//Á÷¿®¥½¥±¥Ã¥È¤¬Ì¤³ÎÄê¤Î¾ì¹ç¤Ç¡¢
+	//é€ä¿¡ã‚½ã‚±ãƒƒãƒˆãŒæœªç¢ºå®šã®å ´åˆã§ã€
 	if ( sock < 0 ) {
 		std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( getSockAddrInRawAddress( addr ) );
 		if ( hi != skulkHostList.end() ) {
-			//Á÷¿®Áê¼ê¤¬±£¤ì¤ë¥Û¥¹¥È¤Ê¤é¡¢¼Â¤ê¤¬¾¯¤Ê¤¤¤Î¤Ç²¿¤â¤»¤º¡¢È´¤±¤ë
+			//é€ä¿¡ç›¸æ‰‹ãŒéš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆãªã‚‰ã€å®Ÿã‚ŠãŒå°‘ãªã„ã®ã§ä½•ã‚‚ã›ãšã€æŠœã‘ã‚‹
 			IPMSG_FUNC_EXIT;
 		}
-		//Æ±¤¸¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê¤Î¥Ç¥Õ¥©¥ë¥È¤Î¥½¥±¥Ã¥È¤¬¸«ÉÕ¤«¤é¤Ê¤¤¾ì¹ç¡¢
+		//åŒã˜ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚½ã‚±ãƒƒãƒˆãŒè¦‹ä»˜ã‹ã‚‰ãªã„å ´åˆã€
 		if ( same_family_sock < 0 ) {
-			//¥½¥±¥Ã¥È¤ÎÀèÆ¬¤Î¥½¥±¥Ã¥È¤òÍÑ¤¤¤ë¡£¡Ê¥¨¥é¡¼¤Ë¤Ê¤ë²ÄÇ½À­Í­¤ê¡Ë
+			//ã‚½ã‚±ãƒƒãƒˆã®å…ˆé ­ã®ã‚½ã‚±ãƒƒãƒˆã‚’ç”¨ã„ã‚‹ã€‚ï¼ˆã‚¨ãƒ©ãƒ¼ã«ãªã‚‹å¯èƒ½æ€§æœ‰ã‚Šï¼‰
 			sock = udp_sd[0];
 #if defined(DEBUG)
 			from_addr = sd_addr.begin()->second.IpAddress();
 #endif
 		} else {
-			//Æ±¤¸¥¢¥É¥ì¥¹¥Õ¥¡¥ß¥ê¤Î¥½¥±¥Ã¥È¤ÎÀèÆ¬¤Î¥½¥±¥Ã¥È¤òÍÑ¤¤¤ë¡£¡Ê¥¨¥é¡¼¤Ë¤Ï¤Ê¤é¤Ê¤¤¤¬ÅşÃ£¤·¤Ê¤¤¤«¤â¡Ë
+			//åŒã˜ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªã®ã‚½ã‚±ãƒƒãƒˆã®å…ˆé ­ã®ã‚½ã‚±ãƒƒãƒˆã‚’ç”¨ã„ã‚‹ã€‚ï¼ˆã‚¨ãƒ©ãƒ¼ã«ã¯ãªã‚‰ãªã„ãŒåˆ°é”ã—ãªã„ã‹ã‚‚ï¼‰
 			sock = same_family_sock;
 		}
 	}
@@ -1822,13 +1855,13 @@ IpMessengerAgentImpl::UdpSendto( const int send_socket, struct sockaddr_storage 
 }
 
 /**
- * ¼õ¿®½é´ü²½¡£
+ * å—ä¿¡åˆæœŸåŒ–ã€‚
  * <ul>
- * <li>¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤Ë´Ø¤¹¤ëUDP¼õ¿®½é´ü²½¡£</li>
- * <li>»ØÄê¤ÎNIC¤ËÂĞ¤·¤ÆUDP¤Ë´Ø¤¹¤ë¼õ¿®½é´ü²½¡£</li>
- * <li>»ØÄê¤ÎNIC¤ËÂĞ¤·¤ÆTCP¤Ë´Ø¤¹¤ë¼õ¿®½é´ü²½¡£</li>
+ * <li>ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã«é–¢ã™ã‚‹UDPå—ä¿¡åˆæœŸåŒ–ã€‚</li>
+ * <li>æŒ‡å®šã®NICã«å¯¾ã—ã¦UDPã«é–¢ã™ã‚‹å—ä¿¡åˆæœŸåŒ–ã€‚</li>
+ * <li>æŒ‡å®šã®NICã«å¯¾ã—ã¦TCPã«é–¢ã™ã‚‹å—ä¿¡åˆæœŸåŒ–ã€‚</li>
  * </ul>
- * @param nics ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¤Î¥ê¥¹¥È¡£ÀèÆ¬¤¬¥Ç¥Õ¥©¥ë¥È¥«¡¼¥É¤Ë¤Ê¤ê¤Ş¤¹¡£ 
+ * @param nics ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®ãƒªã‚¹ãƒˆã€‚å…ˆé ­ãŒãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚«ãƒ¼ãƒ‰ã«ãªã‚Šã¾ã™ã€‚ 
  */
 void
 IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
@@ -1939,13 +1972,13 @@ IpMessengerAgentImpl::InitRecv( const std::vector<NetworkInterface>& nics )
 }
 
 /**
- * UDP¤Ë´Ø¤¹¤ë¼õ¿®½é´ü²½¡£
+ * UDPã«é–¢ã™ã‚‹å—ä¿¡åˆæœŸåŒ–ã€‚
  * <ul>
- * <li>2425ÂÔ¤Á¼õ¤±¤ÎUDP¥½¥±¥Ã¥È¤ò½àÈ÷¤¹¤ë</li>
- * <li>UDP¤Ïbroadcastµö²Ä</li>
+ * <li>2425å¾…ã¡å—ã‘ã®UDPã‚½ã‚±ãƒƒãƒˆã‚’æº–å‚™ã™ã‚‹</li>
+ * <li>UDPã¯broadcastè¨±å¯</li>
  * </ul>
- * @param addr ½é´ü²½¤¹¤ë¥¢¥É¥ì¥¹¾ğÊó¡£
- * @retval ½é´ü²½ºÑ¤ß¤Î¥½¥±¥Ã¥È
+ * @param addr åˆæœŸåŒ–ã™ã‚‹ã‚¢ãƒ‰ãƒ¬ã‚¹æƒ…å ±ã€‚
+ * @retval åˆæœŸåŒ–æ¸ˆã¿ã®ã‚½ã‚±ãƒƒãƒˆ
  */
 int
 IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *devname )
@@ -1974,14 +2007,14 @@ IpMessengerAgentImpl::InitUdpRecv( struct sockaddr_storage addr, const char *dev
 }
 
 /**
- * TCP¤Ë´Ø¤¹¤ë¼õ¿®½é´ü²½¡£
+ * TCPã«é–¢ã™ã‚‹å—ä¿¡åˆæœŸåŒ–ã€‚
  * <ul>
- * <li>2425ÂÔ¤Á¼õ¤±¤ÎTCP¥½¥±¥Ã¥È¤ò½àÈ÷¤¹¤ë</li>
- * <li>TCP¤ÏREUSEADDR</li>
- * <li>litsen¤Ï5¥İ¡¼¥È</li>
+ * <li>2425å¾…ã¡å—ã‘ã®TCPã‚½ã‚±ãƒƒãƒˆã‚’æº–å‚™ã™ã‚‹</li>
+ * <li>TCPã¯REUSEADDR</li>
+ * <li>litsenã¯5ãƒãƒ¼ãƒˆ</li>
  * </ul>
- * @param addr ½é´ü²½¤¹¤ë¥¢¥É¥ì¥¹¾ğÊó¡£
- * @retval ½é´ü²½ºÑ¤ß¤Î¥½¥±¥Ã¥È
+ * @param addr åˆæœŸåŒ–ã™ã‚‹ã‚¢ãƒ‰ãƒ¬ã‚¹æƒ…å ±ã€‚
+ * @retval åˆæœŸåŒ–æ¸ˆã¿ã®ã‚½ã‚±ãƒƒãƒˆ
  */
 int
 IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr, const char *devname )
@@ -2007,8 +2040,8 @@ IpMessengerAgentImpl::InitTcpRecv( struct sockaddr_storage addr, const char *dev
 }
 
 /**
- * ¼õ¿®½èÍı¡Ê¥æ¡¼¥¶¸ş¤±¡Ë¡£
- * @retval ¼õ¿®¥Ñ¥±¥Ã¥È¿ô
+ * å—ä¿¡å‡¦ç†ï¼ˆãƒ¦ãƒ¼ã‚¶å‘ã‘ï¼‰ã€‚
+ * @retval å—ä¿¡ãƒ‘ã‚±ãƒƒãƒˆæ•°
  */
 int
 IpMessengerAgentImpl::Process()
@@ -2018,14 +2051,14 @@ IpMessengerAgentImpl::Process()
 }
 
 /**
- * ¼õ¿®½èÍı¡ÊÆâÉô¡Ë¡£
+ * å—ä¿¡å‡¦ç†ï¼ˆå†…éƒ¨ï¼‰ã€‚
  * <ul>
- * <li>select(¥¿¥¤¥à¥¢¥¦¥ÈÉÕ¤­)¤Ë¤Æ¼õ¿®ÂÔ¤Á¡£</li>
- * <li>¼õ¿®½èÍı¤ò¹Ô¤¤¡¢¥Ñ¥±¥Ã¥È¤ò¥­¥å¡¼¤Ë¤¿¤á¹ş¤à¡£</li>
- * <li>¼õ¿®¤¬½ªÎ»¤·¤¿¤é¡¢¥­¥å¡¼¤ÎÃæ¿È¤ò½èÍı¤¹¤ë¡£¡Ê³Æ¥¤¥Ù¥ó¥È¤ò¸Æ¤Ó½Ğ¤¹¡£¡Ë</li>
- * <li>°ìÄê»ş´Ö°ÊÁ°¤Î¥Ñ¥±¥Ã¥È¤È½ÅÊ£È½Äê¤ò¹Ô¤¤¡¢½ÅÊ£¤·¤Æ¤¤¤ë¾ì¹ç¤Ï¥Ñ¥±¥Ã¥È¤òÇË´ş¤·¤Ş¤¹¡£</li>
+ * <li>select(ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆä»˜ã)ã«ã¦å—ä¿¡å¾…ã¡ã€‚</li>
+ * <li>å—ä¿¡å‡¦ç†ã‚’è¡Œã„ã€ãƒ‘ã‚±ãƒƒãƒˆã‚’ã‚­ãƒ¥ãƒ¼ã«ãŸã‚è¾¼ã‚€ã€‚</li>
+ * <li>å—ä¿¡ãŒçµ‚äº†ã—ãŸã‚‰ã€ã‚­ãƒ¥ãƒ¼ã®ä¸­èº«ã‚’å‡¦ç†ã™ã‚‹ã€‚ï¼ˆå„ã‚¤ãƒ™ãƒ³ãƒˆã‚’å‘¼ã³å‡ºã™ã€‚ï¼‰</li>
+ * <li>ä¸€å®šæ™‚é–“ä»¥å‰ã®ãƒ‘ã‚±ãƒƒãƒˆã¨é‡è¤‡åˆ¤å®šã‚’è¡Œã„ã€é‡è¤‡ã—ã¦ã„ã‚‹å ´åˆã¯ãƒ‘ã‚±ãƒƒãƒˆã‚’ç ´æ£„ã—ã¾ã™ã€‚</li>
  * </ul>
- * @retval ¼õ¿®¥Ñ¥±¥Ã¥È¿ô
+ * @retval å—ä¿¡ãƒ‘ã‚±ãƒƒãƒˆæ•°
  */
 int
 IpMessengerAgentImpl::RecvPacket( bool isBlock )
@@ -2039,6 +2072,9 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	std::vector<Packet> pack_que;
 
 	while( selret > 0 ) {
+#if defined(INFO) || !defined(NDEBUG)
+		printf("IpMessengerAgentImpl::RecvPacket select loop start.\n");fflush( stdout );
+#endif
 		fd_set fds;
 		memcpy( &fds, &rfds, sizeof( fd_set ) );
 		memset( buf, 0, sizeof( buf ) );
@@ -2051,7 +2087,7 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 			selret = select( max_sd + 1, &fds, NULL, NULL, &tv );
 //		}
 		if ( selret == -1 ) {
-			//select¤¬³ä¤ê¹ş¤ßÈ¯À¸¤ÇÌá¤Ã¤¿¾ì¹ç¤Ï¡¢Ìµ»ë¤·¤Ş¤¹¡£
+			//selectãŒå‰²ã‚Šè¾¼ã¿ç™ºç”Ÿã§æˆ»ã£ãŸå ´åˆã¯ã€ç„¡è¦–ã—ã¾ã™ã€‚
 			if ( errno == EINTR ){
 				continue;
 			}
@@ -2072,12 +2108,12 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 			struct sockaddr_storage sender_addr;
 			int sz = sizeof( buf );
 			bool recieved = RecvUdp( &fds, &sender_addr, &sz, buf, &udp_socket );
-			//UDP¤Ç¥½¥±¥Ã¥È¤ËÊÑ²½¤¬¤Ê¤¤¡£
+			//UDPã§ã‚½ã‚±ãƒƒãƒˆã«å¤‰åŒ–ãŒãªã„ã€‚
 			tcp_socket = -1;
 			if ( !recieved ) {
 				sz = sizeof( buf );
 				recieved = RecvTcp( &fds, &sender_addr, &sz, buf, &tcp_socket );
-				//UDP,TCP¤Ç¥½¥±¥Ã¥È¤ËÊÑ²½¤¬¤Ê¤¤¡£
+				//UDP,TCPã§ã‚½ã‚±ãƒƒãƒˆã«å¤‰åŒ–ãŒãªã„ã€‚
 				if ( !recieved ) {
 					continue;
 				}
@@ -2088,20 +2124,29 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 			Packet packet = DismantlePacketBuffer( udp_socket >= 0 ? udp_socket : tcp_socket, buf, sz, sender_addr, nowTime );
 			packet.setUdpSocket( udp_socket );
 			packet.setTcpSocket( tcp_socket );
-			//Æ±°ì¥»¥Ã¥·¥ç¥óÆâ¤À¤±¥Ñ¥±¥Ã¥È¤Î°ì°ÕÀ­¤ò¥Á¥§¥Ã¥¯¡£½ÅÊ£¥Ñ¥±¥Ã¥È¤ÏÌµ»ë
+			//åŒä¸€ã‚»ãƒƒã‚·ãƒ§ãƒ³å†…ã ã‘ãƒ‘ã‚±ãƒƒãƒˆã®ä¸€æ„æ€§ã‚’ãƒã‚§ãƒƒã‚¯ã€‚é‡è¤‡ãƒ‘ã‚±ãƒƒãƒˆã¯ç„¡è¦–
 			if ( !FindDuplicatePacket( packet ) ) {
 #if defined(INFO) || !defined(NDEBUG)
 				struct sockaddr_storage tempAddr = packet.Addr();	
 				IpMsgDumpPacket( packet, &tempAddr );
 #endif
+#if defined(INFO) || !defined(NDEBUG)
+				printf( "IpMessengerAgentImpl::RecvPacket packet queue push\n");fflush( stdout );
+#endif
 				pack_que.push_back( packet );
+#if defined(INFO) || !defined(NDEBUG)
+				printf( "IpMessengerAgentImpl::RecvPacket packet check queue push\n");fflush( stdout );
+#endif
 				PacketsForChecking.push_back( packet );
+#if defined(INFO) || !defined(NDEBUG)
+				printf( "IpMessengerAgentImpl::RecvPacket packet count incriments here\n");fflush( stdout );
+#endif
 				ret++;
 			}
 		}
 	}
-	// TODO pack_que,PacketsForChecking¤Ïdeque¤Î¤Û¤¦¤¬¡£¡£¡£¡©
-	//¥Ñ¥±¥Ã¥È¤ò½èÍı¤¹¤ë¡£
+	// TODO pack_que,PacketsForCheckingã¯dequeã®ã»ã†ãŒã€‚ã€‚ã€‚ï¼Ÿ
+	//ãƒ‘ã‚±ãƒƒãƒˆã‚’å‡¦ç†ã™ã‚‹ã€‚
 #if defined(INFO) || !defined(NDEBUG)
 	printf("start RecvDoCommand\n");
 #endif
@@ -2117,13 +2162,13 @@ IpMessengerAgentImpl::RecvPacket( bool isBlock )
 	printf("end RecvDoCommand\n");
 #endif
 
-	//°ìÄê°Ê¾åÁ°¤Î¥Á¥§¥Ã¥¯ÍÑ¤Î¥Ñ¥±¥Ã¥È¥Ù¥¯¥¿¤ò¾Ã¤¹¡£
+	//ä¸€å®šä»¥ä¸Šå‰ã®ãƒã‚§ãƒƒã‚¯ç”¨ã®ãƒ‘ã‚±ãƒƒãƒˆãƒ™ã‚¯ã‚¿ã‚’æ¶ˆã™ã€‚
 	PurgePacket( nowTime );
 
-	//¥á¥Ã¥»¡¼¥¸Á÷¿®¥ê¥È¥é¥¤¤Î¥Á¥§¥Ã¥¯
+	//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ãƒªãƒˆãƒ©ã‚¤ã®ãƒã‚§ãƒƒã‚¯
 	CheckSendMsgRetry( nowTime );
 
-	//¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¤Î¥ê¥È¥é¥¤¥Á¥§¥Ã¥¯
+	//ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ã®ãƒªãƒˆãƒ©ã‚¤ãƒã‚§ãƒƒã‚¯
 	CheckGetHostListRetry( nowTime );
 
 	IPMSG_FUNC_RETURN( ret );
@@ -2133,7 +2178,7 @@ bool
 IpMessengerAgentImpl::SkulkFromHost( const Packet &packet )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::SkulkHost( Packet packet )");
-	//±£¤ì¤ë¥Û¥¹¥È¤Ë¥¨¥ó¥È¥ê¡¼¤µ¤ì¤Æ¤¤¤¿¤éÌµ»ë¡£
+	//éš ã‚Œã‚‹ãƒ›ã‚¹ãƒˆã«ã‚¨ãƒ³ãƒˆãƒªãƒ¼ã•ã‚Œã¦ã„ãŸã‚‰ç„¡è¦–ã€‚
 	struct sockaddr_storage pAddr = packet.Addr();
 	std::string hideIp = getSockAddrInRawAddress( pAddr );
 	std::vector<HostListItem>::iterator hi = FindSkulkHostByAddress( hideIp );
@@ -2148,12 +2193,12 @@ IpMessengerAgentImpl::SkulkFromHost( const Packet &packet )
 }
 
 /**
- * TCP¥Ñ¥±¥Ã¥È¤ò¼õ¿®¤·¡¢¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È¤òÀ¸À®¤¹¤ë¡£
- * @param fds FD_SET¹½Â¤ÂÎ
- * @param sender_addr IP¥¢¥É¥ì¥¹¤Î¥¢¥É¥ì¥¹
- * @param sz ¼õ¿®¥Ğ¥Ã¥Õ¥¡¤Î¥µ¥¤¥º¤Î¥¢¥É¥ì¥¹
- * @param buf ¼õ¿®¥Ğ¥Ã¥Õ¥¡¤Î¥¢¥É¥ì¥¹
- * @param tcp_socket ¼õ¿®¤·¤¿UDP¥½¥±¥Ã¥È
+ * TCPãƒ‘ã‚±ãƒƒãƒˆã‚’å—ä¿¡ã—ã€ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param fds FD_SETæ§‹é€ ä½“
+ * @param sender_addr IPã‚¢ãƒ‰ãƒ¬ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param sz å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚ºã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param buf å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param tcp_socket å—ä¿¡ã—ãŸUDPã‚½ã‚±ãƒƒãƒˆ
  */
 bool
 IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *udp_socket )
@@ -2163,7 +2208,7 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr
 	bool recieved = false;
 	int size = *sz;
 
-	//UDP¤Ç¥½¥±¥Ã¥È¤ËÊÑ²½¤¬Í­¤Ã¤¿¤é¼õ¿®
+	//UDPã§ã‚½ã‚±ãƒƒãƒˆã«å¤‰åŒ–ãŒæœ‰ã£ãŸã‚‰å—ä¿¡
 	for( unsigned int i = 0; i < udp_sd.size(); i++ ){
 		if ( FD_ISSET( udp_sd[i], fds ) ){
 			memset( sender_addr, 0, sizeof( struct sockaddr_storage ) );
@@ -2187,12 +2232,12 @@ IpMessengerAgentImpl::RecvUdp( fd_set *fds, struct sockaddr_storage *sender_addr
 }
 
 /**
- * TCP¥Ñ¥±¥Ã¥È¤ò¼õ¿®¤·¡¢¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È¤òÀ¸À®¤¹¤ë¡£
- * @param fds FD_SET¹½Â¤ÂÎ
- * @param sender_addr IP¥¢¥É¥ì¥¹¤Î¥¢¥É¥ì¥¹
- * @param sz ¼õ¿®¥Ğ¥Ã¥Õ¥¡¤Î¥µ¥¤¥º¤Î¥¢¥É¥ì¥¹
- * @param buf ¼õ¿®¥Ğ¥Ã¥Õ¥¡¤Î¥¢¥É¥ì¥¹
- * @param tcp_socket accept¤·¤¿TCP¥½¥±¥Ã¥È
+ * TCPãƒ‘ã‚±ãƒƒãƒˆã‚’å—ä¿¡ã—ã€ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param fds FD_SETæ§‹é€ ä½“
+ * @param sender_addr IPã‚¢ãƒ‰ãƒ¬ã‚¹ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param sz å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚ºã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param buf å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @param tcp_socket acceptã—ãŸTCPã‚½ã‚±ãƒƒãƒˆ
  */
 bool
 IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr, int *sz, char *buf, int *tcp_socket )
@@ -2202,7 +2247,7 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr
 	bool recieved = false;
 	int size = *sz;
 
-	//TCP¤Ç¥½¥±¥Ã¥È¤ËÊÑ²½¤¬Í­¤Ã¤¿¤é¼õ¿®
+	//TCPã§ã‚½ã‚±ãƒƒãƒˆã«å¤‰åŒ–ãŒæœ‰ã£ãŸã‚‰å—ä¿¡
 	for( unsigned int i = 0; i < tcp_sd.size(); i++ ){
 		if ( FD_ISSET( tcp_sd[i], fds ) ){
 			memset( sender_addr, 0, sizeof( struct sockaddr_storage ) );
@@ -2227,16 +2272,16 @@ IpMessengerAgentImpl::RecvTcp( fd_set *fds, struct sockaddr_storage *sender_addr
 }
 
 /**
- * ²áµî¤Î¥Ñ¥±¥Ã¥È¤«¤é½ÅÊ£¥Ñ¥±¥Ã¥È¤ò¸¡º÷¤¹¤ë¡£
- * @param packet ¥Ñ¥±¥Ã¥È
- * @retval true:Â¸ºß
- * @retval false:Â¸ºß¤·¤Ê¤¤
+ * éå»ã®ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰é‡è¤‡ãƒ‘ã‚±ãƒƒãƒˆã‚’æ¤œç´¢ã™ã‚‹ã€‚
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆ
+ * @retval true:å­˜åœ¨
+ * @retval false:å­˜åœ¨ã—ãªã„
  */
 bool
 IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
 {
 	IPMSG_FUNC_ENTER("bool IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )");
-	//Ä¾¶á¤Î¥Ñ¥±¥Ã¥È¤«¤éÃµ¤¹¡£
+	//ç›´è¿‘ã®ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰æ¢ã™ã€‚
 	for( int i = (int)PacketsForChecking.size() - 1; i >= 0; i-- ){
 		if ( PacketsForChecking[i].PacketNo()             == packet.PacketNo() &&
 			 isSameSockAddrIn( PacketsForChecking[i].Addr(), packet.Addr() ) ) {
@@ -2247,8 +2292,8 @@ IpMessengerAgentImpl::FindDuplicatePacket( const Packet &packet )
 }
 
 /**
- * ²áµî¤Î¥Ñ¥±¥Ã¥È¤«¤éÉ¬Í×¤Ê¤¤¡Ê¸Å¤¤¡Ë¥Ñ¥±¥Ã¥È¤òºï½ü¤¹¤ë¡£
- * @param nowTime ¥·¥¹¥Æ¥à»ş¹ï
+ * éå»ã®ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰å¿…è¦ãªã„ï¼ˆå¤ã„ï¼‰ãƒ‘ã‚±ãƒƒãƒˆã‚’å‰Šé™¤ã™ã‚‹ã€‚
+ * @param nowTime ã‚·ã‚¹ãƒ†ãƒ æ™‚åˆ»
  */
 void
 IpMessengerAgentImpl::PurgePacket( time_t nowTime )
@@ -2265,8 +2310,8 @@ IpMessengerAgentImpl::PurgePacket( time_t nowTime )
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸Á÷¿®¤Î¥ê¥È¥é¥¤¤ÎÉ¬Í×À­¤ò¥Á¥§¥Ã¥¯¤·¡¢É¬Í×¤Ê¤é¥ê¥È¥é¥¤¤ò¹Ô¤¦¡£
- * @param nowTime ¥·¥¹¥Æ¥à»ş¹ï
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ã®ãƒªãƒˆãƒ©ã‚¤ã®å¿…è¦æ€§ã‚’ãƒã‚§ãƒƒã‚¯ã—ã€å¿…è¦ãªã‚‰ãƒªãƒˆãƒ©ã‚¤ã‚’è¡Œã†ã€‚
+ * @param nowTime ã‚·ã‚¹ãƒ†ãƒ æ™‚åˆ»
  */
 void
 IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
@@ -2274,7 +2319,7 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )");
 	for( std::vector<SentMessage>::iterator ixmsg = sentMsgList.begin(); ixmsg != sentMsgList.end(); ixmsg++ ) {
 		if ( ixmsg->needSendRetry( nowTime ) ) {
-			//ºÆÁ÷¿®
+			//å†é€ä¿¡
 			ixmsg->setRetryCount( ixmsg->RetryCount() + 1 );
 			ixmsg->setPrevTry( nowTime );
 			SendMsg( ixmsg->Host(),
@@ -2295,9 +2340,9 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 			ixmsg->setRetryCount( 0 );
 			ixmsg->setIsRetryMaxOver( true );
 			if ( event != NULL ){
-				//¥ê¥È¥é¥¤¤òÂ³¤±¤ë¾ì¹ç¤ÏTrue¤ò¥»¥Ã¥È¡£Â³¤±¤Ê¤¤¾ì¹ç¤ÏFalse¤ò¥»¥Ã¥È¡£
-				//¡ÊRetryMaxOver(¥á¥Ã¥»¡¼¥¸¤Ï¥¨¥é¡¼)¾õÂÖ¤Ë¤¹¤ì¤Ğ¡¢·ÑÂ³¤·¤Ş¤»¤ó¡Ë
-				//¥¤¥Ù¥ó¥È¤ÎÌá¤êÃÍ¤Ïtrue:·ÑÂ³¡¢false:ÃæÃÇ¤Ë¤Ê¤ê¤Ş¤¹¡£
+				//ãƒªãƒˆãƒ©ã‚¤ã‚’ç¶šã‘ã‚‹å ´åˆã¯Trueã‚’ã‚»ãƒƒãƒˆã€‚ç¶šã‘ãªã„å ´åˆã¯Falseã‚’ã‚»ãƒƒãƒˆã€‚
+				//ï¼ˆRetryMaxOver(ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã¯ã‚¨ãƒ©ãƒ¼)çŠ¶æ…‹ã«ã™ã‚Œã°ã€ç¶™ç¶šã—ã¾ã›ã‚“ï¼‰
+				//ã‚¤ãƒ™ãƒ³ãƒˆã®æˆ»ã‚Šå€¤ã¯true:ç¶™ç¶šã€false:ä¸­æ–­ã«ãªã‚Šã¾ã™ã€‚
 				event->EventBefore();
 #if defined(DEBUG)
 				printf("SendRetryError before\n");
@@ -2308,15 +2353,15 @@ IpMessengerAgentImpl::CheckSendMsgRetry( time_t nowTime )
 #endif
 				event->EventAfter();
 			}
-			//¥¤¥Ù¥ó¥È¤Ç·ÑÂ³¤òÀßÄê¤·¤Ê¤¤¾ì¹ç¤Ï¥ê¥È¥é¥¤¥Ş¥Ã¥¯¥¹¥ª¡¼¥Ğ¡¼¤·¤¿¤é¤ä¤á¤ë¡£
+			//ã‚¤ãƒ™ãƒ³ãƒˆã§ç¶™ç¶šã‚’è¨­å®šã—ãªã„å ´åˆã¯ãƒªãƒˆãƒ©ã‚¤ãƒãƒƒã‚¯ã‚¹ã‚ªãƒ¼ãƒãƒ¼ã—ãŸã‚‰ã‚„ã‚ã‚‹ã€‚
 		}
 	}
 	IPMSG_FUNC_EXIT;
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¤Î¥ê¥È¥é¥¤¤ÎÉ¬Í×À­¤ò¥Á¥§¥Ã¥¯¤·¡¢É¬Í×¤Ê¤é¥ê¥È¥é¥¤¤ò¹Ô¤¦¡£
- * @param nowTime ¥·¥¹¥Æ¥à»ş¹ï
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ã®ãƒªãƒˆãƒ©ã‚¤ã®å¿…è¦æ€§ã‚’ãƒã‚§ãƒƒã‚¯ã—ã€å¿…è¦ãªã‚‰ãƒªãƒˆãƒ©ã‚¤ã‚’è¡Œã†ã€‚
+ * @param nowTime ã‚·ã‚¹ãƒ†ãƒ æ™‚åˆ»
  */
 void
 IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
@@ -2337,8 +2382,8 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 				hostList.setRetryCount( 0 );
 				hostList.setIsAsking( false );
 				if ( event != NULL ) {
-					//¥ê¥È¥é¥¤¤òÂ³¤±¤ë¾ì¹ç¤ÏTrue¤ò¥»¥Ã¥È¡£Â³¤±¤Ê¤¤¾ì¹ç¤ÏFalse¤ò¥»¥Ã¥È¡£
-					//¥¤¥Ù¥ó¥È¤ÎÌá¤êÃÍ¤Ïtrue:·ÑÂ³¡¢false:ÃæÃÇ¤Ë¤Ê¤ê¤Ş¤¹¡£
+					//ãƒªãƒˆãƒ©ã‚¤ã‚’ç¶šã‘ã‚‹å ´åˆã¯Trueã‚’ã‚»ãƒƒãƒˆã€‚ç¶šã‘ãªã„å ´åˆã¯Falseã‚’ã‚»ãƒƒãƒˆã€‚
+					//ã‚¤ãƒ™ãƒ³ãƒˆã®æˆ»ã‚Šå€¤ã¯true:ç¶™ç¶šã€false:ä¸­æ–­ã«ãªã‚Šã¾ã™ã€‚
 					event->EventBefore();
 #if defined(DEBUG)
 					printf("GetHostListRetryError before\n");
@@ -2357,8 +2402,8 @@ IpMessengerAgentImpl::CheckGetHostListRetry( time_t nowTime )
 
 // Protocol event processor start here.
 /**
- * ¥Ñ¥±¥Ã¥È¤Î¥³¥Ş¥ó¥É¥â¡¼¥É¤Ç¼õ¿®¥¤¥Ù¥ó¥È¤ò¿¶¤êÊ¬¤±¤ë¡£
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * ãƒ‘ã‚±ãƒƒãƒˆã®ã‚³ãƒãƒ³ãƒ‰ãƒ¢ãƒ¼ãƒ‰ã§å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆã‚’æŒ¯ã‚Šåˆ†ã‘ã‚‹ã€‚
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 void
 IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
@@ -2400,11 +2445,11 @@ IpMessengerAgentImpl::DoRecvCommand( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§NOOPERATION
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šNOOPERATION
  * <ul>
- * <li>²¿¤â¤·¤Ê¤¤</li>
+ * <li>ä½•ã‚‚ã—ãªã„</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )
@@ -2417,9 +2462,9 @@ IpMessengerAgentImpl::UdpRecvEventNoOperation( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸Á÷¿®(NOOPERATION)
+ * é›»æ–‡é€ä¿¡(NOOPERATION)
  * <ul>
- * <li>NOOPERATION¤òÁ÷¿®¡£</li>
+ * <li>NOOPERATIONã‚’é€ä¿¡ã€‚</li>
  * </ul>
  */
 int
@@ -2438,12 +2483,12 @@ IpMessengerAgentImpl::SendNoOperation()
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_ENTRY
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_ENTRY
  * <ul>
- * <li>Á÷¿®¸µ¤ËANSENTRY¤òÁ÷¿®¤¹¤ë¡£</li>
- * <li>ÉÔºß¥â¡¼¥É¤Î¾ì¹ç¡¢ÉÔºß¤È¤·¤ÆÁ÷¿®¡£</li>
+ * <li>é€ä¿¡å…ƒã«ANSENTRYã‚’é€ä¿¡ã™ã‚‹ã€‚</li>
+ * <li>ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã®å ´åˆã€ä¸åœ¨ã¨ã—ã¦é€ä¿¡ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
@@ -2456,10 +2501,10 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::UdpRecvEventBrEntry\n");fflush( stdout );
 #endif
-	//±£¤ì¤ëÂĞ¾İ¤Î¥Û¥¹¥È¤Ê¤é¸ı¤ò¤Ä¤°¤à¡£
+	//éš ã‚Œã‚‹å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆãªã‚‰å£ã‚’ã¤ãã‚€ã€‚
 	std::vector<HostListItem>::iterator hostIt = skulkHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( hostIt != skulkHostList.end() ) {
-		//È¯¸«
+		//ç™ºè¦‹
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IpMessengerAgentImpl::UdpRecvEventBrEntry (%s) Skulk Host was found.(source packet=%lu)\n", getSockAddrInRawAddress( packet.Addr() ).c_str(), packet.PacketNo() );fflush( stdout );
 #endif
@@ -2489,8 +2534,9 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
 #endif
-	// ¥Û¥¹¥È¥ê¥¹¥È¤ËÄÉ²Ã
-	int ret = AddHostListFromPacket( packet );
+	// ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«è¿½åŠ 
+	HostListItem host;
+	int ret = AddHostListFromPacket( packet, host );
 	std::vector<HostListItem>::iterator it = appearanceHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( event != NULL ) {
 		event->EventBefore();
@@ -2506,19 +2552,24 @@ IpMessengerAgentImpl::UdpRecvEventBrEntry( const Packet& packet )
 #if defined(DEBUG)
 		printf("RefreshHostListAfter before\n");
 #endif
+printf("IpMessengerImpl::UdpRecvEventBrEntry::RefreshHostListAfter call before\n");
+fflush(stdout);
 		event->RefreshHostListAfter( appearanceHostList );
+printf("IpMessengerImpl::UdpRecvEventBrEntry::RefreshHostListAfter call after\n");
+fflush(stdout);
 #if defined(DEBUG)
 		printf("RefreshHostListAfter after\n");
 #endif
+		event->EventBrEntryAfter( *it );
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
- * ÅÅÊ¸Á÷¿®¡ÊBR_ABSENCE¡Ë
+ * é›»æ–‡é€ä¿¡ï¼ˆBR_ABSENCEï¼‰
  * <ul>
- * <li>ÉÔºßÄÌÃÎ¡¿ÉÔºß²ò½üÅÅÊ¸¤òÁ÷¿®¤¹¤ë¡£</li>
+ * <li>ä¸åœ¨é€šçŸ¥ï¼ä¸åœ¨è§£é™¤é›»æ–‡ã‚’é€ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
  */
 int
@@ -2554,11 +2605,11 @@ IpMessengerAgentImpl::SendAbsence()
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_ABSENCE
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_ABSENCE
  * <ul>
- * <li>¼«Ê¬¤Î¥Û¥¹¥È¥ê¥¹¥È¤ò¹¹¿·¤¹¤ë¡£</li>
+ * <li>è‡ªåˆ†ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’æ›´æ–°ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
@@ -2590,27 +2641,32 @@ IpMessengerAgentImpl::UdpRecvEventBrAbsence( const Packet& packet )
 #if defined(DEBUG)
 		printf("RefreshHostListAfter before\n");
 #endif
+printf("IpMessengerImpl::UdpRecvEventBrAbsence::RefreshHostListAfter call before\n");
+fflush(stdout);
 		event->RefreshHostListAfter( appearanceHostList );
+printf("IpMessengerImpl::UdpRecvEventBrAbsence::RefreshHostListAfter call after\n");
+fflush(stdout);
 #if defined(DEBUG)
 		printf("RefreshHostListAfter after\n");
 #endif
+		event->EventBrAbsenceAfter( *it );
 		event->EventAfter();
 	}
-	//±£¤ì¤ëÂĞ¾İ¤Î¥Û¥¹¥È¤Ê¤é¸ı¤ò¤Ä¤°¤à¡£
+	//éš ã‚Œã‚‹å¯¾è±¡ã®ãƒ›ã‚¹ãƒˆãªã‚‰å£ã‚’ã¤ãã‚€ã€‚
 	std::vector<HostListItem>::iterator hostIt = skulkHostList.FindHostByAddress( getSockAddrInRawAddress( packet.Addr() ) );
 	if ( hostIt != skulkHostList.end() ) {
-		//È¯¸«
+		//ç™ºè¦‹
 		IPMSG_FUNC_RETURN( 0 );
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_EXIT
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_EXIT
  * <ul>
- * <li>¼«Ê¬¤Î¥Û¥¹¥È¥ê¥¹¥È¤«¤é¥Û¥¹¥È¤òºï½ü¤¹¤ë¡£</li>
+ * <li>è‡ªåˆ†ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰ãƒ›ã‚¹ãƒˆã‚’å‰Šé™¤ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
@@ -2642,21 +2698,26 @@ IpMessengerAgentImpl::UdpRecvEventBrExit( const Packet& packet )
 #if defined(DEBUG)
 		printf("RefreshHostListAfter before\n");
 #endif
+printf("IpMessengerImpl::UdpRecvEventBrExit::RefreshHostListAfter call before\n");
+fflush(stdout);
 		event->RefreshHostListAfter( appearanceHostList );
+printf("IpMessengerImpl::UdpRecvEventBrExit::RefreshHostListAfter call after\n");
+fflush(stdout);
 #if defined(DEBUG)
 		printf("RefreshHostListAfter after\n");
 #endif
+		event->EventBrExitAfter( host );
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§RECVMSG
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šRECVMSG
  * <ul>
- * <li>¼«Ê¬¤ÎÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î³ºÅö¥á¥Ã¥»¡¼¥¸¤ËÁ÷¿®ºÑ¥Õ¥é¥°¤òÎ©¤Æ¤ë¡£</li>
+ * <li>è‡ªåˆ†ã®é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®è©²å½“ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«é€ä¿¡æ¸ˆãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
@@ -2689,12 +2750,12 @@ IpMessengerAgentImpl::UdpRecvEventRecvMsg( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§READMSG
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šREADMSG
  * <ul>
- * <li>READCHECKOPT¤¬ÉÕ¤¤¤Æ¤¤¤ë¾ì¹ç¡¢ANSREADMSG¤òÅê¤²¤ë¡£</li>
- * <li>¼«Ê¬¤ÎÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î³ºÅö¥á¥Ã¥»¡¼¥¸¤Ë´ûÆÉ¥Õ¥é¥°¤òÎ©¤Æ¤ë¡£</li>
+ * <li>READCHECKOPTãŒä»˜ã„ã¦ã„ã‚‹å ´åˆã€ANSREADMSGã‚’æŠ•ã’ã‚‹ã€‚</li>
+ * <li>è‡ªåˆ†ã®é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®è©²å½“ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«æ—¢èª­ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
@@ -2738,11 +2799,11 @@ IpMessengerAgentImpl::UdpRecvEventReadMsg( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§DELMSG
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šDELMSG
  * <ul>
- * <li>¼«Ê¬¤ÎÁ÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î³ºÅö¥á¥Ã¥»¡¼¥¸¤òºï½ü¡£</li>
+ * <li>è‡ªåˆ†ã®é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®è©²å½“ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å‰Šé™¤ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
@@ -2761,11 +2822,11 @@ IpMessengerAgentImpl::UdpRecvEventDelMsg( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§ANSREADMSG
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šANSREADMSG
  * <ul>
- * <li>²¿¤â¤·¤Ê¤¤¡£</li>
+ * <li>ä½•ã‚‚ã—ãªã„ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
@@ -2778,15 +2839,15 @@ IpMessengerAgentImpl::UdpRecvEventAnsReadMsg( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§SENDMSG
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šSENDMSG
  * <ul>
- * <li>BROADCASTOPT or AUTORETOPT¤Ê¤é¼«Æ°±şÅú¤·¤Ê¤¤¡£</li>
- * <li>SENDCHECKOPTÉÕ¤­¤Ê¤éRECVMSG¤òÅê¤²¤ë¡£</li>
- * <li>¼«Ê¬¤¬ÉÔºß¤Ê¤éÉÔºß±şÅú¤ò¤¹¤ë¡£</li>
- * <li>°Å¹æ²½¥á¥Ã¥»¡¼¥¸¤Ê¤éÉü¹æ¡£</li>
- * <li>¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¤ËÄÉ²Ã¡£</li>
+ * <li>BROADCASTOPT or AUTORETOPTãªã‚‰è‡ªå‹•å¿œç­”ã—ãªã„ã€‚</li>
+ * <li>SENDCHECKOPTä»˜ããªã‚‰RECVMSGã‚’æŠ•ã’ã‚‹ã€‚</li>
+ * <li>è‡ªåˆ†ãŒä¸åœ¨ãªã‚‰ä¸åœ¨å¿œç­”ã‚’ã™ã‚‹ã€‚</li>
+ * <li>æš—å·åŒ–ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãªã‚‰å¾©å·ã€‚</li>
+ * <li>å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«è¿½åŠ ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
@@ -2857,7 +2918,7 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 			host.setPortNo( ntohs( getSockAddrInPortNo( packet.Addr() ) ) );
 			SendMsg( host, DecryptErrorMessage.c_str(), Secret::Off(), LockPassword::Off(), 1, Logging::Off(), IPMSG_AUTORETOPT );
 			optionMessage = "";
-			//°Å¹æ²ò½ü¼ºÇÔ¤Ë¤è¤ë¼«Æ°±şÅú»ş¤Ï¥¤¥Ù¥ó¥È¤òµ¯¤³¤µ¤Ê¤¤¡£
+			//æš—å·è§£é™¤å¤±æ•—ã«ã‚ˆã‚‹è‡ªå‹•å¿œç­”æ™‚ã¯ã‚¤ãƒ™ãƒ³ãƒˆã‚’èµ·ã“ã•ãªã„ã€‚
 			noRaiseEvent = true;
 		}
 	}
@@ -2904,11 +2965,11 @@ IpMessengerAgentImpl::UdpRecvEventSendMsg( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_ISGETLIST
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_ISGETLIST
  * <ul>
- * <li>OKGETLIST¤òÅê¤²¤ë¡£</li>
+ * <li>OKGETLISTã‚’æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
@@ -2929,11 +2990,11 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_ISGETLIST2
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_ISGETLIST2
  * <ul>
- * <li>OKGETLIST¤òÅê¤²¤ë¡£</li>
+ * <li>OKGETLISTã‚’æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
@@ -2954,11 +3015,11 @@ IpMessengerAgentImpl::UdpRecvEventBrIsGetList2( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§GETLIST
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šGETLIST
  * <ul>
- * <li>ANSLIST¤òÅê¤²¤ë¡£</li>
+ * <li>ANSLISTã‚’æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
@@ -2985,11 +3046,11 @@ IpMessengerAgentImpl::UdpRecvEventGetList( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§OKGETLIST
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šOKGETLIST
  * <ul>
- * <li>GETLIST¤òÅê¤²¤ë¡£</li>
+ * <li>GETLISTã‚’æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
@@ -3011,11 +3072,11 @@ IpMessengerAgentImpl::UdpRecvEventOkGetList( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§ANSENTRY
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šANSENTRY
  * <ul>
- * <li>¥Ñ¥±¥Ã¥È¤«¤é¥Û¥¹¥È¥ê¥¹¥È¤Ë¥Û¥¹¥È¤Î¾ğÊó¤òÄÉ²Ã¤¹¤ë¡£</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«ãƒ›ã‚¹ãƒˆã®æƒ…å ±ã‚’è¿½åŠ ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
@@ -3024,8 +3085,9 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::UdpRecvEventAnsEntry\n");fflush( stdout );
 #endif
-	// ¥Û¥¹¥È¥ê¥¹¥È¤ËÄÉ²Ã
-	AddHostListFromPacket( packet ); 
+	// ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«è¿½åŠ 
+	HostListItem host;
+	AddHostListFromPacket( packet, host ); 
 #ifdef HAVE_OPENSSL
 	GetPubKey( packet.Addr() );
 #endif
@@ -3034,21 +3096,26 @@ IpMessengerAgentImpl::UdpRecvEventAnsEntry( const Packet& packet )
 #if defined(DEBUG)
 		printf("RefreshHostListAfter before\n");
 #endif
+printf("IpMessengerImpl::UdpRecvEventAnsEntry::RefreshHostListAfter call before\n");
+fflush(stdout);
 		event->RefreshHostListAfter( appearanceHostList );
+printf("IpMessengerImpl::UdpRecvEventAnsEntry::RefreshHostListAfter call after\n");
+fflush(stdout);
 #if defined(DEBUG)
 		printf("RefreshHostListAfter after\n");
 #endif
+		event->EventAnsEntryAfter( host );
 		event->EventAfter();
 	}
 	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§ANSLIST
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šANSLIST
  * <ul>
- * <li>Í×µá¤Ë±ş¤¸¤¿¥Û¥¹¥È¥ê¥¹¥È¤ÎÉôÊ¬¤òGETLIST¤ËµÍ¤á¤ÆÅê¤²¤ë¡£</li>
+ * <li>è¦æ±‚ã«å¿œã˜ãŸãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®éƒ¨åˆ†ã‚’GETLISTã«è©°ã‚ã¦æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
@@ -3061,7 +3128,8 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::UdpRecvEventAnsList\n");fflush( stdout );
 #endif
-	AddDefaultHost();
+	HostListItem host;
+	AddDefaultHost( host );
 	int nextstart = CreateHostList( getSockAddrInRawAddress( packet.Addr() ).c_str(),
 									packet.HostName().c_str(),
 									packet.Option().c_str(),
@@ -3083,7 +3151,7 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
-	//¼«Ê¬°Ê³°¤«¤é¤Î¥Û¥¹¥È¥ê¥¹¥ÈÄÌÃÎ¤¬¤¢¤ì¤Ğ¡¢¥ê¥È¥é¥¤´ØÏ¢ÊÑ¿ô¤ò¥¯¥ê¥¢¡£
+	//è‡ªåˆ†ä»¥å¤–ã‹ã‚‰ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆé€šçŸ¥ãŒã‚ã‚Œã°ã€ãƒªãƒˆãƒ©ã‚¤é–¢é€£å¤‰æ•°ã‚’ã‚¯ãƒªã‚¢ã€‚
 	hostList.setIsAsking( false );
 	hostList.setAskStartTime( 0L );
 	hostList.setPrevTry( 0L );
@@ -3092,11 +3160,11 @@ IpMessengerAgentImpl::UdpRecvEventAnsList( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§GETINFO
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šGETINFO
  * <ul>
- * <li>¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤òSENDINFO¤ËµÍ¤á¤ÆÅê¤²¤ë¡£</li>
+ * <li>ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’SENDINFOã«è©°ã‚ã¦æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
@@ -3118,11 +3186,11 @@ IpMessengerAgentImpl::UdpRecvEventGetInfo( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§SENDINFO
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šSENDINFO
  * <ul>
- * <li>¼èÆÀ¤·¤¿¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¤ò¥Û¥¹¥È¥ê¥¹¥È¤Ë¹¹¿·¤¹¤ë¡£</li>
+ * <li>å–å¾—ã—ãŸãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«æ›´æ–°ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
@@ -3148,11 +3216,11 @@ IpMessengerAgentImpl::UdpRecvEventSendInfo( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§GETABSENCEINFO
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šGETABSENCEINFO
  * <ul>
- * <li>ÉÔºß¾ÜºÙ¾ğÊó¤òSENDINFO¤ËµÍ¤á¤ÆÅê¤²¤ë¡£</li>
+ * <li>ä¸åœ¨è©³ç´°æƒ…å ±ã‚’SENDINFOã«è©°ã‚ã¦æŠ•ã’ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
@@ -3190,11 +3258,11 @@ IpMessengerAgentImpl::UdpRecvEventGetAbsenceInfo( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§SENDABSENCEINFO
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šSENDABSENCEINFO
  * <ul>
- * <li>¼èÆÀ¤·¤¿ÉÔºß¾ÜºÙ¾ğÊó¤ò¥Û¥¹¥È¥ê¥¹¥È¤Ë¹¹¿·¤¹¤ë¡£</li>
+ * <li>å–å¾—ã—ãŸä¸åœ¨è©³ç´°æƒ…å ±ã‚’ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«æ›´æ–°ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
@@ -3220,12 +3288,12 @@ IpMessengerAgentImpl::UdpRecvEventSendAbsenceInfo( const Packet& packet )
 }
 
 /**
- * ¥Ñ¥±¥Ã¥È¤«¤é¥ª¥Õ¥»¥Ã¥È¤ò¼èÆÀ¤·¤Ş¤¹¡£
+ * ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚
  * <ul>
- * <li>¥Ñ¥±¥Ã¥È¤«¤é¥ª¥Õ¥»¥Ã¥È¤òÃê½Ğ¤·ÊÖ¤·¤Ş¤¹¡£</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŠ½å‡ºã—è¿”ã—ã¾ã™ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ¥Õ¥¡¥¤¥ë¥ª¥Õ¥»¥Ã¥È¡£
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ•ã‚»ãƒƒãƒˆã€‚
  */
 static unsigned long
 GetSendFileOffsetInPacket( const Packet& packet )
@@ -3243,11 +3311,11 @@ GetSendFileOffsetInPacket( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_GETFILEDATA
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_GETFILEDATA
  * <ul>
- * <li>¥Õ¥¡¥¤¥ë¾ğÊó¤òTCP¥½¥±¥Ã¥È¤Ë¤Î¤»¤ÆÁ÷¿®¤·¡¢¤½¤Î¸å¥Õ¥¡¥¤¥ë¤ò¥À¥¦¥ó¥í¡¼¥É¤µ¤»¤ë¡£
+ * <li>ãƒ•ã‚¡ã‚¤ãƒ«æƒ…å ±ã‚’TCPã‚½ã‚±ãƒƒãƒˆã«ã®ã›ã¦é€ä¿¡ã—ã€ãã®å¾Œãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã›ã‚‹ã€‚
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
@@ -3273,12 +3341,12 @@ IpMessengerAgentImpl::TcpRecvEventGetFileData( const Packet& packet )
 }
 
 /**
- * TODO ²¿¤¹¤ë¤Î¡©
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_RELEASEFILES
+ * TODO ä½•ã™ã‚‹ã®ï¼Ÿ
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_RELEASEFILES
  * <ul>
- * <li> TODO ²¿¤¹¤ë¤Î¡©</li>
+ * <li> TODO ä½•ã™ã‚‹ã®ï¼Ÿ</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
@@ -3300,11 +3368,11 @@ IpMessengerAgentImpl::UdpRecvEventReleaseFiles( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_GETPUBKEY
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_GETPUBKEY
  * <ul>
- * <li>RSA¸ø³«¸°¤òANSPUBKEY¤Ë¤Î¤»¤ÆÁ÷¿®¤¹¤ë¡£</li>
+ * <li>RSAå…¬é–‹éµã‚’ANSPUBKEYã«ã®ã›ã¦é€ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
@@ -3339,11 +3407,11 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§BR_ANSPUBKEY
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šBR_ANSPUBKEY
  * <ul>
- * <li>¼èÆÀ¤·¤¿RSA¸ø³«¸°¤ò¥Û¥¹¥È¥ê¥¹¥È¤Ë¹¹¿·¤¹¤ë¡£</li>
+ * <li>å–å¾—ã—ãŸRSAå…¬é–‹éµã‚’ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«æ›´æ–°ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
@@ -3353,11 +3421,11 @@ IpMessengerAgentImpl::UdpRecvEventAnsPubKey( const Packet& packet )
 #if defined(INFO) || !defined(NDEBUG)
 	printf("IpMessengerAgentImpl::UdpRecvEventAnsPubKey[%s]\n", packet.Option().c_str());fflush( stdout );
 #endif
-	//Option¤ÏHexÉ½¸½¤Ç
+	//Optionã¯Hexè¡¨ç¾ã§
 	//XXXXX:EEEEE-NNNNN
-	//XXXXX=Ç½ÎÏ¥Õ¥é¥°¤ÎHEXÉ½¸½
-	//EEEEE=RSA¸ø³«¥­¡¼¡Ê»Ø¿ô¡Ë
-	//NNNNN=RSA¥â¥¸¥å¡¼¥ë
+	//XXXXX=èƒ½åŠ›ãƒ•ãƒ©ã‚°ã®HEXè¡¨ç¾
+	//EEEEE=RSAå…¬é–‹ã‚­ãƒ¼ï¼ˆæŒ‡æ•°ï¼‰
+	//NNNNN=RSAãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«
 	char *opt = (char *)calloc( packet.Option().length() + 1, 1 );
 	if ( opt == NULL ){
 		HideFromAllAddr();
@@ -3405,7 +3473,7 @@ printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey Set key [%s][%s]\n", pkey.c
 		hostIt->setPubKeyHex( pkey );
 		hostIt->setEncryptMethodHex( meth );
 	}
-	 hostIt = appearanceHostList.FindHostByAddress( pIpAddress );
+	hostIt = appearanceHostList.FindHostByAddress( pIpAddress );
 	if ( hostIt != appearanceHostList.end() ) {
 #ifdef DEBUG
 printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey appearanceHostList Set key [%s][%s]\n", pkey.c_str(), meth.c_str() );
@@ -3414,34 +3482,39 @@ printf( "IpMessengerAgentImpl::UdpRecvEventAnsPubKey appearanceHostList Set key 
 		hostIt->setPubKeyHex( pkey );
 		hostIt->setEncryptMethodHex( meth );
 	}
-#endif
-	//¥¤¥Ù¥ó¥È¤òµó¤²¤ë
-	if ( event != NULL ) {
+	//ã‚¤ãƒ™ãƒ³ãƒˆã‚’æŒ™ã’ã‚‹
+	if ( event != NULL && hostIt != appearanceHostList.end() ) {
 		event->EventBefore();
 #if defined(DEBUG)
-		printf("UpdateHostListAfter before\n");
+//		printf("UpdateHostListAfter before\n");
 #endif
-		event->UpdateHostListAfter( appearanceHostList );
+//		event->UpdateHostListAfter( appearanceHostList );
 #if defined(DEBUG)
-		printf("UpdateHostListAfter after\n");
+//		printf("UpdateHostListAfter after\n");
 		printf("RefreshHostListAfter before\n");
 #endif
+printf("IpMessengerImpl::UdpRecvEventAnsPubKey::RefreshHostListAfter call before\n");
+fflush(stdout);
 		event->RefreshHostListAfter( appearanceHostList );
+printf("IpMessengerImpl::UdpRecvEventAnsPubKey::RefreshHostListAfter call after\n");
+fflush(stdout);
 #if defined(DEBUG)
 		printf("RefreshHostListAfter after\n");
 #endif
+		event->EventAnsPubKeyAfter( *hostIt );
 		event->EventAfter();
 	}
+#endif
 	HideFromAllAddr();
 	IPMSG_FUNC_RETURN( 0 );
 }
 
 /**
- * ÅÅÊ¸¼õ¿®¥¤¥Ù¥ó¥È¡§GETDIRFILES
+ * é›»æ–‡å—ä¿¡ã‚¤ãƒ™ãƒ³ãƒˆï¼šGETDIRFILES
  * <ul>
- * <li>¥Ñ¥±¥Ã¥È¤Ç»ØÄê¤µ¤ì¤¿¥Ç¥£¥ì¥¯¥È¥ê¤òÁ÷¿®¤¹¤ë¡£</li>
+ * <li>ãƒ‘ã‚±ãƒƒãƒˆã§æŒ‡å®šã•ã‚ŒãŸãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’é€ä¿¡ã™ã‚‹ã€‚</li>
  * </ul>
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 int
 IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
@@ -3463,11 +3536,11 @@ IpMessengerAgentImpl::TcpRecvEventGetDirFiles( const Packet& packet )
 }
 
 /**
- * ¥Õ¥¡¥¤¥ë¥À¥¦¥ó¥í¡¼¥É¥¹¥ì¥Ã¥É
+ * ãƒ•ã‚¡ã‚¤ãƒ«ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã‚¹ãƒ¬ãƒƒãƒ‰
  * <ul>
- * <li>¥Õ¥¡¥¤¥ë¤ò¥À¥¦¥ó¥í¡¼¥É¤µ¤»¤ë¡£</li>
+ * <li>ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã›ã‚‹ã€‚</li>
  * </ul>
- * @param param ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È(void*)
+ * @param param ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(void*)
  */
 void *
 ipmsg::GetFileDataThread( void *param )
@@ -3507,11 +3580,11 @@ ipmsg::GetFileDataThread( void *param )
 }
 
 /**
- * ¥Ç¥£¥ì¥¯¥È¥ê¥À¥¦¥ó¥í¡¼¥É¥¹¥ì¥Ã¥É
+ * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã‚¹ãƒ¬ãƒƒãƒ‰
  * <ul>
- * <li>¥Ç¥£¥ì¥¯¥È¥ê¤ò¥À¥¦¥ó¥í¡¼¥É¤µ¤»¤ë¡£</li>
+ * <li>ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã›ã‚‹ã€‚</li>
  * </ul>
- * @param param ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È(void*)
+ * @param param ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(void*)
  */
 void *
 ipmsg::GetDirFilesThread( void *param )
@@ -3546,11 +3619,11 @@ ipmsg::GetDirFilesThread( void *param )
 }
 
 /**
- * ¥Ç¥£¥ì¥¯¥È¥êÁ÷¿®¡£
- * @param sock TCP¥½¥±¥Ã¥È
- * @param cd º£»Ø¤·¤Æ¤¤¤ë¥Ç¥£¥ì¥¯¥È¥êÌ¾
- * @param dir ¿Æ¥Ç¥£¥ì¥¯¥È¥ê¤Î¥Õ¥ë¥Ñ¥¹
- * @param files ¥Õ¥¡¥¤¥ë°ìÍ÷
+ * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªé€ä¿¡ã€‚
+ * @param sock TCPã‚½ã‚±ãƒƒãƒˆ
+ * @param cd ä»ŠæŒ‡ã—ã¦ã„ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå
+ * @param dir è¦ªãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®ãƒ•ãƒ«ãƒ‘ã‚¹
+ * @param files ãƒ•ã‚¡ã‚¤ãƒ«ä¸€è¦§
  */
 bool
 IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, std::vector<std::string> &files )
@@ -3627,12 +3700,12 @@ IpMessengerAgentImpl::SendDirData( int sock, std::string cd, std::string dir, st
 }
 
 /**
- * ¥Õ¥¡¥¤¥ëÁ÷¿®¡£
- * @param sock TCP¥½¥±¥Ã¥È
- * @param FileName ¥Õ¥¡¥¤¥ë¤Î¥Õ¥ë¥Ñ¥¹
- * @param offset ¥ª¥Õ¥»¥Ã¥È
- * @retval true:À®¸ù
- * @retval false:¼ºÇÔ
+ * ãƒ•ã‚¡ã‚¤ãƒ«é€ä¿¡ã€‚
+ * @param sock TCPã‚½ã‚±ãƒƒãƒˆ
+ * @param FileName ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ãƒ«ãƒ‘ã‚¹
+ * @param offset ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+ * @retval true:æˆåŠŸ
+ * @retval false:å¤±æ•—
  */
 bool
 IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, unsigned long long size, AttachFile *file, off_t offset )
@@ -3693,13 +3766,13 @@ IpMessengerAgentImpl::SendFile( int sock, std::string FileName, time_t mtime, un
 }
 
 /**
- * ¥Õ¥¡¥¤¥ë¤¬¹¹¿·¤µ¤ì¤¿¤«¡£
- * @param mtime ¹¹¿·»ş¹ï
- * @param size ¥Õ¥¡¥¤¥ë¥µ¥¤¥º
- * @param statInit ¥Õ¥¡¥¤¥ëÂ°À­½é´ü¾õÂÖ
- * @param statProgress ¥Õ¥¡¥¤¥ëÂ°À­¸½ºß¾õÂÖ
- * @retval true:¹¹¿·¤µ¤ì¤¿
- * @retval false:¹¹¿·¤µ¤ì¤Æ¤¤¤Ê¤¤
+ * ãƒ•ã‚¡ã‚¤ãƒ«ãŒæ›´æ–°ã•ã‚ŒãŸã‹ã€‚
+ * @param mtime æ›´æ–°æ™‚åˆ»
+ * @param size ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚º
+ * @param statInit ãƒ•ã‚¡ã‚¤ãƒ«å±æ€§åˆæœŸçŠ¶æ…‹
+ * @param statProgress ãƒ•ã‚¡ã‚¤ãƒ«å±æ€§ç¾åœ¨çŠ¶æ…‹
+ * @retval true:æ›´æ–°ã•ã‚ŒãŸ
+ * @retval false:æ›´æ–°ã•ã‚Œã¦ã„ãªã„
  */
 bool
 IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress )
@@ -3713,9 +3786,9 @@ IpMessengerAgentImpl::IsFileChanged( time_t mtime, unsigned long long size, stru
 }
 
 /**
- * ¥á¥Ã¥»¡¼¥¸¼õ¿®»ş¡¢¥Ñ¥±¥Ã¥È¥á¥Ã¥»¡¼¥¸ËÜÊ¸¤ÎËöÈø¤Î'\0'°Ê¹ß¤«¤é¥Õ¥¡¥¤¥ë°ìÍ÷¾ğÊó¤òÀ¸À®¤¹¤ë¡£
- * @param option ¥Ñ¥±¥Ã¥È¥ª¥×¥·¥ç¥óÉô
- * @param files ÅºÉÕ¥Õ¥¡¥¤¥ë¤Î°ìÍ÷
+ * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å—ä¿¡æ™‚ã€ãƒ‘ã‚±ãƒƒãƒˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸æœ¬æ–‡ã®æœ«å°¾ã®'\0'ä»¥é™ã‹ã‚‰ãƒ•ã‚¡ã‚¤ãƒ«ä¸€è¦§æƒ…å ±ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param option ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨
+ * @param files æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ã®ä¸€è¦§
  */
 int
 IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList &files )
@@ -3856,9 +3929,9 @@ IpMessengerAgentImpl::CreateAttachedFileList( const char *option, AttachFileList
 }
 
 /**
- * ¥Û¥¹¥È¥ê¥¹¥È¼õ¿®»ş¡¢¥Ñ¥±¥Ã¥È¥ª¥×¥·¥ç¥óÉô¡Ê¥Ğ¥Ã¥Õ¥¡¡Ë¤«¤é¥Û¥¹¥È°ìÍ÷¾ğÊó¤òÀ¸À®¤¹¤ë¡£
- * @param hostListBuf ¥Ğ¥Ã¥Õ¥¡
- * @param buf_len ¥Ğ¥Ã¥Õ¥¡¤ÎÄ¹¤µ
+ * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå—ä¿¡æ™‚ã€ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ï¼ˆãƒãƒƒãƒ•ã‚¡ï¼‰ã‹ã‚‰ãƒ›ã‚¹ãƒˆä¸€è¦§æƒ…å ±ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param hostListBuf ãƒãƒƒãƒ•ã‚¡
+ * @param buf_len ãƒãƒƒãƒ•ã‚¡ã®é•·ã•
  */
 int
 IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int buf_len )
@@ -3876,7 +3949,8 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 	printf("IpMessengerAgentImpl::CreateHostList packetIpAddress=[%s] packetHostName[%s]\n", packetIpAddress, packetHostName );fflush(stdout);
 	IpMsgPrintBuf( "hostListBuf", hostListBuf, buf_len );
 #endif
-	AddDefaultHost();
+	HostListItem host;
+	AddDefaultHost( host );
 	if ( hostListTmpBuf == NULL ) {
 		IPMSG_FUNC_RETURN( 0 );
 	}
@@ -3919,7 +3993,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		// USER NAME
 		if ( *token == '\b' ) {
 			item.setUserName( "" );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
@@ -3932,7 +4006,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setHostName( "" );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
@@ -3945,7 +4019,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setCommandNo( 0L );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
@@ -3958,21 +4032,21 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setIpAddress( "" );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
-			//ANSLIST¤ÇÁ÷¤é¤ì¤Æ¤¯¤ë¥Û¥¹¥È¥ê¥¹¥È¤ÎIP¥¢¥É¥ì¥¹¤¬¥ë¡¼¥×¥Ğ¥Ã¥¯¤Î¾ì¹ç¤¬Í­¤ë¡£¡ÊIP¥á¥Ã¥»¥ó¥¸¥ã¡¼¤Î¥Ğ¥°¤Ê¤Î¤«¤Ê¡©¡Ë
+			//ANSLISTã§é€ã‚‰ã‚Œã¦ãã‚‹ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã®å ´åˆãŒæœ‰ã‚‹ã€‚ï¼ˆIPãƒ¡ãƒƒã‚»ãƒ³ã‚¸ãƒ£ãƒ¼ã®ãƒã‚°ãªã®ã‹ãªï¼Ÿï¼‰
 			if ( strcmp( token, "127.0.0.1" ) == 0 ){
-				//¥Ñ¥±¥Ã¥È¤òÁ÷¿®¤·¤¿¥Û¥¹¥È¤ÎIP¥¢¥É¥ì¥¹¤¬¥ë¡¼¥×¥Ğ¥Ã¥¯¤Î¾ì¹ç¤Ï¥Ñ¥±¥Ã¥ÈÁ÷ÉÕ¸µ¤ÎIP¥¢¥É¥ì¥¹¤òÀßÄê¤¹¤ë¡£
+				//ãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—ãŸãƒ›ã‚¹ãƒˆã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã®å ´åˆã¯ãƒ‘ã‚±ãƒƒãƒˆé€ä»˜å…ƒã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¨­å®šã™ã‚‹ã€‚
 				if ( item.HostName() == packetHostName ) {
 					item.setIpAddress( packetIpAddress );
 				} else {
-					//¤½¤¦¤Ç¤Ê¤¤¾ì¹ç¤Ï¤¢¤­¤é¤á¤ë¡£¡ÊAddHost¥á¥½¥Ã¥ÉÆâ¤ÇÌµ»ë¤µ¤ì¥Û¥¹¥È¥ê¥¹¥È¤ËÄÉ²Ã¤µ¤ì¤Ê¤¤¡£¡Ë
+					//ãã†ã§ãªã„å ´åˆã¯ã‚ãã‚‰ã‚ã‚‹ã€‚ï¼ˆAddHostãƒ¡ã‚½ãƒƒãƒ‰å†…ã§ç„¡è¦–ã•ã‚Œãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«è¿½åŠ ã•ã‚Œãªã„ã€‚ï¼‰
 					item.setIpAddress( token );
 				}
 			} else {
-				//¥í¡¼¥«¥ë¥ë¡¼¥×¥Ğ¥Ã¥¯¥¢¥É¥ì¥¹¤Ç¤ÏÌµ¤¤¾ì¹ç¤Ï¤½¤Î¤Ş¤ŞÀßÄê¤¹¤ë¡£
+				//ãƒ­ãƒ¼ã‚«ãƒ«ãƒ«ãƒ¼ãƒ—ãƒãƒƒã‚¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã§ã¯ç„¡ã„å ´åˆã¯ãã®ã¾ã¾è¨­å®šã™ã‚‹ã€‚
 				item.setIpAddress( token );
 			}
 		}
@@ -3983,7 +4057,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setPortNo( 0L );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
@@ -3996,7 +4070,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setNickname( "" );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
@@ -4009,7 +4083,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		hostListTmpPtr = nextpos;
 		if ( *token == '\b' ) {
 			item.setGroupName( "" );
-			//'\b'¤È¶èÀÚ¤êÊ¸»ú'\a'¤ÎÊ¬¤òÈô¤Ğ¤¹¡£
+			//'\b'ã¨åŒºåˆ‡ã‚Šæ–‡å­—'\a'ã®åˆ†ã‚’é£›ã°ã™ã€‚
 			token += 2;
 			nextpos = token;
 		} else {
@@ -4017,7 +4091,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		}
 		hostListTmpPtr = nextpos;
 		token = strtok_r( hostListTmpPtr, "\a", &nextpos );
-		//ºÇ¸å¤Î¥È¡¼¥¯¥ó¤ÏºÇ¸å¤ËÈ½Äê¤¹¤ë¡£(A)ÉôÊ¬¡£
+		//æœ€å¾Œã®ãƒˆãƒ¼ã‚¯ãƒ³ã¯æœ€å¾Œã«åˆ¤å®šã™ã‚‹ã€‚(A)éƒ¨åˆ†ã€‚
 		// ADD HOSTLIST
 		hostList.DeleteHostByAddress( item.IpAddress() );
 		hostList.AddHost( item );
@@ -4031,7 +4105,7 @@ IpMessengerAgentImpl::CreateHostList( const char *packetIpAddress, const char *p
 		}
 		GetPubKey( addr );
 #endif
-		//(A)ºÇ¸å¤Î¥È¡¼¥¯¥ó¤ÏºÇ¸å¤ËÈ½Äê¤¹¤ë¡£(A)
+		//(A)æœ€å¾Œã®ãƒˆãƒ¼ã‚¯ãƒ³ã¯æœ€å¾Œã«åˆ¤å®šã™ã‚‹ã€‚(A)
 		if ( token == NULL ) break;
 		add_count++;
 	}
@@ -4062,8 +4136,8 @@ IpMessengerAgentImpl::GetPubKey( const struct sockaddr_storage &address )
 #endif
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤Î¸Ä¿ô¤ò¼èÆÀ¤¹¤ë¡£
- * @retval ¼õ¿®¥á¥Ã¥»¡¼¥¸¤Î¸Ä¿ô
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å€‹æ•°ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å€‹æ•°
  */
 int
 IpMessengerAgentImpl::GetRecievedMessageCount()
@@ -4073,8 +4147,8 @@ IpMessengerAgentImpl::GetRecievedMessageCount()
 }
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤ò°ì¸Ä¼è¤ê½Ğ¤·¡¢¼õ¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤«¤éºï½ü¤¹¤ë¡£
- * @retval ¼õ¿®¥á¥Ã¥»¡¼¥¸¥ª¥Ö¥¸¥§¥¯¥È¡£
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¸€å€‹å–ã‚Šå‡ºã—ã€å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹ã€‚
+ * @retval å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
  */
 RecievedMessage
 IpMessengerAgentImpl::PopRecievedMessage()
@@ -4090,8 +4164,8 @@ IpMessengerAgentImpl::PopRecievedMessage()
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥İ¥¤¥ó¥¿¤ò¼èÆÀ¤¹¤ë¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥İ¥¤¥ó¥¿¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ãƒã‚¤ãƒ³ã‚¿ã€‚
  */
 SentMessageList *
 IpMessengerAgentImpl::GetSentMessages()
@@ -4101,8 +4175,8 @@ IpMessengerAgentImpl::GetSentMessages()
 }
 
 /**
- * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥³¥Ô¡¼¤ò¼èÆÀ¤¹¤ë¡£
- * @retval Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥³¥Ô¡¼¡£
+ * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ã‚³ãƒ”ãƒ¼ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ã‚³ãƒ”ãƒ¼ã€‚
  */
 SentMessageList
 IpMessengerAgentImpl::CloneSentMessages() const
@@ -4112,8 +4186,8 @@ IpMessengerAgentImpl::CloneSentMessages() const
 }
 
 /**
- * ¥ª¥×¥·¥ç¥óÉô¤ÎºÇÂçÄ¹¤ò¼èÆÀ¤¹¤ë¡£
- * @retval ¥ª¥×¥·¥ç¥óÉô¤¬µöÍÆ¤¹¤ë¥Ğ¥Ã¥Õ¥¡¤ÎÄ¹¤µ
+ * ã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ã®æœ€å¤§é•·ã‚’å–å¾—ã™ã‚‹ã€‚
+ * @retval ã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ãŒè¨±å®¹ã™ã‚‹ãƒãƒƒãƒ•ã‚¡ã®é•·ã•
  */
 int
 IpMessengerAgentImpl::GetMaxOptionBufferSize()
@@ -4126,9 +4200,9 @@ IpMessengerAgentImpl::GetMaxOptionBufferSize()
 }
 
 /**
- * ¶¦ÄÌ¥³¥Ş¥ó¥É¥ª¥×¥·¥ç¥ó¤òÄÉ²Ã¤¹¤ë¡£
- * @param ÄÉ²ÃÁ°¤Î¥³¥Ş¥ó¥É¥ª¥×¥·¥ç¥ó
- * @retval ÄÉ²Ã¸å¤Î¥³¥Ş¥ó¥É¥ª¥×¥·¥ç¥ó
+ * å…±é€šã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’è¿½åŠ ã™ã‚‹ã€‚
+ * @param è¿½åŠ å‰ã®ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ—ã‚·ãƒ§ãƒ³
+ * @retval è¿½åŠ å¾Œã®ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  */
 unsigned long
 IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
@@ -4151,16 +4225,16 @@ IpMessengerAgentImpl::AddCommonCommandOption( const unsigned long cmd )
 }
 
 /**
- * Á÷¿®ÍÑ¥Ğ¥Ã¥Õ¥¡¤òºîÀ®¤¹¤ë¡£
- * @param cmd ¥³¥Ş¥ó¥É
- * @param packetNo ¥Ñ¥±¥Ã¥ÈÈÖ¹æ
- * @param user ¤³¤Î¥Û¥¹¥È¤Î¥æ¡¼¥¶Ì¾
- * @param host ¤³¤Î¥Û¥¹¥È¤Î¥Û¥¹¥ÈÌ¾
- * @param opt Ï¢·ë¤¹¤ë¥ª¥×¥·¥ç¥óÊ¸»úÎó
- * @param optLen ¥ª¥×¥·¥ç¥ó¤ÎÄ¹¤µ
- * @param buf Á÷¿®¥Ğ¥Ã¥Õ¥¡
- * @param size Á÷¿®¥Ğ¥Ã¥Õ¥¡¤ÎºÇÂç¥µ¥¤¥º
- * @retval Á÷¿®¥Ğ¥Ã¥Õ¥¡¤ÎÄ¹¤µ
+ * é€ä¿¡ç”¨ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã€‚
+ * @param cmd ã‚³ãƒãƒ³ãƒ‰
+ * @param packetNo ãƒ‘ã‚±ãƒƒãƒˆç•ªå·
+ * @param user ã“ã®ãƒ›ã‚¹ãƒˆã®ãƒ¦ãƒ¼ã‚¶å
+ * @param host ã“ã®ãƒ›ã‚¹ãƒˆã®ãƒ›ã‚¹ãƒˆå
+ * @param opt é€£çµã™ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³æ–‡å­—åˆ—
+ * @param optLen ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã®é•·ã•
+ * @param buf é€ä¿¡ãƒãƒƒãƒ•ã‚¡
+ * @param size é€ä¿¡ãƒãƒƒãƒ•ã‚¡ã®æœ€å¤§ã‚µã‚¤ã‚º
+ * @retval é€ä¿¡ãƒãƒƒãƒ•ã‚¡ã®é•·ã•
  */
 int
 IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long packetNo, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )
@@ -4192,15 +4266,15 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, unsigned long pa
 }
 
 /**
- * Á÷¿®ÍÑ¥Ğ¥Ã¥Õ¥¡¤òºîÀ®¤¹¤ë¡£(¥Ñ¥±¥Ã¥ÈÈÖ¹æ¼«Æ°À¸À®ÈÇ)
- * @param cmd ¥³¥Ş¥ó¥É
- * @param user ¤³¤Î¥Û¥¹¥È¤Î¥æ¡¼¥¶Ì¾
- * @param host ¤³¤Î¥Û¥¹¥È¤Î¥Û¥¹¥ÈÌ¾
- * @param opt Ï¢·ë¤¹¤ë¥ª¥×¥·¥ç¥óÊ¸»úÎó
- * @param optLen ¥ª¥×¥·¥ç¥ó¤ÎÄ¹¤µ
- * @param buf Á÷¿®¥Ğ¥Ã¥Õ¥¡
- * @param size Á÷¿®¥Ğ¥Ã¥Õ¥¡¤ÎºÇÂç¥µ¥¤¥º
- * @retval Á÷¿®¥Ğ¥Ã¥Õ¥¡¤ÎÄ¹¤µ
+ * é€ä¿¡ç”¨ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã€‚(ãƒ‘ã‚±ãƒƒãƒˆç•ªå·è‡ªå‹•ç”Ÿæˆç‰ˆ)
+ * @param cmd ã‚³ãƒãƒ³ãƒ‰
+ * @param user ã“ã®ãƒ›ã‚¹ãƒˆã®ãƒ¦ãƒ¼ã‚¶å
+ * @param host ã“ã®ãƒ›ã‚¹ãƒˆã®ãƒ›ã‚¹ãƒˆå
+ * @param opt é€£çµã™ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³æ–‡å­—åˆ—
+ * @param optLen ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã®é•·ã•
+ * @param buf é€ä¿¡ãƒãƒƒãƒ•ã‚¡
+ * @param size é€ä¿¡ãƒãƒƒãƒ•ã‚¡ã®æœ€å¤§ã‚µã‚¤ã‚º
+ * @retval é€ä¿¡ãƒãƒƒãƒ•ã‚¡ã®é•·ã•
  */
 int
 IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size )
@@ -4214,11 +4288,11 @@ IpMessengerAgentImpl::CreateNewPacketBuffer( unsigned long cmd, std::string user
 }
 
 /**
- * ¼õ¿®¥Ğ¥Ã¥Õ¥¡¤«¤é¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È¤òÀ¸À®¤¹¤ë¡£
- * @param packet_buf ¼õ¿®¥Ğ¥Ã¥Õ¥¡
- * @param size ¼õ¿®¥Ğ¥Ã¥Õ¥¡¤Î¥µ¥¤¥º
- * @param sender Á÷¿®¸µ¥¢¥É¥ì¥¹
- * @retval ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
+ * å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹ã€‚
+ * @param packet_buf å—ä¿¡ãƒãƒƒãƒ•ã‚¡
+ * @param size å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚º
+ * @param sender é€ä¿¡å…ƒã‚¢ãƒ‰ãƒ¬ã‚¹
+ * @retval ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
  */
 Packet
 IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int size, struct sockaddr_storage sender, time_t nowTime )
@@ -4302,8 +4376,8 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 	printf("IpMessengerAgentImpl::DismantlePacketBuffer( host=%s[%d]@sock=%d )\n", ret.HostName().c_str(), sd_address_family[sock], sock );fflush(stdout);
 	IpMsgDumpAddr( &sender );
 #endif
-	//NAT´Ä¶­¤Çsender¥¢¥É¥ì¥¹¤Ï¿®ÍÑ¤Ç¤­¤Ê¤¤¤Î¤Ç¡£¡£¡£
-	//¤Ş¤º¤Ï¸«¤Æ¤¯¤ì¤Î¥Û¥¹¥È¥ê¥¹¥È¤«¤é¸¡º÷¤¹¤ë¡£
+	//NATç’°å¢ƒã§senderã‚¢ãƒ‰ãƒ¬ã‚¹ã¯ä¿¡ç”¨ã§ããªã„ã®ã§ã€‚ã€‚ã€‚
+	//ã¾ãšã¯è¦‹ã¦ãã‚Œã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰æ¤œç´¢ã™ã‚‹ã€‚
 	//std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
 	std::vector<HostListItem>::iterator hostIt = appearanceHostList.FindHostByHostName( ret.HostName(), sender.ss_family );
 	struct sockaddr_storage hostaddr = sender;
@@ -4316,7 +4390,7 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 			IPMSG_FUNC_RETURN( ret );
 		}
 	} else {
-		//Ìµ¤±¤ì¤Ğ¼Âºİ¤Î¤Î¥Û¥¹¥È¥ê¥¹¥È¤«¤é¸¡º÷¤¹¤ë¡£
+		//ç„¡ã‘ã‚Œã°å®Ÿéš›ã®ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰æ¤œç´¢ã™ã‚‹ã€‚
 		//hostIt = hostList.FindHostByHostName( ret.HostName(), sd_address_family[sock] );
 		hostIt = hostList.FindHostByHostName( ret.HostName(), sender.ss_family );
 		if ( hostIt != hostList.end() ) {
@@ -4347,12 +4421,12 @@ IpMessengerAgentImpl::DismantlePacketBuffer( int sock, char *packet_buf, int siz
 }
 
 /**
- * ¥Ñ¥±¥Ã¥È¤«¤é¥Û¥¹¥È¥ê¥¹¥È¤Ë²Ã¤¨¤ë¡£
- * @param packet ¥Ñ¥±¥Ã¥È¥ª¥Ö¥¸¥§¥¯¥È
- * @retval ÅĞÏ¿¤·¤¿·ï¿ô¡£
+ * ãƒ‘ã‚±ãƒƒãƒˆã‹ã‚‰ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«åŠ ãˆã‚‹ã€‚
+ * @param packet ãƒ‘ã‚±ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @retval ç™»éŒ²ã—ãŸä»¶æ•°ã€‚
  */
 int
-IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
+IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet, HostListItem &host )
 {
 	IPMSG_FUNC_ENTER("void IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )");
 #if defined(INFO) || !defined(NDEBUG)
@@ -4364,16 +4438,17 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	IpMsgDumpPacket( packet, &tempAddr );
 	printf("IpMessengerAgentImpl::AddHostListFromPacket ===================================\n");fflush( stdout );
 #endif
-	AddDefaultHost();
-	// ¥Ç¥Õ¥©¥ë¥È¤ÎNIC(£°ÈÖÌÜ)°Ê³°¤Î¼«Ê¬¼«¿È¤ÎIP¥¢¥É¥ì¥¹¤¬ÅĞÏ¿°ÍÍê¤µ¤ì¤¿¤éÌµ»ë¡£
+	HostListItem myHost;
+	AddDefaultHost( myHost );
+	// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®NIC(ï¼ç•ªç›®)ä»¥å¤–ã®è‡ªåˆ†è‡ªèº«ã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒç™»éŒ²ä¾é ¼ã•ã‚ŒãŸã‚‰ç„¡è¦–ã€‚
 	std::string packetIpAddress = getSockAddrInRawAddress( packet.Addr() );
 	for( unsigned int i = 1; i < NICs.size(); i++ ){
 		if ( packetIpAddress == NICs[i].IpAddress() ){
-			AddDefaultHost();
+			AddDefaultHost( myHost );
 			IPMSG_FUNC_RETURN( 0 );
 		}
 	}
-	//¥Ç¥Õ¥©¥ë¥È¥«¡¼¥É
+	//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚«ãƒ¼ãƒ‰
 	HostListItem item;
 	item.setUserName( packet.UserName() );
 	item.setHostName( packet.HostName() );
@@ -4390,15 +4465,16 @@ IpMessengerAgentImpl::AddHostListFromPacket( const Packet& packet )
 	item.setEncryptMethodHex( "" );
 	hostList.AddHost( item );
 	int ret = appearanceHostList.AddHost( item, false );
+	host = item;
 	IPMSG_FUNC_RETURN( ret );
 }
 
 /**
- * Ç°¤Î¤¿¤á¥Û¥¹¥È¥ê¥¹¥È¤Ë¼«Ê¬¤ò²Ã¤¨¤Æ¤ª¤¯¡£
- * @retval ÅĞÏ¿¤·¤¿¥Û¥¹¥È¿ô¡£
+ * å¿µã®ãŸã‚ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«è‡ªåˆ†ã‚’åŠ ãˆã¦ãŠãã€‚
+ * @retval ç™»éŒ²ã—ãŸãƒ›ã‚¹ãƒˆæ•°ã€‚
  */
 int
-IpMessengerAgentImpl::AddDefaultHost()
+IpMessengerAgentImpl::AddDefaultHost( HostListItem &host )
 {
 	IPMSG_FUNC_ENTER("int IpMessengerAgentImpl::AddDefaultHost()");
 #if defined(INFO) || !defined(NDEBUG)
@@ -4418,6 +4494,7 @@ IpMessengerAgentImpl::AddDefaultHost()
 		myHost.setPortNo( DefaultPortNo() );
 		hostList.AddHost( myHost );
 		appearanceHostList.AddHost( myHost, false );
+		host = myHost;
 #if defined(INFO) || !defined(NDEBUG)
 		printf("IpMessengerAgentImpl::AddDefaultHost MyHost[%s] Add.[%s][%s]\n", HostAddress.c_str(), myHost.UserName().c_str(), myHost.GroupName().c_str() );fflush( stdout );
 #endif

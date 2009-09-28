@@ -55,7 +55,7 @@ class MacAddressTableItem {
 };
 
 /**
- * IP Messenger ¥¨¡¼¥¸¥§¥ó¥È¼ÂÁõ¥¯¥é¥¹¡£(¥é¥¤¥Ö¥é¥êÆâÉô»ÈÍÑ)
+ * IP Messenger ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆå®Ÿè£…ã‚¯ãƒ©ã‚¹ã€‚(ãƒ©ã‚¤ãƒ–ãƒ©ãƒªå†…éƒ¨ä½¿ç”¨)
  */
 class IpMessengerAgentImpl {
 	public:
@@ -217,7 +217,7 @@ class IpMessengerAgentImpl {
 		int TcpRecvEventGetFileData( const Packet& packet );
 		int UdpRecvEventReleaseFiles( const Packet& packet );
 		int TcpRecvEventGetDirFiles( const Packet& packet );
-		int AddDefaultHost();
+		int AddDefaultHost( HostListItem &host );
 		int CreateHostList( const char *packetIpAddress, const char *packetHostName, const char *hostListBuf, int bufLen );
 		Packet DismantlePacketBuffer( int sock, char *packetBuf, int size, struct sockaddr_storage sender, time_t nowTime );
 		int CreateAttachedFileList( const char *option, AttachFileList &files );
@@ -229,7 +229,7 @@ class IpMessengerAgentImpl {
 		bool IsFileChanged( time_t mtime, unsigned long long size, struct stat statInit, struct stat statProgress );
 
 		//Library Use Only
-		int AddHostListFromPacket( const Packet& packet );
+		int AddHostListFromPacket( const Packet& packet, HostListItem &host );
 		int CreateNewPacketBuffer( unsigned long cmd, unsigned long packet_no, std::string user, std::string host, const char *opt, int optLen, char *buf, int size );
 		int CreateNewPacketBuffer( unsigned long cmd, std::string user, std::string host, const char *opt, int optLen, char *buf, int size );
 		void SendTcpPacket( int sd, char *buf, int size );
@@ -238,38 +238,38 @@ class IpMessengerAgentImpl {
 		int GetMaxOptionBufferSize();
 };
 
-//select¥·¥¹¥Æ¥à¥³¡¼¥ë¤Î¥¿¥¤¥à¥¢¥¦¥È»ş´Ö
+//selectã‚·ã‚¹ãƒ†ãƒ ã‚³ãƒ¼ãƒ«ã®ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆæ™‚é–“
 #if defined(DEBUG)
-//0.1ÉÃ
+//0.1ç§’
 #include <ctype.h>
 #define SELECT_TIMEOUT_SEC	0
 #define SELECT_TIMEOUT_USEC	100000
 #else	//DEBUG
-//0.05ÉÃ
+//0.05ç§’
 #define SELECT_TIMEOUT_SEC	0
 #define SELECT_TIMEOUT_USEC	50000
 #endif	//DEBUG
 
-//¥Ñ¥±¥Ã¥È¤Î°ì°ÕÀ­¥Á¥§¥Ã¥¯ÍÑ¤Î¥Ñ¥±¥Ã¥ÈÊİÂ¸´ü´Ö(ÉÃ)
+//ãƒ‘ã‚±ãƒƒãƒˆã®ä¸€æ„æ€§ãƒã‚§ãƒƒã‚¯ç”¨ã®ãƒ‘ã‚±ãƒƒãƒˆä¿å­˜æœŸé–“(ç§’)
 #define	PACKET_CHECK_FOR_SAVING_INTERVAL	20
 
-//NIC¤ÎºÇÂç¿ô
+//NICã®æœ€å¤§æ•°
 #define IFR_MAX 20
 
-//¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¥ê¥È¥é¥¤´Ö³Ö
+//ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ãƒªãƒˆãƒ©ã‚¤é–“éš”
 #define GETLIST_RETRY_INTERVAL	2
-//¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¥ê¥È¥é¥¤ºÇÂç¿ô
+//ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ãƒªãƒˆãƒ©ã‚¤æœ€å¤§æ•°
 #define GETLIST_RETRY_MAX		2
 
-//°ì²ó¤Î¥Û¥¹¥È¥ê¥¹¥È¼èÆÀºÇÂç¿ô
+//ä¸€å›ã®ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—æœ€å¤§æ•°
 #define HOST_LIST_SEND_MAX_AT_ONCE	100
-//¥Ñ¥±¥Ã¥È¤Î¥Ç¥ê¥ß¥¿Ê¸»ú
+//ãƒ‘ã‚±ãƒƒãƒˆã®ãƒ‡ãƒªãƒŸã‚¿æ–‡å­—
 #define	PACKET_DELIMITER_CHAR	':'
-//¥Ñ¥±¥Ã¥È¤Î¥Ç¥ê¥ß¥¿Ê¸»úÎó
+//ãƒ‘ã‚±ãƒƒãƒˆã®ãƒ‡ãƒªãƒŸã‚¿æ–‡å­—åˆ—
 #define	PACKET_DELIMITER_STRING	":"
-//¥ª¥×¥·¥ç¥óÉô¤Î¹àÌÜ¶èÀÚ¤êÊ¸»ú
+//ã‚ªãƒ—ã‚·ãƒ§ãƒ³éƒ¨ã®é …ç›®åŒºåˆ‡ã‚Šæ–‡å­—
 #define	PACKET_FIELD_SEPERATOR_CHAR	'\a'
-//¥Ğ¡¼¥¸¥ç¥óÊ¸»úÎó
+//ãƒãƒ¼ã‚¸ãƒ§ãƒ³æ–‡å­—åˆ—
 #define	IPMSG_AGENT_VERSION		"IpMessengerAgent for C++ Unix Version " VERSION
 
 #define	IP_ADDR_MAX_SIZE	INET6_ADDRSTRLEN + 1

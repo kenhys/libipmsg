@@ -32,13 +32,13 @@
 namespace ipmsg {
 
 /**
- * ÆÉ¤ß¹ş¤ßÀìÍÑ¥×¥í¥Ñ¥Æ¥£
- * IPMSG_READONLY_PROPERTY( SomeClass, PropName )¤Ï
+ * èª­ã¿è¾¼ã¿å°‚ç”¨ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
+ * IPMSG_READONLY_PROPERTY( SomeClass, PropName )ã¯
  * -------------------------------------------------------------------
  *   private: SomeClass _PropName;
  *   public: SomeClass& PropName(){ return _PropName; };
  * -------------------------------------------------------------------
- * ¤ËÅ¸³«¤µ¤ì¤Ş¤¹¡£
+ * ã«å±•é–‹ã•ã‚Œã¾ã™ã€‚
  **/
 #define IPMSG_READONLY_PROPERTY(t, name ) \
 									private: \
@@ -47,14 +47,14 @@ namespace ipmsg {
 										inline t name() const { return _##name; };
 
 /**
- * ÆÉ¤ß½ñ¤­Î¾ÍÑ¥×¥í¥Ñ¥Æ¥£
- * IPMSG_PROPERTY( SomeClass, PropName )¤Ï
+ * èª­ã¿æ›¸ãä¸¡ç”¨ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
+ * IPMSG_PROPERTY( SomeClass, PropName )ã¯
  * -------------------------------------------------------------------
  *   private: SomeClass _PropName;
  *   public: SomeClass PropName(){ return _PropName; };
  *           void setPropName( SomeClass val ){ _PropName = val; };
  * -------------------------------------------------------------------
- * ¤ËÅ¸³«¤µ¤ì¤Ş¤¹¡£
+ * ã«å±•é–‹ã•ã‚Œã¾ã™ã€‚
  **/
 #define IPMSG_PROPERTY(t, name )	private: \
 										t _##name; \
@@ -63,14 +63,14 @@ namespace ipmsg {
 										inline void set##name( const t val ){ _##name = val; };
 
 /**
- * ÆÉ¤ß½ñ¤­Î¾ÍÑ¥×¥í¥Ñ¥Æ¥£(»²¾ÈÍÑ)
- * IPMSG_PROPERTY_REF( SomeClass, PropName )¤Ï
+ * èª­ã¿æ›¸ãä¸¡ç”¨ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£(å‚ç…§ç”¨)
+ * IPMSG_PROPERTY_REF( SomeClass, PropName )ã¯
  * -------------------------------------------------------------------
  *   private: SomeClass _PropName;
  *   public: SomeClass& PropName(){ return _PropName; };
  *           void setPropName( SomeClass& val ){ _PropName = val; };
  * -------------------------------------------------------------------
- * ¤ËÅ¸³«¤µ¤ì¤Ş¤¹¡£
+ * ã«å±•é–‹ã•ã‚Œã¾ã™ã€‚
  **/
 #define IPMSG_PROPERTY_REF(t, name )	\
 									private: \
@@ -79,7 +79,7 @@ namespace ipmsg {
 										inline t& name() { return _##name; }; \
 										inline void set##name( const t& val ){ _##name = val; };
 /**
- * ¥Ñ¥±¥Ã¥È¥¯¥é¥¹
+ * ãƒ‘ã‚±ãƒƒãƒˆã‚¯ãƒ©ã‚¹
  **/
 class Packet{
 	public:
@@ -97,7 +97,7 @@ class Packet{
 };
 
 /**
- * ¥Í¥Ã¥È¥ï¡¼¥¯¥¤¥ó¥¿¡¼¥Õ¥§¡¼¥¹¥¯¥é¥¹
+ * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚¯ãƒ©ã‚¹
  **/
 class NetworkInterface {
 	public:
@@ -120,7 +120,7 @@ class NetworkInterface {
 };
 
 /**
- * ¥°¥ë¡¼¥×¥¯¥é¥¹
+ * ã‚°ãƒ«ãƒ¼ãƒ—ã‚¯ãƒ©ã‚¹
  **/
 class GroupItem{
 	public:
@@ -129,7 +129,7 @@ class GroupItem{
 };
 
 /**
- * ¥Û¥¹¥È¥¯¥é¥¹
+ * ãƒ›ã‚¹ãƒˆã‚¯ãƒ©ã‚¹
  **/
 class HostListItem{
 	public:
@@ -165,35 +165,35 @@ class HostListItem{
 };
 
 /**
- * ¥Û¥¹¥È°ìÍ÷¥½¡¼¥ÈÍÑÈæ³Ó¥¯¥é¥¹
- *¡Ê³ÆApplication¤ÏÉ¬Í×¤Ë±ş¤¸¤Æ¤³¤Î¥¯¥é¥¹¤ò·Ñ¾µ¤·¤Æ½èÍı¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤¡£¡Ë
+ * ãƒ›ã‚¹ãƒˆä¸€è¦§ã‚½ãƒ¼ãƒˆç”¨æ¯”è¼ƒã‚¯ãƒ©ã‚¹
+ *ï¼ˆå„Applicationã¯å¿…è¦ã«å¿œã˜ã¦ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç¶™æ‰¿ã—ã¦å‡¦ç†ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚ï¼‰
  **/
 class HostListComparator{
 	public:
 		/**
-		 * Èæ³Ó¡£
-		 * @param host1 ¥Û¥¹¥È¾ğÊó1
-		 * @param host2 ¥Û¥¹¥È¾ğÊó2
-		 * @retval -n:host1¤¬Âç¤­¤¤
-		 * @retval 0:host1¤Èhost2¤¬Åù¤·¤¤
-		 * @retval +n:host2¤¬Âç¤­¤¤
+		 * æ¯”è¼ƒã€‚
+		 * @param host1 ãƒ›ã‚¹ãƒˆæƒ…å ±1
+		 * @param host2 ãƒ›ã‚¹ãƒˆæƒ…å ±2
+		 * @retval -n:host1ãŒå¤§ãã„
+		 * @retval 0:host1ã¨host2ãŒç­‰ã—ã„
+		 * @retval +n:host2ãŒå¤§ãã„
 		 */
 		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 )=0;
 		virtual ~HostListComparator(){};
 };
 
 /**
- * ¥Û¥¹¥È°ìÍ÷¥Ç¥Õ¥©¥ë¥È¥½¡¼¥ÈÍÑÈæ³Ó¥¯¥é¥¹
+ * ãƒ›ã‚¹ãƒˆä¸€è¦§ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚½ãƒ¼ãƒˆç”¨æ¯”è¼ƒã‚¯ãƒ©ã‚¹
  **/
 class HostListDefaultComparator: public HostListComparator{
 	public:
 		/**
-		 * Èæ³Ó¡£
-		 * @param host1 ¥Û¥¹¥È¾ğÊó1
-		 * @param host2 ¥Û¥¹¥È¾ğÊó2
-		 * @retval -n:host1¤¬Âç¤­¤¤
-		 * @retval 0:host1¤Èhost2¤¬Åù¤·¤¤
-		 * @retval +n:host2¤¬Âç¤­¤¤
+		 * æ¯”è¼ƒã€‚
+		 * @param host1 ãƒ›ã‚¹ãƒˆæƒ…å ±1
+		 * @param host2 ãƒ›ã‚¹ãƒˆæƒ…å ±2
+		 * @retval -n:host1ãŒå¤§ãã„
+		 * @retval 0:host1ã¨host2ãŒç­‰ã—ã„
+		 * @retval +n:host2ãŒå¤§ãã„
 		 */
 		virtual int compare( std::vector<HostListItem>::iterator host1, std::vector<HostListItem>::iterator host2 ){
 			return host1->Compare( *host2 );
@@ -201,7 +201,7 @@ class HostListDefaultComparator: public HostListComparator{
 };
 
 /**
- * ¥Û¥¹¥È°ìÍ÷¥¯¥é¥¹
+ * ãƒ›ã‚¹ãƒˆä¸€è¦§ã‚¯ãƒ©ã‚¹
  **/
 class HostList{
 	public:
@@ -236,8 +236,8 @@ class HostList{
 };
 
 /**
- * ¥Õ¥¡¥¤¥ëÌ¾¥³¥ó¥Ğ¡¼¥¿¥¯¥é¥¹
- * ¡Ê³ÆApplication¤ÏÉ¬Í×¤Ë±ş¤¸¤Æ¤³¤Î¥¯¥é¥¹¤ò·Ñ¾µ¤·¤Æ½èÍı¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤¡£¡Ë
+ * ãƒ•ã‚¡ã‚¤ãƒ«åã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚¯ãƒ©ã‚¹
+ * ï¼ˆå„Applicationã¯å¿…è¦ã«å¿œã˜ã¦ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç¶™æ‰¿ã—ã¦å‡¦ç†ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚ï¼‰
  **/
 class FileNameConverter {
 	public:
@@ -247,7 +247,7 @@ class FileNameConverter {
 };
 
 /**
- * ¥Õ¥¡¥¤¥ëÌ¾ÌµÊÑ´¹¥³¥ó¥Ğ¡¼¥¿¥¯¥é¥¹
+ * ãƒ•ã‚¡ã‚¤ãƒ«åç„¡å¤‰æ›ã‚³ãƒ³ãƒãƒ¼ã‚¿ã‚¯ãƒ©ã‚¹
  **/
 class NullFileNameConverter:public FileNameConverter {
 	public:
@@ -256,7 +256,7 @@ class NullFileNameConverter:public FileNameConverter {
 };
 
 /**
- * ÅºÉÕ¥Õ¥¡¥¤¥ë¥¯¥é¥¹
+ * æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ©ã‚¹
  **/
 class AttachFile{
 	public:
@@ -286,7 +286,7 @@ class AttachFile{
 };
 
 /**
- * ¥À¥¦¥ó¥í¡¼¥É¾ğÊó¥¯¥é¥¹
+ * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±ã‚¯ãƒ©ã‚¹
  **/
 class DownloadInfo{
 	public:
@@ -305,7 +305,7 @@ class DownloadInfo{
 };
 
 /**
- * ÅºÉÕ¥Õ¥¡¥¤¥ë°ìÍ÷¥¯¥é¥¹
+ * æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ä¸€è¦§ã‚¯ãƒ©ã‚¹
  **/
 class AttachFileList{
 	public:
@@ -333,7 +333,7 @@ class AttachFileList{
 class IpMessengerEvent;
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸¥¯¥é¥¹
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¯ãƒ©ã‚¹
  **/
 class RecievedMessage{
 	public:
@@ -364,7 +364,7 @@ class RecievedMessage{
 };
 
 /**
- * ¼õ¿®¥á¥Ã¥»¡¼¥¸°ìÍ÷¥¯¥é¥¹
+ * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ä¸€è¦§ã‚¯ãƒ©ã‚¹
  **/
 class RecievedMessageList {
 	public:
@@ -387,7 +387,7 @@ class RecievedMessageList {
 };
 
 /**
- * Á÷¿®¥á¥Ã¥»¡¼¥¸¥¯¥é¥¹
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¯ãƒ©ã‚¹
  **/
 class SentMessage{
 	public:
@@ -420,7 +420,7 @@ class SentMessage{
 };
 
 /**
- * Á÷¿®¥á¥Ã¥»¡¼¥¸°ìÍ÷¥¯¥é¥¹
+ * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ä¸€è¦§ã‚¯ãƒ©ã‚¹
  **/
 class SentMessageList {
 	public:
@@ -447,7 +447,7 @@ class SentMessageList {
 };
 
 /**
- * ÉÔºß¥â¡¼¥É¥¯¥é¥¹
+ * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰ã‚¯ãƒ©ã‚¹
  **/
 class AbsenceMode {
 	public:
@@ -458,132 +458,159 @@ class AbsenceMode {
 
 
 /**
- * IP Messenger ¥¤¥Ù¥ó¥È¥¯¥é¥¹
- * ¡Ê³ÆApplication¤Ï¤³¤Î¥¯¥é¥¹¤ò·Ñ¾µ¤·¤Æ½èÍı¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤¡£¡Ë
+ * IP Messenger ã‚¤ãƒ™ãƒ³ãƒˆã‚¯ãƒ©ã‚¹
+ * ï¼ˆå„Applicationã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç¶™æ‰¿ã—ã¦å‡¦ç†ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚ï¼‰
  **/
 class IpMessengerEvent {
 	public:
 		/**
-		 * ÄÌÃÎ¥¤¥Ù¥ó¥È³«»ÏÁ°¥¤¥Ù¥ó¥È(GUI¥¹¥ì¥Ã¥É¤Î¥í¥Ã¥¯Åù¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤)
+		 * é€šçŸ¥ã‚¤ãƒ™ãƒ³ãƒˆé–‹å§‹å‰ã‚¤ãƒ™ãƒ³ãƒˆ(GUIã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ­ãƒƒã‚¯ç­‰ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„)
 		 */
 		virtual void EventBefore()=0;
 		/**
-		 * ÄÌÃÎ¥¤¥Ù¥ó¥È½ªÎ»¸å¥¤¥Ù¥ó¥È(GUI¥¹¥ì¥Ã¥É¤Î¥¢¥ó¥í¥Ã¥¯Åù¤ò¼ÂÁõ¤·¤Æ¤¯¤À¤µ¤¤)
+		 * é€šçŸ¥ã‚¤ãƒ™ãƒ³ãƒˆçµ‚äº†å¾Œã‚¤ãƒ™ãƒ³ãƒˆ(GUIã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ç­‰ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„)
 		 */
 		virtual void EventAfter()=0;
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¥ê¥Õ¥ì¥Ã¥·¥å¸å¥¤¥Ù¥ó¥È
-		 * @param hostList ¥Û¥¹¥È¥ê¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆãƒªãƒ•ãƒ¬ãƒƒã‚·ãƒ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param hostList ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆ
 		 */
 		virtual void RefreshHostListAfter( HostList& hostList )=0;
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¹¹¿·¸å¥¤¥Ù¥ó¥È
-		 * @param hostList ¥Û¥¹¥È¥ê¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ›´æ–°å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param hostList ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆ
 		 */
 		virtual void UpdateHostListAfter( HostList& hostList )=0;
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¼èÆÀ¥ê¥È¥é¥¤¥¨¥é¡¼¥¤¥Ù¥ó¥È
-		 * @retval true:¥ê¥È¥é¥¤¤¹¤ë
-		 * @retval false:¥ê¥È¥é¥¤¤·¤Ê¤¤
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆå–å¾—ãƒªãƒˆãƒ©ã‚¤ã‚¨ãƒ©ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @retval true:ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹
+		 * @retval false:ãƒªãƒˆãƒ©ã‚¤ã—ãªã„
 		 */
 		virtual bool GetHostListRetryError()=0;
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸¼õ¿®¸å¥¤¥Ù¥ó¥È¡£
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @retval true:½èÍı¤·¤Æ¥á¥Ã¥»¡¼¥¸¤ÎÊİÂ¸¤¬ÉÔÍ×
-		 * @retval false:¥á¥Ã¥»¡¼¥¸¤òÊİÂ¸
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆã€‚
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @retval true:å‡¦ç†ã—ã¦ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ä¿å­˜ãŒä¸è¦
+		 * @retval false:ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¿å­˜
 		 */
 		virtual bool RecieveAfter( RecievedMessage& msg )=0;
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¸å¥¤¥Ù¥ó¥È
-		 * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 		 */
 		virtual void SendAfter( SentMessage& msg )=0;
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸°Å¹æ²½¼ºÇÔÄÌÃÎ¥¤¥Ù¥ó¥È¡£
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸æš—å·åŒ–å¤±æ•—é€šçŸ¥ã‚¤ãƒ™ãƒ³ãƒˆã€‚
 		 */
 		virtual void NotifySendEncryptionFail( HostListItem& host )=0;
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸°Å¹æ²½¼ºÇÔ¥¤¥Ù¥ó¥È¡£
-		 * @retval true:°Å¹æ²½¤»¤º¤ËÁ÷¿®¤¹¤ë
-		 * @retval false:¼ºÇÔ¤µ¤»¤ë
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸æš—å·åŒ–å¤±æ•—ã‚¤ãƒ™ãƒ³ãƒˆã€‚
+		 * @retval true:æš—å·åŒ–ã›ãšã«é€ä¿¡ã™ã‚‹
+		 * @retval false:å¤±æ•—ã•ã›ã‚‹
 		 */
 		virtual bool IsSendContinueOnEncryptionFail( HostListItem& host )=0;
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¥ê¥È¥é¥¤¥¨¥é¡¼¥¤¥Ù¥ó¥È
-		 * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
-		 * @retval true:¥ê¥È¥é¥¤¤¹¤ë
-		 * @retval false:¥ê¥È¥é¥¤¤·¤Ê¤¤
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ãƒªãƒˆãƒ©ã‚¤ã‚¨ãƒ©ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @retval true:ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹
+		 * @retval false:ãƒªãƒˆãƒ©ã‚¤ã—ãªã„
 		 */
 		virtual bool SendRetryError( SentMessage& msg )=0;
 		/**
-		 * ³«ÉõÄÌÃÎ¸å¥¤¥Ù¥ó¥È
-		 * @param msg Á÷¿®¥á¥Ã¥»¡¼¥¸
+		 * é–‹å°é€šçŸ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param msg é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 		 */
 		virtual void OpenAfter( SentMessage& msg )=0;
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É³«»Ï¥¤¥Ù¥ó¥È
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰é–‹å§‹ã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 		 */
 		virtual void DownloadStart( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É½èÍıÃæ¥¤¥Ù¥ó¥È
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰å‡¦ç†ä¸­ã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 		 */
 		virtual void DownloadProcessing( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É½ªÎ»¥¤¥Ù¥ó¥È
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰çµ‚äº†ã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 		 */
 		virtual void DownloadEnd( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
 		/**
-		 * ¥À¥¦¥ó¥í¡¼¥É¥¨¥é¡¼¥¤¥Ù¥ó¥È(¥ê¥È¥é¥¤¤¹¤ë¾ì¹ç¤ÏTRUE¤òÊÖ¤¹¡£)
-		 * @param msg ¼õ¿®¥á¥Ã¥»¡¼¥¸
-		 * @param file ÅºÉÕ¥Õ¥¡¥¤¥ë
-		 * @param info ¥À¥¦¥ó¥í¡¼¥É¾ğÊó
-		 * @param data DownloadFile¡¢DownloadDir¤Ç»ØÄê¤·¤¿Ç¤°Õ¥Ç¡¼¥¿¤Ø¤Î¥İ¥¤¥ó¥¿
-		 * @retval true:¥ê¥È¥é¥¤¤¹¤ë
-		 * @retval false:¥ê¥È¥é¥¤¤·¤Ê¤¤
+		 * ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã‚¨ãƒ©ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆ(ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹å ´åˆã¯TRUEã‚’è¿”ã™ã€‚)
+		 * @param msg å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+		 * @param file æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
+		 * @param info ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰æƒ…å ±
+		 * @param data DownloadFileã€DownloadDirã§æŒ‡å®šã—ãŸä»»æ„ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+		 * @retval true:ãƒªãƒˆãƒ©ã‚¤ã™ã‚‹
+		 * @retval false:ãƒªãƒˆãƒ©ã‚¤ã—ãªã„
 		 */
 		virtual bool DownloadError( RecievedMessage& msg, AttachFile& file, DownloadInfo &info, void *data )=0;
 		/**
-		 * ¥Û¥¹¥È¤Î»²²ÃÄÌÃÎ¸å¥¤¥Ù¥ó¥È
-		 * @param host ¥Û¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆã®å‚åŠ é€šçŸ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
 		 */
 		virtual void EntryAfter( HostListItem& host )=0;
 		/**
-		 * ¥Û¥¹¥È¤ÎÃ¦ÂàÄÌÃÎ¸å¥¤¥Ù¥ó¥È
-		 * @param host ¥Û¥¹¥È
+		 * ãƒ›ã‚¹ãƒˆã®è„±é€€é€šçŸ¥å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
 		 */
 		virtual void ExitAfter( HostListItem& host )=0;
 		/**
-		 * ÉÔºß¥â¡¼¥É¹¹¿·¸å¥¤¥Ù¥ó¥È
-		 * @param hostList ¥Û¥¹¥È
+		 * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰æ›´æ–°å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param hostList ãƒ›ã‚¹ãƒˆ
 		 */
 		virtual void AbsenceModeChangeAfter( HostListItem& host )=0;
 		/**
-		 * ¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¼õ¿®¸å¥¤¥Ù¥ó¥È
-		 * @param host ¥Û¥¹¥È
-		 * @param version ¥Ğ¡¼¥¸¥ç¥ó
+		 * ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 * @param version ãƒãƒ¼ã‚¸ãƒ§ãƒ³
 		 */
 		virtual void VersionInfoRecieveAfter( HostListItem &host, std::string version )=0;
 		/**
-		 * ÉÔºß¾ÜºÙ¾ğÊó¼õ¿®¸å¥¤¥Ù¥ó¥È
-		 * @param host ¥Û¥¹¥È
-		 * @param absenceDetail ÉÔºß¾ÜºÙ¾ğÊó
+		 * ä¸åœ¨è©³ç´°æƒ…å ±å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 * @param absenceDetail ä¸åœ¨è©³ç´°æƒ…å ±
 		 */
 		virtual void AbsenceDetailRecieveAfter( HostListItem& host, std::string absenceDetail )=0;
+
 		/**
-		 * ¥Ç¥¹¥È¥é¥¯¥¿
+		 * ãƒ›ã‚¹ãƒˆã®å‚åŠ é€šçŸ¥é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventBrEntryAfter( HostListItem& host )=0;
+		/**
+		 * ãƒ›ã‚¹ãƒˆã®å‚åŠ é€šçŸ¥å¿œç­”é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventAnsEntryAfter( HostListItem& host )=0;
+		/**
+		 * ãƒ›ã‚¹ãƒˆã®è„±é€€é€šçŸ¥é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventBrExitAfter( HostListItem& host )=0;
+		/**
+		 * ä¸åœ¨ãƒ¢ãƒ¼ãƒ‰æ›´æ–°é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param hostList ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventBrAbsenceAfter( HostListItem& host )=0;
+		/**
+		 * å…¬å…±éµå¿œç­”é€šçŸ¥é›»æ–‡å—ä¿¡å¾Œã‚¤ãƒ™ãƒ³ãƒˆ
+		 * @param host ãƒ›ã‚¹ãƒˆ
+		 */
+		virtual void EventAnsPubKeyAfter( HostListItem& host )=0;
+
+		/**
+		 * ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 		 */
 		virtual ~IpMessengerEvent()=0;
 };
@@ -615,284 +642,284 @@ class Logging {
 };
 
 /**
- * IP Messenger ¥¨¡¼¥¸¥§¥ó¥È¥¯¥é¥¹
+ * IP Messenger ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã‚¯ãƒ©ã‚¹
  **/
 class IpMessengerAgent {
 	public:
 		/**
-		 * ¥¤¥ó¥¹¥¿¥ó¥¹¤ò¼èÆÀ
+		 * ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’å–å¾—
 		 **/
 		static IpMessengerAgent *GetInstance();
 
 		/**
-		 * ¥¤¥ó¥¹¥¿¥ó¥¹¤ò²òÊü
+		 * ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’è§£æ”¾
 		 **/
 		static void Release();
 
 		/**
-		 * NIC¤Î¾ğÊó¤ò¼èÆÀ
+		 * NICã®æƒ…å ±ã‚’å–å¾—
 		 **/
 		static void GetNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6 );
 
 		/**
-		 * ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤ò¥¯¥ê¥¢
+		 * ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
 		 **/
 		void ClearBroadcastAddress();
 
 		/**
-		 * ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤«¤é¥¢¥É¥ì¥¹¤òºï½ü
+		 * ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã‹ã‚‰ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å‰Šé™¤
 		 **/
 		void DeleteBroadcastAddress( std::string addr );
 
 		/**
-		 * ¥Ö¥í¡¼¥É¥­¥ã¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤Ë¥¢¥É¥ì¥¹¤òÄÉ²Ã
+		 * ãƒ–ãƒ­ãƒ¼ãƒ‰ã‚­ãƒ£ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã«ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿½åŠ 
 		 **/
 		void AddBroadcastAddress( std::string addr );
 
 		/**
-		 * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤Ë¥¢¥É¥ì¥¹¤òÄÉ²Ã
+		 * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã«ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿½åŠ 
 		 **/
 		void AddSkulkHostAddress( std::string addr );
 
 		/**
-		 * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¥ê¥¹¥È¤Ë¥Û¥¹¥È¤òÄÉ²Ã
+		 * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã«ãƒ›ã‚¹ãƒˆã‚’è¿½åŠ 
 		 **/
 		void AddSkulkHost( HostListItem &host );
 
 		/**
-		 * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤«¤é¥¢¥É¥ì¥¹¤òºï½ü
+		 * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã‹ã‚‰ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å‰Šé™¤
 		 **/
 		void DeleteSkulkHostAddress( std::string addr );
 
 		/**
-		 * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¥ê¥¹¥È¤«¤é¥Û¥¹¥È¤òºï½ü
+		 * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰ãƒ›ã‚¹ãƒˆã‚’å‰Šé™¤
 		 **/
 		void DeleteSkulkHost( HostListItem &host );
 
 		/**
-		 * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤ò¥¯¥ê¥¢
+		 * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
 		 **/
 		void ClearSkulkHost();
 
 		/**
-		 * ÆÃÄê¤Î¥Û¥¹¥È¤«¤é±£¤ì¤ë¾ì¹ç¡¢¸«¤¨¤Ê¤¯¤¹¤ë¥Û¥¹¥È¥¢¥É¥ì¥¹¤Î¥ê¥¹¥È¤òÊÖ¤¹
+		 * ç‰¹å®šã®ãƒ›ã‚¹ãƒˆã‹ã‚‰éš ã‚Œã‚‹å ´åˆã€è¦‹ãˆãªãã™ã‚‹ãƒ›ã‚¹ãƒˆã‚¢ãƒ‰ãƒ¬ã‚¹ã®ãƒªã‚¹ãƒˆã‚’è¿”ã™
 		 **/
 		HostList GetSkulkHost();
 
 		/**
-		 * ¥í¥°¥¤¥óÄÌÃÎ¡Ê»²²ÃÄÌÃÎ¡Ë
+		 * ãƒ­ã‚°ã‚¤ãƒ³é€šçŸ¥ï¼ˆå‚åŠ é€šçŸ¥ï¼‰
 		 **/
 		void Login( std::string nickname, std::string groupName );
 
 		/**
-		 * ¥í¥°¥¢¥¦¥ÈÄÌÃÎ¡ÊÃ¦ÂàÄÌÃÎ¡Ë
+		 * ãƒ­ã‚°ã‚¢ã‚¦ãƒˆé€šçŸ¥ï¼ˆè„±é€€é€šçŸ¥ï¼‰
 		 **/
 		void Logout();
 
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¤ò¼èÆÀ
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’å–å¾—
 		 **/
 		HostList& GetHostList();
 
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥È¤ò¹¹¿·¤·¤Æ¼èÆÀ
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆã‚’æ›´æ–°ã—ã¦å–å¾—
 		 **/
 		HostList& UpdateHostList();
 
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡ÊÅºÉÕÌµ¤·¡Ë
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ï¼ˆæ·»ä»˜ç„¡ã—ï¼‰
 		 **/
 		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
 
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡Ê°ì¤ÄÅºÉÕ¡Ë
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ï¼ˆä¸€ã¤æ·»ä»˜ï¼‰
 		 **/
 		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFile& file, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
 
 		/**
-		 * ¥á¥Ã¥»¡¼¥¸Á÷¿®¡ÊÊ£¿ôÅºÉÕ¡Ë
+		 * ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡ï¼ˆè¤‡æ•°æ·»ä»˜ï¼‰
 		 **/
 		bool SendMsg( HostListItem host, std::string msg, const Secret &isSecret, AttachFileList& files, const LockPassword &isLockPassword=LockPassword::Off(), int hostCountAtSameTime=1, const Logging &isLogging=Logging::On(), unsigned long opt=0UL );
 
 		/**
-		 * ÉÔºß²ò½ü
+		 * ä¸åœ¨è§£é™¤
 		 **/
 		void ResetAbsence();
 
 		/**
-		 * ÉÔºßÀßÄê
+		 * ä¸åœ¨è¨­å®š
 		 **/
 		void SetAbsence( std::string encoding, std::vector<AbsenceMode> absenceModes );
 
 		/**
-		 * ¥°¥ë¡¼¥×°ìÍ÷¼èÆÀ
+		 * ã‚°ãƒ«ãƒ¼ãƒ—ä¸€è¦§å–å¾—
 		 **/
 		std::vector<GroupItem> GetGroupList();
 
 		/**
-		 * ¥Ğ¡¼¥¸¥ç¥ó¾ğÊó¼èÆÀ
+		 * ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±å–å¾—
 		 **/
 		std::string GetInfo( HostListItem& host );
 
 		/**
-		 * ÉÔºß¾ğÊó¼èÆÀ
+		 * ä¸åœ¨æƒ…å ±å–å¾—
 		 **/
 		std::string GetAbsenceInfo( HostListItem& host );
 
 		/**
-		 * ¥Ñ¥±¥Ã¥È¤Î½èÍı¡Ê¥İ¡¼¥ê¥ó¥°ÍÑ¡Ë
+		 * ãƒ‘ã‚±ãƒƒãƒˆã®å‡¦ç†ï¼ˆãƒãƒ¼ãƒªãƒ³ã‚°ç”¨ï¼‰
 		 **/
 		int Process();
 
 		/**
-		 * ¼õ¿®ºÑ¥á¥Ã¥»¡¼¥¸¤Î¸Ä¿ô¼èÆÀ
+		 * å—ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å€‹æ•°å–å¾—
 		 **/
 		int GetRecievedMessageCount();
 
 		/**
-		 * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤Î¼è¤ê½Ğ¤·
+		 * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å–ã‚Šå‡ºã—
 		 **/
 		RecievedMessage PopRecievedMessage();
 
 		/**
-		 * Á÷¿®¸µ¤Ë³«ÉõÄÌÃÎ¤òÁ÷¿®
+		 * é€ä¿¡å…ƒã«é–‹å°é€šçŸ¥ã‚’é€ä¿¡
 		 **/
 		void ConfirmMessage( RecievedMessage &msg );
 
 		/**
-		 * Á÷¿®¸µ¤Ë¥á¥Ã¥»¡¼¥¸ºï½ü¡ÊÇÑ´ş¡Ë¤òÁ÷¿®
+		 * é€ä¿¡å…ƒã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å‰Šé™¤ï¼ˆå»ƒæ£„ï¼‰ã‚’é€ä¿¡
 		 **/
 		void DeleteNotify( RecievedMessage msg );
 
 		/**
-		 * Á÷¿®ºÑ¥á¥Ã¥»¡¼¥¸¤Ë³«ÉõºÑ¤Ç¤¢¤ë¤³¤È¤ò¥Ş¡¼¥¯
+		 * é€ä¿¡æ¸ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«é–‹å°æ¸ˆã§ã‚ã‚‹ã“ã¨ã‚’ãƒãƒ¼ã‚¯
 		 **/
 		void AcceptConfirmNotify( SentMessage msg );
 
 		/**
-		 * Á÷¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¼èÆÀ
+		 * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®å–å¾—
 		 **/
 		SentMessageList *GetSentMessages();
 
 		/**
-		 * Á÷¿®¥á¥Ã¥»¡¼¥¸¥ê¥¹¥È¤Î¥³¥Ô¡¼¤Î¼èÆÀ
+		 * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒªã‚¹ãƒˆã®ã‚³ãƒ”ãƒ¼ã®å–å¾—
 		 **/
 		SentMessageList CloneSentMessages() const;
 
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤ÎÀßÄê
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¨­å®š
 		 **/
 		void SetSortHostListComparator( const HostListComparator *comparator );
 
 		/**
-		 * ¥Û¥¹¥È¥ê¥¹¥ÈÈæ³Ó¥ª¥Ö¥¸¥§¥¯¥È¤Î¼èÆÀ
+		 * ãƒ›ã‚¹ãƒˆãƒªã‚¹ãƒˆæ¯”è¼ƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å–å¾—
 		 **/
 		HostListComparator *GetSortHostListComparator() const;
 
 		/**
-		 * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤ÎÀßÄê
+		 * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¨­å®š
 		 **/
 		void SetEventObject( const IpMessengerEvent *evt );
 
 		/**
-		 * ¥¤¥Ù¥ó¥È¥ª¥Ö¥¸¥§¥¯¥È¤Î¼èÆÀ
+		 * ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å–å¾—
 		 **/
 		IpMessengerEvent *GetEventObject() const;
 
 		/**
-		 * ¥Õ¥¡¥¤¥ë¥³¥ó¥Ğ¡¼¥¿¡¼¤ÎÀßÄê
+		 * ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ³ãƒãƒ¼ã‚¿ãƒ¼ã®è¨­å®š
 		 **/
 		void SetFileNameConverter( const FileNameConverter *conv );
 
 		/**
-		 * ¥Õ¥¡¥¤¥ë¥³¥ó¥Ğ¡¼¥¿¡¼¤Î¼èÆÀ
+		 * ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ³ãƒãƒ¼ã‚¿ãƒ¼ã®å–å¾—
 		 **/
 		FileNameConverter *GetFileNameConverter() const;
 
 		/**
-		 * ÉÔºß¡©
+		 * ä¸åœ¨ï¼Ÿ
 		 **/
 		bool IsAbsence() const;
 
 		/**
-		 * ¥Í¥Ã¥È¥ï¡¼¥¯¤Îµ¯Æ°¡ÊNIC»ØÄê¡Ë
+		 * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®èµ·å‹•ï¼ˆNICæŒ‡å®šï¼‰
 		 **/
 		void StartNetwork( const std::vector<NetworkInterface>& nics );
 
 		/**
-		 * ¥Í¥Ã¥È¥ï¡¼¥¯¤Îµ¯Æ°(¥Ç¥Õ¥©¥ë¥È)
+		 * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®èµ·å‹•(ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ)
 		 **/
 		void StartNetwork();
 
 		/**
-		 * ¥Í¥Ã¥È¥ï¡¼¥¯¤Î½ªÎ»
+		 * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®çµ‚äº†
 		 **/
 		void StopNetwork();
 
 		/**
-		 * ¥Í¥Ã¥È¥ï¡¼¥¯¤ÎºÆµ¯Æ°¡ÊNIC»ØÄê¡Ë
+		 * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®å†èµ·å‹•ï¼ˆNICæŒ‡å®šï¼‰
 		 **/
 		void RestartNetwork( const std::vector<NetworkInterface>& nics );
 
 		/**
-		 * ¥Í¥Ã¥È¥ï¡¼¥¯¤ÎºÆµ¯Æ°(¥Ç¥Õ¥©¥ë¥È)
+		 * ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®å†èµ·å‹•(ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ)
 		 **/
 		void RestartNetwork();
 
 		/**
-		 * ¥í¥°¥¤¥óÌ¾
+		 * ãƒ­ã‚°ã‚¤ãƒ³å
 		 **/
 		std::string LoginName() const;
 
 		/**
-		 * ¥Û¥¹¥ÈÌ¾
+		 * ãƒ›ã‚¹ãƒˆå
 		 **/
 		std::string HostName() const;
 
 		/**
-		 * ¥Ç¥Õ¥©¥ë¥È¥İ¡¼¥È
+		 * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆ
 		 **/
 		int DefaultPortNo() const;
 		void setDefaultPortNo( const int defaultPortNo );
 
 		/**
-		 * ¥À¥¤¥ä¥ë¥¢¥Ã¥×
+		 * ãƒ€ã‚¤ãƒ¤ãƒ«ã‚¢ãƒƒãƒ—
 		 **/
 		bool IsDialup() const;
 		void setIsDialup( const bool isDialup );
 
 		/**
-		 * ¥Õ¥¡¥¤¥ë¤¬ÊÑ¹¹¤µ¤ì¤¿¤é¥À¥¦¥ó¥í¡¼¥É¤òÃæÃÇ¤¹¤ë
+		 * ãƒ•ã‚¡ã‚¤ãƒ«ãŒå¤‰æ›´ã•ã‚ŒãŸã‚‰ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã‚’ä¸­æ–­ã™ã‚‹
 		 **/
 		bool AbortDownloadAtFileChanged() const;
 		void setAbortDownloadAtFileChanged( const bool isAbort );
 
 		/**
-		 * Á÷¿®¥á¥Ã¥»¡¼¥¸¤òµ­²±¤¹¤ë
+		 * é€ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¨˜æ†¶ã™ã‚‹
 		 **/
 		bool SaveSentMessage() const;
 		void setSaveSentMessage( const bool isSave );
 
 		/**
-		 * ¼õ¿®¥á¥Ã¥»¡¼¥¸¤òµ­²±¤¹¤ë
+		 * å—ä¿¡ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¨˜æ†¶ã™ã‚‹
 		 **/
 		bool SaveRecievedMessage() const;
 		void setSaveRecievedMessage( const bool isSave );
 
 		/**
-		 * °Å¹æ²½¤Ë¼ºÇÔ¤·¤¿¤é¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®¤·¤Ê¤¤¡£
+		 * æš—å·åŒ–ã«å¤±æ•—ã—ãŸã‚‰ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡ã—ãªã„ã€‚
 		 **/
 		bool NoSendMessageOnEncryptionFailed() const;
 		void setNoSendMessageOnEncryptionFailed( const bool isNoSend );
 
 		/**
-		 * IPv6¤ò»ÈÍÑ¤¹¤ë¡£
+		 * IPv6ã‚’ä½¿ç”¨ã™ã‚‹ã€‚
 		 **/
 		bool UseIPv6() const;
 		void setUseIPv6( const bool useIPv6 );
 
 		/**
-		 * API¤Î¥µ¥İ¡¼¥È¾õ¶·¤òÄ´¤Ù¤ë¡£
+		 * APIã®ã‚µãƒãƒ¼ãƒˆçŠ¶æ³ã‚’èª¿ã¹ã‚‹ã€‚
 		 **/
 		bool isSupportIPv6();
 		bool isSupportIPv4();
