@@ -464,11 +464,15 @@ class AbsenceMode {
 class IpMessengerEvent {
 	public:
 		/**
-		 * 通知イベント開始前イベント(GUIスレッドのロック等を実装してください)
+		 * 受信処理開始イベント(受信処理がGUIスレッドの更新を許さない場合、こちらのスレッドを実装して下さい。)
+		 */
+		virtual int EventStartProcessThread()=0;
+		/**
+		 * 通知イベント開始前イベント(GUIスレッド以外のスレッドからGUIの更新が許可される場合、GUIスレッドのロック等を実装してください)
 		 */
 		virtual void EventBefore()=0;
 		/**
-		 * 通知イベント終了後イベント(GUIスレッドのアンロック等を実装してください)
+		 * 通知イベント終了後イベント(GUIスレッド以外のスレッドからGUIの更新が許可される場合、GUIスレッドのアンロック等を実装してください)
 		 */
 		virtual void EventAfter()=0;
 		/**
@@ -608,6 +612,16 @@ class IpMessengerEvent {
 		 * @param host ホスト
 		 */
 		virtual void EventAnsPubKeyAfter( HostListItem& host )=0;
+		/**
+		 * 受信スレッドが終了したかどうかを返す。
+		 * @return true:受信スレッドが終了した。
+		 * @return false:受信スレッドが終了していない。
+		 */
+		virtual bool isThreadFinished()=0;
+		/**
+		 * 受信スレッド終了後イベント
+		 */
+		virtual void EventThreadFinished()=0;
 
 		/**
 		 * デストラクタ
@@ -865,6 +879,11 @@ class IpMessengerAgent {
 		 * ネットワークの再起動(デフォルト)
 		 **/
 		void RestartNetwork();
+
+		/**
+		 * ネットワークが開始されているかどうかを返す。
+		 **/
+		bool IsNetworkStarted();
 
 		/**
 		 * ログイン名

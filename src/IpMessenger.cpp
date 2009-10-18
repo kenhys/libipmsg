@@ -818,6 +818,18 @@ IpMessengerAgent::isSupportIPv4()
 }
 
 /**
+ * ネットワークが開始されているかどうかを返す。
+ * @retval true:ネットワーク開始済み
+ * @retval false:ネットワーク開始済み
+ */
+bool
+IpMessengerAgent::IsNetworkStarted()
+{
+	IPMSG_FUNC_ENTER("bool IpMessengerAgent::IsNetworkStarted()");
+	IPMSG_FUNC_RETURN( ipmsgImpl->IsNetworkStarted() );
+}
+
+/**
  * ダウンロード速度を算出する。
  * @retval ダウンロード速度（バイト／秒）。
  */
