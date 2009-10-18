@@ -1,3 +1,9 @@
+2009-10-18 Niki, Kuninobu <nikikuni@yahoo.co.jp>
+- Update:API:IsNetworkStarted added.
+- Update:Add logging time.
+- Update:Enable pluggable thread implimentation.
+- Update:Upgrade libtool.
+
 2008-02-01 Niki, Kuninobu <nikikuni@yahoo.co.jp>
 - Update:Add DEBUG messages.
 - Fix:Using host name and sender address family on host list searching.
