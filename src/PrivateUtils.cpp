@@ -29,9 +29,11 @@ ipmsg::IpMsgCallTraceEnter( const char* funcname )
 		strcat( arrow, "    " );
 	}
 #if TRACE_LOG_FILE
+	IpMsgPrintLogTime(__trace_fp__);
 	fprintf( __trace_fp__, "ENTR %s+==> %s\n", arrow, funcname);
 	fflush( __trace_fp__ );
 #endif
+	IpMsgPrintLogTime(stdout);
 	fprintf( stdout, "ENTR %s===> %s\n", arrow, funcname);
 	fflush( stdout );
 }
@@ -46,15 +48,35 @@ ipmsg::IpMsgCallTraceExit( const char* funcname )
 	}
 	__func_call_level__--;
 #if TRACE_LOG_FILE
+	IpMsgPrintLogTime(__trace_fp__);
 	fprintf( __trace_fp__, "EXIT %s<=== %s\n", arrow, funcname );
 	fflush( __trace_fp__ );
 #endif
+	IpMsgPrintLogTime(stdout);
 	fprintf( stdout, "EXIT %s<=== %s\n", arrow, funcname );
 	fflush( stdout );
 }
+
 #endif
 
 #if defined(DEBUG) || defined(INFO)
+
+void
+ipmsg::IpMsgPrintLogTime(FILE *fp){
+	time_t t;
+	struct tm tm;
+	struct tm *tm_p;
+
+	time(&t);
+	tm_p = localtime_r(&t,&tm);
+	fprintf(fp, "%04d/%02d/%02d %02d:%02d:%02d:",
+				tm_p->tm_year + 1900,
+				tm_p->tm_mon+1,
+				tm_p->tm_mday,
+				tm_p->tm_hour,
+				tm_p->tm_min,
+				tm_p->tm_sec);
+}
 
 /**
  * バッファをプリントする。
@@ -69,10 +91,12 @@ ipmsg::IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 	int continue_count = 0;
 	unsigned char pchar = *buf;
 	bool can_not_print = true;
+	IpMsgPrintLogTime(stdout);
 	printf("ipmsg::IpMsgPrintBuf %s(%d bytes)[", bufname, size);fflush(stdout);
 	for( int i = 0; i < size; i++ ){
 		if ( !isprint( buf[i] ) && buf[i] != 0x20 ) {
 			if ( pchar != buf[i] ){
+				IpMsgPrintLogTime(stdout);
 				printf( "(\\%02x", (unsigned char)buf[i] );fflush(stdout);
 			}
 			continue_count++;
@@ -85,8 +109,10 @@ ipmsg::IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 		} else {
 			if ( can_not_print ) {
 				if ( continue_count > 1 ) {
+					IpMsgPrintLogTime(stdout);
 					printf( " %dtimes)", continue_count );fflush(stdout);
 				} else {
+					IpMsgPrintLogTime(stdout);
 					printf( ")" );fflush(stdout);
 				}
 				continue_count = 0;
@@ -94,6 +120,7 @@ ipmsg::IpMsgPrintBuf( const char* bufname, const char *buf, const int size )
 		}
 		pchar = buf[i];
 	}
+	IpMsgPrintLogTime(stdout);
 	printf( "]\n" );fflush(stdout);
 }
 
@@ -141,17 +168,27 @@ ipmsg::GetCommandString( unsigned long cmd )
  */
 void
 ipmsg::IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr ){
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket == RECV PACKET DUMP START ============================>>\n");fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket send from \n" );
 	IpMsgDumpAddr( sender_addr );
+	//IpMsgPrintLogTime(stdout);
 	//printf( "ipmsg::IpMsgDumpPacket send from %s(%d)\n", getSockAddrInRawAddress( sender_addr ).c_str(), ntohs( getSockAddrInPortNo( sender_addr ) ) );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket VersionNo    [%ld]\n", packet.VersionNo() );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket PacketNo     [%ld]\n", packet.PacketNo() );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket CommandMode  [%ld][%s]\n", packet.CommandMode(), ipmsg::GetCommandString( packet.CommandMode() ).c_str() );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket CommandOption[%ld]\n", packet.CommandOption() );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket HostName     [%s]\n", packet.HostName().c_str() );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket UserName     [%s]\n", packet.UserName().c_str() );fflush(stdout);
 	IpMsgPrintBuf("ipmsg::IpMsgDumpPacket Option", packet.Option().c_str(), packet.Option().length() );
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpPacket << RECV PACKET DUMP END =============================\n\n");fflush(stdout);
 }
 
@@ -169,6 +206,7 @@ ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 	memcpy( head+2, s, strlen( s ) );
 	memcpy( foot+2, s, strlen( s ) );
 	printf( "\n\n" );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpHostList %s", head );fflush(stdout);
 	for( std::vector<ipmsg::HostListItem>::iterator ix = hostList.begin(); ix != hostList.end(); ix++ ){
 		printf( "ipmsg::IpMsgDumpHostList Version[%s]\n" \
@@ -206,6 +244,7 @@ ipmsg::IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList )
 				ix->IsAbsence() ? "true" : "false" );
 		fflush(stdout);
 	}
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpHostList %s", foot );fflush(stdout);
 }
 
@@ -218,8 +257,10 @@ ipmsg::IpMsgDumpHost( const char *s, const ipmsg::HostListItem& host )
 	memcpy( head+2, s, strlen( s ) );
 	memcpy( foot+2, s, strlen( s ) );
 	printf( "\n\n" );fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpHost %s", head );
 	fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpHost Version[%s]\n" \
 			"ipmsg::IpMsgDumpHost AbsenceDescription[%s]\n" \
 			"ipmsg::IpMsgDumpHost User[%s]\n" \
@@ -253,6 +294,7 @@ ipmsg::IpMsgDumpHost( const char *s, const ipmsg::HostListItem& host )
 			host.IsEncryptSupport() ? "true" : "false",
 			host.IsAbsence() ? "true" : "false" );
 	fflush(stdout);
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgDumpHost %s", foot );
 	fflush(stdout);
 }
@@ -263,6 +305,7 @@ ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 #ifdef ENABLE_IPV4
 	if ( addr->ss_family == AF_INET ) {
 		const struct sockaddr_in *sin = ( const struct sockaddr_in *)addr;
+		IpMsgPrintLogTime(stdout);
 		printf( "ipmsg::IpMsgDumpAddr AF_INET" );
 		printf( " IP=[%s]", getSockAddrInRawAddress( addr ).c_str() );
 		printf( " PORT=(%d)", ntohs( sin->sin_port ) );
@@ -276,6 +319,7 @@ ipmsg::IpMsgDumpAddr( const struct sockaddr_storage *addr )
 #ifdef ENABLE_IPV6
 	if ( addr->ss_family == AF_INET6 ) {
 		const struct sockaddr_in6 *sin6 = ( const struct sockaddr_in6 *)addr;
+		IpMsgPrintLogTime(stdout);
 		printf( "ipmsg::IpMsgDumpAddr AF_INET6" );
 		printf( " IP=[%s]", getSockAddrInRawAddress( addr ).c_str() );
 		printf( " PORT=(%d)", ntohs( sin6->sin6_port ) );
@@ -302,10 +346,12 @@ ipmsg::IpMsgMutexInit( const char *pos, pthread_mutex_t *mutex, const pthread_mu
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexInit before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_init(mutex, mutexattr);
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexInit after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
@@ -325,10 +371,12 @@ ipmsg::IpMsgMutexLock( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexLock before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_lock( mutex );
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexLock after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
@@ -348,10 +396,12 @@ ipmsg::IpMsgMutexUnlock( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexUnlock before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_unlock( mutex );
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexUnlock after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;
@@ -371,10 +421,12 @@ ipmsg::IpMsgMutexDestroy( const char *pos, pthread_mutex_t *mutex )
 {
 #ifdef HAVE_PTHREAD
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexDestroy before:%s\n", pos );fflush(stdout);
 #endif
 	int ret = pthread_mutex_destroy( mutex );
 #if defined(LOCK_DEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "ipmsg::IpMsgMutexDestroy after :%s\n", pos );fflush(stdout);
 #endif
 	return ret;

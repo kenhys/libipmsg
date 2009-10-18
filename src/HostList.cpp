@@ -206,6 +206,7 @@ HostListItem::IsLocalHost() const
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 		if ( IpAddress() == nics[i].IpAddress() ){
 #if defined(INFO) || !defined(NDEBUG)
+			IpMsgPrintLogTime(stdout);
 			printf("HostListItem::IsLocalHost This host item is localhost.\n");
 			fflush(stdout);
 #endif
@@ -213,6 +214,7 @@ HostListItem::IsLocalHost() const
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf("HostListItem::IsLocalHost This host item is not localhost.\n");
 	fflush(stdout);
 #endif
@@ -232,6 +234,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	bool is_found = false;
 
 #if defined(INFO) || !defined(NDEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost enter. host.IpAddress()=%s host.AddressFamily()=%s\n",
 							host.IpAddress().c_str(),
 							host.AddressFamily() == AF_INET6 ? "AF_INET6" : "AF_INET" );
@@ -239,6 +242,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 #endif
 
 #if defined(INFO) || !defined(NDEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost Secondary NIC checking now.\n" );
 	fflush(stdout);
 #endif
@@ -264,12 +268,14 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//探したインデックス位置からスタート
 	for( unsigned int i = nicStartIndex; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf("HostList::AddHost now host checking IpAddress=%s NIC[%d] IpAddress=%s\n", host.IpAddress().c_str(), i, nics[i].IpAddress().c_str() );
 		fflush(stdout);
 #endif
 
 		if ( host.IpAddress() == nics[i].IpAddress() ) {
 #if defined(INFO) || !defined(NDEBUG)
+			IpMsgPrintLogTime(stdout);
 			printf("HostList::AddHost Host IP Address is match secondary NIC IP Address\nIgnore this IP Address\n" );fflush(stdout);
 			fflush(stdout);
 #endif
@@ -278,13 +284,16 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost secondely NIC check OK.\n" );
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost NIC's broadcast or network IP address checking now.\n" );
 	fflush(stdout);
 #endif
 	//IPアドレスがNICのブロードキャスト、ネットワークのアドレスと一致したら無視。（たぶんありえないケド。）
 	for( unsigned int i = 0; i < nics.size(); i++ ){
 #if defined(INFO) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf("HostList::AddHost now host checking IpAddress=%s Network%s Broadcast=%s\n",
 						host.IpAddress().c_str(),
 						nics[i].NetworkAddress().c_str(),
@@ -293,6 +302,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 #endif
 		if ( host.IpAddress() == nics[i].NetworkAddress() ) {
 #if defined(INFO) || !defined(NDEBUG)
+			IpMsgPrintLogTime(stdout);
 			printf("HostList::AddHost Host Ip Address is match NIC Network Address.\nIgnore this IP Address\n" );
 			fflush(stdout);
 #endif
@@ -301,6 +311,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		}
 		if ( host.IpAddress() == nics[i].BroadcastAddress() ){
 #if defined(INFO) || !defined(NDEBUG)
+			IpMsgPrintLogTime(stdout);
 			printf("HostList::AddHost Host Ip Address is match NIC Broadcast Address.\nIgnore this IP Address\n" );
 			fflush(stdout);
 #endif
@@ -309,15 +320,19 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		}
 	}
 #if defined(INFO) || !defined(NDEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost NIC's broadcast or network IP address check OK.\n" );
 
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost Host IpAddress=[%s] NIC[0] IP Address=[%s]\n", host.IpAddress().c_str(), nics[0].IpAddress().c_str() );
+	IpMsgPrintLogTime(stdout);
 	printf("HostList::AddHost HostName=[%s] LocalhostName=[%s]\n", host.HostName().c_str(), localhostName.c_str() );
 	fflush(stdout);
 #endif
 	//IPアドレスがローカルループバックアドレスと一致したら無視。
 	if ( host.IpAddress() == "127.0.0.1" || host.IpAddress() == "::1" ){
 #if defined(INFO) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf("HostList::AddHost Ignore this host item.Because host IP Address is local loopback.\n" );
 		fflush(stdout);
 #endif
@@ -327,6 +342,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	//IPアドレスがNICのIPアドレスと一致するのにローカルホスト名と一致しなければ無視。
 	if ( host.IpAddress() == nics[0].IpAddress() && host.HostName() != localhostName ){
 #if defined(INFO) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf("HostList::AddHost Ignore this host item.Because host IPAddress and NIC[0]'s IP Address is match,but not same hostname.\n" );
 		fflush(stdout);
 #endif
@@ -360,6 +376,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 				//おかしなホストが登録されていたので入れ替える。
 				if ( host.HardwareAddress() != NULL_HARDWARE_ADDRESS && tmpHost->HardwareAddress() == NULL_HARDWARE_ADDRESS ) {
 #if defined(INFO) || !defined(NDEBUG)
+					IpMsgPrintLogTime(stdout);
 					printf("HostList::AddHost Storange host was entried....host list item[%s] host[%s]\n",
 									tmpHost->HardwareAddress().c_str(),
 									host.HardwareAddress().c_str() );
@@ -371,6 +388,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 				break;
 			}
 #if defined(INFO) || !defined(NDEBUG)
+			IpMsgPrintLogTime(stdout);
 			printf("HostList::AddHost Searching hardware address...host[%s] host list item[%s]\n",
 							host.HardwareAddress().c_str(),
 							tmpHost->HardwareAddress().c_str() );
@@ -379,6 +397,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 			//違うIPアドレスでハードウェアアドレスが一致する場合は無視するのだが一致したホストリストの要素がIPv4で、今処理中のホストがIPv6なら。。。
 			if ( tmpHost->EqualsHardwareAddress( host ) ) {
 #if defined(INFO) || !defined(NDEBUG)
+				IpMsgPrintLogTime(stdout);
 				printf("HostList::AddHost Found same hardware address in this host list.(HWADDR %s)\n", host.HardwareAddress().c_str() );
 				fflush(stdout);
 #endif
@@ -391,6 +410,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 				if ( host.AddressFamily() == AF_INET6 && tmpHost->AddressFamily() == AF_INET ) {
 					*tmpHost = host;
 #if defined(INFO) || !defined(NDEBUG)
+					IpMsgPrintLogTime(stdout);
 					printf("HostList::AddHost Host is IPv6 supported,So swaped same hardware address in host list that is supported IPv4[%s].\n", host.HardwareAddress().c_str() );fflush(stdout);
 #endif
 				}
@@ -401,6 +421,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 	int ret = 0;
 	if ( !is_found ) {
 #if defined(INFO) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf("HostList::AddHost Nickname=[%s] GroupName=[%s]\n", host.Nickname().c_str(), host.GroupName().c_str() );
 		fflush(stdout);
 #endif
@@ -408,6 +429,7 @@ HostList::AddHost( const HostListItem& host, bool isPermitSameHardwareAddress )
 		ret = 1;
 	} else {
 #if defined(INFO) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf("HostList::AddHost Host(%s[%s]) was found,Not added. Nickname=[%s] GroupName=[%s]\n",
 					host.IpAddress().c_str(), host.HardwareAddress().c_str(), host.Nickname().c_str(), host.GroupName().c_str() );
 		fflush(stdout);
@@ -532,6 +554,7 @@ HostList::ToString( int start, const struct sockaddr_storage *addr )
 	snprintf( buf, sizeof( buf ), "%-5d\a%-5d\a", start , hostCount );
 	ret = buf + ret;
 #if defined(INFO) || !defined(NDEBUG)
+	IpMsgPrintLogTime(stdout);
 	printf( "HostList::ToString [%s]\n", ret.c_str() );fflush(stdout);
 #endif
 	Unlock( "HostList::ToString" );

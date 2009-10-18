@@ -238,18 +238,23 @@ AttachFileList::FindByFileId( int file_id )
 	Lock( "AttachFileList::FindByFileId()" );
 	std::vector<AttachFile>::iterator ret = end();
 #ifdef DEBUG
+	IpMsgPrintLogTime(stdout);
 	printf( "AttachFileList::FindByFileId file_id=%d\n", file_id );
 	fflush(stdout);
 #endif
 	for( std::vector<AttachFile>::iterator ixfile = begin(); ixfile != end(); ixfile++ ) {
 #ifdef DEBUG
+		IpMsgPrintLogTime(stdout);
 		printf( "AttachFileList::FindByFileId Searching attach file list.\n" );
+		IpMsgPrintLogTime(stdout);
 		printf( "AttachFileList::FindByFileId FileId %d\n", ixfile->FileId() );
+		IpMsgPrintLogTime(stdout);
 		printf( "AttachFileList::FindByFileId FileName %s\n", ixfile->FileName().c_str() );
 		fflush(stdout);
 #endif
 		if ( file_id == ixfile->FileId() ) {
 #ifdef DEBUG
+			IpMsgPrintLogTime(stdout);
 			printf( "AttachFileList::FindByFileId File id was found\n" );
 			fflush(stdout);
 #endif
@@ -345,6 +350,7 @@ AttachFile::CreateDirFullPath( const std::vector<std::string>& dirstack )
 		if ( dirstack[i] != "" ) {
 			retdir += dirstack[i] + ( dirstack[i].at(dirstack[i].size() - 1) == '/' ? "" : "/" );
 #ifdef DEBUG
+			IpMsgPrintLogTime(stdout);
 			printf("AttachFile::CreateDirFullPath retdir = %s\n", retdir.c_str());fflush(stdout);
 #endif
 		}

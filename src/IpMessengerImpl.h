@@ -308,6 +308,7 @@ std::string getNetworkAddress( int family, std::string rawAddress, std::string n
 int IpMsgSendFileBuffer( int ifd, int sock, int size );
 
 #if defined(DEBUG) || defined(INFO)
+void IpMsgPrintLogTime(FILE *fp);
 void IpMsgPrintBuf( const char* bufname, const char *buf, const int size );
 void IpMsgDumpPacket( ipmsg::Packet packet, struct sockaddr_storage *sender_addr );
 std::string GetCommandString( unsigned  long cmd );
@@ -315,6 +316,7 @@ void IpMsgDumpHostList( const char *s, ipmsg::HostList& hostList );
 void IpMsgDumpHost( const char *s, const ipmsg::HostListItem& host );
 void IpMsgDumpAddr( const struct sockaddr_storage *addr );
 #else
+#define IpMsgPrintLogTime(fp)
 #define IpMsgPrintBuf( bufname, buf,size )
 #define IpMsgDumpPacket( packet, sender_addr )
 #define GetCommandString( cmd )

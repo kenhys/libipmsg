@@ -77,7 +77,8 @@ ipmsg::bindSocket( int proto, struct sockaddr_storage addr, const char *devname 
 #endif // ENABLE_IPV6
 	if ( sock >= 0 && bind(sock, (struct sockaddr *)&addr, sz) != 0 ){
 		perror("bind(udp)");
-		fprintf( stderr, "  ip addr=%s,port=%u,dev=%s\n", getSockAddrInRawAddress( addr ).c_str(), getSockAddrInPortNo( addr ), devname );fflush( stdout );
+		IpMsgPrintLogTime(stderr);
+		fprintf( stderr, "  ip addr=%s,port=%u,dev=%s\n", getSockAddrInRawAddress( addr ).c_str(), getSockAddrInPortNo( addr ), devname );fflush( stderr );
 		close( sock );
 		IPMSG_FUNC_RETURN( -1 );
 	}
@@ -737,6 +738,7 @@ ipmsg::isSameNetwork( const struct sockaddr_storage *addr, std::string ifnetaddr
 #endif // ENABLE_IPV6
 
 #ifdef DEBUG
+	IpMsgPrintLogTime(stdout);
 	printf("ipmsg::isSameNetwork ( IP address=[%s] interface network address=%s netmask=%s )  ? %s\n", getSockAddrInRawAddress( addr ).c_str(), ifnetaddr.c_str(), netmask.c_str(), ret ? "Match":"Unmatch");
 	fflush(stdout);
 #endif
@@ -756,6 +758,7 @@ ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv
 	IPMSG_FUNC_ENTER( "void ipmsg::getNetworkInterfaceInfo( std::vector<NetworkInterface>& nics, bool useIPv6, int defaultPortNo )" );
 // getifaddrsを使う実装も用意。その方が行儀が良い。
 #if defined(DEBUG) || !defined(NDEBUG)
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo using getifaddrs version\n" );fflush(stdout);
 #endif
 	struct ifaddrs *ifap0, *ifap;
@@ -823,15 +826,25 @@ printf( "ipmsg::getNetworkInterfaceInfo using getifaddrs version\n" );fflush(std
 			ni.setIpAddress( rawAddress );
 			ni.setNetMask( rawNetMask );
 #if defined(DEBUG) || !defined(NDEBUG)
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo ===================================================\n" );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo getifaddr\n" );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    Address Family    [%s]\n", getAddressFamilyString( ifap->ifa_addr->sa_family ).c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    NIC Device Name   [%s]\n", ni.DeviceName().c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    IP Address        [%s]\n", ni.IpAddress().c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    Hardware Address  [%s]\n", ni.HardwareAddress().c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    Netmask           [%s]\n", ni.NetMask().c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    Network Address   [%s]\n", ni.NetworkAddress().c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo    Broadcast Address [%s]\n", ni.BroadcastAddress().c_str() );
+IpMsgPrintLogTime(stdout);
 printf( "ipmsg::getNetworkInterfaceInfo ===================================================\n" );
 fflush(stdout);
 struct sockaddr_storage test;
@@ -914,6 +927,7 @@ ipmsg::getNetworkInterfaceInfoForIPv4( std::vector<NetworkInterface>& nics, int 
 		ni.setNetMask( rawNetMask );
 		nics.push_back( ni );
 #if defined(DEBUG) || !defined(NDEBUG)
+		IpMsgPrintLogTime(stdout);
 		printf( "ipmsg::getNetworkInterfaceInfoForIPv4 NIC device=%s[IpAddress=%s][Port=%d][NetMask=%s][NetworkAddress=%s]\n",
 						nics[nics.size() - 1].DeviceName().c_str(),
 						nics[nics.size()-1].IpAddress().c_str(),
@@ -1003,6 +1017,7 @@ ipmsg::getBroadcastAddress( int family, std::string netAddress, std::string netm
 		char ipaddrbuf[IP_ADDR_MAX_SIZE];
 		inet_ntop( family, &inetBroad, ipaddrbuf, sizeof( ipaddrbuf ) );
 #if defined(DEBUG) || defined(INFO)
+		IpMsgPrintLogTime(stdout);
 		printf( "ipmsg::getBroadcastAddress Broadcast Address[%s]=NetworkAddress[%s] | 0xffffffff ^ Netmask[%s]\n",
 					ipaddrbuf,
 					netAddress.c_str(),
