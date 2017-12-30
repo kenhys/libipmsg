@@ -45,6 +45,7 @@ if test "x$with_openssl" = xyes; then
 	have_evp_encrypt_update=yes
 	have_evp_encrypt_final=yes
 	have_evp_cipher_ctx_init=yes
+	have_evp_cipher_ctx_reset=yes
 	have_evp_cipher_ctx_set_key_length=yes
 	have_evp_pkey_set1_rsa=yes
 	echo "checking for OpenSSL EVP api..."
@@ -56,6 +57,8 @@ if test "x$with_openssl" = xyes; then
 	AC_CHECK_LIB(crypto,EVP_EncryptUpdate,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_encrypt_update=no)
 	AC_CHECK_LIB(crypto,EVP_EncryptFinal,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_encrypt_final=no)
 	AC_CHECK_LIB(crypto,EVP_CIPHER_CTX_init,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_cipher_ctx_init=no)
+	# for OpenSSL 1.1.x or later
+	AC_CHECK_LIB(crypto,EVP_CIPHER_CTX_reset,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_cipher_ctx_reset=no)
 	AC_CHECK_LIB(crypto,EVP_CIPHER_CTX_set_key_length,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_cipher_ctx_set_key_length=no)
 	AC_CHECK_LIB(crypto,EVP_PKEY_set1_RSA,LIBSSL="$LDFLAGS -lssl -lcrypto", have_evp_pkey_set1_rsa=no)
 	if test "x$have_evp_open_init" = xyes &&
@@ -64,7 +67,7 @@ if test "x$with_openssl" = xyes; then
 	   test "x$have_evp_open_init" = xyes &&
 	   test "x$have_evp_open_update" = xyes &&
 	   test "x$have_evp_open_final" = xyes &&
-	   test "x$have_evp_cipher_ctx_init" = xyes &&
+	   (test "x$have_evp_cipher_ctx_init" = xyes || test "x$have_evp_cipher_ctx_reset" = xyes) &&
 	   test "x$have_evp_cipher_ctx_set_key_length" = xyes &&
 	   test "x$have_evp_pkey_set1_rsa" = xyes; then
 		AC_DEFINE(HAVE_OPENSSL, 1, [Encryption support])
