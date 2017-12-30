@@ -703,8 +703,13 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 		data_len++;
 	}
 
-	EVP_PKEY pubkey;
-	EVP_PKEY_set1_RSA( &pubkey, rsa );
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	EVP_PKEY pubkey_;
+	EVP_PKEY *pubkey = &pubkey_;
+#else
+	EVP_PKEY *pubkey = EVP_PKEY_new();
+#endif
+	EVP_PKEY_set1_RSA( pubkey, rsa );
 	int open_init_ret = 0;
 	memset( iv, 0, sizeof( iv ) );
 #ifdef SUPPORT_RC2_40
@@ -713,7 +718,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 #else	//WINCOMPAT
 	if ( shareKeyMethod == IPMSG_RC2_40 ) {
 #endif	//WINCOMPAT
-		open_init_ret = EVP_OpenInit( ctx, EVP_rc2_40_cbc(), ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, EVP_rc2_40_cbc(), ek, ekl, iv, pubkey );
 		if ( open_init_ret <= 0 ){
 			free( file_info );
 			free( ek );
@@ -721,14 +726,14 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
-		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, pubkey );
 	}
 #endif	//SUPPORT_RC2_40
 
 #ifndef WINCOMPAT
 #ifdef SUPPORT_RC2_128
 	if ( shareKeyMethod == IPMSG_RC2_128 ) {
-		open_init_ret = EVP_OpenInit( ctx, EVP_rc2_64_cbc(), ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, EVP_rc2_64_cbc(), ek, ekl, iv, pubkey );
 		if ( open_init_ret <= 0 ){
 			free( file_info );
 			free( ek );
@@ -744,7 +749,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 #ifndef WINCOMPAT
 #ifdef SUPPORT_RC2_256
 	if( shareKeyMethod == IPMSG_RC2_256 ) {
-		open_init_ret = EVP_OpenInit( ctx, EVP_rc2_64_cbc(), ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, EVP_rc2_64_cbc(), ek, ekl, iv, pubkey );
 		if ( open_init_ret <= 0 ){
 			free( file_info );
 			free( ek );
@@ -752,7 +757,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
-		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, pubkey );
 	}
 #endif	//SUPPORT_RC2_256
 #endif	//WINCOMPAT
@@ -763,7 +768,7 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 #else	//WINCOMPAT
 	if ( shareKeyMethod == IPMSG_BLOWFISH_128 ) {
 #endif	//WINCOMPAT
-		open_init_ret = EVP_OpenInit( ctx, EVP_bf_cbc(), ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, EVP_bf_cbc(), ek, ekl, iv, pubkey );
 		if ( open_init_ret <= 0 ){
 			free( file_info );
 			free( ek );
@@ -771,14 +776,14 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
-		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, pubkey );
 	}
 #endif//SUPPORT_BLOWFISH_128
 
 #ifndef WINCOMPAT
 #ifdef SUPPORT_BLOWFISH_256
 	if ( shareKeyMethod == IPMSG_BROWFISH_256 ) {
-		open_init_ret = EVP_OpenInit( ctx, EVP_bf_cbc(), ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, EVP_bf_cbc(), ek, ekl, iv, pubkey );
 		if ( open_init_ret <= 0 ){
 			free( file_info );
 			free( ek );
@@ -786,13 +791,14 @@ IpMessengerAgentImpl::DecryptMsg( const Packet &packet, std::string& msg )
 			IPMSG_FUNC_RETURN( false );
 		}
 		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
-		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, &pubkey );
+		open_init_ret = EVP_OpenInit( ctx, NULL, ek, ekl, iv, pubkey );
 	}
 #endif	//SUPPORT_BLOWFISH_256
 #endif	//WINCOMPAT
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 	EVP_CIPHER_CTX_free(ctx);
+	EVP_PKEY_free(pubkey);
 #endif
 	if ( open_init_ret <= 0 ){
 		free( file_info );
