@@ -327,8 +327,15 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		IPMSG_FUNC_RETURN( false );
 	}
 	//共通鍵で本文を暗号化。
-	EVP_CIPHER_CTX ctx;
-	EVP_CIPHER_CTX_init( &ctx );
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	EVP_CIPHER_CTX ctx_;
+	EVP_CIPHER_CTX *ctx;
+	EVP_CIPHER_CTX_init( &ctx_ );
+	ctx = &ctx_;
+#else
+	EVP_CIPHER_CTX *ctx;
+	EVP_CIPHER_CTX_init( ctx );
+#endif
 	int seal_init_ret = 0;
 #ifdef SUPPORT_RC2_40
 #ifdef WINCOMPAT
@@ -336,18 +343,18 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #else	//WINCOMPAT
 	if ( shareKeyMethod == IPMSG_RC2_40 ) {
 #endif	//WINCOMPAT
-		seal_init_ret = EVP_EncryptInit( &ctx, EVP_rc2_40_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
-		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
+		seal_init_ret = EVP_EncryptInit( ctx, EVP_rc2_40_cbc(), (unsigned char*)sharekey, iv );
+		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
+		seal_init_ret = EVP_EncryptInit( ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_RC2_40
 
 #ifndef WINCOMPAT
 #ifdef SUPPORT_RC2_128
 	if ( shareKeyMethod == IPMSG_RC2_128 ) {
-		seal_init_ret = EVP_EncryptInit( &ctx, EVP_rc2_64_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
-		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
+		seal_init_ret = EVP_EncryptInit( ctx, EVP_rc2_64_cbc(), (unsigned char*)sharekey, iv );
+		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
+		seal_init_ret = EVP_EncryptInit( ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_RC2_128
 #endif	//WINCOMPAT
@@ -355,9 +362,9 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #ifndef WINCOMPAT
 #ifdef SUPPORT_RC2_256
 	if( shareKeyMethod == IPMSG_RC2_256 ) {
-		seal_init_ret = EVP_EncryptInit( &ctx, EVP_rc2_64_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
-		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
+		seal_init_ret = EVP_EncryptInit( ctx, EVP_rc2_64_cbc(), (unsigned char*)sharekey, iv );
+		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
+		seal_init_ret = EVP_EncryptInit( ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_RC2_256
 #endif	//WINCOMPAT
@@ -368,18 +375,18 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 #else	//WINCOMPAT
 	if ( shareKeyMethod == IPMSG_BLOWFISH_128 ) {
 #endif	//WINCOMPAT
-		seal_init_ret = EVP_EncryptInit( &ctx, EVP_bf_cbc(), NULL, NULL );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
-		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
+		seal_init_ret = EVP_EncryptInit( ctx, EVP_bf_cbc(), NULL, NULL );
+		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
+		seal_init_ret = EVP_EncryptInit( ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_BLOWFISH_128
 
 #ifndef WINCOMPAT
 #ifdef SUPPORT_BLOWFISH_256
 	if ( shareKeyMethod == IPMSG_BLOWFISH_256 ) {
-		seal_init_ret = EVP_EncryptInit( &ctx, EVP_bf_cbc(), (unsigned char*)sharekey, iv );
-		EVP_CIPHER_CTX_set_key_length( &ctx, key_bytes_size );				//鍵長の設定
-		seal_init_ret = EVP_EncryptInit( &ctx, NULL, (unsigned char*)sharekey, NULL );
+		seal_init_ret = EVP_EncryptInit( ctx, EVP_bf_cbc(), (unsigned char*)sharekey, iv );
+		EVP_CIPHER_CTX_set_key_length( ctx, key_bytes_size );				//鍵長の設定
+		seal_init_ret = EVP_EncryptInit( ctx, NULL, (unsigned char*)sharekey, NULL );
 	}
 #endif	//SUPPORT_BLOWFISH_256
 #endif	//WINCOMPAT
@@ -398,16 +405,19 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	int ret;
 	// バッファが終わるまで繰り返す。
 	for( int i = 0; i < optBufLen / key_bytes_size; i++ ){
-		ret = EVP_EncryptUpdate( &ctx, (unsigned char*)&enc_buf[o_len], &ol, &optBuf[o_len], key_bytes_size );
+		ret = EVP_EncryptUpdate( ctx, (unsigned char*)&enc_buf[o_len], &ol, &optBuf[o_len], key_bytes_size );
 		o_len += ol;
 	}
 	if( optBufLen % key_bytes_size != 0 ){
-		ret = EVP_EncryptUpdate( &ctx, (unsigned char*)&enc_buf[o_len], &ol, &optBuf[o_len], optBufLen % key_bytes_size );
+		ret = EVP_EncryptUpdate( ctx, (unsigned char*)&enc_buf[o_len], &ol, &optBuf[o_len], optBufLen % key_bytes_size );
 		o_len += ol;
 	}
-	ret = EVP_EncryptFinal( &ctx, (unsigned char*)&enc_buf[o_len], &ol );
+	ret = EVP_EncryptFinal( ctx, (unsigned char*)&enc_buf[o_len], &ol );
 	o_len += ol;
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	EVP_CIPHER_CTX_free(ctx);
+#endif
 	int ob_len = 8 + 1 + ( enc_key_len * 2 ) + 1 + ( o_len * 2 ) + 1;
 	char *out_buf = (char *)calloc( ob_len + 1, 1 );
 	if ( out_buf == NULL ){
