@@ -3579,8 +3579,16 @@ IpMessengerAgentImpl::UdpRecvEventGetPubKey( const Packet& packet )
 	char *dmyptr;
 	unsigned long cap = strtoul( packet.Option().c_str(), &dmyptr, 16 );
 	RSA *rsa = GetOptimizedRsa( cap );
+	const BIGNUM *e;
+	const BIGNUM *n;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	e = rsa->e;
+	n = rsa->n;
+#else
+	RSA_get0_key(rsa, &n, &e, NULL);
+#endif
 	if ( rsa != NULL ){
-		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%s-%s", encryptionCapacity, BN_bn2hex(rsa->e), BN_bn2hex(rsa->n) );
+		optBufLen = snprintf( optBuf, sizeof( optBuf ), "%lx:%s-%s", encryptionCapacity, BN_bn2hex(e), BN_bn2hex(n) );
 		sendBufLen = CreateNewPacketBuffer( IPMSG_ANSPUBKEY,
 											  _LoginName, _HostName,
 											  optBuf, optBufLen,
