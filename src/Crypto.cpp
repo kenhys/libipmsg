@@ -201,8 +201,14 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 	}
 
 	RSA *rsa = RSA_new();
-	rsa->e = BN_new();
-	if ( BN_hex2bn( &rsa->e, host.EncryptMethodHex().c_str() ) == 0 ){
+	BIGNUM *e;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	e = rsa->e = BN_new();
+#else
+	e = BN_new();
+	RSA_set0_key(rsa, NULL, e, NULL);
+#endif
+	if ( BN_hex2bn( &e, host.EncryptMethodHex().c_str() ) == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
 		char errbuf[ERR_BUF_SIZE];
 		IpMsgPrintLogTime(stdout);
@@ -211,8 +217,14 @@ IpMessengerAgentImpl::EncryptMsg( const HostListItem& host, unsigned char *optBu
 		RSA_free( rsa );
 		IPMSG_FUNC_RETURN( false );
 	}
-	rsa->n = BN_new();
-	if ( BN_hex2bn( &rsa->n, host.PubKeyHex().c_str() ) == 0 ){
+	BIGNUM *n;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	n = rsa->n = BN_new();
+#else
+	n = BN_new();
+	RSA_set0_key(rsa, n, NULL, NULL);
+#endif
+	if ( BN_hex2bn( &n, host.PubKeyHex().c_str() ) == 0 ){
 #if defined(INFO) || !defined(NDEBUG)
 		char errbuf[ERR_BUF_SIZE];
 		IpMsgPrintLogTime(stdout);
